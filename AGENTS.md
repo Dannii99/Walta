@@ -79,7 +79,17 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Current State
 
 - Root `app/page.tsx` redirects unauthenticated users to `/login` and authenticated users to `/dashboard`.
-- Full dashboard implemented with sidebar, KPIs, charts, health indicators, transactions, settings, vehicle simulator, and monthly history.
+- **Fase 4 (Dashboard Visual) implemented:**
+  - `app/(dashboard)/dashboard/page.tsx` — Server Component fetching budget + transactions, calculating KPIs, health indicators, donut chart data, and recent transactions. Passes all data as plain props to client components.
+  - `components/dashboard/DashboardContent.tsx` — Orchestrates layout grid (KPIs, DonutChart, Health, RecentTransactions) and manages Add/Edit/Delete transaction modals.
+  - `components/dashboard/KPICard.tsx` — Animated KPI cards (Framer Motion counters) for Income, Expenses, Available.
+  - `components/dashboard/CategoryDonutChart.tsx` — Recharts donut chart for spending by category.
+  - `components/dashboard/HealthIndicator.tsx` — Progress bars for Needs/Wants/Savings with dynamic health labels (green/yellow/red) using user's `budget.rule`.
+  - `components/dashboard/RecentTransactions.tsx` — Last 5 transactions with Edit/Delete buttons; opens existing modals.
+  - `components/dashboard/DashboardContext.tsx` — Provides `openAddModal` state and `triggerRefresh` callback across dashboard layout.
+  - `app/(dashboard)/layout.tsx` — Wraps children with `DashboardProvider`.
+  - New UI components: `components/ui/alert-dialog.tsx`, `components/ui/progress.tsx`.
+- **Fase 3 (Onboarding) implemented:** 4-step wizard (`/onboarding`) with animated welcome, template selection, income input, and category review. Redirects from dashboard if no budget exists.
 - `server/actions/`, `server/queries/`, `hooks/`, and `components/` directories are fully populated.
 - `types/index.ts` defines domain types mirroring Prisma schema.
 
