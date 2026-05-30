@@ -1,16 +1,16 @@
-﻿import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { getUserBudgets } from "@/server/queries/budget-queries";
-import { VehicleSimulatorForm } from "@/components/simulations/VehicleSimulatorForm";
+import { SimulatorForm } from "@/components/simulations/SimulatorForm";
 import { createSimulation } from "@/server/actions/simulation-actions";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Simulador de Vehculo | Presupuesto Claro",
-  description: "Simula la compra de un vehculo y evala si cabe en tu presupuesto.",
+  title: "Nueva Simulación | Presupuesto Claro",
+  description: "Simula la compra de un vehículo, vivienda o crédito personal y evalúa si cabe en tu presupuesto.",
 };
 
-export default async function VehicleSimulationPage() {
+export default async function NewSimulationPage() {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
@@ -23,7 +23,7 @@ export default async function VehicleSimulationPage() {
   if (!budget) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold">Simulador de Vehculo</h1>
+        <h1 className="text-2xl font-bold">Nueva Simulación</h1>
         <p className="text-muted-foreground mt-4">
           No tienes un presupuesto activo. Completa el onboarding primero.
         </p>
@@ -41,13 +41,14 @@ export default async function VehicleSimulationPage() {
 
   async function handleSave(data: {
     title: string;
-    inputs: { price: number; downPayment: number; term: number; rate: number };
+    type: string;
+    inputs: { price: number; downPayment: number; term: number; rate: number; formula: string };
     result: { monthlyPayment: number; verdict: "APPROVED" | "WARNING" | "REJECTED"; availableAfter: number; totalInterest: number; totalCost: number };
   }) {
     "use server";
     await createSimulation(
       userId,
-      "VEHICLE",
+      data.type as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
       data.title,
       data.inputs,
       data.result
@@ -57,9 +58,9 @@ export default async function VehicleSimulationPage() {
   return (
     <div className="p-8 space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-bold">Simulador de Vehculo</h1>
+        <h1 className="text-2xl font-bold">Nueva Simulación</h1>
         <p className="text-muted-foreground mt-1">
-          Calcula el pago mensual de un prstamo para vehculo y evala si cabe en tu presupuesto.
+          Calcula el pago mensual de un préstamo y evalúa si cabe en tu presupuesto.
         </p>
       </div>
 
@@ -72,7 +73,7 @@ export default async function VehicleSimulationPage() {
         </p>
       </div>
 
-      <VehicleSimulatorForm
+      <SimulatorForm
         availableMoney={availableMoney}
         userId={userId}
         onSave={handleSave}

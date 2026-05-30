@@ -9,7 +9,19 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Simulaciones | Presupuesto Claro",
-  description: "Simula decisiones financieras importantes como vehculos o vivienda.",
+  description: "Simula decisiones financieras importantes como vehículos, vivienda o créditos personales.",
+};
+
+const typeLabels: Record<string, string> = {
+  VEHICLE: "Vehículo",
+  PERSONAL: "Personal",
+  HOUSING: "Vivienda",
+  OTHER: "Otros",
+};
+
+const formulaLabels: Record<string, string> = {
+  french_ea: "EA (Francés)",
+  nominal_monthly: "NAMV/12",
 };
 
 export default async function SimulationsPage() {
@@ -24,20 +36,20 @@ export default async function SimulationsPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Simulaciones</h1>
-        <Link href="/simulations/vehicle">
-          <Button>Nueva Simulacin</Button>
+        <Link href="/simulations/new">
+          <Button>Nueva Simulación</Button>
         </Link>
       </div>
 
       {simulations.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground border rounded-lg">
           <p className="text-lg mb-2">No tienes simulaciones guardadas</p>
-          <p className="text-sm">Crea tu primera simulacin de vehculo para comenzar.</p>
+          <p className="text-sm">Crea tu primera simulación para comenzar.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {simulations.map((sim) => {
-            const inputs = sim.inputs as { price: number; downPayment: number; term: number; rate: number };
+            const inputs = sim.inputs as { price: number; downPayment: number; term: number; rate: number; formula?: string };
             const result = sim.result as { monthlyPayment: number; verdict: string; availableAfter: number };
 
             const verdictColors: Record<string, string> = {
@@ -64,6 +76,10 @@ export default async function SimulationsPage() {
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tipo</span>
+                    <span className="font-medium">{typeLabels[sim.type] ?? sim.type}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-muted-foreground">Precio</span>
                     <span className="font-medium">${inputs.price.toLocaleString("es-CO")}</span>
                   </div>
@@ -79,6 +95,12 @@ export default async function SimulationsPage() {
                     <span className="text-muted-foreground">Tasa EA</span>
                     <span className="font-medium">{(inputs.rate * 100).toFixed(1)}%</span>
                   </div>
+                  {inputs.formula && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Fórmula</span>
+                      <span className="font-medium">{formulaLabels[inputs.formula] ?? inputs.formula}</span>
+                    </div>
+                  )}
                   <div className="border-t pt-2 mt-2 flex justify-between">
                     <span className="text-muted-foreground">Pago mensual</span>
                     <span className="font-bold">${result.monthlyPayment.toLocaleString("es-CO")}</span>

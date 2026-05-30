@@ -1,15 +1,14 @@
 ﻿import { describe, it, expect } from "vitest";
 import {
   calculateLoanPayment,
+  calculateFrenchEA,
+  calculateNominalMonthly,
   getVerdict,
 } from "@/lib/simulation-engine";
 
-describe("calculateLoanPayment", () => {
+describe("calculateLoanPayment (alias)", () => {
   it("calculates payment for $100M COP, 15% EA, 5 years", () => {
-    // principal = 100_000_000, annualRate = 0.15, termMonths = 60
     const payment = calculateLoanPayment(100_000_000, 0.15, 60);
-    // Monthly rate = (1 + 0.15)^(1/12) - 1 ≈ 0.0117149
-    // Payment ≈ 2,379,000 (approximate)
     expect(payment).toBeGreaterThan(2_300_000);
     expect(payment).toBeLessThan(2_500_000);
   });
@@ -35,6 +34,43 @@ describe("calculateLoanPayment", () => {
     const payment = calculateLoanPayment(50_000_000, 0.12, 36);
     expect(payment).toBeGreaterThan(1_600_000);
     expect(payment).toBeLessThan(1_700_000);
+  });
+});
+
+describe("calculateFrenchEA", () => {
+  it("returns same result as calculateLoanPayment alias", () => {
+    const alias = calculateLoanPayment(100_000_000, 0.15, 60);
+    const direct = calculateFrenchEA(100_000_000, 0.15, 60);
+    expect(direct).toBe(alias);
+  });
+});
+
+describe("calculateNominalMonthly", () => {
+  it("returns a higher payment than EA for same nominal rate", () => {
+    // NAMV 15% => monthly = 1.25%
+    // EA 15%  => monthly ≈ 1.171%
+    const nominal = calculateNominalMonthly(100_000_000, 0.15, 60);
+    const french = calculateFrenchEA(100_000_000, 0.15, 60);
+    expect(nominal).toBeGreaterThan(french);
+  });
+
+  it("returns a higher payment than EA for same nominal rate (15%)", () => {
+    const nominal = calculateNominalMonthly(100_000_000, 0.15, 60);
+    const french = calculateFrenchEA(100_000_000, 0.15, 60);
+    expect(nominal).toBeGreaterThan(french);
+  });
+
+  it("returns 0 for zero principal", () => {
+    expect(calculateNominalMonthly(0, 0.15, 60)).toBe(0);
+  });
+
+  it("returns 0 for zero term", () => {
+    expect(calculateNominalMonthly(100_000_000, 0.15, 0)).toBe(0);
+  });
+
+  it("handles zero interest rate correctly", () => {
+    const payment = calculateNominalMonthly(100_000_000, 0, 60);
+    expect(payment).toBe(1_666_666.67);
   });
 });
 

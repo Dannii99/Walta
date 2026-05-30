@@ -45,7 +45,7 @@ export interface Transaction {
   createdAt: Date;
 }
 
-export type SimulationType = "VEHICLE" | "HOUSING";
+export type SimulationType = "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER";
 
 export interface Simulation {
   id: string;
@@ -61,7 +61,8 @@ export interface SimulationInputs {
   price: number;
   downPayment: number;
   term: number; // meses
-  rate: number; // EA (efectivo anual)
+  rate: number; // EA (efectivo anual) o mensual según contexto
+  formula?: string; // "french_ea" | "nominal_monthly"
 }
 
 export interface SimulationResult {

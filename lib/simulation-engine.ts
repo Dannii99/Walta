@@ -1,11 +1,11 @@
 /**
- * Calcula el pago mensual de un préstamo usando la fórmula de amortización estándar.
+ * Calcula el pago mensual de un préstamo usando la fórmula de amortización francesa (EA).
  * @param principal - Monto del préstamo (después de cuota inicial)
  * @param annualRate - Tasa de interés efectivo anual (EA)
  * @param termMonths - Plazo en meses
  * @returns Pago mensual redondeado a 2 decimales
  */
-export function calculateLoanPayment(
+export function calculateFrenchEA(
   principal: number,
   annualRate: number,
   termMonths: number
@@ -25,6 +25,58 @@ export function calculateLoanPayment(
     (Math.pow(1 + monthlyRate, termMonths) - 1);
 
   return Number(payment.toFixed(2));
+}
+
+/**
+ * Alias backwards-compatible de calculateFrenchEA.
+ */
+export function calculateLoanPayment(
+  principal: number,
+  annualRate: number,
+  termMonths: number
+): number {
+  return calculateFrenchEA(principal, annualRate, termMonths);
+}
+
+/**
+ * Calcula el pago mensual usando tasa nominal mensual (NAMV / 12).
+ * @param principal - Monto del préstamo
+ * @param annualNAMV - Tasa nominal anual mes vencido
+ * @param termMonths - Plazo en meses
+ * @returns Pago mensual redondeado a 2 decimales
+ */
+export function calculateNominalMonthly(
+  principal: number,
+  annualNAMV: number,
+  termMonths: number
+): number {
+  if (principal <= 0 || termMonths <= 0) return 0;
+  const monthlyRate = annualNAMV / 12;
+  if (monthlyRate === 0) return Number((principal / termMonths).toFixed(2));
+  const payment =
+    (principal * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
+    (Math.pow(1 + monthlyRate, termMonths) - 1);
+  return Number(payment.toFixed(2));
+}
+
+/**
+ * Retorna un resumen completo del préstamo según la fórmula elegida.
+ */
+export function getLoanSummary(
+  principal: number,
+  rate: number,
+  termMonths: number,
+  formula: "french_ea" | "nominal_monthly"
+): { monthlyPayment: number; totalCost: number; totalInterest: number } {
+  const monthlyPayment =
+    formula === "nominal_monthly"
+      ? calculateNominalMonthly(principal, rate, termMonths)
+      : calculateFrenchEA(principal, rate, termMonths);
+
+  const totalCost = monthlyPayment * termMonths;
+  const totalInterest = totalCost - principal;
+
+  return { monthlyPayment, totalCost, totalInterest };
 }
 
 export type Verdict = "SAFE" | "TIGHT" | "RISKY" | "NOT_RECOMMENDED";

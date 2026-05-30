@@ -5,19 +5,14 @@ export const DEFAULT_BUDGET_RULE = {
   savings: 20,
 } as const;
 
-// Tasas de interés referenciales (EA - Efectivo Anual) para simulaciones
+// Tasas de interés referenciales para simulaciones
 export const REFERENCE_RATES = {
-  vehicle: {
-    min: 0.12, // 12% EA
-    max: 0.18, // 18% EA
-    default: 0.15, // 15% EA
-  },
-  housing: {
-    min: 0.08, // 8% EA
-    max: 0.14, // 14% EA
-    default: 0.11, // 11% EA
-  },
+  vehicle: { ea: 0.15, namv: 0.145 },
+  personal: { ea: 0.18, namv: 0.175 },
+  housing: { ea: 0.11, namv: 0.105 },
 } as const;
+
+export type CreditType = "vehicle" | "personal" | "housing" | "other";
 
 // Umbral de salud financiera (porcentaje del límite)
 export const HEALTH_THRESHOLDS = {

@@ -12,6 +12,7 @@ interface SimulationResultProps {
   monthlyPayment: number;
   availableMoney: number;
   remainingAfter: number;
+  formula?: string;
 }
 
 const verdictConfig: Record<Verdict, { label: string; color: string; badge: string; description: string }> = {
@@ -47,6 +48,7 @@ export function SimulationResult({
   monthlyPayment,
   availableMoney,
   remainingAfter,
+  formula,
 }: SimulationResultProps) {
   const config = verdictConfig[verdict];
 
@@ -59,10 +61,17 @@ export function SimulationResult({
       <Card className="border-l-4 border-l-primary">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Resultado de la Simulacin</CardTitle>
-            <Badge variant="outline" className={config.badge}>
-              {config.label}
-            </Badge>
+            <CardTitle>Resultado de la Simulación</CardTitle>
+            <div className="flex items-center gap-2">
+              {formula && (
+                <Badge variant="outline" className="text-xs">
+                  {formula}
+                </Badge>
+              )}
+              <Badge variant="outline" className={config.badge}>
+                {config.label}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -76,7 +85,7 @@ export function SimulationResult({
               <p className="text-xl font-bold">{formatCOP(availableMoney)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Restante despus del pago</p>
+              <p className="text-sm text-muted-foreground">Restante después del pago</p>
               <p className={`text-xl font-bold ${remainingAfter >= 0 ? "text-emerald-600" : "text-destructive"}`}>
                 {formatCOP(remainingAfter)}
               </p>

@@ -11,6 +11,7 @@ const simulationInputsSchema = z.object({
   downPayment: z.number().nonnegative(),
   term: z.number().int().positive().max(120),
   rate: z.number().positive(),
+  formula: z.string().optional(),
 });
 
 const simulationResultSchema = z.object({
@@ -23,7 +24,7 @@ const simulationResultSchema = z.object({
 
 const createSimulationSchema = z.object({
   userId: z.string().min(1),
-  type: z.enum(["VEHICLE", "HOUSING"] as const),
+  type: z.enum(["VEHICLE", "PERSONAL", "HOUSING", "OTHER"] as const),
   title: z.string().min(1).max(200),
   inputs: simulationInputsSchema,
   result: simulationResultSchema,
