@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence } from "framer-motion";
@@ -47,7 +47,7 @@ export function VehicleSimulatorForm({ availableMoney, onSave }: VehicleSimulato
 
   const {
     register,
-    watch,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<VehicleForm>({
@@ -60,7 +60,7 @@ export function VehicleSimulatorForm({ availableMoney, onSave }: VehicleSimulato
     },
   });
 
-  const values = watch();
+  const values = useWatch({ control }) as VehicleForm;
 
   const result = useMemo(() => {
     const principal = Math.max(0, values.price - values.downPayment);

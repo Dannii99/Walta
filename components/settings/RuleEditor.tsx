@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -41,14 +41,14 @@ export function RuleEditor({ budgetId, currentRule, income }: RuleEditorProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<RuleForm>({
     resolver: zodResolver(ruleSchema),
     defaultValues: currentRule,
   });
 
-  const values = watch();
+  const values = useWatch({ control }) as RuleForm;
   const total = (values.needs || 0) + (values.wants || 0) + (values.savings || 0);
   const isValid = total === 100;
 

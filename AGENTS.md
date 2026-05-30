@@ -25,9 +25,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | Type check | `npx tsc --noEmit` |
 | Unit tests | `npx vitest` |
 | E2E tests | `npx playwright test` |
-| Prisma generate | `npx prisma generate` |
-| Prisma push schema | `npx prisma db push` |
-| Prisma Studio | `npx prisma studio` |
+| Prisma generate | `npm run db:generate` |
+| Prisma push schema | `npm run db:push` |
+| Prisma Studio | `npm run db:studio` |
 
 ## Architecture & Entrypoints
 
@@ -56,8 +56,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Testing
 
 - **Vitest** config: `vitest.config.ts` (jsdom environment, globals enabled, `@/` alias mapped).
-- **No tests exist yet** — this is a greenfield opportunity.
-- Playwright is installed but no E2E specs written.
+- **27 unit tests** passing: `tests/unit/simulation-engine.test.ts` and `tests/unit/currency.test.ts`.
+- Playwright is installed but no E2E specs written yet.
 
 ## Styling & UI
 
@@ -76,11 +76,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `.env` contains `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and a **GROQ_API_KEY** (for AI features).
 - `.env` is gitignored — never commit it. The repo contains a hardcoded Neon DB URL and secrets that must be rotated for production.
 
-## Current State / Placeholders
+## Current State
 
-- Root `app/page.tsx` is still the default Next.js template page. In practice, middleware redirects `/` to login or dashboard based on auth state.
-- Dashboard pages exist but are mostly empty shells (headings only).
-- No `server/actions/`, `hooks/`, or `components/` directories populated yet.
+- Root `app/page.tsx` redirects unauthenticated users to `/login` and authenticated users to `/dashboard`.
+- Full dashboard implemented with sidebar, KPIs, charts, health indicators, transactions, settings, vehicle simulator, and monthly history.
+- `server/actions/`, `server/queries/`, `hooks/`, and `components/` directories are fully populated.
 - `types/index.ts` defines domain types mirroring Prisma schema.
 
 ## Validation Before Commit
