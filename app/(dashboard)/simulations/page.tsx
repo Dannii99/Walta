@@ -1,5 +1,6 @@
 ﻿import { auth } from "@/lib/auth";
 import { getUserSimulations } from "@/server/queries/simulation-queries";
+import { CreateFromSimulationButton } from "@/components/credits/CreateFromSimulationButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -104,6 +105,9 @@ export default async function SimulationsPage() {
                   <div className="border-t pt-2 mt-2 flex justify-between">
                     <span className="text-muted-foreground">Pago mensual</span>
                     <span className="font-bold">${result.monthlyPayment.toLocaleString("es-CO")}</span>
+                  </div>
+                  <div className="pt-2">
+                    <CreateFromSimulationButton simulationId={sim.id} />
                   </div>
                 </CardContent>
               </Card>

@@ -31,17 +31,17 @@ const createSimulationSchema = z.object({
 });
 
 export async function createSimulation(
-  userId: string,
   type: SimulationType,
   title: string,
   inputs: SimulationInputs,
   result: SimulationResult
 ) {
   const session = await auth();
-  if (!session?.user?.id || session.user.id !== userId) {
+  if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
 
+  const userId = session.user.id;
   const parsed = createSimulationSchema.parse({
     userId,
     type,

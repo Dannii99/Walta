@@ -92,3 +92,61 @@ export interface HealthStatus {
   percentage: number;
   status: "green" | "yellow" | "red";
 }
+
+export type LoanType = "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER";
+export type LoanFormula = "french_ea" | "nominal_monthly";
+export type LoanStatus = "ACTIVE" | "PAID_OFF" | "DEFAULTED";
+
+export interface Loan {
+  id: string;
+  userId: string;
+  simulationId?: string | null;
+  title: string;
+  type: LoanType;
+  principal: string;
+  downPayment: string;
+  annualRate: string;
+  termMonths: number;
+  formula: LoanFormula;
+  monthlyPayment: string;
+  startDate: Date;
+  status: LoanStatus;
+  totalInterest: string;
+  totalCost: string;
+  currency: string;
+  createdAt: Date;
+  updatedAt: Date;
+  payments?: LoanPayment[];
+  extraPayments?: LoanExtraPayment[];
+}
+
+export interface LoanPayment {
+  id: string;
+  loanId: string;
+  amount: string;
+  principalPaid: string;
+  interestPaid: string;
+  paidDate: Date;
+  createdAt: Date;
+}
+
+export interface LoanExtraPayment {
+  id: string;
+  loanId: string;
+  amount: string;
+  date: Date;
+  note?: string | null;
+  createdAt: Date;
+}
+
+export interface AmortizationRow {
+  month: number;
+  date: Date;
+  payment: number;
+  interest: number;
+  principal: number;
+  extraPayment: number;
+  balance: number;
+  status: "PAID" | "PENDING" | "UPCOMING";
+  actualPayment?: LoanPayment | null;
+}

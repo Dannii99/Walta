@@ -177,6 +177,46 @@ exports.Prisma.MonthlySnapshotScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.LoanScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  simulationId: 'simulationId',
+  title: 'title',
+  type: 'type',
+  principal: 'principal',
+  downPayment: 'downPayment',
+  annualRate: 'annualRate',
+  termMonths: 'termMonths',
+  formula: 'formula',
+  monthlyPayment: 'monthlyPayment',
+  startDate: 'startDate',
+  status: 'status',
+  totalInterest: 'totalInterest',
+  totalCost: 'totalCost',
+  currency: 'currency',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LoanPaymentScalarFieldEnum = {
+  id: 'id',
+  loanId: 'loanId',
+  amount: 'amount',
+  principalPaid: 'principalPaid',
+  interestPaid: 'interestPaid',
+  paidDate: 'paidDate',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LoanExtraPaymentScalarFieldEnum = {
+  id: 'id',
+  loanId: 'loanId',
+  amount: 'amount',
+  date: 'date',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -209,7 +249,10 @@ exports.Prisma.ModelName = {
   Category: 'Category',
   Transaction: 'Transaction',
   Simulation: 'Simulation',
-  MonthlySnapshot: 'MonthlySnapshot'
+  MonthlySnapshot: 'MonthlySnapshot',
+  Loan: 'Loan',
+  LoanPayment: 'LoanPayment',
+  LoanExtraPayment: 'LoanExtraPayment'
 };
 
 /**

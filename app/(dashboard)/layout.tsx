@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   Receipt,
   Calculator,
+  CreditCard,
   History,
   Settings,
   LogOut,
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transacciones", icon: Receipt },
   { href: "/simulations", label: "Simulaciones", icon: Calculator },
+  { href: "/credits", label: "Créditos", icon: CreditCard },
   { href: "/history", label: "Historial", icon: History },
   { href: "/settings", label: "Configuración", icon: Settings },
 ];

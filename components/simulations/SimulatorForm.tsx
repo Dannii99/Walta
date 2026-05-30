@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SimulationResult } from "./SimulationResult";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { RateInput } from "./RateInput";
+import { createSimulation } from "@/server/actions/simulation-actions";
 import {
   calculateFrenchEA,
   calculateNominalMonthly,
@@ -36,25 +38,6 @@ type SimulatorFormData = z.infer<typeof simulatorSchema>;
 
 interface SimulatorFormProps {
   availableMoney: number;
-  userId: string;
-  onSave: (data: {
-    title: string;
-    type: string;
-    inputs: {
-      price: number;
-      downPayment: number;
-      term: number;
-      rate: number;
-      formula: string;
-    };
-    result: {
-      monthlyPayment: number;
-      verdict: "APPROVED" | "WARNING" | "REJECTED";
-      availableAfter: number;
-      totalInterest: number;
-      totalCost: number;
-    };
-  }) => Promise<void>;
 }
 
 const verdictToDb: Record<Verdict, "APPROVED" | "WARNING" | "REJECTED"> = {
@@ -78,7 +61,8 @@ const defaultRates: Record<CreditType, number> = {
   other: REFERENCE_RATES.personal.ea,
 };
 
-export function SimulatorForm({ availableMoney, onSave }: SimulatorFormProps) {
+export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
@@ -141,25 +125,26 @@ export function SimulatorForm({ availableMoney, onSave }: SimulatorFormProps) {
     setSaveMessage("");
     try {
       const title = `${creditTypeLabels[formData.creditType]} - ${formData.name}`;
-      await onSave({
+      await createSimulation(
+        formData.creditType.toUpperCase() as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
         title,
-        type: formData.creditType.toUpperCase(),
-        inputs: {
+        {
           price: formData.price,
           downPayment: formData.downPayment,
           term: result.termMonths,
           rate: formData.rate,
           formula: formData.formula,
         },
-        result: {
+        {
           monthlyPayment: result.monthlyPayment,
           verdict: verdictToDb[result.verdict],
           availableAfter: result.remainingAfter,
           totalInterest: result.totalInterest,
           totalCost: result.totalCost,
-        },
-      });
+        }
+      );
       setSaveMessage("Simulación guardada correctamente.");
+      router.push("/simulations");
     } catch {
       setSaveMessage("Error al guardar la simulación.");
     } finally {

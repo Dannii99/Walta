@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { getUserBudgets } from "@/server/queries/budget-queries";
 import { SimulatorForm } from "@/components/simulations/SimulatorForm";
-import { createSimulation } from "@/server/actions/simulation-actions";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -39,22 +38,6 @@ export default async function NewSimulationPage() {
   );
   const availableMoney = Math.max(0, income - totalExpenses);
 
-  async function handleSave(data: {
-    title: string;
-    type: string;
-    inputs: { price: number; downPayment: number; term: number; rate: number; formula: string };
-    result: { monthlyPayment: number; verdict: "APPROVED" | "WARNING" | "REJECTED"; availableAfter: number; totalInterest: number; totalCost: number };
-  }) {
-    "use server";
-    await createSimulation(
-      userId,
-      data.type as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
-      data.title,
-      data.inputs,
-      data.result
-    );
-  }
-
   return (
     <div className="p-8 space-y-6 max-w-3xl">
       <div>
@@ -73,11 +56,7 @@ export default async function NewSimulationPage() {
         </p>
       </div>
 
-      <SimulatorForm
-        availableMoney={availableMoney}
-        userId={userId}
-        onSave={handleSave}
-      />
+      <SimulatorForm availableMoney={availableMoney} />
     </div>
   );
 }
