@@ -7,6 +7,7 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -47,7 +48,7 @@ export const {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        (session.user as any).id = token.id;
+        (session.user as { id?: string }).id = token.id as string;
       }
       return session;
     },

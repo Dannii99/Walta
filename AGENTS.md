@@ -67,8 +67,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## PWA Status
 
-- `public/manifest.json` and icons exist.
-- `next-pwa` is in dependencies but **NOT wired in `next.config.ts`** yet. The config is empty/default.
+- **DESACTIVADO TEMPORALMENTE.** `next-pwa` es incompatible con Next.js 16 + Turbopack.
+- `public/manifest.json` and icons exist but the service worker no se genera.
+- Si en el futuro se re-implementa PWA, usar `serwist` o esperar soporte oficial de `next-pwa` para Next.js 16.
 
 ## Auth & Environment
 

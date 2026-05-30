@@ -1,0 +1,78 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+  output     = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  budgets     Budget[]
+  simulations Simulation[]
+  createdAt   DateTime     @default(now())
+}
+
+model Budget {
+  id         String            @id @default(cuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  name       String
+  income     Decimal           @db.Decimal(15, 2)
+  currency   String            @default("COP")
+  rule       Json // { needs: 50, wants: 30, savings: 20 }
+  categories Category[]
+  snapshots  MonthlySnapshot[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  budgetId     String
+  budget       Budget        @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  name         String
+  type         String // NEEDS, WANTS, SAVINGS, DEBT
+  color        String // hex para grficos
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount      Decimal  @db.Decimal(15, 2)
+  description String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model Simulation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String // VEHICLE, HOUSING, etc.
+  title     String
+  inputs    Json // { price, downPayment, term, rate }
+  result    Json // { monthlyPayment, verdict, availableAfter }
+  createdAt DateTime @default(now())
+}
+
+model MonthlySnapshot {
+  id                String   @id @default(cuid())
+  budgetId          String
+  budget            Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  month             Int
+  year              Int
+  income            Decimal  @db.Decimal(15, 2)
+  totalExpenses     Decimal  @db.Decimal(15, 2)
+  totalSavings      Decimal  @db.Decimal(15, 2)
+  categoryBreakdown Json
+  createdAt         DateTime @default(now())
+
+  @@unique([budgetId, month, year])
+}

@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "library"
+  output     = "../generated/prisma"
 }
 
 datasource db {
@@ -35,7 +37,7 @@ model Category {
   budget        Budget         @relation(fields: [budgetId], references: [id], onDelete: Cascade)
   name          String
   type          String         // NEEDS, WANTS, SAVINGS, DEBT
-  color         String         // hex para gráficos
+  color         String         // hex para grficos
   transactions  Transaction[]
 }
 
