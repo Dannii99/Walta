@@ -1,0 +1,259 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { createBudget } from "@/server/actions/budget-actions";
+import { DEFAULT_BUDGET_RULE } from "@/lib/constants";
+import type { CategoryType } from "@/types";
+import { StepIndicator } from "./StepIndicator";
+import { WelcomeStep } from "./WelcomeStep";
+import { TemplateStep } from "./TemplateStep";
+import { IncomeStep } from "./IncomeStep";
+import { ReviewStep } from "./ReviewStep";
+
+interface CategoryItem {
+  id: string;
+  name: string;
+  type: CategoryType;
+  suggestedAmount: number;
+}
+
+const STEPS = [
+  { label: "Bienvenida" },
+  { label: "Plantilla" },
+  { label: "Ingreso" },
+  { label: "Revisar" },
+];
+
+const DEFAULT_CATEGORIES: Record<string, { name: string; type: CategoryType; percentage: number }[]> = {
+  "50-30-20": [
+    // Necesidades (50%)
+    { name: "Vivienda/Arriendo", type: "NEEDS", percentage: 20 },
+    { name: "Alimentación", type: "NEEDS", percentage: 12 },
+    { name: "Transporte", type: "NEEDS", percentage: 8 },
+    { name: "Servicios públicos", type: "NEEDS", percentage: 5 },
+    { name: "Salud", type: "NEEDS", percentage: 5 },
+    // Deseos (30%)
+    { name: "Entretenimiento", type: "WANTS", percentage: 10 },
+    { name: "Restaurantes", type: "WANTS", percentage: 12 },
+    { name: "Compras personales", type: "WANTS", percentage: 8 },
+    // Ahorros (20%)
+    { name: "Ahorro de emergencia", type: "SAVINGS", percentage: 12 },
+    { name: "Inversiones", type: "SAVINGS", percentage: 8 },
+  ],
+  blank: [],
+};
+
+interface OnboardingFlowProps {
+  userId: string;
+}
+
+export function OnboardingFlow({ userId }: OnboardingFlowProps) {
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [template, setTemplate] = useState<"50-30-20" | "blank" | null>(null);
+  const [budgetName, setBudgetName] = useState("Mi Presupuesto");
+  const [income, setIncome] = useState(0);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const generateCategories = (
+    tmpl: "50-30-20" | "blank",
+    inc: number
+  ): CategoryItem[] => {
+    const defs = DEFAULT_CATEGORIES[tmpl] || [];
+    return defs.map((def, index) => ({
+      id: `cat-${index}`,
+      name: def.name,
+      type: def.type,
+      suggestedAmount: Math.round(inc * (def.percentage / 100)),
+    }));
+  };
+
+  const handleStart = () => {
+    setStep(2);
+  };
+
+  const handleQuickCreate = async () => {
+    setError("");
+    setIsSaving(true);
+    try {
+      const quickIncome = 3000000;
+      const quickCategories = generateCategories("50-30-20", quickIncome);
+
+      await createBudget(
+        userId,
+        "Mi Presupuesto",
+        quickIncome.toString(),
+        DEFAULT_BUDGET_RULE,
+        quickCategories.map((c) => ({
+          name: c.name,
+          type: c.type,
+          color: "#3B82F6",
+        }))
+      );
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al crear el presupuesto");
+      setIsSaving(false);
+    }
+  };
+
+  const handleTemplateSelect = (selected: "50-30-20" | "blank") => {
+    setTemplate(selected);
+    if (selected === "blank") {
+      setCategories([]);
+    }
+    setStep(3);
+  };
+
+  const handleIncomeNext = () => {
+    if (template && income > 0) {
+      const generated = generateCategories(template, income);
+      setCategories(generated);
+      setStep(4);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!template || income <= 0 || categories.length === 0) return;
+
+    setError("");
+    setIsSaving(true);
+    try {
+      await createBudget(
+        userId,
+        budgetName || "Mi Presupuesto",
+        income.toString(),
+        DEFAULT_BUDGET_RULE,
+        categories.map((c) => ({
+          name: c.name,
+          type: c.type,
+          color: "#3B82F6",
+        }))
+      );
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al guardar el presupuesto");
+      setIsSaving(false);
+    }
+  };
+
+  const canGoNext = () => {
+    switch (step) {
+      case 2:
+        return template !== null;
+      case 3:
+        return income > 0 && budgetName.trim().length > 0;
+      case 4:
+        return categories.length > 0 && !isSaving;
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (step === 3) {
+      handleIncomeNext();
+    } else if (step === 4) {
+      handleSave();
+    } else if (step < 4) {
+      setStep(step + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
+
+  return (
+    <div className="mx-auto w-full max-w-lg px-4 py-8">
+      {step > 1 && (
+        <div className="mb-8">
+          <StepIndicator steps={STEPS} currentStep={step} />
+        </div>
+      )}
+
+      <Card className="p-6">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {step === 1 && (
+              <WelcomeStep onStart={handleStart} onQuickCreate={handleQuickCreate} />
+            )}
+
+            {step === 2 && (
+              <TemplateStep
+                value={template}
+                onChange={handleTemplateSelect}
+              />
+            )}
+
+            {step === 3 && (
+              <IncomeStep
+                budgetName={budgetName}
+                income={income}
+                onBudgetNameChange={setBudgetName}
+                onIncomeChange={setIncome}
+              />
+            )}
+
+            {step === 4 && (
+              <ReviewStep
+                income={income}
+                categories={categories}
+                onCategoriesChange={setCategories}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {error && (
+          <div className="mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
+        {step > 1 && (
+          <div className="flex items-center justify-between pt-6 mt-6 border-t">
+            <Button variant="ghost" size="sm" onClick={handleBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Atrás
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={handleNext}
+              disabled={!canGoNext()}
+            >
+              {step === 4 ? (
+                isSaving ? "Guardando..." : "Guardar y empezar"
+              ) : (
+                <>
+                  Siguiente
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}

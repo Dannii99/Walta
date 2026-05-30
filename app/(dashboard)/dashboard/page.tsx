@@ -16,17 +16,19 @@ export default async function DashboardPage() {
 
   const budget = await getActiveBudgetWithTransactions(session.user.id);
 
+  if (!budget) {
+    redirect("/onboarding");
+  }
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold">Dashboard</h1>
       <p className="text-muted-foreground mt-2">
         Bienvenido a Presupuesto Claro
       </p>
-      {budget && (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Presupuesto activo: {budget.name} — Ingresos: ${parseFloat(budget.income).toLocaleString("es-CO")}
-        </p>
-      )}
+      <p className="mt-4 text-sm text-muted-foreground">
+        Presupuesto activo: {budget.name} — Ingresos: ${parseFloat(budget.income).toLocaleString("es-CO")}
+      </p>
     </div>
   );
 }

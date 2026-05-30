@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "./prisma";
 
 export const {
   handlers: { GET, POST },
@@ -17,15 +18,24 @@ export const {
       },
       async authorize(credentials) {
         // MVP: autenticación simple sin bcrypt
-        // En producción, verificar contra DB con hash
         if (
           credentials?.email === "demo@example.com" &&
           credentials?.password === "demo123"
         ) {
+          // Crear o buscar usuario en la base de datos
+          const user = await prisma.user.upsert({
+            where: { email: "demo@example.com" },
+            update: {},
+            create: {
+              email: "demo@example.com",
+              name: "Usuario Demo",
+            },
+          });
+
           return {
-            id: "demo-user-id",
-            email: "demo@example.com",
-            name: "Usuario Demo",
+            id: user.id,
+            email: user.email,
+            name: user.name,
           };
         }
         return null;
