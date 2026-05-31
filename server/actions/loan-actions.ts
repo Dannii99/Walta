@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -27,6 +27,11 @@ const createLoanSchema = z.object({
     type: z.enum(["monthly", "upfront"]),
   })).default([]),
   initialExtraPayment: z.number().nonnegative().optional(),
+  pastPaymentsSync: z.array(z.object({
+    month: z.number().int().min(0).max(11),
+    year: z.number().int(),
+    status: z.enum(["PAID", "PENDING", "DEFAULTED"] as const),
+  })).default([]),
 });
 
 function addMonths(date: Date, months: number): Date {
@@ -78,6 +83,63 @@ function generateFictitiousPayments(
   return payments;
 }
 
+function generateSyncedPayments(
+  loan: {
+    principal: number;
+    annualRate: number;
+    formula: string;
+    monthlyPayment: number;
+    startDate: Date;
+  },
+  pastPaymentsSync: { month: number; year: number; status: "PAID" | "PENDING" | "DEFAULTED" }[]
+) {
+  const monthlyRate =
+    loan.formula === "french_ea"
+      ? Math.pow(1 + loan.annualRate, 1 / 12) - 1
+      : loan.annualRate / 12;
+
+  let balance = loan.principal;
+  const payments = [];
+
+  // Sort sync data by date
+  const sortedSync = pastPaymentsSync
+    .slice()
+    .sort((a, b) => {
+      const diff = a.year - b.year;
+      if (diff !== 0) return diff;
+      return a.month - b.month;
+    });
+
+  for (const sync of sortedSync) {
+    if (sync.status !== "PAID") continue;
+
+    const interest = balance * monthlyRate;
+    let principalPaid = loan.monthlyPayment - interest;
+
+    if (principalPaid >= balance) {
+      principalPaid = balance;
+    }
+
+    balance = Math.max(0, balance - principalPaid);
+
+    // Calculate the exact installment date (startDate + month offset based on sync date)
+    const startYear = loan.startDate.getUTCFullYear();
+    const startMonth = loan.startDate.getUTCMonth();
+    const monthOffset = (sync.year - startYear) * 12 + (sync.month - startMonth);
+
+    payments.push({
+      amount: String(loan.monthlyPayment.toFixed(2)),
+      principalPaid: String(principalPaid.toFixed(2)),
+      interestPaid: String(interest.toFixed(2)),
+      paidDate: addMonths(loan.startDate, monthOffset),
+    });
+
+    if (balance <= 0.01) break;
+  }
+
+  return payments;
+}
+
 export async function createLoan(
   data: {
     simulationId?: string;
@@ -93,8 +155,9 @@ export async function createLoan(
     totalInterest: number;
     totalCost: number;
     paidInstallments?: number;
-  fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
+    fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
     initialExtraPayment?: number;
+    pastPaymentsSync?: { month: number; year: number; status: "PAID" | "PENDING" | "DEFAULTED" }[];
   }
 ) {
   const session = await auth();
@@ -106,6 +169,9 @@ export async function createLoan(
   const parsed = createLoanSchema.parse({ userId, ...data });
 
   const startDate = parsed.startDate ? new Date(parsed.startDate) : new Date();
+
+  // Determine if any past payment is marked as DEFAULTED
+  const hasDefaulted = parsed.pastPaymentsSync.some((p) => p.status === "DEFAULTED");
 
   const loan = await prisma.loan.create({
     data: {
@@ -124,11 +190,36 @@ export async function createLoan(
       totalCost: parsed.totalCost,
       paidInstallments: parsed.paidInstallments,
       fees: parsed.fees,
+      status: hasDefaulted ? "DEFAULTED" : "ACTIVE",
     } as Parameters<typeof prisma.loan.create>[0]["data"],
   });
 
-  // Generate fictitious payments for ongoing loans
-  if (parsed.paidInstallments > 0) {
+  // Generate payments from pastPaymentsSync for ongoing loans
+  if (parsed.pastPaymentsSync.length > 0) {
+    const syncedPayments = generateSyncedPayments(
+      {
+        principal: parsed.principal,
+        annualRate: parsed.annualRate,
+        formula: parsed.formula,
+        monthlyPayment: parsed.monthlyPayment,
+        startDate,
+      },
+      parsed.pastPaymentsSync
+    );
+
+    if (syncedPayments.length > 0) {
+      await prisma.loanPayment.createMany({
+        data: syncedPayments.map((p) => ({
+          loanId: loan.id,
+          amount: p.amount,
+          principalPaid: p.principalPaid,
+          interestPaid: p.interestPaid,
+          paidDate: p.paidDate,
+        })),
+      });
+    }
+  } else if (parsed.paidInstallments > 0) {
+    // Fallback to old behavior if no sync data provided
     const fictitiousPayments = generateFictitiousPayments({
       principal: parsed.principal,
       annualRate: parsed.annualRate,
@@ -193,6 +284,7 @@ export async function updateLoan(
     totalInterest?: number;
     totalCost?: number;
     fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
+    pastPaymentsSync?: { month: number; year: number; status: "PAID" | "PENDING" | "DEFAULTED" }[];
   }
 ) {
   const session = await auth();
@@ -202,7 +294,7 @@ export async function updateLoan(
 
   const existing = await prisma.loan.findUnique({
     where: { id },
-    select: { userId: true },
+    select: { userId: true, startDate: true, principal: true, annualRate: true, formula: true, monthlyPayment: true },
   });
 
   if (!existing || existing.userId !== session.user.id) {
@@ -224,6 +316,42 @@ export async function updateLoan(
   if (data.totalInterest !== undefined) updateData.totalInterest = data.totalInterest;
   if (data.totalCost !== undefined) updateData.totalCost = data.totalCost;
   if (data.fees !== undefined) updateData.fees = data.fees;
+
+  // Handle pastPaymentsSync for update
+  if (data.pastPaymentsSync && data.pastPaymentsSync.length > 0) {
+    const hasDefaulted = data.pastPaymentsSync.some((p) => p.status === "DEFAULTED");
+    if (hasDefaulted && data.status === undefined) {
+      updateData.status = "DEFAULTED";
+    }
+
+    // Delete existing payments and recreate from sync
+    await prisma.loanPayment.deleteMany({ where: { loanId: id } });
+
+    const syncedPayments = generateSyncedPayments(
+      {
+        principal: data.principal ?? Number(existing.principal),
+        annualRate: data.annualRate ?? Number(existing.annualRate),
+        formula: data.formula ?? existing.formula,
+        monthlyPayment: data.monthlyPayment ?? Number(existing.monthlyPayment),
+        startDate: data.startDate ? new Date(data.startDate) : existing.startDate,
+      },
+      data.pastPaymentsSync
+    );
+
+    if (syncedPayments.length > 0) {
+      await prisma.loanPayment.createMany({
+        data: syncedPayments.map((p) => ({
+          loanId: id,
+          amount: p.amount,
+          principalPaid: p.principalPaid,
+          interestPaid: p.interestPaid,
+          paidDate: p.paidDate,
+        })),
+      });
+    }
+
+    updateData.paidInstallments = data.pastPaymentsSync.filter((p) => p.status === "PAID").length;
+  }
 
   const updated = await prisma.loan.update({
     where: { id },

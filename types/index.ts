@@ -1,4 +1,4 @@
-export interface User {
+﻿export interface User {
   id: string;
   email: string;
   name?: string | null;
@@ -9,7 +9,7 @@ export interface Budget {
   id: string;
   userId: string;
   name: string;
-  income: string; // Decimal como string para precisión
+  income: string; // Decimal como string para precisi├│n
   currency: string;
   rule: BudgetRule;
   categories: Category[];
@@ -61,7 +61,7 @@ export interface SimulationInputs {
   price: number;
   downPayment: number;
   term: number; // meses
-  rate: number; // EA (efectivo anual) o mensual según contexto
+  rate: number; // EA (efectivo anual) o mensual seg├║n contexto
   formula?: string; // "french_ea" | "nominal_monthly"
 }
 
@@ -148,6 +148,12 @@ export interface LoanExtraPayment {
   createdAt: Date;
 }
 
+export interface PastPaymentSync {
+  month: number;
+  year: number;
+  status: "PAID" | "PENDING" | "DEFAULTED";
+}
+
 export interface AmortizationRow {
   month: number;
   date: Date;
@@ -156,6 +162,6 @@ export interface AmortizationRow {
   principal: number;
   extraPayment: number;
   balance: number;
-  status: "PAID" | "PENDING" | "UPCOMING";
+  status: "PAID" | "PENDING" | "DEFAULTED" | "UPCOMING";
   actualPayment?: LoanPayment | null;
 }

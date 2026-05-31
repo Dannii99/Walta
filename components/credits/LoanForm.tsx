@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createLoan, updateLoan } from "@/server/actions/loan-actions";
 import { getLoanSummary } from "@/lib/simulation-engine";
@@ -12,9 +12,9 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { RateInput } from "@/components/simulations/RateInput";
 import { LoanPreviewCard } from "./LoanPreviewCard";
 import { FeesSection } from "./FeesSection";
-import { ChevronRight, ChevronLeft, Check, Settings2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Settings2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import type { FeeItem } from "@/types";
+import type { FeeItem, PastPaymentSync } from "@/types";
 
 function getMonthlyRate(annualRate: number, formula: string): number {
   return formula === "french_ea" || formula === "constant_capital_ea"
@@ -85,17 +85,17 @@ function mapFormulaToSchema(formula: string): string {
 const LOAN_TYPES = [
   { value: "personal", label: "Personal" },
   { value: "mortgage", label: "Hipotecario" },
-  { value: "vehicle", label: "Vehículo" },
+  { value: "vehicle", label: "Veh├¡culo" },
   { value: "student", label: "Estudiantil" },
-  { value: "credit_card", label: "Tarjeta de Crédito" },
-  { value: "microcredit", label: "Microcrédito" },
+  { value: "credit_card", label: "Tarjeta de Cr├®dito" },
+  { value: "microcredit", label: "Microcr├®dito" },
 ];
 
 const FORMULAS = [
-  { value: "french_ea", label: "Cuota Fija (Francés EA)" },
-  { value: "french_namv", label: "Cuota Fija (Francés NAMV)" },
-  { value: "constant_capital_ea", label: "Capital Constante (Alemán EA)" },
-  { value: "constant_capital_namv", label: "Capital Constante (Alemán NAMV)" },
+  { value: "french_ea", label: "Cuota Fija (Franc├®s EA)" },
+  { value: "french_namv", label: "Cuota Fija (Franc├®s NAMV)" },
+  { value: "constant_capital_ea", label: "Capital Constante (Alem├ín EA)" },
+  { value: "constant_capital_namv", label: "Capital Constante (Alem├ín NAMV)" },
 ];
 
 interface LoanFormProps {
@@ -159,6 +159,9 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   const [initialExtraPayment, setInitialExtraPayment] = useState(
     (defaultValues?.initialExtraPayment as number) || 0
   );
+  const [pastPaymentsSync, setPastPaymentsSync] = useState<PastPaymentSync[]>(
+    (defaultValues?.pastPaymentsSync as PastPaymentSync[]) || []
+  );
 
   const termMonths = useMemo(
     () => (termMode === "years" ? termValue * 12 : termValue),
@@ -190,8 +193,45 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     return principal + totalInterest;
   }, [principal, totalInterest]);
 
+  // Calculate past months between startDate and today for sync
+  const pastMonths = useMemo(() => {
+    if (!startDate || mode !== "ongoing") return [];
+    const start = new Date(startDate);
+    const today = new Date();
+    const months: { month: number; year: number; label: string }[] = [];
+
+    const current = new Date(start.getFullYear(), start.getMonth(), 1);
+    const end = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    while (current < end) {
+      months.push({
+        month: current.getMonth(),
+        year: current.getFullYear(),
+        label: current.toLocaleDateString("es-CO", { month: "long", year: "numeric" }),
+      });
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    return months;
+  }, [startDate, mode]);
+
+  // Initialize pastPaymentsSync when pastMonths first becomes available
+  const hasInitializedSync = useRef(false);
+  useEffect(() => {
+    if (pastMonths.length > 0 && !hasInitializedSync.current) {
+      hasInitializedSync.current = true;
+      setPastPaymentsSync(
+        pastMonths.map((m) => ({
+          month: m.month,
+          year: m.year,
+          status: "PENDING" as const,
+        }))
+      );
+    }
+  }, [pastMonths]);
+
   const validateStep1 = useCallback(() => {
-    if (!title.trim()) return "Debes ingresar un nombre para el crédito.";
+    if (!title.trim()) return "Debes ingresar un nombre para el cr├®dito.";
     if (price <= 0) return "El precio total debe ser mayor a cero.";
     if (downPayment < 0) return "La cuota inicial no puede ser negativa.";
     if (downPayment >= price) return "La cuota inicial no puede ser igual o mayor al precio.";
@@ -200,7 +240,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
   const validateStep2 = useCallback(() => {
     if (termValue < 1) return "El plazo debe ser de al menos 1.";
-    if (annualRate <= 0) return "La tasa de interés debe ser mayor a cero.";
+    if (annualRate <= 0) return "La tasa de inter├®s debe ser mayor a cero.";
     if (!startDate) return "Debes seleccionar la fecha de inicio.";
     return null;
   }, [termValue, annualRate, startDate]);
@@ -250,8 +290,9 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           totalCost,
           paidInstallments: paidInstallments > 0 ? paidInstallments : undefined,
           fees,
+          pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
         });
-        toast.success("Crédito actualizado");
+        toast.success("Cr├®dito actualizado");
         router.push(`/credits/${loanId}`);
         router.refresh();
       } else {
@@ -270,14 +311,15 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           paidInstallments: mode === "ongoing" ? paidInstallments : undefined,
           fees,
           initialExtraPayment: mode === "ongoing" && initialExtraPayment > 0 ? initialExtraPayment : undefined,
+          pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
         });
-        toast.success(mode === "ongoing" ? "Crédito en curso agregado" : "Crédito creado");
+        toast.success(mode === "ongoing" ? "Cr├®dito en curso agregado" : "Cr├®dito creado");
         router.push("/credits");
         router.refresh();
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error al guardar el crédito");
+      toast.error("Error al guardar el cr├®dito");
     } finally {
       setIsSubmitting(false);
     }
@@ -313,7 +355,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   }`}
                 >
                   {s === 1
-                    ? "Información básica"
+                    ? "Informaci├│n b├ísica"
                     : s === 2
                       ? "Condiciones"
                       : "En curso"}
@@ -331,11 +373,11 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
       {step === 1 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Información básica</CardTitle>
+            <CardTitle className="text-lg">Informaci├│n b├ísica</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Nombre del crédito</Label>
+              <Label htmlFor="title">Nombre del cr├®dito</Label>
               <Input
                 id="title"
                 value={title}
@@ -345,7 +387,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type">Tipo de crédito</Label>
+              <Label htmlFor="type">Tipo de cr├®dito</Label>
               <select
                 id="type"
                 value={type}
@@ -405,7 +447,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Condiciones del crédito</CardTitle>
+              <CardTitle className="text-lg">Condiciones del cr├®dito</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -443,7 +485,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                             : "bg-background text-muted-foreground hover:bg-muted"
                         }`}
                       >
-                        Años
+                        A├▒os
                       </button>
                       <button
                         type="button"
@@ -469,7 +511,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Tasa de interés anual</Label>
+                  <Label>Tasa de inter├®s anual</Label>
                   <RateInput
                     value={annualRate}
                     onRateChange={setAnnualRate}
@@ -477,7 +519,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="formula">Fórmula de amortización</Label>
+                  <Label htmlFor="formula">F├│rmula de amortizaci├│n</Label>
                   <select
                     id="formula"
                     value={formula}
@@ -524,7 +566,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
       {step === 3 && mode === "ongoing" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Crédito en curso</CardTitle>
+            <CardTitle className="text-lg">Cr├®dito en curso</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -539,10 +581,81 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 placeholder="0"
               />
               <p className="text-xs text-muted-foreground">
-                Ingresa cuántas cuotas ya has pagado. Esto generará los pagos
-                ficticios automáticamente.
+                Ingresa cu├íntas cuotas ya has pagado. Esto generar├í los pagos
+                ficticios autom├íticamente.
               </p>
             </div>
+
+            {/* Past Payments Sync */}
+            {pastMonths.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-amber-500" />
+                  <Label className="text-sm font-medium">Sincronizar cuotas pasadas</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Selecciona el estado de cada mes pasado entre la fecha de inicio y hoy.
+                </p>
+                <div className="space-y-2 max-h-64 overflow-y-auto rounded-lg border border-border p-2">
+                  {pastMonths.map((m) => {
+                    const sync = pastPaymentsSync.find(
+                      (p) => p.month === m.month && p.year === m.year
+                    ) || { status: "PENDING" as const };
+                    return (
+                      <div
+                        key={`${m.year}-${m.month}`}
+                        className="flex items-center justify-between p-2 rounded-md bg-muted/30"
+                      >
+                        <span className="text-sm font-medium capitalize">
+                          {m.label}
+                        </span>
+                        <div className="flex gap-1">
+                          {(["PAID", "PENDING", "DEFAULTED"] as const).map((status) => (
+                            <button
+                              key={status}
+                              type="button"
+                              onClick={() => {
+                                const updated = [...pastPaymentsSync];
+                                const existingIndex = updated.findIndex(
+                                  (p) => p.month === m.month && p.year === m.year
+                                );
+                                if (existingIndex >= 0) {
+                                  updated[existingIndex] = {
+                                    month: m.month,
+                                    year: m.year,
+                                    status,
+                                  };
+                                } else {
+                                  updated.push({
+                                    month: m.month,
+                                    year: m.year,
+                                    status,
+                                  });
+                                }
+                                setPastPaymentsSync(updated);
+                              }}
+                              className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                                sync.status === status
+                                  ? status === "PAID"
+                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                    : status === "PENDING"
+                                      ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                      : "bg-red-100 text-red-800 border border-red-200"
+                                  : "bg-background text-muted-foreground border border-border hover:bg-muted"
+                              }`}
+                            >
+                              {status === "PAID" && "Pagada"}
+                              {status === "PENDING" && "Pendiente"}
+                              {status === "DEFAULTED" && "En mora"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2 pt-2">
               <Label htmlFor="initialExtraPayment">
@@ -555,7 +668,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 placeholder="0"
               />
               <p className="text-xs text-muted-foreground">
-                Si ya hiciste un abono extra a capital antes de registrar el crédito, ingrésalo aquí. Se reflejará en tu tabla de amortización.
+                Si ya hiciste un abono extra a capital antes de registrar el cr├®dito, ingr├®salo aqu├¡. Se reflejar├í en tu tabla de amortizaci├│n.
               </p>
             </div>
 
@@ -590,7 +703,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
                 <div className="space-y-2">
                   <Label htmlFor="exactTotalInterest">
-                    Interés total exacto pagado hasta ahora
+                    Inter├®s total exacto pagado hasta ahora
                   </Label>
                   <CurrencyInput
                     id="exactTotalInterest"
@@ -599,7 +712,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                     placeholder="Opcional"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Opcional: útil si quieres ajustar el saldo con exactitud.
+                    Opcional: ├║til si quieres ajustar el saldo con exactitud.
                   </p>
                 </div>
               </div>
@@ -621,7 +734,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
         {step === totalSteps ? (
           <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar crédito" : "Crear crédito"}
+            {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar cr├®dito" : "Crear cr├®dito"}
           </Button>
         ) : (
           <Button onClick={handleNext} disabled={isSubmitting}>

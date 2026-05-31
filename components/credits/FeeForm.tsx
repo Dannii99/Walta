@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Check, X } from "lucide-react";
@@ -42,7 +42,7 @@ export function FeeForm({ initialFee, onSave, onCancel }: FeeFormProps) {
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Ej. seguro de vida, aval, comisión..."
+            placeholder="Ej. seguro de vida, aval, comisi├│n..."
             className="mt-1 h-9"
           />
         </div>

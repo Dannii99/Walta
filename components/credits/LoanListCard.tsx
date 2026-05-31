@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,7 @@ interface LoanListCardProps {
 }
 
 const typeLabels: Record<string, string> = {
-  VEHICLE: "Vehículo",
+  VEHICLE: "Veh├¡culo",
   PERSONAL: "Personal",
   HOUSING: "Vivienda",
   OTHER: "Otros",

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+﻿import { describe, it, expect } from "vitest";
 import {
   generateAmortizationSchedule,
   calculateRemainingBalance,
@@ -104,8 +104,15 @@ describe("generateAmortizationSchedule", () => {
     const scheduleNAMV = generateAmortizationSchedule(loanNAMV, [], []);
 
     // NAMV with same nominal rate should have higher interest in early months
-    // because monthly rate = 0.15/12 = 0.0125 vs EA monthly = (1.15)^(1/12)-1 ≈ 0.0117
+    // because monthly rate = 0.15/12 = 0.0125 vs EA monthly = (1.15)^(1/12)-1 Ôëê 0.0117
     expect(scheduleNAMV[0].interest).toBeGreaterThan(scheduleEA[0].interest);
+  });
+
+  it("marks past months as DEFAULTED when loan status is DEFAULTED", () => {
+    const loan = makeLoan({ startDate: new Date("2020-01-01"), status: "DEFAULTED" });
+    const schedule = generateAmortizationSchedule(loan, [], []);
+    const defaultedRows = schedule.filter((r) => r.status === "DEFAULTED");
+    expect(defaultedRows.length).toBeGreaterThan(0);
   });
 });
 

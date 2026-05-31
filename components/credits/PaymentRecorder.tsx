@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,9 +18,9 @@ import { Label } from "@/components/ui/label";
 import type { Loan } from "@/types";
 
 const paymentSchema = z.object({
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inválido"),
-  principalPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inválido"),
-  interestPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inválido"),
+  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inv├ílido"),
+  principalPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inv├ílido"),
+  interestPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inv├ílido"),
   paidDate: z.string().min(1, "Fecha requerida"),
 });
 
@@ -109,7 +109,7 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="interest-paid">Interés pagado</Label>
+                <Label htmlFor="interest-paid">Inter├®s pagado</Label>
                 <Input
                   id="interest-paid"
                   type="text"

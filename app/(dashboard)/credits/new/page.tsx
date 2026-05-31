@@ -1,12 +1,12 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { LoanForm } from "@/components/credits/LoanForm";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Nuevo Crédito | Presupuesto Claro",
-  description: "Crea un nuevo crédito para seguimiento.",
+  title: "Nuevo Cr├®dito | Presupuesto Claro",
+  description: "Crea un nuevo cr├®dito para seguimiento.",
 };
 
 interface NewCreditPageProps {
@@ -92,14 +92,14 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
     <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
-          {mode === "ongoing" ? "Agregar Crédito en Curso" : "Nuevo Crédito"}
+          {mode === "ongoing" ? "Agregar Cr├®dito en Curso" : "Nuevo Cr├®dito"}
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
           {mode === "ongoing"
-            ? "Registra un crédito que ya tienes en marcha para hacer seguimiento."
+            ? "Registra un cr├®dito que ya tienes en marcha para hacer seguimiento."
             : defaultValues
-              ? "Revisa los datos precargados desde la simulación y guarda el crédito."
-              : "Completa los datos de tu crédito para empezar el seguimiento."}
+              ? "Revisa los datos precargados desde la simulaci├│n y guarda el cr├®dito."
+              : "Completa los datos de tu cr├®dito para empezar el seguimiento."}
         </p>
       </div>
 

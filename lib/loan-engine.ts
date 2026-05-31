@@ -1,4 +1,4 @@
-import type { Loan, LoanPayment, LoanExtraPayment, AmortizationRow } from "@/types";
+﻿import type { Loan, LoanPayment, LoanExtraPayment, AmortizationRow } from "@/types";
 
 function addMonths(date: Date, months: number): Date {
   const d = new Date(date.getTime());
@@ -70,7 +70,7 @@ export function generateAmortizationSchedule(
     if (actual) {
       status = "PAID";
     } else if (currentDate < today) {
-      status = "PENDING";
+      status = loan.status === "DEFAULTED" ? "DEFAULTED" : "PENDING";
     } else {
       status = "UPCOMING";
     }
@@ -100,7 +100,7 @@ export function calculateRemainingBalance(
 ): number {
   const today = new Date();
   const startDate = new Date(loan.startDate);
-  
+
   // If loan hasn't started yet, return full principal
   if (startDate > today) {
     return parseFloat(loan.principal);
@@ -108,6 +108,19 @@ export function calculateRemainingBalance(
 
   const schedule = generateAmortizationSchedule(loan, payments, extraPayments);
   if (schedule.length === 0) return parseFloat(loan.principal);
+
+  // Find the last PAID row to determine actual remaining balance
+  const paidRows = schedule.filter((row) => row.status === "PAID");
+  if (paidRows.length > 0) {
+    const lastPaid = paidRows[paidRows.length - 1];
+    // If there are pending/defaulted rows after last paid, balance continues to accrue
+    // but for simplicity we return the scheduled balance at current month or last paid
+    const currentMonthRow = schedule.find((row) => isSameMonth(row.date, today));
+    if (currentMonthRow) {
+      return currentMonthRow.balance;
+    }
+    return lastPaid.balance;
+  }
 
   // Find the row corresponding to the current month
   const currentMonthRow = schedule.find((row) => isSameMonth(row.date, today));
@@ -144,4 +157,25 @@ export function getNextPaymentDate(loan: Loan): Date {
 
 export function getPaidInstallments(loan: Loan): number {
   return loan.payments?.length ?? 0;
+}
+
+export function getDaysOverdue(date: Date): number {
+  const today = new Date();
+  const diffTime = today.getTime() - date.getTime();
+  return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+}
+
+export function getPaymentStatusCounts(
+  schedule: AmortizationRow[]
+): { paid: number; pending: number; defaulted: number; upcoming: number } {
+  return schedule.reduce(
+    (acc, row) => {
+      if (row.status === "PAID") acc.paid++;
+      else if (row.status === "PENDING") acc.pending++;
+      else if (row.status === "DEFAULTED") acc.defaulted++;
+      else if (row.status === "UPCOMING") acc.upcoming++;
+      return acc;
+    },
+    { paid: 0, pending: 0, defaulted: 0, upcoming: 0 }
+  );
 }

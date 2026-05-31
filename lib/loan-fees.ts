@@ -1,4 +1,4 @@
-import {
+﻿import {
   Shield,
   ShieldCheck,
   Heart,
@@ -20,22 +20,22 @@ export function getFeeIcon(name: string): LucideIcon {
     if (lower.includes("vida") || lower.includes("life")) return Heart;
     return Shield;
   }
-  if (lower.includes("aval") || lower.includes("garantía") || lower.includes("fiador")) {
+  if (lower.includes("aval") || lower.includes("garant├¡a") || lower.includes("fiador")) {
     return FileCheck;
   }
-  if (lower.includes("estudio") || lower.includes("análisis") || lower.includes("investigación")) {
+  if (lower.includes("estudio") || lower.includes("an├ílisis") || lower.includes("investigaci├│n")) {
     return Search;
   }
-  if (lower.includes("comisión") || lower.includes("cargo") || lower.includes("fee") || lower.includes("interés")) {
+  if (lower.includes("comisi├│n") || lower.includes("cargo") || lower.includes("fee") || lower.includes("inter├®s")) {
     return BadgePercent;
   }
-  if (lower.includes("matrícula") || lower.includes("registro") || lower.includes("documento")) {
+  if (lower.includes("matr├¡cula") || lower.includes("registro") || lower.includes("documento")) {
     return FileText;
   }
-  if (lower.includes("banco") || lower.includes("entidad") || lower.includes("administración")) {
+  if (lower.includes("banco") || lower.includes("entidad") || lower.includes("administraci├│n")) {
     return Landmark;
   }
-  if (lower.includes("mensajería") || lower.includes("transporte") || lower.includes("envío")) {
+  if (lower.includes("mensajer├¡a") || lower.includes("transporte") || lower.includes("env├¡o")) {
     return Truck;
   }
   return Receipt;

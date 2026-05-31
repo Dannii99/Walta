@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -52,7 +52,7 @@ export function LoanPreviewCard({
 
   const capacityLabel =
     percentageOfBudget <= 30
-      ? "Cómodo"
+      ? "C├│modo"
       : percentageOfBudget <= 50
         ? "Ajustado"
         : "Riesgoso";
@@ -64,7 +64,7 @@ export function LoanPreviewCard({
       <CardContent className="p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Calculator className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold text-sm">Tu crédito calculado</h3>
+          <h3 className="font-semibold text-sm">Tu cr├®dito calculado</h3>
         </div>
 
         <div className="space-y-3">
@@ -72,7 +72,7 @@ export function LoanPreviewCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Wallet className="h-3.5 w-3.5" />
-              <span>Cuota del crédito</span>
+              <span>Cuota del cr├®dito</span>
             </div>
             <span className="font-medium">{formatCOP(monthlyPayment)}</span>
           </div>
@@ -123,7 +123,7 @@ export function LoanPreviewCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingDown className="h-3.5 w-3.5" />
-              <span>Interés total</span>
+              <span>Inter├®s total</span>
             </div>
             <span className="font-medium">{formatCOP(totalInterest)}</span>
           </div>

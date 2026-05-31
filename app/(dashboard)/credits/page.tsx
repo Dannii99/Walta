@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { getUserLoans } from "@/server/queries/loan-queries";
 import { LoanListCard } from "@/components/credits/LoanListCard";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Créditos | Presupuesto Claro",
-  description: "Seguimiento de tus créditos y préstamos.",
+  title: "Cr├®ditos | Presupuesto Claro",
+  description: "Seguimiento de tus cr├®ditos y pr├®stamos.",
 };
 
 export default async function CreditsPage() {
@@ -24,13 +24,13 @@ export default async function CreditsPage() {
     <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Créditos</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Cr├®ditos</h1>
           <p className="text-muted-foreground text-sm">
-            Seguimiento de tus préstamos y créditos activos
+            Seguimiento de tus pr├®stamos y cr├®ditos activos
           </p>
         </div>
         <Link href="/credits/new">
-          <Button>Nuevo crédito</Button>
+          <Button>Nuevo cr├®dito</Button>
         </Link>
       </div>
 
@@ -39,11 +39,11 @@ export default async function CreditsPage() {
         <Card className="hover:border-primary/50 transition-colors">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
-              <span className="text-xl">🆕</span>
+              <span className="text-xl">­ƒåò</span>
             </div>
-            <p className="font-medium mb-1">Crear crédito nuevo</p>
+            <p className="font-medium mb-1">Crear cr├®dito nuevo</p>
             <p className="text-sm text-muted-foreground mb-4">
-              Simula y registra un crédito que vas a tomar
+              Simula y registra un cr├®dito que vas a tomar
             </p>
             <Link href="/credits/new?mode=new">
               <Button variant="outline">Crear nuevo</Button>
@@ -53,11 +53,11 @@ export default async function CreditsPage() {
         <Card className="hover:border-primary/50 transition-colors">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center mb-3">
-              <span className="text-xl">📋</span>
+              <span className="text-xl">­ƒôï</span>
             </div>
-            <p className="font-medium mb-1">Agregar crédito en curso</p>
+            <p className="font-medium mb-1">Agregar cr├®dito en curso</p>
             <p className="text-sm text-muted-foreground mb-4">
-              Registra un crédito que ya tienes y lleva seguimiento
+              Registra un cr├®dito que ya tienes y lleva seguimiento
             </p>
             <Link href="/credits/new?mode=ongoing">
               <Button variant="outline">Agregar existente</Button>
@@ -68,7 +68,7 @@ export default async function CreditsPage() {
 
       {loans.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Mis créditos</h2>
+          <h2 className="text-lg font-semibold">Mis cr├®ditos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loans.map((loan) => (
             <LoanListCard key={loan.id} loan={{

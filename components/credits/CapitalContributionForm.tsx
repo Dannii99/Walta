@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -106,7 +106,7 @@ export function CapitalContributionForm({ onRecord }: CapitalContributionFormPro
               <Label htmlFor="extra-note">Nota (opcional)</Label>
               <Input
                 id="extra-note"
-                placeholder="Ej: Bono de fin de año"
+                placeholder="Ej: Bono de fin de a├▒o"
                 {...register("note")}
               />
             </div>

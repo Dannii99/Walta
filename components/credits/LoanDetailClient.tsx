@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -65,6 +65,20 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
     router.refresh();
   };
 
+  const handleMarkPaid = async (month: number) => {
+    const row = schedule.find((r) => r.month === month);
+    if (!row) return;
+
+    await recordPayment(loan.id, {
+      amount: String(row.payment.toFixed(2)),
+      principalPaid: String(row.principal.toFixed(2)),
+      interestPaid: String(row.interest.toFixed(2)),
+      paidDate: row.date,
+    });
+    setRefreshKey((k) => k + 1);
+    router.refresh();
+  };
+
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -77,7 +91,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
   };
 
   const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
-    { key: "amortization", label: "Amortización", icon: CalendarDays },
+    { key: "amortization", label: "Amortizaci├│n", icon: CalendarDays },
     { key: "payments", label: "Pagos", icon: Receipt },
     { key: "extras", label: "Abonos", icon: PiggyBank },
   ];
@@ -89,7 +103,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
           <h1 className="text-2xl font-bold tracking-tight">{loan.title}</h1>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="outline">
-              {loan.type === "VEHICLE" && "Vehículo"}
+              {loan.type === "VEHICLE" && "Veh├¡culo"}
               {loan.type === "PERSONAL" && "Personal"}
               {loan.type === "HOUSING" && "Vivienda"}
               {loan.type === "OTHER" && "Otros"}
@@ -182,7 +196,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
           transition={{ duration: 0.2 }}
         >
           {activeTab === "amortization" && (
-            <AmortizationTable schedule={schedule} />
+            <AmortizationTable schedule={schedule} onMarkPaid={handleMarkPaid} />
           )}
           {activeTab === "payments" && (
             <PaymentsList payments={loan.payments} />
@@ -197,9 +211,9 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar este crédito?</AlertDialogTitle>
+            <AlertDialogTitle>┬┐Eliminar este cr├®dito?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminarán todos los pagos,
+              Esta acci├│n no se puede deshacer. Se eliminar├ín todos los pagos,
               abonos y datos asociados a <strong>{loan.title}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -209,7 +223,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
               onClick={handleDelete}
               className="bg-red-600 text-white hover:bg-red-700"
             >
-              {isDeleting ? "Eliminando..." : "Eliminar crédito"}
+              {isDeleting ? "Eliminando..." : "Eliminar cr├®dito"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -223,7 +237,7 @@ function PaymentsList({ payments }: { payments: LoanPayment[] }) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          No hay pagos registrados aún.
+          No hay pagos registrados a├║n.
         </CardContent>
       </Card>
     );
@@ -250,7 +264,7 @@ function PaymentsList({ payments }: { payments: LoanPayment[] }) {
                   })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Capital: {formatCOP(parseFloat(p.principalPaid))} · Interés: {formatCOP(parseFloat(p.interestPaid))}
+                  Capital: {formatCOP(parseFloat(p.principalPaid))} ┬À Inter├®s: {formatCOP(parseFloat(p.interestPaid))}
                 </p>
               </div>
               <span className="font-bold text-sm">{formatCOP(parseFloat(p.amount))}</span>

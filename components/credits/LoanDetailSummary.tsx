@@ -1,7 +1,6 @@
-"use client";
+﻿"use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCOP } from "@/lib/currency";
 import {
   calculateRemainingBalance,
   getProjectedPayoffDate,
@@ -9,6 +8,15 @@ import {
   getPaidInstallments,
 } from "@/lib/loan-engine";
 import type { Loan } from "@/types";
+
+function formatCOP(amount: number): string {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
 
 interface LoanDetailSummaryProps {
   loan: Loan;
@@ -31,6 +39,12 @@ export function LoanDetailSummary({ loan }: LoanDetailSummaryProps) {
     loan.extraPayments ?? []
   );
 
+  const hasPendingPastPayments =
+    loan.status === "DEFAULTED" ||
+    (loan.paidInstallments !== undefined &&
+      loan.paidInstallments > 0 &&
+      paidCount < loan.paidInstallments);
+
   const stats = [
     {
       label: "Saldo actual",
@@ -48,7 +62,7 @@ export function LoanDetailSummary({ loan }: LoanDetailSummaryProps) {
       sub: `${paidCount} / ${loan.termMonths} cuotas`,
     },
     {
-      label: "Próximo pago",
+      label: "Proximo pago",
       value: nextPayment.toLocaleDateString("es-CO", {
         day: "numeric",
         month: "short",
@@ -65,20 +79,48 @@ export function LoanDetailSummary({ loan }: LoanDetailSummaryProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat, i) => (
-        <Card key={i}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {stat.label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-            <p className="text-xs text-muted-foreground mt-1">{stat.sub}</p>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, i) => (
+          <Card key={i}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {stat.label}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.sub}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {loan.status === "DEFAULTED" && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-2 text-red-800">
+              <span className="font-semibold">Credito en mora</span>
+              <span className="text-sm">
+                Hay cuotas vencidas sin pago
+              </span>
+            </div>
           </CardContent>
         </Card>
-      ))}
+      )}
+
+      {hasPendingPastPayments && loan.status !== "DEFAULTED" && (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-2 text-amber-800">
+              <span className="font-semibold">Proximo pago vencido</span>
+              <span className="text-sm">
+                Hay cuotas pasadas pendientes de sincronizacion
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
