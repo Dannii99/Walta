@@ -97,6 +97,13 @@ export type LoanType = "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER";
 export type LoanFormula = "french_ea" | "nominal_monthly";
 export type LoanStatus = "ACTIVE" | "PAID_OFF" | "DEFAULTED";
 
+export interface FeeItem {
+  id: string;
+  name: string;
+  amount: number;
+  type: "monthly" | "upfront";
+}
+
 export interface Loan {
   id: string;
   userId: string;
@@ -111,9 +118,11 @@ export interface Loan {
   monthlyPayment: string;
   startDate: Date;
   status: LoanStatus;
+  paidInstallments?: number;
   totalInterest: string;
   totalCost: string;
   currency: string;
+  fees?: FeeItem[];
   createdAt: Date;
   updatedAt: Date;
   payments?: LoanPayment[];

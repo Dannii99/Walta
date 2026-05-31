@@ -8524,6 +8524,7 @@ export namespace Prisma {
     annualRate: Decimal | null
     termMonths: number | null
     monthlyPayment: Decimal | null
+    paidInstallments: number | null
     totalInterest: Decimal | null
     totalCost: Decimal | null
   }
@@ -8534,6 +8535,7 @@ export namespace Prisma {
     annualRate: Decimal | null
     termMonths: number | null
     monthlyPayment: Decimal | null
+    paidInstallments: number | null
     totalInterest: Decimal | null
     totalCost: Decimal | null
   }
@@ -8552,6 +8554,7 @@ export namespace Prisma {
     monthlyPayment: Decimal | null
     startDate: Date | null
     status: string | null
+    paidInstallments: number | null
     totalInterest: Decimal | null
     totalCost: Decimal | null
     currency: string | null
@@ -8573,6 +8576,7 @@ export namespace Prisma {
     monthlyPayment: Decimal | null
     startDate: Date | null
     status: string | null
+    paidInstallments: number | null
     totalInterest: Decimal | null
     totalCost: Decimal | null
     currency: string | null
@@ -8594,9 +8598,11 @@ export namespace Prisma {
     monthlyPayment: number
     startDate: number
     status: number
+    paidInstallments: number
     totalInterest: number
     totalCost: number
     currency: number
+    fees: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -8609,6 +8615,7 @@ export namespace Prisma {
     annualRate?: true
     termMonths?: true
     monthlyPayment?: true
+    paidInstallments?: true
     totalInterest?: true
     totalCost?: true
   }
@@ -8619,6 +8626,7 @@ export namespace Prisma {
     annualRate?: true
     termMonths?: true
     monthlyPayment?: true
+    paidInstallments?: true
     totalInterest?: true
     totalCost?: true
   }
@@ -8637,6 +8645,7 @@ export namespace Prisma {
     monthlyPayment?: true
     startDate?: true
     status?: true
+    paidInstallments?: true
     totalInterest?: true
     totalCost?: true
     currency?: true
@@ -8658,6 +8667,7 @@ export namespace Prisma {
     monthlyPayment?: true
     startDate?: true
     status?: true
+    paidInstallments?: true
     totalInterest?: true
     totalCost?: true
     currency?: true
@@ -8679,9 +8689,11 @@ export namespace Prisma {
     monthlyPayment?: true
     startDate?: true
     status?: true
+    paidInstallments?: true
     totalInterest?: true
     totalCost?: true
     currency?: true
+    fees?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -8787,9 +8799,11 @@ export namespace Prisma {
     monthlyPayment: Decimal
     startDate: Date
     status: string
+    paidInstallments: number
     totalInterest: Decimal
     totalCost: Decimal
     currency: string
+    fees: JsonValue
     createdAt: Date
     updatedAt: Date
     _count: LoanCountAggregateOutputType | null
@@ -8827,9 +8841,11 @@ export namespace Prisma {
     monthlyPayment?: boolean
     startDate?: boolean
     status?: boolean
+    paidInstallments?: boolean
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
+    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -8852,9 +8868,11 @@ export namespace Prisma {
     monthlyPayment?: boolean
     startDate?: boolean
     status?: boolean
+    paidInstallments?: boolean
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
+    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -8874,9 +8892,11 @@ export namespace Prisma {
     monthlyPayment?: boolean
     startDate?: boolean
     status?: boolean
+    paidInstallments?: boolean
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
+    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -8896,14 +8916,16 @@ export namespace Prisma {
     monthlyPayment?: boolean
     startDate?: boolean
     status?: boolean
+    paidInstallments?: boolean
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
+    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type LoanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "simulationId" | "title" | "type" | "principal" | "downPayment" | "annualRate" | "termMonths" | "formula" | "monthlyPayment" | "startDate" | "status" | "totalInterest" | "totalCost" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
+  export type LoanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "simulationId" | "title" | "type" | "principal" | "downPayment" | "annualRate" | "termMonths" | "formula" | "monthlyPayment" | "startDate" | "status" | "paidInstallments" | "totalInterest" | "totalCost" | "currency" | "fees" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
   export type LoanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     payments?: boolean | Loan$paymentsArgs<ExtArgs>
@@ -8938,9 +8960,11 @@ export namespace Prisma {
       monthlyPayment: Prisma.Decimal
       startDate: Date
       status: string
+      paidInstallments: number
       totalInterest: Prisma.Decimal
       totalCost: Prisma.Decimal
       currency: string
+      fees: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["loan"]>
@@ -9382,9 +9406,11 @@ export namespace Prisma {
     readonly monthlyPayment: FieldRef<"Loan", 'Decimal'>
     readonly startDate: FieldRef<"Loan", 'DateTime'>
     readonly status: FieldRef<"Loan", 'String'>
+    readonly paidInstallments: FieldRef<"Loan", 'Int'>
     readonly totalInterest: FieldRef<"Loan", 'Decimal'>
     readonly totalCost: FieldRef<"Loan", 'Decimal'>
     readonly currency: FieldRef<"Loan", 'String'>
+    readonly fees: FieldRef<"Loan", 'Json'>
     readonly createdAt: FieldRef<"Loan", 'DateTime'>
     readonly updatedAt: FieldRef<"Loan", 'DateTime'>
   }
@@ -12198,9 +12224,11 @@ export namespace Prisma {
     monthlyPayment: 'monthlyPayment',
     startDate: 'startDate',
     status: 'status',
+    paidInstallments: 'paidInstallments',
     totalInterest: 'totalInterest',
     totalCost: 'totalCost',
     currency: 'currency',
+    fees: 'fees',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12779,9 +12807,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFilter<"Loan"> | Date | string
     status?: StringFilter<"Loan"> | string
+    paidInstallments?: IntFilter<"Loan"> | number
     totalInterest?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Loan"> | string
+    fees?: JsonFilter<"Loan">
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -12803,9 +12833,11 @@ export namespace Prisma {
     monthlyPayment?: SortOrder
     startDate?: SortOrder
     status?: SortOrder
+    paidInstallments?: SortOrder
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
+    fees?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -12830,9 +12862,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFilter<"Loan"> | Date | string
     status?: StringFilter<"Loan"> | string
+    paidInstallments?: IntFilter<"Loan"> | number
     totalInterest?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Loan"> | string
+    fees?: JsonFilter<"Loan">
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -12854,9 +12888,11 @@ export namespace Prisma {
     monthlyPayment?: SortOrder
     startDate?: SortOrder
     status?: SortOrder
+    paidInstallments?: SortOrder
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
+    fees?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: LoanCountOrderByAggregateInput
@@ -12883,9 +12919,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalWithAggregatesFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeWithAggregatesFilter<"Loan"> | Date | string
     status?: StringWithAggregatesFilter<"Loan"> | string
+    paidInstallments?: IntWithAggregatesFilter<"Loan"> | number
     totalInterest?: DecimalWithAggregatesFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalWithAggregatesFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringWithAggregatesFilter<"Loan"> | string
+    fees?: JsonWithAggregatesFilter<"Loan">
     createdAt?: DateTimeWithAggregatesFilter<"Loan"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Loan"> | Date | string
   }
@@ -13450,9 +13488,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutLoansInput
@@ -13474,9 +13514,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     payments?: LoanPaymentUncheckedCreateNestedManyWithoutLoanInput
@@ -13496,9 +13538,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutLoansNestedInput
@@ -13520,9 +13564,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput
@@ -13543,9 +13589,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13563,9 +13611,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13584,9 +13634,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14231,9 +14283,11 @@ export namespace Prisma {
     monthlyPayment?: SortOrder
     startDate?: SortOrder
     status?: SortOrder
+    paidInstallments?: SortOrder
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
+    fees?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14244,6 +14298,7 @@ export namespace Prisma {
     annualRate?: SortOrder
     termMonths?: SortOrder
     monthlyPayment?: SortOrder
+    paidInstallments?: SortOrder
     totalInterest?: SortOrder
     totalCost?: SortOrder
   }
@@ -14262,6 +14317,7 @@ export namespace Prisma {
     monthlyPayment?: SortOrder
     startDate?: SortOrder
     status?: SortOrder
+    paidInstallments?: SortOrder
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
@@ -14283,6 +14339,7 @@ export namespace Prisma {
     monthlyPayment?: SortOrder
     startDate?: SortOrder
     status?: SortOrder
+    paidInstallments?: SortOrder
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
@@ -14296,6 +14353,7 @@ export namespace Prisma {
     annualRate?: SortOrder
     termMonths?: SortOrder
     monthlyPayment?: SortOrder
+    paidInstallments?: SortOrder
     totalInterest?: SortOrder
     totalCost?: SortOrder
   }
@@ -15119,9 +15177,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     payments?: LoanPaymentCreateNestedManyWithoutLoanInput
@@ -15141,9 +15201,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     payments?: LoanPaymentUncheckedCreateNestedManyWithoutLoanInput
@@ -15252,9 +15314,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFilter<"Loan"> | Date | string
     status?: StringFilter<"Loan"> | string
+    paidInstallments?: IntFilter<"Loan"> | number
     totalInterest?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Loan"> | string
+    fees?: JsonFilter<"Loan">
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
   }
@@ -15885,9 +15949,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutLoansInput
@@ -15908,9 +15974,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     extraPayments?: LoanExtraPaymentUncheckedCreateNestedManyWithoutLoanInput
@@ -15945,9 +16013,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutLoansNestedInput
@@ -15968,9 +16038,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     extraPayments?: LoanExtraPaymentUncheckedUpdateManyWithoutLoanNestedInput
@@ -15989,9 +16061,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutLoansInput
@@ -16012,9 +16086,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     payments?: LoanPaymentUncheckedCreateNestedManyWithoutLoanInput
@@ -16049,9 +16125,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutLoansNestedInput
@@ -16072,9 +16150,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput
@@ -16112,9 +16192,11 @@ export namespace Prisma {
     monthlyPayment: Decimal | DecimalJsLike | number | string
     startDate?: Date | string
     status?: string
+    paidInstallments?: number
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16193,9 +16275,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: LoanPaymentUpdateManyWithoutLoanNestedInput
@@ -16215,9 +16299,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput
@@ -16237,9 +16323,11 @@ export namespace Prisma {
     monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
+    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

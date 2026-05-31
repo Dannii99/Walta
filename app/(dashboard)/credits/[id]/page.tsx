@@ -26,12 +26,13 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  const typedLoan = {
-    ...loan,
-    type: loan.type as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
-    formula: loan.formula as "french_ea" | "nominal_monthly",
-    status: loan.status as "ACTIVE" | "PAID_OFF" | "DEFAULTED",
-  };
+    const typedLoan = {
+      ...loan,
+      type: loan.type as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
+      formula: loan.formula as "french_ea" | "nominal_monthly",
+      status: loan.status as "ACTIVE" | "PAID_OFF" | "DEFAULTED",
+      paidInstallments: (loan as unknown as { paidInstallments?: number }).paidInstallments ?? 0,
+    };
 
   return <LoanDetailClient loan={typedLoan} />;
 }

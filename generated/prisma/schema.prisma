@@ -79,25 +79,27 @@ model MonthlySnapshot {
 }
 
 model Loan {
-  id             String   @id @default(cuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id])
-  simulationId   String?
-  title          String
-  type           String // VEHICLE, PERSONAL, HOUSING, OTHER
-  principal      Decimal  @db.Decimal(15, 2)
-  downPayment    Decimal  @default(0) @db.Decimal(15, 2)
-  annualRate     Decimal  @db.Decimal(10, 6)
-  termMonths     Int
-  formula        String // french_ea | nominal_monthly
-  monthlyPayment Decimal  @db.Decimal(15, 2)
-  startDate      DateTime @default(now())
-  status         String   @default("ACTIVE") // ACTIVE | PAID_OFF | DEFAULTED
-  totalInterest  Decimal  @db.Decimal(15, 2)
-  totalCost      Decimal  @db.Decimal(15, 2)
-  currency       String   @default("COP")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  simulationId     String?
+  title            String
+  type             String // VEHICLE, PERSONAL, HOUSING, OTHER
+  principal        Decimal  @db.Decimal(15, 2)
+  downPayment      Decimal  @default(0) @db.Decimal(15, 2)
+  annualRate       Decimal  @db.Decimal(10, 6)
+  termMonths       Int
+  formula          String // french_ea | nominal_monthly
+  monthlyPayment   Decimal  @db.Decimal(15, 2)
+  startDate        DateTime @default(now())
+  status           String   @default("ACTIVE") // ACTIVE | PAID_OFF | DEFAULTED
+  paidInstallments Int      @default(0)
+  totalInterest    Decimal  @db.Decimal(15, 2)
+  totalCost        Decimal  @db.Decimal(15, 2)
+  currency         String   @default("COP")
+  fees             Json     @default("[]") // [{ id, name, amount, type: "monthly" | "upfront" }]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   payments      LoanPayment[]
   extraPayments LoanExtraPayment[]

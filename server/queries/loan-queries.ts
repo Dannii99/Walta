@@ -27,6 +27,7 @@ export async function getUserLoans(userId: string) {
     monthlyPayment: loan.monthlyPayment.toString(),
     totalInterest: loan.totalInterest.toString(),
     totalCost: loan.totalCost.toString(),
+    fees: (loan as unknown as { fees?: unknown }).fees as import("@/types").FeeItem[] | undefined,
     paymentsCount: loan._count.payments,
     extrasCount: loan._count.extraPayments,
   }));
@@ -58,6 +59,7 @@ export async function getLoanById(id: string) {
     monthlyPayment: loan.monthlyPayment.toString(),
     totalInterest: loan.totalInterest.toString(),
     totalCost: loan.totalCost.toString(),
+    fees: (loan as unknown as { fees?: unknown }).fees as import("@/types").FeeItem[] | undefined,
     payments: loan.payments.map((p) => ({
       ...p,
       amount: p.amount.toString(),

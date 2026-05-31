@@ -19,7 +19,64 @@ const createLoanSchema = z.object({
   startDate: z.union([z.date(), z.string().datetime()]).optional(),
   totalInterest: z.number().nonnegative(),
   totalCost: z.number().positive(),
+  paidInstallments: z.number().int().min(0).max(120).default(0),
+  fees: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    amount: z.number().nonnegative(),
+    type: z.enum(["monthly", "upfront"]),
+  })).default([]),
+  initialExtraPayment: z.number().nonnegative().optional(),
 });
+
+function addMonths(date: Date, months: number): Date {
+  const d = new Date(date.getTime());
+  const year = d.getUTCFullYear();
+  const month = d.getUTCMonth();
+  const day = d.getUTCDate();
+  return new Date(Date.UTC(year, month + months, day));
+}
+
+function generateFictitiousPayments(
+  loan: {
+    principal: number;
+    annualRate: number;
+    formula: string;
+    monthlyPayment: number;
+    startDate: Date;
+    paidInstallments: number;
+  }
+) {
+  const monthlyRate =
+    loan.formula === "french_ea"
+      ? Math.pow(1 + loan.annualRate, 1 / 12) - 1
+      : loan.annualRate / 12;
+
+  let balance = loan.principal;
+  const payments = [];
+
+  for (let i = 0; i < loan.paidInstallments; i++) {
+    const interest = balance * monthlyRate;
+    let principalPaid = loan.monthlyPayment - interest;
+
+    if (principalPaid >= balance) {
+      principalPaid = balance;
+    }
+
+    balance = Math.max(0, balance - principalPaid);
+
+    payments.push({
+      amount: String(loan.monthlyPayment.toFixed(2)),
+      principalPaid: String(principalPaid.toFixed(2)),
+      interestPaid: String(interest.toFixed(2)),
+      paidDate: addMonths(loan.startDate, i),
+    });
+
+    if (balance <= 0.01) break;
+  }
+
+  return payments;
+}
 
 export async function createLoan(
   data: {
@@ -35,6 +92,9 @@ export async function createLoan(
     startDate?: Date | string;
     totalInterest: number;
     totalCost: number;
+    paidInstallments?: number;
+  fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
+    initialExtraPayment?: number;
   }
 ) {
   const session = await auth();
@@ -44,6 +104,8 @@ export async function createLoan(
 
   const userId = session.user.id;
   const parsed = createLoanSchema.parse({ userId, ...data });
+
+  const startDate = parsed.startDate ? new Date(parsed.startDate) : new Date();
 
   const loan = await prisma.loan.create({
     data: {
@@ -57,11 +119,47 @@ export async function createLoan(
       termMonths: parsed.termMonths,
       formula: parsed.formula,
       monthlyPayment: parsed.monthlyPayment,
-      startDate: parsed.startDate ? new Date(parsed.startDate) : new Date(),
+      startDate,
       totalInterest: parsed.totalInterest,
       totalCost: parsed.totalCost,
-    },
+      paidInstallments: parsed.paidInstallments,
+      fees: parsed.fees,
+    } as Parameters<typeof prisma.loan.create>[0]["data"],
   });
+
+  // Generate fictitious payments for ongoing loans
+  if (parsed.paidInstallments > 0) {
+    const fictitiousPayments = generateFictitiousPayments({
+      principal: parsed.principal,
+      annualRate: parsed.annualRate,
+      formula: parsed.formula,
+      monthlyPayment: parsed.monthlyPayment,
+      startDate,
+      paidInstallments: parsed.paidInstallments,
+    });
+
+    await prisma.loanPayment.createMany({
+      data: fictitiousPayments.map((p) => ({
+        loanId: loan.id,
+        amount: p.amount,
+        principalPaid: p.principalPaid,
+        interestPaid: p.interestPaid,
+        paidDate: p.paidDate,
+      })),
+    });
+  }
+
+  // Create initial extra payment if provided
+  if (parsed.initialExtraPayment && parsed.initialExtraPayment > 0) {
+    await prisma.loanExtraPayment.create({
+      data: {
+        loanId: loan.id,
+        amount: String(parsed.initialExtraPayment.toFixed(2)),
+        date: startDate,
+        note: "Abono a capital previo al registro",
+      },
+    });
+  }
 
   revalidatePath("/credits");
 
@@ -73,6 +171,8 @@ export async function createLoan(
     monthlyPayment: loan.monthlyPayment.toString(),
     totalInterest: loan.totalInterest.toString(),
     totalCost: loan.totalCost.toString(),
+    paidInstallments: (loan as unknown as { paidInstallments?: number }).paidInstallments ?? 0,
+    fees: (loan as unknown as { fees?: unknown }).fees ?? [],
   };
 }
 
@@ -80,7 +180,19 @@ export async function updateLoan(
   id: string,
   data: {
     title?: string;
+    type?: string;
+    principal?: number;
+    downPayment?: number;
+    annualRate?: number;
+    termMonths?: number;
+    formula?: string;
+    monthlyPayment?: number;
+    startDate?: Date | string;
     status?: "ACTIVE" | "PAID_OFF" | "DEFAULTED";
+    paidInstallments?: number;
+    totalInterest?: number;
+    totalCost?: number;
+    fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
   }
 ) {
   const session = await auth();
@@ -97,9 +209,25 @@ export async function updateLoan(
     throw new Error("Unauthorized");
   }
 
+  const updateData: Record<string, unknown> = {};
+  if (data.title !== undefined) updateData.title = data.title;
+  if (data.type !== undefined) updateData.type = data.type;
+  if (data.principal !== undefined) updateData.principal = data.principal;
+  if (data.downPayment !== undefined) updateData.downPayment = data.downPayment;
+  if (data.annualRate !== undefined) updateData.annualRate = data.annualRate;
+  if (data.termMonths !== undefined) updateData.termMonths = data.termMonths;
+  if (data.formula !== undefined) updateData.formula = data.formula;
+  if (data.monthlyPayment !== undefined) updateData.monthlyPayment = data.monthlyPayment;
+  if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
+  if (data.status !== undefined) updateData.status = data.status;
+  if (data.paidInstallments !== undefined) updateData.paidInstallments = data.paidInstallments;
+  if (data.totalInterest !== undefined) updateData.totalInterest = data.totalInterest;
+  if (data.totalCost !== undefined) updateData.totalCost = data.totalCost;
+  if (data.fees !== undefined) updateData.fees = data.fees;
+
   const updated = await prisma.loan.update({
     where: { id },
-    data,
+    data: updateData,
   });
 
   revalidatePath("/credits");
@@ -113,6 +241,8 @@ export async function updateLoan(
     monthlyPayment: updated.monthlyPayment.toString(),
     totalInterest: updated.totalInterest.toString(),
     totalCost: updated.totalCost.toString(),
+    paidInstallments: (updated as unknown as { paidInstallments?: number }).paidInstallments ?? 0,
+    fees: (updated as unknown as { fees?: unknown }).fees ?? [],
   };
 }
 

@@ -22,6 +22,7 @@ function makeLoan(overrides: Partial<Loan> = {}): Loan {
     monthlyPayment: "2378456",
     startDate: new Date("2024-01-01"),
     status: "ACTIVE",
+    paidInstallments: 0,
     totalInterest: "42620736",
     totalCost: "142620736",
     currency: "COP",

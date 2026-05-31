@@ -191,9 +191,11 @@ exports.Prisma.LoanScalarFieldEnum = {
   monthlyPayment: 'monthlyPayment',
   startDate: 'startDate',
   status: 'status',
+  paidInstallments: 'paidInstallments',
   totalInterest: 'totalInterest',
   totalCost: 'totalCost',
   currency: 'currency',
+  fees: 'fees',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

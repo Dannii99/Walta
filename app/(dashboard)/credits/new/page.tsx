@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 interface NewCreditPageProps {
-  searchParams: Promise<{ fromSimulation?: string }>;
+  searchParams: Promise<{ fromSimulation?: string; mode?: string }>;
 }
 
 export default async function NewCreditPage({ searchParams }: NewCreditPageProps) {
@@ -21,6 +21,7 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
 
   const params = await searchParams;
   const fromSimulationId = params.fromSimulation;
+  const mode = params.mode === "ongoing" ? "ongoing" : "new";
 
   let defaultValues = null;
 
@@ -46,7 +47,7 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
       defaultValues = {
         title: simulation.title,
         type: simulation.type.toLowerCase(),
-        principal: (inputs.price ?? 0) - (inputs.downPayment ?? 0),
+        price: inputs.price ?? 0,
         downPayment: inputs.downPayment ?? 0,
         annualRate: inputs.rate ?? 0,
         termMonths: inputs.term ?? 0,
@@ -59,18 +60,50 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
     }
   }
 
+  // Fetch budget to calculate available money for capacity preview
+  const budget = await prisma.budget.findFirst({
+    where: { userId: session.user.id },
+    include: {
+      categories: {
+        include: {
+          transactions: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  let availableMoney = 0;
+  if (budget) {
+    const income = Number(budget.income);
+    const totalExpenses = budget.categories.reduce(
+      (sum, cat) =>
+        sum +
+        cat.transactions.reduce(
+          (catSum, tx) => catSum + Number(tx.amount),
+          0
+        ),
+      0
+    );
+    availableMoney = income - totalExpenses;
+  }
+
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-3xl mx-auto">
+    <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Nuevo Crédito</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {mode === "ongoing" ? "Agregar Crédito en Curso" : "Nuevo Crédito"}
+        </h1>
         <p className="text-muted-foreground text-sm mt-1">
-          {defaultValues
-            ? "Revisa los datos precargados desde la simulación y guarda el crédito."
-            : "Completa los datos de tu crédito para empezar el seguimiento."}
+          {mode === "ongoing"
+            ? "Registra un crédito que ya tienes en marcha para hacer seguimiento."
+            : defaultValues
+              ? "Revisa los datos precargados desde la simulación y guarda el crédito."
+              : "Completa los datos de tu crédito para empezar el seguimiento."}
         </p>
       </div>
 
-      <LoanForm defaultValues={defaultValues} />
+      <LoanForm mode={mode} defaultValues={defaultValues} availableMoney={availableMoney} />
     </div>
   );
 }

@@ -92,15 +92,17 @@ model Loan {
   formula         String   // french_ea | nominal_monthly
   monthlyPayment  Decimal  @db.Decimal(15, 2)
   startDate       DateTime @default(now())
-  status          String   @default("ACTIVE") // ACTIVE | PAID_OFF | DEFAULTED
-  totalInterest   Decimal  @db.Decimal(15, 2)
-  totalCost       Decimal  @db.Decimal(15, 2)
-  currency        String   @default("COP")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  status           String   @default("ACTIVE") // ACTIVE | PAID_OFF | DEFAULTED
+  paidInstallments Int      @default(0)
+  totalInterest    Decimal  @db.Decimal(15, 2)
+  totalCost        Decimal  @db.Decimal(15, 2)
+  currency         String   @default("COP")
+  fees             Json     @default("[]") // [{ id, name, amount, type: "monthly" | "upfront" }]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  payments        LoanPayment[]
-  extraPayments   LoanExtraPayment[]
+  payments         LoanPayment[]
+  extraPayments    LoanExtraPayment[]
 }
 
 model LoanPayment {

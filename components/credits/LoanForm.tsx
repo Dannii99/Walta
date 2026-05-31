@@ -1,319 +1,635 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { createLoan, updateLoan } from "@/server/actions/loan-actions";
+import { getLoanSummary } from "@/lib/simulation-engine";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { RateInput } from "@/components/simulations/RateInput";
-import { createLoan } from "@/server/actions/loan-actions";
-import { REFERENCE_RATES } from "@/lib/constants";
-import type { CreditType } from "@/lib/constants";
+import { LoanPreviewCard } from "./LoanPreviewCard";
+import { FeesSection } from "./FeesSection";
+import { ChevronRight, ChevronLeft, Check, Settings2 } from "lucide-react";
+import { toast } from "sonner";
+import type { FeeItem } from "@/types";
 
-const loanFormSchema = z.object({
-  title: z.string().min(1, "El nombre es obligatorio"),
-  type: z.enum(["vehicle", "personal", "housing", "other"] as const),
-  principal: z.number().positive("El monto debe ser mayor a 0"),
-  downPayment: z.number().min(0, "La cuota inicial no puede ser negativa"),
-  annualRate: z.number().min(0, "La tasa debe ser positiva"),
-  termMonths: z.number().int().min(1).max(120, "El plazo máximo es 120 meses"),
-  formula: z.enum(["french_ea", "nominal_monthly"] as const),
-  monthlyPayment: z.number().positive("La cuota mensual debe ser positiva"),
-  totalInterest: z.number().nonnegative(),
-  totalCost: z.number().positive(),
-  startDate: z.string().optional(),
-});
-
-type LoanFormData = z.infer<typeof loanFormSchema>;
-
-interface LoanFormProps {
-  defaultValues?: {
-    title: string;
-    type: string;
-    principal: number;
-    downPayment: number;
-    annualRate: number;
-    termMonths: number;
-    formula: string;
-    monthlyPayment: number;
-    totalInterest: number;
-    totalCost: number;
-    simulationId?: string;
-    startDate?: Date;
-  } | null;
+function getMonthlyRate(annualRate: number, formula: string): number {
+  return formula === "french_ea" || formula === "constant_capital_ea"
+    ? Math.pow(1 + annualRate, 1 / 12) - 1
+    : annualRate / 12;
 }
 
-const creditTypeLabels: Record<CreditType, string> = {
-  vehicle: "Vehículo",
-  personal: "Personal / Libre inversión",
-  housing: "Vivienda",
-  other: "Otros",
-};
+function calculatePreview(
+  principal: number,
+  annualRate: number,
+  termMonths: number,
+  formula: string
+): { monthlyPayment: number; totalInterest: number; totalCost: number } {
+  if (principal <= 0 || termMonths <= 0 || annualRate < 0) {
+    return { monthlyPayment: 0, totalInterest: 0, totalCost: 0 };
+  }
 
-export function LoanForm({ defaultValues }: LoanFormProps) {
+  const monthlyRate = getMonthlyRate(annualRate, formula);
+
+  // French (fixed payment)
+  if (formula === "french_ea" || formula === "french_namv") {
+    const summary = getLoanSummary(
+      principal,
+      annualRate,
+      termMonths,
+      formula === "french_ea" ? "french_ea" : "nominal_monthly"
+    );
+    return summary;
+  }
+
+  // German (constant capital, decreasing payment)
+  const monthlyPrincipal = principal / termMonths;
+  let balance = principal;
+  let totalInterest = 0;
+
+  for (let i = 0; i < termMonths; i++) {
+    const interest = balance * monthlyRate;
+    totalInterest += interest;
+    balance -= monthlyPrincipal;
+    if (balance < 0) balance = 0;
+  }
+
+  const firstMonthPayment = monthlyPrincipal + principal * monthlyRate;
+  return {
+    monthlyPayment: Number(firstMonthPayment.toFixed(2)),
+    totalInterest: Number(totalInterest.toFixed(2)),
+    totalCost: Number((principal + totalInterest).toFixed(2)),
+  };
+}
+
+function mapTypeToSchema(type: string): string {
+  const map: Record<string, string> = {
+    personal: "PERSONAL",
+    mortgage: "HOUSING",
+    vehicle: "VEHICLE",
+    student: "OTHER",
+    credit_card: "OTHER",
+    microcredit: "OTHER",
+  };
+  return map[type] || "OTHER";
+}
+
+function mapFormulaToSchema(formula: string): string {
+  if (formula === "french_ea" || formula === "constant_capital_ea") return "french_ea";
+  return "nominal_monthly";
+}
+
+const LOAN_TYPES = [
+  { value: "personal", label: "Personal" },
+  { value: "mortgage", label: "Hipotecario" },
+  { value: "vehicle", label: "Vehículo" },
+  { value: "student", label: "Estudiantil" },
+  { value: "credit_card", label: "Tarjeta de Crédito" },
+  { value: "microcredit", label: "Microcrédito" },
+];
+
+const FORMULAS = [
+  { value: "french_ea", label: "Cuota Fija (Francés EA)" },
+  { value: "french_namv", label: "Cuota Fija (Francés NAMV)" },
+  { value: "constant_capital_ea", label: "Capital Constante (Alemán EA)" },
+  { value: "constant_capital_namv", label: "Capital Constante (Alemán NAMV)" },
+];
+
+interface LoanFormProps {
+  mode: "new" | "ongoing" | "edit";
+  defaultValues?: Record<string, unknown> | null;
+  availableMoney?: number;
+  loanId?: string;
+}
+
+export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: LoanFormProps) {
   const router = useRouter();
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [termMode, setTermMode] = useState<"years" | "months">("years");
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoanFormData>({
-    resolver: zodResolver(loanFormSchema),
-    defaultValues: defaultValues
-      ? {
-          title: defaultValues.title,
-          type: defaultValues.type as LoanFormData["type"],
-          principal: defaultValues.principal,
-          downPayment: defaultValues.downPayment,
-          annualRate: defaultValues.annualRate,
-          termMonths: defaultValues.termMonths,
-          formula: defaultValues.formula as LoanFormData["formula"],
-          monthlyPayment: defaultValues.monthlyPayment,
-          totalInterest: defaultValues.totalInterest,
-          totalCost: defaultValues.totalCost,
-          startDate: defaultValues.startDate
-            ? new Date(defaultValues.startDate).toISOString().split("T")[0]
-            : new Date().toISOString().split("T")[0],
-        }
-      : {
-          title: "",
-          type: "vehicle",
-          principal: 50000000,
-          downPayment: 10000000,
-          annualRate: REFERENCE_RATES.vehicle.ea,
-          termMonths: 60,
-          formula: "french_ea",
-          monthlyPayment: 0,
-          totalInterest: 0,
-          totalCost: 0,
-          startDate: new Date().toISOString().split("T")[0],
-        },
+  // Step 1: Basic info
+  const [title, setTitle] = useState((defaultValues?.title as string) || "");
+  const [type, setType] = useState(
+    (defaultValues?.type as string) || "personal"
+  );
+  const [price, setPrice] = useState((defaultValues?.price as number) || 0);
+  const [downPayment, setDownPayment] = useState(
+    (defaultValues?.downPayment as number) || 0
+  );
+
+  // Step 2: Terms + preview
+  const [termValue, setTermValue] = useState(
+    defaultValues?.termMonths
+      ? termMode === "years"
+        ? Math.ceil((defaultValues.termMonths as number) / 12)
+        : (defaultValues.termMonths as number)
+      : 5
+  );
+  const [annualRate, setAnnualRate] = useState(
+    (defaultValues?.annualRate as number) || 0.18
+  );
+  const [formula, setFormula] = useState(
+    (defaultValues?.formula as string) || "french_ea"
+  );
+  const [startDate, setStartDate] = useState(() => {
+    const now = new Date();
+    return now.toISOString().split("T")[0];
   });
 
-  const handleSave = async (data: LoanFormData) => {
-    setIsSaving(true);
-    setSaveMessage("");
+  // Step 2: Fees
+  const [fees, setFees] = useState<FeeItem[]>(
+    (defaultValues?.fees as FeeItem[]) || []
+  );
+
+  // Step 3: Advanced (ongoing only)
+  const [paidInstallments, setPaidInstallments] = useState(
+    (defaultValues?.paidInstallments as number) || 0
+  );
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [exactMonthlyPayment, setExactMonthlyPayment] = useState(
+    (defaultValues?.exactMonthlyPayment as number) || 0
+  );
+  const [exactTotalInterest, setExactTotalInterest] = useState(
+    (defaultValues?.exactTotalInterest as number) || 0
+  );
+  const [initialExtraPayment, setInitialExtraPayment] = useState(
+    (defaultValues?.initialExtraPayment as number) || 0
+  );
+
+  const termMonths = useMemo(
+    () => (termMode === "years" ? termValue * 12 : termValue),
+    [termMode, termValue]
+  );
+
+  const principal = useMemo(() => price - downPayment, [price, downPayment]);
+
+  const loanSummary = useMemo(() => {
+    if (principal <= 0 || termMonths <= 0 || annualRate < 0) return null;
     try {
-      const loan = await createLoan({
-        title: data.title,
-        type: data.type.toUpperCase(),
-        principal: data.principal,
-        downPayment: data.downPayment,
-        annualRate: data.annualRate,
-        termMonths: data.termMonths,
-        formula: data.formula,
-        monthlyPayment: data.monthlyPayment,
-        startDate: data.startDate ? new Date(data.startDate) : new Date(),
-        totalInterest: data.totalInterest,
-        totalCost: data.totalCost,
-        simulationId: defaultValues?.simulationId,
-      });
-      setSaveMessage("Crédito guardado correctamente.");
-      router.push(`/credits/${loan.id}`);
+      return calculatePreview(principal, annualRate, termMonths, formula);
     } catch {
-      setSaveMessage("Error al guardar el crédito.");
-    } finally {
-      setIsSaving(false);
+      return null;
+    }
+  }, [principal, annualRate, termMonths, formula]);
+
+  const monthlyPayment = useMemo(() => {
+    if (mode === "ongoing" && exactMonthlyPayment > 0) return exactMonthlyPayment;
+    return loanSummary?.monthlyPayment ?? 0;
+  }, [mode, exactMonthlyPayment, loanSummary]);
+
+  const totalInterest = useMemo(() => {
+    if (mode === "ongoing" && exactTotalInterest > 0) return exactTotalInterest;
+    return loanSummary?.totalInterest ?? 0;
+  }, [mode, exactTotalInterest, loanSummary]);
+
+  const totalCost = useMemo(() => {
+    return principal + totalInterest;
+  }, [principal, totalInterest]);
+
+  const validateStep1 = useCallback(() => {
+    if (!title.trim()) return "Debes ingresar un nombre para el crédito.";
+    if (price <= 0) return "El precio total debe ser mayor a cero.";
+    if (downPayment < 0) return "La cuota inicial no puede ser negativa.";
+    if (downPayment >= price) return "La cuota inicial no puede ser igual o mayor al precio.";
+    return null;
+  }, [title, price, downPayment]);
+
+  const validateStep2 = useCallback(() => {
+    if (termValue < 1) return "El plazo debe ser de al menos 1.";
+    if (annualRate <= 0) return "La tasa de interés debe ser mayor a cero.";
+    if (!startDate) return "Debes seleccionar la fecha de inicio.";
+    return null;
+  }, [termValue, annualRate, startDate]);
+
+  const handleNext = () => {
+    if (step === 1) {
+      const error = validateStep1();
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      const error = validateStep2();
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      if (mode === "ongoing" || (mode === "edit" && paidInstallments > 0)) {
+        setStep(3);
+      } else {
+        handleSubmit();
+      }
     }
   };
 
+  const handleBack = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
+    try {
+      if (mode === "edit" && loanId) {
+        await updateLoan(loanId, {
+          title,
+          type: mapTypeToSchema(type),
+          principal,
+          downPayment,
+          annualRate,
+          termMonths,
+          formula: mapFormulaToSchema(formula),
+          startDate: new Date(startDate),
+          monthlyPayment,
+          totalInterest,
+          totalCost,
+          paidInstallments: paidInstallments > 0 ? paidInstallments : undefined,
+          fees,
+        });
+        toast.success("Crédito actualizado");
+        router.push(`/credits/${loanId}`);
+        router.refresh();
+      } else {
+        await createLoan({
+          title,
+          type: mapTypeToSchema(type),
+          principal,
+          downPayment,
+          annualRate,
+          termMonths,
+          formula: mapFormulaToSchema(formula),
+          startDate: new Date(startDate),
+          monthlyPayment,
+          totalInterest,
+          totalCost,
+          paidInstallments: mode === "ongoing" ? paidInstallments : undefined,
+          fees,
+          initialExtraPayment: mode === "ongoing" && initialExtraPayment > 0 ? initialExtraPayment : undefined,
+        });
+        toast.success(mode === "ongoing" ? "Crédito en curso agregado" : "Crédito creado");
+        router.push("/credits");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al guardar el crédito");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const totalSteps = mode === "ongoing" || (mode === "edit" && paidInstallments > 0) ? 3 : 2;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Datos del Crédito</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form
-          id="loan-form"
-          onSubmit={handleSubmit(handleSave)}
-          className="space-y-4"
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="space-y-6">
+      {/* Step Indicator */}
+      <div className="flex items-center gap-2">
+        {[1, 2, 3].map((s) => {
+          if (s > totalSteps) return null;
+          const isActive = s === step;
+          const isCompleted = s < step;
+          return (
+            <div key={s} className="flex items-center gap-2 flex-1">
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : isCompleted
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {isCompleted ? <Check className="h-4 w-4" /> : s}
+              </div>
+              <div className="hidden sm:block">
+                <p
+                  className={`text-xs font-medium ${
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  {s === 1
+                    ? "Información básica"
+                    : s === 2
+                      ? "Condiciones"
+                      : "En curso"}
+                </p>
+              </div>
+              {s < totalSteps && (
+                <div className="h-px flex-1 bg-border mx-2" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Step 1: Basic Info */}
+      {step === 1 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Información básica</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Nombre / Descripción *</Label>
+              <Label htmlFor="title">Nombre del crédito</Label>
               <Input
                 id="title"
-                type="text"
-                placeholder="Ej: Mazda 3 2024"
-                {...register("title")}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Ej. Apartamento en Cedritos"
               />
-              {errors.title && (
-                <p className="text-sm text-destructive">{errors.title.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="type">Tipo de crédito</Label>
               <select
                 id="type"
-                {...register("type")}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="vehicle">{creditTypeLabels.vehicle}</option>
-                <option value="personal">{creditTypeLabels.personal}</option>
-                <option value="housing">{creditTypeLabels.housing}</option>
-                <option value="other">{creditTypeLabels.other}</option>
+                {LOAN_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="principal">Monto a financiar</Label>
-              <Controller
-                name="principal"
-                control={control}
-                render={({ field }) => (
-                  <CurrencyInput
-                    id="principal"
-                    value={field.value}
-                    onValueChange={(v) => field.onChange(v)}
-                  />
-                )}
+              <Label htmlFor="price">Precio total</Label>
+              <CurrencyInput
+                id="price"
+                value={price}
+                onValueChange={setPrice}
+                placeholder="0"
               />
-              {errors.principal && (
-                <p className="text-sm text-destructive">{errors.principal.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="downPayment">Cuota inicial</Label>
-              <Controller
-                name="downPayment"
-                control={control}
-                render={({ field }) => (
-                  <CurrencyInput
-                    id="downPayment"
-                    value={field.value}
-                    onValueChange={(v) => field.onChange(v)}
-                  />
-                )}
-              />
-              {errors.downPayment && (
-                <p className="text-sm text-destructive">{errors.downPayment.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="termMonths">Plazo (meses)</Label>
-              <Input
-                id="termMonths"
-                type="number"
-                min={1}
-                max={120}
-                {...register("termMonths", { valueAsNumber: true })}
-              />
-              {errors.termMonths && (
-                <p className="text-sm text-destructive">{errors.termMonths.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Controller
-                name="annualRate"
-                control={control}
-                render={({ field }) => (
-                  <RateInput
-                    value={field.value}
-                    onRateChange={(v) => field.onChange(v)}
-                  />
-                )}
-              />
-              {errors.annualRate && (
-                <p className="text-sm text-destructive">{errors.annualRate.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="formula">Fórmula de cálculo</Label>
-              <select
-                id="formula"
-                {...register("formula")}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="french_ea">Amortización Francesa (EA)</option>
-                <option value="nominal_monthly">Interés Nominal Mensual (NAMV/12)</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="monthlyPayment">Cuota mensual estimada</Label>
-              <Controller
-                name="monthlyPayment"
-                control={control}
-                render={({ field }) => (
-                  <CurrencyInput
-                    id="monthlyPayment"
-                    value={field.value}
-                    onValueChange={(v) => field.onChange(v)}
-                  />
-                )}
-              />
-              {errors.monthlyPayment && (
-                <p className="text-sm text-destructive">{errors.monthlyPayment.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="totalInterest">Interés total estimado</Label>
-              <Controller
-                name="totalInterest"
-                control={control}
-                render={({ field }) => (
-                  <CurrencyInput
-                    id="totalInterest"
-                    value={field.value}
-                    onValueChange={(v) => field.onChange(v)}
-                  />
-                )}
+              <CurrencyInput
+                id="downPayment"
+                value={downPayment}
+                onValueChange={setDownPayment}
+                placeholder="0"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="totalCost">Costo total estimado</Label>
-              <Controller
-                name="totalCost"
-                control={control}
-                render={({ field }) => (
-                  <CurrencyInput
-                    id="totalCost"
-                    value={field.value}
-                    onValueChange={(v) => field.onChange(v)}
-                  />
-                )}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Fecha de inicio</Label>
-              <Input
-                id="startDate"
-                type="date"
-                {...register("startDate")}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 pt-2">
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? "Guardando..." : "Guardar Crédito"}
-            </Button>
-            {saveMessage && (
-              <span
-                className={`text-sm ${saveMessage.includes("Error") ? "text-destructive" : "text-emerald-600"}`}
-              >
-                {saveMessage}
-              </span>
+            {price > 0 && downPayment > 0 && (
+              <div className="rounded-lg bg-muted p-3 text-sm">
+                <p>
+                  Monto a financiar:{" "}
+                  <span className="font-semibold">
+                    {new Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                    }).format(principal)}
+                  </span>
+                </p>
+                <p className="text-muted-foreground mt-1">
+                  Esto es lo que realmente vas a pedir prestado.
+                </p>
+              </div>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 2: Terms & Preview */}
+      {step === 2 && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Condiciones del crédito</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Plazo</Label>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        min={1}
+                        maxLength={3}
+                        value={termValue}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (Number.isNaN(val) || val < 1) {
+                            setTermValue(1);
+                          } else {
+                            setTermValue(val);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex rounded-md border border-input overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (termMode === "months") {
+                            setTermMode("years");
+                            setTermValue(Math.ceil(termValue / 12));
+                          }
+                        }}
+                        className={`px-3 py-2 text-sm font-medium ${
+                          termMode === "years"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Años
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (termMode === "years") {
+                            setTermMode("months");
+                            setTermValue(termValue * 12);
+                          }
+                        }}
+                        className={`px-3 py-2 text-sm font-medium ${
+                          termMode === "months"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Meses
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {termMonths} meses en total
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tasa de interés anual</Label>
+                  <RateInput
+                    value={annualRate}
+                    onRateChange={setAnnualRate}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="formula">Fórmula de amortización</Label>
+                  <select
+                    id="formula"
+                    value={formula}
+                    onChange={(e) => setFormula(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    {FORMULAS.map((f) => (
+                      <option key={f.value} value={f.value}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Fecha de inicio</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <FeesSection fees={fees} onChange={setFees} />
+            </CardContent>
+          </Card>
+
+          <div className="lg:sticky lg:top-6 lg:self-start space-y-4">
+            <LoanPreviewCard
+              principal={principal}
+              monthlyPayment={monthlyPayment}
+              totalInterest={totalInterest}
+              totalCost={totalCost}
+              availableMoney={availableMoney}
+              fees={fees}
+            />
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      )}
+
+      {/* Step 3: Ongoing Details */}
+      {step === 3 && mode === "ongoing" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Crédito en curso</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="paidInstallments">Cuotas ya pagadas</Label>
+              <Input
+                id="paidInstallments"
+                type="number"
+                min={0}
+                max={termMonths - 1}
+                value={paidInstallments}
+                onChange={(e) => setPaidInstallments(Number(e.target.value))}
+                placeholder="0"
+              />
+              <p className="text-xs text-muted-foreground">
+                Ingresa cuántas cuotas ya has pagado. Esto generará los pagos
+                ficticios automáticamente.
+              </p>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <Label htmlFor="initialExtraPayment">
+                Abono a capital ya realizado (opcional)
+              </Label>
+              <CurrencyInput
+                id="initialExtraPayment"
+                value={initialExtraPayment}
+                onValueChange={setInitialExtraPayment}
+                placeholder="0"
+              />
+              <p className="text-xs text-muted-foreground">
+                Si ya hiciste un abono extra a capital antes de registrar el crédito, ingrésalo aquí. Se reflejará en tu tabla de amortización.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Settings2 className="h-4 w-4" />
+                {showAdvanced ? "Ocultar opciones avanzadas" : "Opciones avanzadas (datos exactos del banco)"}
+              </button>
+            </div>
+
+            {showAdvanced && (
+              <div className="rounded-lg border border-border p-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="exactMonthlyPayment">
+                    Cuota mensual exacta (del banco)
+                  </Label>
+                  <CurrencyInput
+                    id="exactMonthlyPayment"
+                    value={exactMonthlyPayment}
+                    onValueChange={setExactMonthlyPayment}
+                    placeholder="Opcional"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Si la cuota calculada difiere de la real, ingresa el valor
+                    exacto de tu extracto.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="exactTotalInterest">
+                    Interés total exacto pagado hasta ahora
+                  </Label>
+                  <CurrencyInput
+                    id="exactTotalInterest"
+                    value={exactTotalInterest}
+                    onValueChange={setExactTotalInterest}
+                    placeholder="Opcional"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Opcional: útil si quieres ajustar el saldo con exactitud.
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-between pt-4">
+        <Button
+          variant="outline"
+          onClick={handleBack}
+          disabled={step === 1 || isSubmitting}
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Anterior
+        </Button>
+
+        {step === totalSteps ? (
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar crédito" : "Crear crédito"}
+          </Button>
+        ) : (
+          <Button onClick={handleNext} disabled={isSubmitting}>
+            {step === 1 ? "Calcular" : "Continuar"}
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }

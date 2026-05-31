@@ -1,18 +1,33 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LoanDetailSummary } from "./LoanDetailSummary";
 import { AmortizationTable } from "./AmortizationTable";
 import { PaymentRecorder } from "./PaymentRecorder";
 import { CapitalContributionForm } from "./CapitalContributionForm";
+import { CapitalImpactSimulator } from "./CapitalImpactSimulator";
+import { LoanCharts } from "./LoanCharts";
 import { LoanProgressBar } from "./LoanProgressBar";
-import { recordPayment, recordCapitalContribution } from "@/server/actions/loan-actions";
+import { recordPayment, recordCapitalContribution, deleteLoan } from "@/server/actions/loan-actions";
 import { generateAmortizationSchedule } from "@/lib/loan-engine";
 import type { Loan, LoanPayment, LoanExtraPayment } from "@/types";
-import { Receipt, PiggyBank, CalendarDays } from "lucide-react";
+import { Receipt, PiggyBank, CalendarDays, Pencil, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 type TabKey = "amortization" | "payments" | "extras";
 
@@ -21,8 +36,11 @@ interface LoanDetailClientProps {
 }
 
 export function LoanDetailClient({ loan }: LoanDetailClientProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabKey>("amortization");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const schedule = generateAmortizationSchedule(loan, loan.payments, loan.extraPayments);
 
@@ -34,6 +52,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
   }) => {
     await recordPayment(loan.id, data);
     setRefreshKey((k) => k + 1);
+    router.refresh();
   };
 
   const handleRecordExtra = async (data: {
@@ -43,6 +62,18 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
   }) => {
     await recordCapitalContribution(loan.id, data);
     setRefreshKey((k) => k + 1);
+    router.refresh();
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteLoan(loan.id);
+      router.push("/credits");
+      router.refresh();
+    } catch {
+      setIsDeleting(false);
+    }
   };
 
   const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
@@ -83,6 +114,20 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
           </div>
         </div>
         <div className="flex gap-2">
+          <Link href={`/credits/${loan.id}/edit`}>
+            <Button variant="outline" className="gap-1">
+              <Pencil className="h-3.5 w-3.5" />
+              Editar
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            className="gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Eliminar
+          </Button>
           <PaymentRecorder
             loan={loan}
             onRecord={handleRecordPayment}
@@ -95,8 +140,14 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
         </div>
       </div>
 
-      <LoanDetailSummary loan={loan} />
-      <LoanProgressBar loan={loan} schedule={schedule} />
+      <LoanDetailSummary key={`summary-${refreshKey}`} loan={loan} />
+      <LoanProgressBar key={`progress-${refreshKey}`} loan={loan} schedule={schedule} />
+
+      {/* Simulator */}
+      <CapitalImpactSimulator key={`simulator-${refreshKey}`} loan={loan} />
+
+      {/* Charts */}
+      <LoanCharts key={`charts-${refreshKey}`} loan={loan} />
 
       {/* Custom tabs */}
       <div className="border-b">
@@ -141,6 +192,28 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
           )}
         </motion.div>
       </AnimatePresence>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar este crédito?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminarán todos los pagos,
+              abonos y datos asociados a <strong>{loan.title}</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {isDeleting ? "Eliminando..." : "Eliminar crédito"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
