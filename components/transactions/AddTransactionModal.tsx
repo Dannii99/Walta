@@ -23,7 +23,7 @@ const addTransactionSchema = z.object({
   categoryId: z.string().min(1, "Selecciona una categoría"),
   amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().max(500).optional(),
-  date: z.string().min(1, "Fecha requerida"),
+  recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]),
 });
 
 type AddTransactionForm = z.infer<typeof addTransactionSchema>;
@@ -50,8 +50,8 @@ export function AddTransactionModal({
   } = useForm<AddTransactionForm>({
     resolver: zodResolver(addTransactionSchema),
     defaultValues: {
-      date: new Date().toISOString().split("T")[0],
       amount: 0,
+      recurrence: "MONTHLY",
     },
   });
 
@@ -60,7 +60,8 @@ export function AddTransactionModal({
       data.categoryId,
       data.amount,
       data.description || null,
-      new Date(data.date)
+      new Date(),
+      data.recurrence
     );
     reset();
     onSuccess();
@@ -111,6 +112,21 @@ export function AddTransactionModal({
             )}
           </div>
           <div className="space-y-2">
+            <Label htmlFor="add-recurrence">Frecuencia</Label>
+            <Select
+              id="add-recurrence"
+              {...register("recurrence")}
+              defaultValue="MONTHLY"
+            >
+              <option value="MONTHLY">Mensual</option>
+              <option value="BIWEEKLY">Quincenal</option>
+              <option value="ONE_TIME">Única</option>
+            </Select>
+            {errors.recurrence && (
+              <p className="text-sm text-destructive">{errors.recurrence.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="add-description">Descripción</Label>
             <Input
               id="add-description"
@@ -118,17 +134,6 @@ export function AddTransactionModal({
             />
             {errors.description && (
               <p className="text-sm text-destructive">{errors.description.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="add-date">Fecha</Label>
-            <Input
-              id="add-date"
-              type="date"
-              {...register("date")}
-            />
-            {errors.date && (
-              <p className="text-sm text-destructive">{errors.date.message}</p>
             )}
           </div>
         </form>

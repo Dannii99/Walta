@@ -26,6 +26,7 @@ interface DashboardContentProps {
   budgetName: string;
   income: number;
   expenses: number;
+  monthlyEquivalentExpenses: number;
   available: number;
   needsSpent: number;
   needsLimit: number;
@@ -42,6 +43,7 @@ export function DashboardContent({
   budgetName,
   income,
   expenses,
+  monthlyEquivalentExpenses,
   available,
   needsSpent,
   needsLimit,
@@ -96,8 +98,18 @@ export function DashboardContent({
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <KPICard title="Ingreso Mensual" value={income} icon="income" />
-        <KPICard title="Gastos del Mes" value={expenses} icon="expenses" subtitle={`${((expenses / income) * 100).toFixed(0)}% del presupuesto`} />
-        <KPICard title="Disponible" value={available} icon="available" />
+        <KPICard
+          title="Gastos del Mes"
+          value={expenses}
+          icon="expenses"
+          subtitle={`${((expenses / income) * 100).toFixed(0)}% del presupuesto · Equiv. mensual: ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(monthlyEquivalentExpenses)}`}
+        />
+        <KPICard
+          title="Disponible"
+          value={available}
+          icon="available"
+          subtitle="Equiv. mensual"
+        />
       </div>
 
       {/* Charts + Health */}

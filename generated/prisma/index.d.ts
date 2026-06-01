@@ -5180,6 +5180,7 @@ export namespace Prisma {
     amount: Decimal | null
     description: string | null
     date: Date | null
+    recurrence: string | null
     createdAt: Date | null
   }
 
@@ -5189,6 +5190,7 @@ export namespace Prisma {
     amount: Decimal | null
     description: string | null
     date: Date | null
+    recurrence: string | null
     createdAt: Date | null
   }
 
@@ -5198,6 +5200,7 @@ export namespace Prisma {
     amount: number
     description: number
     date: number
+    recurrence: number
     createdAt: number
     _all: number
   }
@@ -5217,6 +5220,7 @@ export namespace Prisma {
     amount?: true
     description?: true
     date?: true
+    recurrence?: true
     createdAt?: true
   }
 
@@ -5226,6 +5230,7 @@ export namespace Prisma {
     amount?: true
     description?: true
     date?: true
+    recurrence?: true
     createdAt?: true
   }
 
@@ -5235,6 +5240,7 @@ export namespace Prisma {
     amount?: true
     description?: true
     date?: true
+    recurrence?: true
     createdAt?: true
     _all?: true
   }
@@ -5331,6 +5337,7 @@ export namespace Prisma {
     amount: Decimal
     description: string | null
     date: Date
+    recurrence: string
     createdAt: Date
     _count: TransactionCountAggregateOutputType | null
     _avg: TransactionAvgAggregateOutputType | null
@@ -5359,6 +5366,7 @@ export namespace Prisma {
     amount?: boolean
     description?: boolean
     date?: boolean
+    recurrence?: boolean
     createdAt?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
@@ -5369,6 +5377,7 @@ export namespace Prisma {
     amount?: boolean
     description?: boolean
     date?: boolean
+    recurrence?: boolean
     createdAt?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
@@ -5379,6 +5388,7 @@ export namespace Prisma {
     amount?: boolean
     description?: boolean
     date?: boolean
+    recurrence?: boolean
     createdAt?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
@@ -5389,10 +5399,11 @@ export namespace Prisma {
     amount?: boolean
     description?: boolean
     date?: boolean
+    recurrence?: boolean
     createdAt?: boolean
   }
 
-  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "categoryId" | "amount" | "description" | "date" | "createdAt", ExtArgs["result"]["transaction"]>
+  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "categoryId" | "amount" | "description" | "date" | "recurrence" | "createdAt", ExtArgs["result"]["transaction"]>
   export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }
@@ -5414,6 +5425,7 @@ export namespace Prisma {
       amount: Prisma.Decimal
       description: string | null
       date: Date
+      recurrence: string
       createdAt: Date
     }, ExtArgs["result"]["transaction"]>
     composites: {}
@@ -5844,6 +5856,7 @@ export namespace Prisma {
     readonly amount: FieldRef<"Transaction", 'Decimal'>
     readonly description: FieldRef<"Transaction", 'String'>
     readonly date: FieldRef<"Transaction", 'DateTime'>
+    readonly recurrence: FieldRef<"Transaction", 'String'>
     readonly createdAt: FieldRef<"Transaction", 'DateTime'>
   }
     
@@ -12176,6 +12189,7 @@ export namespace Prisma {
     amount: 'amount',
     description: 'description',
     date: 'date',
+    recurrence: 'recurrence',
     createdAt: 'createdAt'
   };
 
@@ -12594,6 +12608,7 @@ export namespace Prisma {
     amount?: DecimalFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableFilter<"Transaction"> | string | null
     date?: DateTimeFilter<"Transaction"> | Date | string
+    recurrence?: StringFilter<"Transaction"> | string
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
   }
@@ -12604,6 +12619,7 @@ export namespace Prisma {
     amount?: SortOrder
     description?: SortOrderInput | SortOrder
     date?: SortOrder
+    recurrence?: SortOrder
     createdAt?: SortOrder
     category?: CategoryOrderByWithRelationInput
   }
@@ -12617,6 +12633,7 @@ export namespace Prisma {
     amount?: DecimalFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableFilter<"Transaction"> | string | null
     date?: DateTimeFilter<"Transaction"> | Date | string
+    recurrence?: StringFilter<"Transaction"> | string
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
   }, "id">
@@ -12627,6 +12644,7 @@ export namespace Prisma {
     amount?: SortOrder
     description?: SortOrderInput | SortOrder
     date?: SortOrder
+    recurrence?: SortOrder
     createdAt?: SortOrder
     _count?: TransactionCountOrderByAggregateInput
     _avg?: TransactionAvgOrderByAggregateInput
@@ -12644,6 +12662,7 @@ export namespace Prisma {
     amount?: DecimalWithAggregatesFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     date?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
+    recurrence?: StringWithAggregatesFilter<"Transaction"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   }
 
@@ -13266,6 +13285,7 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     description?: string | null
     date?: Date | string
+    recurrence?: string
     createdAt?: Date | string
     category: CategoryCreateNestedOneWithoutTransactionsInput
   }
@@ -13276,6 +13296,7 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     description?: string | null
     date?: Date | string
+    recurrence?: string
     createdAt?: Date | string
   }
 
@@ -13284,6 +13305,7 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    recurrence?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
   }
@@ -13294,6 +13316,7 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    recurrence?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -13303,6 +13326,7 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     description?: string | null
     date?: Date | string
+    recurrence?: string
     createdAt?: Date | string
   }
 
@@ -13311,6 +13335,7 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    recurrence?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -13320,6 +13345,7 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    recurrence?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14111,6 +14137,7 @@ export namespace Prisma {
     amount?: SortOrder
     description?: SortOrder
     date?: SortOrder
+    recurrence?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -14124,6 +14151,7 @@ export namespace Prisma {
     amount?: SortOrder
     description?: SortOrder
     date?: SortOrder
+    recurrence?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -14133,6 +14161,7 @@ export namespace Prisma {
     amount?: SortOrder
     description?: SortOrder
     date?: SortOrder
+    recurrence?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15525,6 +15554,7 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     description?: string | null
     date?: Date | string
+    recurrence?: string
     createdAt?: Date | string
   }
 
@@ -15533,6 +15563,7 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     description?: string | null
     date?: Date | string
+    recurrence?: string
     createdAt?: Date | string
   }
 
@@ -15606,6 +15637,7 @@ export namespace Prisma {
     amount?: DecimalFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
     description?: StringNullableFilter<"Transaction"> | string | null
     date?: DateTimeFilter<"Transaction"> | Date | string
+    recurrence?: StringFilter<"Transaction"> | string
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
   }
 
@@ -16411,6 +16443,7 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     description?: string | null
     date?: Date | string
+    recurrence?: string
     createdAt?: Date | string
   }
 
@@ -16419,6 +16452,7 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    recurrence?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -16427,6 +16461,7 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    recurrence?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -16435,6 +16470,7 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    recurrence?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

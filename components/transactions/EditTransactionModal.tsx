@@ -24,7 +24,7 @@ const editTransactionSchema = z.object({
   categoryId: z.string().min(1, "Selecciona una categoría"),
   amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().max(500).optional(),
-  date: z.string().min(1, "Fecha requerida"),
+  recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]),
 });
 
 type EditTransactionForm = z.infer<typeof editTransactionSchema>;
@@ -60,7 +60,7 @@ export function EditTransactionModal({
         categoryId: transaction.categoryId,
         amount: Number(transaction.amount),
         description: transaction.description ?? "",
-        date: new Date(transaction.date).toISOString().split("T")[0],
+        recurrence: transaction.recurrence,
       });
     }
   }, [transaction, reset]);
@@ -71,7 +71,7 @@ export function EditTransactionModal({
       categoryId: data.categoryId,
       amount: data.amount,
       description: data.description || null,
-      date: new Date(data.date),
+      recurrence: data.recurrence,
     });
     onSuccess();
     onOpenChange(false);
@@ -120,6 +120,20 @@ export function EditTransactionModal({
             )}
           </div>
           <div className="space-y-2">
+            <Label htmlFor="edit-recurrence">Frecuencia</Label>
+            <Select
+              id="edit-recurrence"
+              {...register("recurrence")}
+            >
+              <option value="MONTHLY">Mensual</option>
+              <option value="BIWEEKLY">Quincenal</option>
+              <option value="ONE_TIME">Única</option>
+            </Select>
+            {errors.recurrence && (
+              <p className="text-sm text-destructive">{errors.recurrence.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="edit-description">Descripción</Label>
             <Input
               id="edit-description"
@@ -127,17 +141,6 @@ export function EditTransactionModal({
             />
             {errors.description && (
               <p className="text-sm text-destructive">{errors.description.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="edit-date">Fecha</Label>
-            <Input
-              id="edit-date"
-              type="date"
-              {...register("date")}
-            />
-            {errors.date && (
-              <p className="text-sm text-destructive">{errors.date.message}</p>
             )}
           </div>
         </form>

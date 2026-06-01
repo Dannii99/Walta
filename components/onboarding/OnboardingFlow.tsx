@@ -33,17 +33,52 @@ const DEFAULT_CATEGORIES: Record<string, { name: string; type: CategoryType; per
   "50-30-20": [
     // Necesidades (50%)
     { name: "Vivienda/Arriendo", type: "NEEDS", percentage: 20 },
-    { name: "Alimentación", type: "NEEDS", percentage: 12 },
-    { name: "Transporte", type: "NEEDS", percentage: 8 },
+    { name: "Alimentación", type: "NEEDS", percentage: 10 },
     { name: "Servicios públicos", type: "NEEDS", percentage: 5 },
-    { name: "Salud", type: "NEEDS", percentage: 5 },
+    { name: "Transporte", type: "NEEDS", percentage: 5 },
+    { name: "Salud", type: "NEEDS", percentage: 3 },
+    { name: "Créditos / Préstamos", type: "NEEDS", percentage: 4 },
+    { name: "Gastos bancarios", type: "NEEDS", percentage: 3 },
     // Deseos (30%)
-    { name: "Entretenimiento", type: "WANTS", percentage: 10 },
-    { name: "Restaurantes", type: "WANTS", percentage: 12 },
-    { name: "Compras personales", type: "WANTS", percentage: 8 },
+    { name: "Entretenimiento", type: "WANTS", percentage: 8 },
+    { name: "Restaurantes", type: "WANTS", percentage: 10 },
+    { name: "Compras personales", type: "WANTS", percentage: 7 },
+    { name: "Hobbies", type: "WANTS", percentage: 5 },
     // Ahorros (20%)
-    { name: "Ahorro de emergencia", type: "SAVINGS", percentage: 12 },
-    { name: "Inversiones", type: "SAVINGS", percentage: 8 },
+    { name: "Ahorro de emergencia", type: "SAVINGS", percentage: 10 },
+    { name: "Inversiones", type: "SAVINGS", percentage: 7 },
+    { name: "Aportes / Pensiones", type: "SAVINGS", percentage: 3 },
+  ],
+  detailed: [
+    // Necesidades (50%)
+    { name: "Arriendo", type: "NEEDS", percentage: 15 },
+    { name: "Administración", type: "NEEDS", percentage: 5 },
+    { name: "Mercado/Supermercado", type: "NEEDS", percentage: 8 },
+    { name: "Restaurantes (hogar)", type: "NEEDS", percentage: 2 },
+    { name: "Energía eléctrica", type: "NEEDS", percentage: 2 },
+    { name: "Agua", type: "NEEDS", percentage: 1 },
+    { name: "Gas", type: "NEEDS", percentage: 1 },
+    { name: "Internet/Teléfono", type: "NEEDS", percentage: 2 },
+    { name: "Transporte público", type: "NEEDS", percentage: 2 },
+    { name: "Gasolina", type: "NEEDS", percentage: 3 },
+    { name: "Salud/Medicinas", type: "NEEDS", percentage: 2 },
+    { name: "Seguros", type: "NEEDS", percentage: 2 },
+    { name: "Créditos / Préstamos", type: "NEEDS", percentage: 4 },
+    { name: "Gastos bancarios", type: "NEEDS", percentage: 1 },
+    // Deseos (30%)
+    { name: "Ocio/Entretenimiento", type: "WANTS", percentage: 5 },
+    { name: "Restaurantes (salir)", type: "WANTS", percentage: 6 },
+    { name: "Café/Snacks", type: "WANTS", percentage: 2 },
+    { name: "Ropa", type: "WANTS", percentage: 4 },
+    { name: "Hobbies", type: "WANTS", percentage: 4 },
+    { name: "Suscripciones", type: "WANTS", percentage: 3 },
+    { name: "Viajes", type: "WANTS", percentage: 3 },
+    { name: "Tecnología", type: "WANTS", percentage: 3 },
+    // Ahorros (20%)
+    { name: "Fondo de emergencia", type: "SAVINGS", percentage: 8 },
+    { name: "Inversiones", type: "SAVINGS", percentage: 5 },
+    { name: "Aportes/Pensiones", type: "SAVINGS", percentage: 4 },
+    { name: "Otros", type: "SAVINGS", percentage: 3 },
   ],
   blank: [],
 };
@@ -55,7 +90,7 @@ interface OnboardingFlowProps {
 export function OnboardingFlow({ userId }: OnboardingFlowProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [template, setTemplate] = useState<"50-30-20" | "blank" | null>(null);
+  const [template, setTemplate] = useState<"50-30-20" | "detailed" | "blank" | null>(null);
   const [budgetName, setBudgetName] = useState("Mi Presupuesto");
   const [income, setIncome] = useState(0);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
@@ -63,7 +98,7 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
   const [error, setError] = useState("");
 
   const generateCategories = (
-    tmpl: "50-30-20" | "blank",
+    tmpl: "50-30-20" | "detailed" | "blank",
     inc: number
   ): CategoryItem[] => {
     const defs = DEFAULT_CATEGORIES[tmpl] || [];
@@ -106,7 +141,7 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
     }
   };
 
-  const handleTemplateSelect = (selected: "50-30-20" | "blank") => {
+  const handleTemplateSelect = (selected: "50-30-20" | "detailed" | "blank") => {
     setTemplate(selected);
     if (selected === "blank") {
       setCategories([]);

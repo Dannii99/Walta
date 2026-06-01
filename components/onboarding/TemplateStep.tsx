@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { DEFAULT_BUDGET_RULE } from "@/lib/constants";
 
-type Template = "50-30-20" | "blank";
+type Template = "50-30-20" | "detailed" | "blank";
 
 interface TemplateStepProps {
   value: Template | null;
@@ -22,7 +22,13 @@ export function TemplateStep({ value, onChange }: TemplateStepProps) {
     {
       id: "50-30-20",
       title: "Plantilla 50/30/20",
-      description: "50% Necesidades, 30% Deseos, 20% Ahorros",
+      description: "15 categorías balanceadas, ideal para empezar",
+      rule: DEFAULT_BUDGET_RULE,
+    },
+    {
+      id: "detailed",
+      title: "Plantilla Detallada",
+      description: "26 categorías con desglose fino de gastos",
       rule: DEFAULT_BUDGET_RULE,
     },
     {
@@ -67,7 +73,7 @@ export function TemplateStep({ value, onChange }: TemplateStepProps) {
                         {template.description}
                       </p>
 
-                      {template.id === "50-30-20" && (
+                      {(template.id === "50-30-20" || template.id === "detailed") && (
                         <div className="flex items-center gap-1 pt-2">
                           <div
                             className="h-2 rounded-full bg-emerald-500"

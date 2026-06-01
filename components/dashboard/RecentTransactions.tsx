@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCOP } from "@/lib/currency";
+import { RECURRENCE_LABELS } from "@/lib/recurrence";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 import type { Transaction, Category } from "@/types";
 import { Pencil, Trash2, Plus } from "lucide-react";
@@ -69,6 +70,9 @@ export function RecentTransactions({
                       </span>
                       <Badge variant="secondary" className="text-xs shrink-0">
                         {tx.category?.name || "—"}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {RECURRENCE_LABELS[tx.recurrence]}
                       </Badge>
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">

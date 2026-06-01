@@ -72,7 +72,7 @@ export function RuleEditor({ budgetId, currentRule, income }: RuleEditorProps) {
       <CardHeader>
         <CardTitle>Regla de Presupuesto</CardTitle>
         <CardDescription>
-          Ajusta los porcentajes de distribucin de tu ingreso. La suma debe ser exactamente 100%.
+          Ajusta los porcentajes de distribución de tu ingreso. La suma debe ser exactamente 100%.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

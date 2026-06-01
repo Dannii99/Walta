@@ -49,6 +49,7 @@ model Transaction {
   amount      Decimal  @db.Decimal(15, 2)
   description String?
   date        DateTime @default(now())
+  recurrence  String   @default("MONTHLY") // MONTHLY | BIWEEKLY | ONE_TIME
   createdAt   DateTime @default(now())
 }
 

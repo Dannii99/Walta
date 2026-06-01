@@ -14,6 +14,9 @@ export async function getUserBudgets(userId: string) {
     include: {
       categories: {
         include: {
+          _count: {
+            select: { transactions: true },
+          },
           transactions: {
             orderBy: { date: "desc" },
             take: 10,

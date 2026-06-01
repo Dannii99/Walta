@@ -10,13 +10,15 @@ const createTransactionSchema = z.object({
   amount: z.number().positive(),
   description: z.string().max(500).nullable().optional(),
   date: z.union([z.date(), z.string().datetime()]),
+  recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]).default("MONTHLY"),
 });
 
 export async function createTransaction(
   categoryId: string,
   amount: number,
   description?: string | null,
-  date: Date | string = new Date()
+  date: Date | string = new Date(),
+  recurrence: "MONTHLY" | "BIWEEKLY" | "ONE_TIME" = "MONTHLY"
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -39,6 +41,7 @@ export async function createTransaction(
     amount,
     description,
     date,
+    recurrence,
   });
 
   const transaction = await prisma.transaction.create({
@@ -47,6 +50,7 @@ export async function createTransaction(
       amount: parsed.amount,
       description: parsed.description,
       date: parsed.date,
+      recurrence: parsed.recurrence,
     },
   });
 
@@ -64,6 +68,7 @@ const updateTransactionSchema = z.object({
   amount: z.number().positive().optional(),
   description: z.string().max(500).nullable().optional(),
   date: z.union([z.date(), z.string().datetime()]).optional(),
+  recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]).optional(),
 });
 
 export async function updateTransaction(
@@ -73,6 +78,7 @@ export async function updateTransaction(
     amount?: number;
     description?: string | null;
     date?: Date | string;
+    recurrence?: "MONTHLY" | "BIWEEKLY" | "ONE_TIME";
   }
 ) {
   const session = await auth();
@@ -106,6 +112,7 @@ export async function updateTransaction(
         description: parsed.description,
       }),
       ...(parsed.date && { date: parsed.date }),
+      ...(parsed.recurrence && { recurrence: parsed.recurrence }),
     },
   });
 

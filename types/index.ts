@@ -35,6 +35,8 @@ export interface Category {
   transactions: Transaction[];
 }
 
+export type Recurrence = "MONTHLY" | "BIWEEKLY" | "ONE_TIME";
+
 export interface Transaction {
   id: string;
   categoryId: string;
@@ -42,6 +44,7 @@ export interface Transaction {
   amount: string; // Decimal como string
   description?: string | null;
   date: Date;
+  recurrence: Recurrence;
   createdAt: Date;
 }
 

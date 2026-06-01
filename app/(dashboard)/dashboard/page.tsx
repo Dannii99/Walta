@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
-import type { Transaction, Category, CategoryType } from "@/types";
+import type { Transaction, Category, CategoryType, Recurrence } from "@/types";
+import { RECURRENCE_MULTIPLIER } from "@/lib/recurrence";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -61,6 +62,7 @@ export default async function DashboardPage() {
   let wantsSpent = 0;
   let savingsSpent = 0;
   let totalExpenses = 0;
+  let monthlyEquivalentExpenses = 0;
 
   const donutMap = new Map<string, number>();
 
@@ -71,12 +73,23 @@ export default async function DashboardPage() {
     );
     totalExpenses += catSpent;
 
-    if (cat.type === "needs") needsSpent += catSpent;
-    else if (cat.type === "wants") wantsSpent += catSpent;
-    else if (cat.type === "savings") savingsSpent += catSpent;
+    const catEquivalent = cat.transactions.reduce(
+      (sum, tx) =>
+        sum + tx.amount.toNumber() * RECURRENCE_MULTIPLIER[tx.recurrence as Recurrence],
+      0
+    );
+    monthlyEquivalentExpenses += catEquivalent;
 
-    if (catSpent > 0) {
-      donutMap.set(cat.name, catSpent);
+    if (cat.type === "needs") {
+      needsSpent += catEquivalent;
+    } else if (cat.type === "wants") {
+      wantsSpent += catEquivalent;
+    } else if (cat.type === "savings") {
+      savingsSpent += catEquivalent;
+    }
+
+    if (catEquivalent > 0) {
+      donutMap.set(cat.name, catEquivalent);
     }
   });
 
@@ -85,7 +98,7 @@ export default async function DashboardPage() {
     value,
   }));
 
-  const available = income - totalExpenses;
+  const available = income - monthlyEquivalentExpenses;
   const recentTransactions = allTransactions.slice(0, 5);
 
   const categories: Category[] = budget.categories.map((cat) => ({
@@ -99,6 +112,7 @@ export default async function DashboardPage() {
       budgetName={budget.name}
       income={income}
       expenses={totalExpenses}
+      monthlyEquivalentExpenses={monthlyEquivalentExpenses}
       available={available}
       needsSpent={needsSpent}
       needsLimit={needsLimit}

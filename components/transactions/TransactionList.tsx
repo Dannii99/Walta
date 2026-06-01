@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCOP } from "@/lib/currency";
-import type { Transaction, Category, CategoryType } from "@/types";
+import { RECURRENCE_LABELS } from "@/lib/recurrence";
+import type { Transaction, Category, CategoryType, Recurrence } from "@/types";
 import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
 
 interface TransactionListProps {
@@ -35,6 +36,12 @@ const typeColors: Record<CategoryType, string> = {
   WANTS: "bg-amber-500",
   SAVINGS: "bg-blue-500",
   DEBT: "bg-rose-500",
+};
+
+const recurrenceColors: Record<Recurrence, string> = {
+  MONTHLY: "bg-blue-100 text-blue-800 border-blue-200",
+  BIWEEKLY: "bg-purple-100 text-purple-800 border-purple-200",
+  ONE_TIME: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
 export function TransactionList({
@@ -76,8 +83,9 @@ export function TransactionList({
                 <ArrowUpDown className="h-3 w-3" />
               </button>
             </TableHead>
-            <TableHead>Categora</TableHead>
-            <TableHead>Descripcin</TableHead>
+            <TableHead>Categoría</TableHead>
+            <TableHead>Descripción</TableHead>
+            <TableHead>Frecuencia</TableHead>
             <TableHead className="text-right">Monto</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
@@ -108,6 +116,14 @@ export function TransactionList({
                 </TableCell>
                 <TableCell className="max-w-xs truncate">
                   {transaction.description || "-"}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs ${recurrenceColors[transaction.recurrence]}`}
+                  >
+                    {RECURRENCE_LABELS[transaction.recurrence]}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right font-medium">
                   {formatCOP(amount)}

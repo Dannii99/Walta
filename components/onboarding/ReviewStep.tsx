@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCOP } from "@/lib/currency";
+import { PREDEFINED_CATEGORIES, OTHER_CATEGORY_KEY, type PredefinedCategory } from "@/lib/categories";
 import type { CategoryType } from "@/types";
 
 const CATEGORY_COLORS: Record<CategoryType, string> = {
@@ -28,13 +29,41 @@ interface ReviewStepProps {
   onCategoriesChange: (categories: CategoryItem[]) => void;
 }
 
+const TYPE_LABELS: Record<CategoryType, string> = {
+  NEEDS: "Necesidades",
+  WANTS: "Deseos",
+  SAVINGS: "Ahorros",
+  DEBT: "Deudas",
+};
+
+const TYPE_OPTIONS: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
+
 export function ReviewStep({
   income,
   categories,
   onCategoriesChange,
 }: ReviewStepProps) {
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryType, setNewCategoryType] = useState<CategoryType>("NEEDS");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [otherName, setOtherName] = useState("");
+  const [otherType, setOtherType] = useState<CategoryType>("NEEDS");
+
+  const existingNames = useMemo(
+    () => new Set(categories.map((c) => c.name.toLowerCase())),
+    [categories]
+  );
+
+  const grouped = useMemo(() => {
+    const groups: Record<CategoryType, PredefinedCategory[]> = {
+      NEEDS: [],
+      WANTS: [],
+      SAVINGS: [],
+      DEBT: [],
+    };
+    PREDEFINED_CATEGORIES.forEach((c) => {
+      groups[c.type].push(c);
+    });
+    return groups;
+  }, []);
 
   const updateCategoryName = (id: string, name: string) => {
     onCategoriesChange(
@@ -47,28 +76,45 @@ export function ReviewStep({
   };
 
   const addCategory = () => {
-    if (!newCategoryName.trim()) return;
+    let name: string;
+    let type: CategoryType;
+
+    if (selectedCategory === OTHER_CATEGORY_KEY) {
+      const trimmed = otherName.trim();
+      if (!trimmed) return;
+      if (existingNames.has(trimmed.toLowerCase())) return;
+      name = trimmed;
+      type = otherType;
+    } else if (selectedCategory) {
+      const predefined = PREDEFINED_CATEGORIES.find(
+        (c) => c.name === selectedCategory
+      );
+      if (!predefined) return;
+      name = predefined.name;
+      type = predefined.type;
+    } else {
+      return;
+    }
+
     onCategoriesChange([
       ...categories,
       {
         id: `new-${Date.now()}`,
-        name: newCategoryName.trim(),
-        type: newCategoryType,
+        name,
+        type,
         suggestedAmount: 0,
       },
     ]);
-    setNewCategoryName("");
+    setSelectedCategory("");
+    setOtherName("");
   };
 
   const totalAllocated = categories.reduce((sum, c) => sum + c.suggestedAmount, 0);
   const isValid = totalAllocated <= income;
 
-  const typeLabel: Record<CategoryType, string> = {
-    NEEDS: "Necesidades",
-    WANTS: "Deseos",
-    SAVINGS: "Ahorros",
-    DEBT: "Deudas",
-  };
+  const isAddDisabled =
+    !selectedCategory ||
+    (selectedCategory === OTHER_CATEGORY_KEY && !otherName.trim());
 
   return (
     <div className="space-y-6">
@@ -90,7 +136,7 @@ export function ReviewStep({
                     style={{ backgroundColor: CATEGORY_COLORS[category.type] }}
                   />
                   <span className="text-xs font-medium text-muted-foreground uppercase">
-                    {typeLabel[category.type]}
+                    {TYPE_LABELS[category.type]}
                   </span>
                 </div>
                 <Input
@@ -116,25 +162,81 @@ export function ReviewStep({
       </div>
 
       {/* Agregar categoría */}
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <Input
-            placeholder="Nueva categoría..."
-            value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-            className="h-9"
-          />
-        </div>
+      <div className="space-y-2">
         <select
-          value={newCategoryType}
-          onChange={(e) => setNewCategoryType(e.target.value as CategoryType)}
-          className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          <option value="NEEDS">Necesidades</option>
-          <option value="WANTS">Deseos</option>
-          <option value="SAVINGS">Ahorros</option>
+          <option value="">Seleccionar categoría de la lista...</option>
+          <optgroup label="Necesidades">
+            {grouped.NEEDS.map((c) => (
+              <option
+                key={c.name}
+                value={c.name}
+                disabled={existingNames.has(c.name.toLowerCase())}
+              >
+                {c.name}
+                {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Deseos">
+            {grouped.WANTS.map((c) => (
+              <option
+                key={c.name}
+                value={c.name}
+                disabled={existingNames.has(c.name.toLowerCase())}
+              >
+                {c.name}
+                {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Ahorros">
+            {grouped.SAVINGS.map((c) => (
+              <option
+                key={c.name}
+                value={c.name}
+                disabled={existingNames.has(c.name.toLowerCase())}
+              >
+                {c.name}
+                {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
+              </option>
+            ))}
+          </optgroup>
+          <option value={OTHER_CATEGORY_KEY}>Otro (personalizado)...</option>
         </select>
-        <Button variant="outline" size="sm" className="h-9 gap-1" onClick={addCategory}>
+
+        {selectedCategory === OTHER_CATEGORY_KEY && (
+          <div className="flex gap-2">
+            <Input
+              placeholder="Nombre personalizado..."
+              value={otherName}
+              onChange={(e) => setOtherName(e.target.value)}
+              className="h-9 flex-1"
+            />
+            <select
+              value={otherType}
+              onChange={(e) => setOtherType(e.target.value as CategoryType)}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {TYPE_OPTIONS.map((t) => (
+                <option key={t} value={t}>
+                  {TYPE_LABELS[t]}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <Button
+          onClick={addCategory}
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1 w-full"
+          disabled={isAddDisabled}
+        >
           <Plus className="h-4 w-4" />
           Agregar
         </Button>
