@@ -123,7 +123,7 @@ export function LoanPreviewCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingDown className="h-3.5 w-3.5" />
-              <span>Inter├®s total</span>
+              <span>Intereses totales</span>
             </div>
             <span className="font-medium">{formatCOP(totalInterest)}</span>
           </div>

@@ -264,7 +264,7 @@ function PaymentsList({ payments }: { payments: LoanPayment[] }) {
                   })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Capital: {formatCOP(parseFloat(p.principalPaid))} · Inter├®s: {formatCOP(parseFloat(p.interestPaid))}
+                  Capital: {formatCOP(parseFloat(p.principalPaid))} · Intereses: {formatCOP(parseFloat(p.interestPaid))}
                 </p>
               </div>
               <span className="font-bold text-sm">{formatCOP(parseFloat(p.amount))}</span>

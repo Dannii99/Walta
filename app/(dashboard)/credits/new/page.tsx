@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Nuevo Cr├®dito | Presupuesto Claro",
-  description: "Crea un nuevo cr├®dito para seguimiento.",
+  title: "Nuevo Credito | Presupuesto Claro",
+  description: "Crea un nuevo credito para seguimiento.",
 };
 
 interface NewCreditPageProps {
@@ -92,14 +92,14 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
     <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">
-          {mode === "ongoing" ? "Agregar Cr├®dito en Curso" : "Nuevo Cr├®dito"}
+          {mode === "ongoing" ? "Agregar Credito en Curso" : "Nuevo Credito"}
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
           {mode === "ongoing"
-            ? "Registra un cr├®dito que ya tienes en marcha para hacer seguimiento."
+            ? "Registra un credito que ya tienes en marcha para hacer seguimiento."
             : defaultValues
-              ? "Revisa los datos precargados desde la simulaci├│n y guarda el cr├®dito."
-              : "Completa los datos de tu cr├®dito para empezar el seguimiento."}
+              ? "Revisa los datos precargados desde la simulacion y guarda el credito."
+              : "Completa los datos de tu credito para empezar el seguimiento."}
         </p>
       </div>
 

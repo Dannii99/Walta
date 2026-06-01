@@ -74,7 +74,7 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
     },
     {
       icon: PiggyBank,
-      label: "Inter├®s ahorrado",
+      label: "Intereses ahorrados",
       value: formatCOP(interestSaved),
       color: "text-emerald-600",
       bg: "bg-emerald-50",
@@ -113,7 +113,7 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
             Simulador de Abono a Capital
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Prueba cuínto ahorrar├¡as si hicieras un abono extra hoy. Sin guardar nada, solo simulación.
+            Prueba cuanto ahorrarás si hicieras un abono extra hoy. Sin guardar nada, solo simulación.
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -121,7 +121,7 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
             <div className="flex-1 w-full">
               <label className="text-sm font-medium mb-2 block">
-                ¿Cuínto quieres abonar a capital?
+                ¿Cuánto quieres abonar a capital?
               </label>
               <CurrencyInput
                 value={simulatedAmount}
@@ -176,7 +176,7 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-muted-foreground">ANTES del abono</h3>
                   <Badge variant="outline" className="text-xs">
-                    {originalTerm} meses · {formatCOP(originalTotalInterest)} inter├®s
+                    {originalTerm} meses · {formatCOP(originalTotalInterest)} intereses
                   </Badge>
                 </div>
                 <div className="border rounded-lg overflow-hidden">
@@ -218,7 +218,7 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-emerald-600">DESPU├ëS del abono</h3>
                   <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
-                    {newTerm} meses · {formatCOP(newTotalInterest)} inter├®s
+                    {newTerm} meses · {formatCOP(newTotalInterest)} intereses
                   </Badge>
                 </div>
                 <div className="border rounded-lg overflow-hidden border-emerald-200">

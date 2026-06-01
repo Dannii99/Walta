@@ -187,7 +187,7 @@ export function LoanEditForm({ loan }: LoanEditFormProps) {
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="french_ea">Amortización Francesa (EA)</option>
-                <option value="nominal_monthly">Inter├®s Nominal Mensual (NAMV/12)</option>
+                <option value="nominal_monthly">Intereses Nominales Mensuales (NAMV/12)</option>
               </select>
             </div>
 
@@ -236,7 +236,7 @@ export function LoanEditForm({ loan }: LoanEditFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-totalInterest">Inter├®s total</Label>
+              <Label htmlFor="edit-totalInterest">Intereses totales</Label>
               <Controller
                 name="totalInterest"
                 control={control}

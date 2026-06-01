@@ -109,7 +109,7 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="interest-paid">Inter├®s pagado</Label>
+                <Label htmlFor="interest-paid">Intereses pagados</Label>
                 <Input
                   id="interest-paid"
                   type="text"

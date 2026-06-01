@@ -8,8 +8,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Cr├®ditos | Presupuesto Claro",
-  description: "Seguimiento de tus cr├®ditos y pr├®stamos.",
+  title: "Creditos | Presupuesto Claro",
+  description: "Seguimiento de tus creditos y prestamos.",
 };
 
 export default async function CreditsPage() {
@@ -24,13 +24,13 @@ export default async function CreditsPage() {
     <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Cr├®ditos</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Creditos</h1>
           <p className="text-muted-foreground text-sm">
-            Seguimiento de tus pr├®stamos y cr├®ditos activos
+            Seguimiento de tus prestamos y creditos activos
           </p>
         </div>
         <Link href="/credits/new">
-          <Button>Nuevo cr├®dito</Button>
+          <Button>Nuevo credito</Button>
         </Link>
       </div>
 
@@ -41,9 +41,9 @@ export default async function CreditsPage() {
             <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
               <span className="text-xl">­ƒåò</span>
             </div>
-            <p className="font-medium mb-1">Crear cr├®dito nuevo</p>
+            <p className="font-medium mb-1">Crear credito nuevo</p>
             <p className="text-sm text-muted-foreground mb-4">
-              Simula y registra un cr├®dito que vas a tomar
+              Simula y registra un credito que vas a tomar
             </p>
             <Link href="/credits/new?mode=new">
               <Button variant="outline">Crear nuevo</Button>
@@ -55,9 +55,9 @@ export default async function CreditsPage() {
             <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center mb-3">
               <span className="text-xl">­ƒôï</span>
             </div>
-            <p className="font-medium mb-1">Agregar cr├®dito en curso</p>
+            <p className="font-medium mb-1">Agregar credito en curso</p>
             <p className="text-sm text-muted-foreground mb-4">
-              Registra un cr├®dito que ya tienes y lleva seguimiento
+              Registra un credito que ya tienes y lleva seguimiento
             </p>
             <Link href="/credits/new?mode=ongoing">
               <Button variant="outline">Agregar existente</Button>
@@ -68,7 +68,7 @@ export default async function CreditsPage() {
 
       {loans.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Mis cr├®ditos</h2>
+          <h2 className="text-lg font-semibold">Mis creditos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loans.map((loan) => (
             <LoanListCard key={loan.id} loan={{

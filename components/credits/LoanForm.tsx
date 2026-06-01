@@ -92,10 +92,10 @@ const LOAN_TYPES = [
 ];
 
 const FORMULAS = [
-  { value: "french_ea", label: "Cuota Fija (Franc├®s EA)" },
-  { value: "french_namv", label: "Cuota Fija (Franc├®s NAMV)" },
-  { value: "constant_capital_ea", label: "Capital Constante (Alemín EA)" },
-  { value: "constant_capital_namv", label: "Capital Constante (Alemín NAMV)" },
+  { value: "french_ea", label: "Cuota Fija (Frances EA)" },
+  { value: "french_namv", label: "Cuota Fija (Frances NAMV)" },
+  { value: "constant_capital_ea", label: "Capital Constante (Alemán EA)" },
+  { value: "constant_capital_namv", label: "Capital Constante (Alemán NAMV)" },
 ];
 
 interface LoanFormProps {
@@ -240,7 +240,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
   const validateStep2 = useCallback(() => {
     if (termValue < 1) return "El plazo debe ser de al menos 1.";
-    if (annualRate <= 0) return "La tasa de inter├®s debe ser mayor a cero.";
+    if (annualRate <= 0) return "La tasa de intereses debe ser mayor a cero.";
     if (!startDate) return "Debes seleccionar la fecha de inicio.";
     return null;
   }, [termValue, annualRate, startDate]);
@@ -511,7 +511,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Tasa de inter├®s anual</Label>
+                  <Label>Tasa de intereses anual</Label>
                   <RateInput
                     value={annualRate}
                     onRateChange={setAnnualRate}
@@ -668,7 +668,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 placeholder="0"
               />
               <p className="text-xs text-muted-foreground">
-                Si ya hiciste un abono extra a capital antes de registrar el crédito, ingr├®salo aqu├¡. Se reflejarí en tu tabla de amortización.
+                Si ya hiciste un abono extra a capital antes de registrar el crédito, ingrésalo aquí. Se reflejará en tu tabla de amortización.
               </p>
             </div>
 
@@ -703,7 +703,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
                 <div className="space-y-2">
                   <Label htmlFor="exactTotalInterest">
-                    Inter├®s total exacto pagado hasta ahora
+                    Intereses totales exactos pagados hasta ahora
                   </Label>
                   <CurrencyInput
                     id="exactTotalInterest"
