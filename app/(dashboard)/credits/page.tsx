@@ -39,7 +39,7 @@ export default async function CreditsPage() {
         <Card className="hover:border-primary/50 transition-colors">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
-              <span className="text-xl">­ƒåò</span>
+              <span className="text-xl">🆕</span>
             </div>
             <p className="font-medium mb-1">Crear credito nuevo</p>
             <p className="text-sm text-muted-foreground mb-4">
@@ -53,7 +53,7 @@ export default async function CreditsPage() {
         <Card className="hover:border-primary/50 transition-colors">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
             <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center mb-3">
-              <span className="text-xl">­ƒôï</span>
+              <span className="text-xl">📋</span>
             </div>
             <p className="font-medium mb-1">Agregar credito en curso</p>
             <p className="text-sm text-muted-foreground mb-4">

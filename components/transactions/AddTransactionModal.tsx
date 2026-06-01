@@ -67,13 +67,13 @@ export function AddTransactionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogHeader>
-        <DialogTitle>Agregar Transaccin</DialogTitle>
+        <DialogTitle>Agregar Transacción</DialogTitle>
         <DialogClose onClick={() => onOpenChange(false)} />
       </DialogHeader>
       <DialogContent>
         <form id="add-transaction-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="add-category">Categora</Label>
+            <Label htmlFor="add-category">Categoría</Label>
             <Select
               id="add-category"
               {...register("categoryId")}
@@ -102,7 +102,7 @@ export function AddTransactionModal({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="add-description">Descripcin</Label>
+            <Label htmlFor="add-description">Descripción</Label>
             <Input
               id="add-description"
               {...register("description")}
