@@ -7,14 +7,14 @@ import { auth } from "@/lib/auth";
 
 const createTransactionSchema = z.object({
   categoryId: z.string().min(1),
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/),
+  amount: z.number().positive(),
   description: z.string().max(500).nullable().optional(),
   date: z.union([z.date(), z.string().datetime()]),
 });
 
 export async function createTransaction(
   categoryId: string,
-  amount: string,
+  amount: number,
   description?: string | null,
   date: Date | string = new Date()
 ) {
@@ -61,7 +61,7 @@ export async function createTransaction(
 
 const updateTransactionSchema = z.object({
   categoryId: z.string().min(1).optional(),
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/).optional(),
+  amount: z.number().positive().optional(),
   description: z.string().max(500).nullable().optional(),
   date: z.union([z.date(), z.string().datetime()]).optional(),
 });
@@ -70,7 +70,7 @@ export async function updateTransaction(
   id: string,
   data: {
     categoryId?: string;
-    amount?: string;
+    amount?: number;
     description?: string | null;
     date?: Date | string;
   }
@@ -101,7 +101,7 @@ export async function updateTransaction(
     where: { id },
     data: {
       ...(parsed.categoryId && { categoryId: parsed.categoryId }),
-      ...(parsed.amount && { amount: parsed.amount }),
+      ...(parsed.amount !== undefined && { amount: parsed.amount }),
       ...(parsed.description !== undefined && {
         description: parsed.description,
       }),

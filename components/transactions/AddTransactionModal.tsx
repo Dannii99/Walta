@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -15,12 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { createTransaction } from "@/server/actions/transaction-actions";
 import type { Category } from "@/types";
 
 const addTransactionSchema = z.object({
-  categoryId: z.string().min(1, "Selecciona una categora"),
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invlido"),
+  categoryId: z.string().min(1, "Selecciona una categoría"),
+  amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().max(500).optional(),
   date: z.string().min(1, "Fecha requerida"),
 });
@@ -41,14 +42,16 @@ export function AddTransactionModal({
   onSuccess,
 }: AddTransactionModalProps) {
   const {
-    register,
+    control,
     handleSubmit,
     reset,
+    register,
     formState: { errors, isSubmitting },
   } = useForm<AddTransactionForm>({
     resolver: zodResolver(addTransactionSchema),
     defaultValues: {
       date: new Date().toISOString().split("T")[0],
+      amount: 0,
     },
   });
 
@@ -91,11 +94,17 @@ export function AddTransactionModal({
           </div>
           <div className="space-y-2">
             <Label htmlFor="add-amount">Monto</Label>
-            <Input
-              id="add-amount"
-              type="number"
-              step="0.01"
-              {...register("amount")}
+            <Controller
+              name="amount"
+              control={control}
+              render={({ field }) => (
+                <CurrencyInput
+                  id="add-amount"
+                  value={field.value || 0}
+                  onValueChange={(v) => field.onChange(v)}
+                  placeholder="0"
+                />
+              )}
             />
             {errors.amount && (
               <p className="text-sm text-destructive">{errors.amount.message}</p>

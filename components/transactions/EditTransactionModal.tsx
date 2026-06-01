@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -16,12 +16,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { updateTransaction } from "@/server/actions/transaction-actions";
 import type { Transaction, Category } from "@/types";
 
 const editTransactionSchema = z.object({
-  categoryId: z.string().min(1, "Selecciona una categora"),
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invlido"),
+  categoryId: z.string().min(1, "Selecciona una categoría"),
+  amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().max(500).optional(),
   date: z.string().min(1, "Fecha requerida"),
 });
@@ -44,9 +45,10 @@ export function EditTransactionModal({
   onSuccess,
 }: EditTransactionModalProps) {
   const {
-    register,
+    control,
     handleSubmit,
     reset,
+    register,
     formState: { errors, isSubmitting },
   } = useForm<EditTransactionForm>({
     resolver: zodResolver(editTransactionSchema),
@@ -56,7 +58,7 @@ export function EditTransactionModal({
     if (transaction) {
       reset({
         categoryId: transaction.categoryId,
-        amount: transaction.amount,
+        amount: Number(transaction.amount),
         description: transaction.description ?? "",
         date: new Date(transaction.date).toISOString().split("T")[0],
       });
@@ -78,13 +80,13 @@ export function EditTransactionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogHeader>
-        <DialogTitle>Editar Transaccin</DialogTitle>
+        <DialogTitle>Editar Transacción</DialogTitle>
         <DialogClose onClick={() => onOpenChange(false)} />
       </DialogHeader>
       <DialogContent>
         <form id="edit-transaction-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-category">Categora</Label>
+            <Label htmlFor="edit-category">Categoría</Label>
             <Select
               id="edit-category"
               {...register("categoryId")}
@@ -101,18 +103,24 @@ export function EditTransactionModal({
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-amount">Monto</Label>
-            <Input
-              id="edit-amount"
-              type="number"
-              step="0.01"
-              {...register("amount")}
+            <Controller
+              name="amount"
+              control={control}
+              render={({ field }) => (
+                <CurrencyInput
+                  id="edit-amount"
+                  value={field.value || 0}
+                  onValueChange={(v) => field.onChange(v)}
+                  placeholder="0"
+                />
+              )}
             />
             {errors.amount && (
               <p className="text-sm text-destructive">{errors.amount.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-description">Descripcin</Label>
+            <Label htmlFor="edit-description">Descripción</Label>
             <Input
               id="edit-description"
               {...register("description")}

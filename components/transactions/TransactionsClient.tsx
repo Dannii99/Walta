@@ -70,7 +70,7 @@ export function TransactionsClient({
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (window.confirm("Ests seguro de que deseas eliminar esta transaccin?")) {
+      if (window.confirm("¿Estás seguro de que deseas eliminar esta transacción?")) {
         await deleteTransaction(id);
         router.refresh();
       }
@@ -109,7 +109,7 @@ export function TransactionsClient({
           <h2 className="text-lg font-semibold">Lista de Transacciones</h2>
           <Button onClick={() => setIsAddOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Agregar Transaccin
+            Agregar Transacción
           </Button>
         </div>
         <TransactionFilters
