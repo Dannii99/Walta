@@ -91,7 +91,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
   };
 
   const tabs: { key: TabKey; label: string; icon: React.ElementType }[] = [
-    { key: "amortization", label: "Amortizaci├│n", icon: CalendarDays },
+    { key: "amortization", label: "Amortización", icon: CalendarDays },
     { key: "payments", label: "Pagos", icon: Receipt },
     { key: "extras", label: "Abonos", icon: PiggyBank },
   ];
@@ -103,7 +103,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
           <h1 className="text-2xl font-bold tracking-tight">{loan.title}</h1>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="outline">
-              {loan.type === "VEHICLE" && "Veh├¡culo"}
+              {loan.type === "VEHICLE" && "Vehículo"}
               {loan.type === "PERSONAL" && "Personal"}
               {loan.type === "HOUSING" && "Vivienda"}
               {loan.type === "OTHER" && "Otros"}
@@ -211,9 +211,9 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>┬┐Eliminar este cr├®dito?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar este crédito?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acci├│n no se puede deshacer. Se eliminar├ín todos los pagos,
+              Esta acción no se puede deshacer. Se eliminarín todos los pagos,
               abonos y datos asociados a <strong>{loan.title}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -223,7 +223,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
               onClick={handleDelete}
               className="bg-red-600 text-white hover:bg-red-700"
             >
-              {isDeleting ? "Eliminando..." : "Eliminar cr├®dito"}
+              {isDeleting ? "Eliminando..." : "Eliminar crédito"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -237,7 +237,7 @@ function PaymentsList({ payments }: { payments: LoanPayment[] }) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          No hay pagos registrados a├║n.
+          No hay pagos registrados aún.
         </CardContent>
       </Card>
     );
@@ -264,7 +264,7 @@ function PaymentsList({ payments }: { payments: LoanPayment[] }) {
                   })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Capital: {formatCOP(parseFloat(p.principalPaid))} ┬À Inter├®s: {formatCOP(parseFloat(p.interestPaid))}
+                  Capital: {formatCOP(parseFloat(p.principalPaid))} · Inter├®s: {formatCOP(parseFloat(p.interestPaid))}
                 </p>
               </div>
               <span className="font-bold text-sm">{formatCOP(parseFloat(p.amount))}</span>

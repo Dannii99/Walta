@@ -91,7 +91,7 @@ export function LoanCharts({ loan, simulatedExtraAmount = 0 }: LoanChartsProps) 
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <TrendingDown className="h-4 w-4 text-primary" />
-            Evoluci├│n del saldo
+            Evolución del saldo
           </CardTitle>
         </CardHeader>
         <CardContent>

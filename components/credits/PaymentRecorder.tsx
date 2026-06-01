@@ -18,9 +18,9 @@ import { Label } from "@/components/ui/label";
 import type { Loan } from "@/types";
 
 const paymentSchema = z.object({
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inv├ílido"),
-  principalPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inv├ílido"),
-  interestPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto inv├ílido"),
+  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invílido"),
+  principalPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invílido"),
+  interestPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invílido"),
   paidDate: z.string().min(1, "Fecha requerida"),
 });
 

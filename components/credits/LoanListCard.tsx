@@ -12,7 +12,7 @@ interface LoanListCardProps {
 }
 
 const typeLabels: Record<string, string> = {
-  VEHICLE: "Veh├¡culo",
+  VEHICLE: "Vehículo",
   PERSONAL: "Personal",
   HOUSING: "Vivienda",
   OTHER: "Otros",

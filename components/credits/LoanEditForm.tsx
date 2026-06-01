@@ -44,7 +44,7 @@ interface LoanEditFormProps {
 }
 
 const typeLabels: Record<string, string> = {
-  VEHICLE: "Veh├¡culo",
+  VEHICLE: "Vehículo",
   PERSONAL: "Personal",
   HOUSING: "Vivienda",
   OTHER: "Otros",
@@ -95,10 +95,10 @@ export function LoanEditForm({ loan }: LoanEditFormProps) {
         startDate: new Date(data.startDate),
         fees: data.fees,
       });
-      setSaveMessage("Cr├®dito actualizado correctamente.");
+      setSaveMessage("Crédito actualizado correctamente.");
       router.push(`/credits/${loan.id}`);
     } catch {
-      setSaveMessage("Error al actualizar el cr├®dito.");
+      setSaveMessage("Error al actualizar el crédito.");
     } finally {
       setIsSaving(false);
     }
@@ -107,13 +107,13 @@ export function LoanEditForm({ loan }: LoanEditFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Editar Cr├®dito</CardTitle>
+        <CardTitle>Editar Crédito</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="edit-loan-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-title">Nombre / Descripci├│n</Label>
+              <Label htmlFor="edit-title">Nombre / Descripción</Label>
               <Input id="edit-title" {...register("title")} />
               {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
             </div>
@@ -180,13 +180,13 @@ export function LoanEditForm({ loan }: LoanEditFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-formula">F├│rmula</Label>
+              <Label htmlFor="edit-formula">Fórmula</Label>
               <select
                 id="edit-formula"
                 {...register("formula")}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
-                <option value="french_ea">Amortizaci├│n Francesa (EA)</option>
+                <option value="french_ea">Amortización Francesa (EA)</option>
                 <option value="nominal_monthly">Inter├®s Nominal Mensual (NAMV/12)</option>
               </select>
             </div>

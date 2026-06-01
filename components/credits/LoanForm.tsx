@@ -85,17 +85,17 @@ function mapFormulaToSchema(formula: string): string {
 const LOAN_TYPES = [
   { value: "personal", label: "Personal" },
   { value: "mortgage", label: "Hipotecario" },
-  { value: "vehicle", label: "Veh├¡culo" },
+  { value: "vehicle", label: "Vehículo" },
   { value: "student", label: "Estudiantil" },
-  { value: "credit_card", label: "Tarjeta de Cr├®dito" },
-  { value: "microcredit", label: "Microcr├®dito" },
+  { value: "credit_card", label: "Tarjeta de Crédito" },
+  { value: "microcredit", label: "Microcrédito" },
 ];
 
 const FORMULAS = [
   { value: "french_ea", label: "Cuota Fija (Franc├®s EA)" },
   { value: "french_namv", label: "Cuota Fija (Franc├®s NAMV)" },
-  { value: "constant_capital_ea", label: "Capital Constante (Alem├ín EA)" },
-  { value: "constant_capital_namv", label: "Capital Constante (Alem├ín NAMV)" },
+  { value: "constant_capital_ea", label: "Capital Constante (Alemín EA)" },
+  { value: "constant_capital_namv", label: "Capital Constante (Alemín NAMV)" },
 ];
 
 interface LoanFormProps {
@@ -231,7 +231,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   }, [pastMonths]);
 
   const validateStep1 = useCallback(() => {
-    if (!title.trim()) return "Debes ingresar un nombre para el cr├®dito.";
+    if (!title.trim()) return "Debes ingresar un nombre para el crédito.";
     if (price <= 0) return "El precio total debe ser mayor a cero.";
     if (downPayment < 0) return "La cuota inicial no puede ser negativa.";
     if (downPayment >= price) return "La cuota inicial no puede ser igual o mayor al precio.";
@@ -292,7 +292,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           fees,
           pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
         });
-        toast.success("Cr├®dito actualizado");
+        toast.success("Crédito actualizado");
         router.push(`/credits/${loanId}`);
         router.refresh();
       } else {
@@ -313,13 +313,13 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           initialExtraPayment: mode === "ongoing" && initialExtraPayment > 0 ? initialExtraPayment : undefined,
           pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
         });
-        toast.success(mode === "ongoing" ? "Cr├®dito en curso agregado" : "Cr├®dito creado");
+        toast.success(mode === "ongoing" ? "Crédito en curso agregado" : "Crédito creado");
         router.push("/credits");
         router.refresh();
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error al guardar el cr├®dito");
+      toast.error("Error al guardar el crédito");
     } finally {
       setIsSubmitting(false);
     }
@@ -355,7 +355,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   }`}
                 >
                   {s === 1
-                    ? "Informaci├│n b├ísica"
+                    ? "Información bísica"
                     : s === 2
                       ? "Condiciones"
                       : "En curso"}
@@ -373,11 +373,11 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
       {step === 1 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Informaci├│n b├ísica</CardTitle>
+            <CardTitle className="text-lg">Información bísica</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Nombre del cr├®dito</Label>
+              <Label htmlFor="title">Nombre del crédito</Label>
               <Input
                 id="title"
                 value={title}
@@ -387,7 +387,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type">Tipo de cr├®dito</Label>
+              <Label htmlFor="type">Tipo de crédito</Label>
               <select
                 id="type"
                 value={type}
@@ -447,7 +447,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Condiciones del cr├®dito</CardTitle>
+              <CardTitle className="text-lg">Condiciones del crédito</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -485,7 +485,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                             : "bg-background text-muted-foreground hover:bg-muted"
                         }`}
                       >
-                        A├▒os
+                        Años
                       </button>
                       <button
                         type="button"
@@ -519,7 +519,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="formula">F├│rmula de amortizaci├│n</Label>
+                  <Label htmlFor="formula">Fórmula de amortización</Label>
                   <select
                     id="formula"
                     value={formula}
@@ -566,7 +566,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
       {step === 3 && mode === "ongoing" && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Cr├®dito en curso</CardTitle>
+            <CardTitle className="text-lg">Crédito en curso</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -581,8 +581,8 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 placeholder="0"
               />
               <p className="text-xs text-muted-foreground">
-                Ingresa cu├íntas cuotas ya has pagado. Esto generar├í los pagos
-                ficticios autom├íticamente.
+                Ingresa cuíntas cuotas ya has pagado. Esto generarí los pagos
+                ficticios automíticamente.
               </p>
             </div>
 
@@ -668,7 +668,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 placeholder="0"
               />
               <p className="text-xs text-muted-foreground">
-                Si ya hiciste un abono extra a capital antes de registrar el cr├®dito, ingr├®salo aqu├¡. Se reflejar├í en tu tabla de amortizaci├│n.
+                Si ya hiciste un abono extra a capital antes de registrar el crédito, ingr├®salo aqu├¡. Se reflejarí en tu tabla de amortización.
               </p>
             </div>
 
@@ -712,7 +712,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                     placeholder="Opcional"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Opcional: ├║til si quieres ajustar el saldo con exactitud.
+                    Opcional: útil si quieres ajustar el saldo con exactitud.
                   </p>
                 </div>
               </div>
@@ -734,7 +734,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
         {step === totalSteps ? (
           <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar cr├®dito" : "Crear cr├®dito"}
+            {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar crédito" : "Crear crédito"}
           </Button>
         ) : (
           <Button onClick={handleNext} disabled={isSubmitting}>

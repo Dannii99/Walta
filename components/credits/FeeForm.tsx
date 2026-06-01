@@ -42,7 +42,7 @@ export function FeeForm({ initialFee, onSave, onCancel }: FeeFormProps) {
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Ej. seguro de vida, aval, comisi├│n..."
+            placeholder="Ej. seguro de vida, aval, comisión..."
             className="mt-1 h-9"
           />
         </div>
