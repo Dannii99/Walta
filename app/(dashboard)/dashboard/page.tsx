@@ -90,11 +90,12 @@ export default async function DashboardPage() {
     );
     monthlyEquivalentExpenses += catEquivalent;
 
-    if (cat.type === "needs") {
+    const catType = cat.type.toUpperCase();
+    if (catType === "NEEDS") {
       needsSpent += catEquivalent;
-    } else if (cat.type === "wants") {
+    } else if (catType === "WANTS") {
       wantsSpent += catEquivalent;
-    } else if (cat.type === "savings") {
+    } else if (catType === "SAVINGS" || catType === "DEBT") {
       savingsSpent += catEquivalent;
     }
 
