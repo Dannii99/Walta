@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { motion, animate } from "framer-motion";
-import { TrendingUp, TrendingDown, Wallet, Sparkles } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, PiggyBank, Sparkles } from "lucide-react";
 import { formatCOP } from "@/lib/currency";
 
 interface KPICardProps {
   title: string;
   value: number;
-  icon: "income" | "expenses" | "available";
+  icon: "income" | "expenses" | "available" | "savings";
   subtitle?: string;
 }
 
@@ -43,13 +43,31 @@ const variantMap = {
     label: "text-emerald-900",
     accent: "text-emerald-600",
   },
+  savings: {
+    gradient: "from-violet-500 via-purple-500 to-fuchsia-600",
+    softBg: "from-violet-50 via-purple-50 to-fuchsia-50",
+    border: "border-violet-200/60",
+    text: "text-violet-700",
+    glow: "shadow-violet-500/20",
+    ring: "ring-violet-500/20",
+    label: "text-violet-900",
+    accent: "text-violet-600",
+  },
 } as const;
 
 const iconMap = {
   income: TrendingUp,
   expenses: TrendingDown,
   available: Wallet,
+  savings: PiggyBank,
 };
+
+const footerLabel = {
+  income: "Base del mes",
+  expenses: "Equiv. mensual",
+  available: "Libre para usar",
+  savings: "Ahorro potencial",
+} as const;
 
 export function KPICard({ title, value, icon, subtitle }: KPICardProps) {
   const [displayValue, setDisplayValue] = useState(0);
@@ -81,14 +99,14 @@ export function KPICard({ title, value, icon, subtitle }: KPICardProps) {
       />
 
       <div className="relative p-5 space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="space-y-0.5">
-            <p className={`text-xs font-semibold uppercase tracking-wider ${styles.accent}`}>
+        <div className="flex items-start justify-between gap-2">
+          <div className="space-y-0.5 min-w-0 flex-1">
+            <p className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider ${styles.accent} truncate`}>
               {title}
             </p>
           </div>
           <div
-            className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${styles.gradient} text-white shadow-md ${styles.glow}`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${styles.gradient} text-white shadow-md ${styles.glow}`}
           >
             <Icon className="h-5 w-5" strokeWidth={2.5} />
           </div>
@@ -96,19 +114,21 @@ export function KPICard({ title, value, icon, subtitle }: KPICardProps) {
 
         <div className="space-y-1">
           <div
-            className={`text-3xl md:text-4xl font-extrabold tracking-tight tabular-nums bg-gradient-to-br ${styles.gradient} bg-clip-text text-transparent`}
+            className={`text-3xl md:text-[2rem] font-extrabold tracking-tight tabular-nums bg-gradient-to-br ${styles.gradient} bg-clip-text text-transparent leading-tight`}
           >
             {formatCOP(displayValue)}
           </div>
           {subtitle && (
-            <p className={`text-xs font-medium ${styles.text}`}>{subtitle}</p>
+            <p className={`text-xs font-medium ${styles.text} leading-snug`}>
+              {subtitle}
+            </p>
           )}
         </div>
 
         <div className="flex items-center gap-1 pt-1">
           <Sparkles className={`h-3 w-3 ${styles.accent}`} />
           <span className={`text-[10px] font-medium uppercase tracking-wider ${styles.accent}`}>
-            Equiv. mensual
+            {footerLabel[icon]}
           </span>
         </div>
       </div>

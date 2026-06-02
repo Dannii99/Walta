@@ -130,14 +130,20 @@ export function AlertDialogAction({
   children,
   onClick,
   className,
+  disabled,
+  type = "button",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }) {
   const { setOpen } = useContext(AlertDialogContext);
   return (
     <button
+      type={type}
+      disabled={disabled}
       onClick={() => {
         onClick?.();
         setOpen(false);

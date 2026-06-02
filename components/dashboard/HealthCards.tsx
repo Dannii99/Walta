@@ -3,9 +3,23 @@
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { formatCOP } from "@/lib/currency";
-import { Home, Heart, PiggyBank, AlertTriangle, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Home,
+  Heart,
+  PiggyBank,
+  AlertTriangle,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
+import { getRecommendation } from "@/lib/dashboard-helpers";
 
 interface HealthCardsProps {
+  ruleName: string;
+  needsPct: number;
+  wantsPct: number;
+  savingsPct: number;
   needsSpent: number;
   needsLimit: number;
   wantsSpent: number;
@@ -38,7 +52,6 @@ const statusStyles: Record<
     bar: string;
     text: string;
     label: string;
-    iconBg: string;
     shadow: string;
   }
 > = {
@@ -50,7 +63,6 @@ const statusStyles: Record<
     bar: "[&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-teal-500",
     text: "text-emerald-700",
     label: "text-emerald-800",
-    iconBg: "bg-emerald-500",
     shadow: "shadow-emerald-500/20",
   },
   warning: {
@@ -61,7 +73,6 @@ const statusStyles: Record<
     bar: "[&>div]:bg-gradient-to-r [&>div]:from-amber-500 [&>div]:to-orange-500",
     text: "text-amber-700",
     label: "text-amber-800",
-    iconBg: "bg-amber-500",
     shadow: "shadow-amber-500/20",
   },
   critical: {
@@ -72,9 +83,14 @@ const statusStyles: Record<
     bar: "[&>div]:bg-gradient-to-r [&>div]:from-rose-500 [&>div]:to-pink-500",
     text: "text-rose-700",
     label: "text-rose-800",
-    iconBg: "bg-rose-500",
     shadow: "shadow-rose-500/20",
   },
+};
+
+const statusLabel: Record<Status, string> = {
+  healthy: "Saludable",
+  warning: "Ajustado",
+  critical: "Excedido",
 };
 
 const StatusIcon = ({ status }: { status: Status }) => {
@@ -110,17 +126,17 @@ function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
 
       <div className="relative p-5 space-y-3">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${styles.gradient} text-white shadow-md`}
+              className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${styles.gradient} text-white shadow-md shrink-0`}
             >
               <Icon className="h-4 w-4" strokeWidth={2.5} />
             </div>
-            <p className={`text-xs font-bold uppercase tracking-wider ${styles.label}`}>
+            <p className={`text-xs font-bold uppercase tracking-wider ${styles.label} truncate`}>
               {label}
             </p>
           </div>
-          <div className="text-3xl leading-none filter drop-shadow-md" aria-hidden>
+          <div className="text-3xl leading-none filter drop-shadow-md shrink-0" aria-hidden>
             {emoji}
           </div>
         </div>
@@ -139,18 +155,16 @@ function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
           className={`h-2.5 ${styles.bar}`}
         />
 
-        <div className="flex items-center justify-between text-xs">
-          <span className={`font-medium ${styles.text}`}>
+        <div className="flex items-center justify-between text-xs gap-2 flex-wrap">
+          <span className={`font-medium ${styles.text} tabular-nums`}>
             {formatCOP(spent)}{" "}
             <span className="opacity-60">de {formatCOP(limit)}</span>
           </span>
           <span
-            className={`flex items-center gap-1 font-bold uppercase tracking-wider ${styles.label}`}
+            className={`flex items-center gap-1 font-bold uppercase tracking-wider ${styles.label} shrink-0`}
           >
             <StatusIcon status={status} />
-            {styles.gradient.includes("emerald") && "OK"}
-            {styles.gradient.includes("amber") && "Alerta"}
-            {styles.gradient.includes("rose") && "¡Ojo!"}
+            {statusLabel[status]}
           </span>
         </div>
       </div>
@@ -159,6 +173,10 @@ function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
 }
 
 export function HealthCards({
+  ruleName,
+  needsPct,
+  wantsPct,
+  savingsPct,
   needsSpent,
   needsLimit,
   wantsSpent,
@@ -166,17 +184,30 @@ export function HealthCards({
   savingsSpent,
   savingsLimit,
 }: HealthCardsProps) {
+  const recommendation = getRecommendation(
+    needsPct,
+    wantsPct,
+    savingsPct,
+    needsSpent,
+    wantsSpent,
+    savingsSpent
+  );
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold tracking-tight flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500" />
-          Salud Financiera
-        </h2>
-        <p className="text-xs text-muted-foreground font-medium">
-          Equivalente mensual
-        </p>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="space-y-0.5">
+          <h2 className="text-lg md:text-xl font-bold tracking-tight flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500" />
+            Salud Financiera
+          </h2>
+          <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <Sparkles className="h-3 w-3" />
+            Regla aplicada: <span className="font-bold text-foreground/80">{ruleName}</span>
+          </p>
+        </div>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <HealthCard
           label="Necesidades"
@@ -197,6 +228,28 @@ export function HealthCards({
           Icon={PiggyBank}
         />
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+        className="relative overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/40 p-3.5 md:p-4 shadow-sm ring-1 ring-black/5"
+      >
+        <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/10 to-indigo-500/10 blur-2xl" />
+        <div className="relative flex items-start gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 text-white shadow-sm">
+            <TrendingUp className="h-4 w-4" strokeWidth={2.5} />
+          </div>
+          <div className="space-y-0.5 min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
+              Recomendación
+            </p>
+            <p className="text-sm text-foreground/80 font-medium leading-relaxed">
+              {recommendation}
+            </p>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 const categoryInputSchema = z.object({
   name: z.string().min(1).max(100),
   type: z.enum(["NEEDS", "WANTS", "SAVINGS", "DEBT"]),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#3B82F6"),
 });
 
 const categoryUpdateSchema = categoryInputSchema.partial();

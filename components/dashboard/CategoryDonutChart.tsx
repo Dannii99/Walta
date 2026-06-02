@@ -2,8 +2,10 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import { PieChart as PieIcon, TrendingUp } from "lucide-react";
-import { formatCOP } from "@/lib/currency";
+import { useDashboard } from "@/components/dashboard/DashboardContext";
+import { Plus } from "lucide-react";
 
 interface DonutData {
   name: string;
@@ -14,6 +16,7 @@ interface DonutData {
 interface CategoryDonutChartProps {
   data: DonutData[];
   variant?: "default" | "hero";
+  monthLabel?: string;
 }
 
 const VIBRANT_PALETTE = [
@@ -39,7 +42,9 @@ const formatCurrency = (value: number) =>
 export function CategoryDonutChart({
   data,
   variant = "default",
+  monthLabel,
 }: CategoryDonutChartProps) {
+  const { setOpenAddModal } = useDashboard();
   const chartData = data.map((item, i) => ({
     ...item,
     color: item.color || VIBRANT_PALETTE[i % VIBRANT_PALETTE.length],
@@ -68,27 +73,27 @@ export function CategoryDonutChart({
       <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-gradient-to-br from-emerald-500/10 to-teal-500/10 blur-2xl" />
 
       <div className="relative p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white shadow-md">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white shadow-md shrink-0">
               <PieIcon className="h-4 w-4" strokeWidth={2.5} />
             </div>
-            <div>
+            <div className="min-w-0">
               <h2 className="text-base font-bold tracking-tight">
                 Distribución de Gastos
               </h2>
               <p className="text-[11px] text-muted-foreground font-medium">
-                Equivalente mensual
+                {monthLabel ? `${monthLabel} · Equivalente mensual` : "Equivalente mensual"}
               </p>
             </div>
           </div>
           {isHero && hasData && (
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-200/50">
               <TrendingUp className="h-3 w-3 text-emerald-600" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 truncate max-w-[120px]">
                 {topEntry.name}
               </span>
-              <span className="text-[10px] font-bold text-emerald-600">
+              <span className="text-[10px] font-bold text-emerald-600 tabular-nums">
                 {topShare.toFixed(0)}%
               </span>
             </div>
@@ -224,10 +229,27 @@ export function CategoryDonutChart({
           <div
             className={`flex items-center justify-center ${
               isHero ? "h-[340px]" : "h-48"
-            } text-muted-foreground text-sm flex-col gap-2`}
+            } flex-col gap-3 px-4 text-center`}
           >
-            <PieIcon className="h-10 w-10 opacity-30" />
-            <p className="font-medium">No hay gastos registrados este mes</p>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 ring-1 ring-border/60">
+              <PieIcon className="h-7 w-7 text-indigo-500" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-bold text-foreground/80">
+                No hay gastos registrados este mes
+              </p>
+              <p className="text-xs text-muted-foreground font-medium max-w-xs">
+                Agrega tu primer gasto y verás aquí cómo se distribuye tu dinero.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setOpenAddModal(true)}
+              className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-md shadow-indigo-500/30"
+            >
+              <Plus className="h-3.5 w-3.5 mr-1" />
+              Agregar gasto
+            </Button>
           </div>
         )}
       </div>

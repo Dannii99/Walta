@@ -2,8 +2,14 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
+import { DashboardEmptyClient } from "@/components/dashboard/DashboardEmptyClient";
 import type { Transaction, Category, CategoryType } from "@/types";
 import { getMonthlyEquivalent } from "@/lib/recurrence";
+import {
+  computeHealthStatus,
+  formatMonthName,
+  formatRuleName,
+} from "@/lib/dashboard-helpers";
 
 const CATEGORY_COLORS = [
   "#3B82F6",
@@ -50,6 +56,7 @@ export default async function DashboardPage() {
       allTransactions.push({
         ...tx,
         amount: tx.amount.toString(),
+        recurrence: (tx.recurrence ?? "MONTHLY") as Transaction["recurrence"],
         category: {
           ...cat,
           type: cat.type.toUpperCase() as CategoryType,
@@ -110,6 +117,15 @@ export default async function DashboardPage() {
   }));
 
   const available = income - monthlyEquivalentExpenses;
+  const savingsCapacity = Math.max(available, 0);
+
+  const isEmpty = income <= 0 && allTransactions.length === 0;
+  const healthStatus = computeHealthStatus(income, monthlyEquivalentExpenses, available);
+  const expensesPct =
+    income > 0 ? ((monthlyEquivalentExpenses / income) * 100).toFixed(0) : "0";
+
+  const monthLabel = formatMonthName();
+  const ruleName = formatRuleName(rule);
 
   const categoriesBreakdown = budget.categories
     .map((cat, i) => {
@@ -143,13 +159,29 @@ export default async function DashboardPage() {
     transactions: [],
   }));
 
+  if (isEmpty) {
+    return (
+      <div className="p-4 md:p-8 max-w-7xl mx-auto">
+        <DashboardEmptyClient categories={categories} />
+      </div>
+    );
+  }
+
   return (
     <DashboardContent
       budgetName={budget.name}
+      monthLabel={monthLabel}
+      ruleName={ruleName}
       income={income}
       expenses={totalExpenses}
       monthlyEquivalentExpenses={monthlyEquivalentExpenses}
       available={available}
+      savingsCapacity={savingsCapacity}
+      healthStatus={healthStatus}
+      expensesPct={expensesPct}
+      needsPct={needsPct}
+      wantsPct={wantsPct}
+      savingsPct={savingsPct}
       needsSpent={needsSpent}
       needsLimit={needsLimit}
       wantsSpent={wantsSpent}
