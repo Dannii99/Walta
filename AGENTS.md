@@ -80,15 +80,23 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - Root `app/page.tsx` redirects unauthenticated users to `/login` and authenticated users to `/dashboard`.
 - **Fase 4 (Dashboard Visual) implemented:**
-  - `app/(dashboard)/dashboard/page.tsx` — Server Component fetching budget + transactions, calculating KPIs, health indicators, donut chart data, and recent transactions. Passes all data as plain props to client components.
-  - `components/dashboard/DashboardContent.tsx` — Orchestrates layout grid (KPIs, DonutChart, Health, RecentTransactions) and manages Add/Edit/Delete transaction modals.
+  - `app/(dashboard)/dashboard/page.tsx` — Server Component fetching budget + transactions, calculating KPIs, health indicators, donut chart data, and category breakdown. Passes all data as plain props to client components.
+  - `components/dashboard/DashboardContent.tsx` — Orchestrates layout (Header → Hero Donut → KPIs → Health Cards → Category Breakdown) and manages Add expense modal.
   - `components/dashboard/KPICard.tsx` — Animated KPI cards (Framer Motion counters) for Income, Expenses, Available.
-  - `components/dashboard/CategoryDonutChart.tsx` — Recharts donut chart for spending by category.
-  - `components/dashboard/HealthIndicator.tsx` — Progress bars for Needs/Wants/Savings with dynamic health labels (green/yellow/red) using user's `budget.rule`.
-  - `components/dashboard/RecentTransactions.tsx` — Last 5 transactions with Edit/Delete buttons; opens existing modals.
+  - `components/dashboard/CategoryDonutChart.tsx` — Recharts donut chart with two variants: `default` (compact) and `hero` (full-width, larger, with total amount in center). Used as the hero element of the dashboard.
+  - `components/dashboard/HealthCards.tsx` — 3 separate cards for Needs/Wants/Savings with emoji traffic-light faces (😊/😐/😟), color-tinted backgrounds, left border accents, and progress bars using user's `budget.rule`.
+  - `components/dashboard/CategoryBreakdown.tsx` — Detailed breakdown of spending per category with bars, % of total, and individual limits. Replaces the old `RecentTransactions` widget.
   - `components/dashboard/DashboardContext.tsx` — Provides `openAddModal` state and `triggerRefresh` callback across dashboard layout.
-  - `app/(dashboard)/layout.tsx` — Wraps children with `DashboardProvider`.
+  - `app/(dashboard)/layout.tsx` — Wraps children with `DashboardProvider`. Sidebar includes Dashboard, Gastos, Simulaciones, Créditos, Historial, Configuración.
   - New UI components: `components/ui/alert-dialog.tsx`, `components/ui/progress.tsx`.
+- **Módulo "Gastos" (`/expenses`):**
+  - `app/(dashboard)/expenses/page.tsx` — Server Component with metadata, totals-by-type cards, filters and full table.
+  - `components/expenses/AddExpenseModal.tsx` — Modal con `CurrencyInput` (máscara de miles) + select de recurrencia (Mensual/Quincenal/Única).
+  - `components/expenses/EditExpenseModal.tsx` — Mismo formulario precargado.
+  - `components/expenses/ExpenseList.tsx` — Tabla con orden por fecha, badges de tipo y recurrencia, acciones Edit/Delete.
+  - `components/expenses/ExpenseFilters.tsx` — Filtros por búsqueda, categoría, tipo, rango de fechas.
+  - `components/expenses/ExpensesClient.tsx` — Orquesta el cliente del módulo.
+  - Nota: el modelo Prisma se llama `Transaction` (dominio); sólo la UI/ruta/componentes se renombraron a "Gastos".
 - **Fase 3 (Onboarding) implemented:** 4-step wizard (`/onboarding`) with animated welcome, template selection, income input, and category review. Redirects from dashboard if no budget exists.
 - `server/actions/`, `server/queries/`, `hooks/`, and `components/` directories are fully populated.
 - `types/index.ts` defines domain types mirroring Prisma schema.

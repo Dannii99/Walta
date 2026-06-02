@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import type { Category, CategoryType } from "@/types";
 
-export interface TransactionFiltersState {
+export interface ExpenseFiltersState {
   search: string;
   categoryId: string;
   type: CategoryType | "";
@@ -13,18 +13,18 @@ export interface TransactionFiltersState {
   dateTo: string;
 }
 
-interface TransactionFiltersProps {
+interface ExpenseFiltersProps {
   categories: Category[];
-  filters: TransactionFiltersState;
-  onChange: (filters: TransactionFiltersState) => void;
+  filters: ExpenseFiltersState;
+  onChange: (filters: ExpenseFiltersState) => void;
 }
 
-export function TransactionFilters({
+export function ExpenseFilters({
   categories,
   filters,
   onChange,
-}: TransactionFiltersProps) {
-  const update = (partial: Partial<TransactionFiltersState>) => {
+}: ExpenseFiltersProps) {
+  const update = (partial: Partial<ExpenseFiltersState>) => {
     onChange({ ...filters, ...partial });
   };
 
@@ -34,13 +34,13 @@ export function TransactionFilters({
         <Label htmlFor="search">Buscar</Label>
         <Input
           id="search"
-          placeholder="Descripcin..."
+          placeholder="Descripción..."
           value={filters.search}
           onChange={(e) => update({ search: e.target.value })}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="category">Categora</Label>
+        <Label htmlFor="category">Categoría</Label>
         <Select
           id="category"
           value={filters.categoryId}

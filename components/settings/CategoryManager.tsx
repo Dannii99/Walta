@@ -191,7 +191,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
     const { category, reassignTo } = deleteDialog;
 
     if (category._count.transactions > 0 && !reassignTo) {
-      setError("Selecciona una categoría de destino para reasignar las transacciones");
+      setError("Selecciona una categoría de destino para reasignar los gastos");
       return;
     }
 
@@ -293,7 +293,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                             {TYPE_LABELS[type]}
                           </Badge>
                           <span>
-                            {txCount} {txCount === 1 ? "transacción" : "transacciones"}
+                            {txCount} {txCount === 1 ? "gasto" : "gastos"}
                           </span>
                         </div>
                       </div>
@@ -415,12 +415,12 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
             <AlertDialogDescription>
               {deleteDialog && deleteDialog.category._count.transactions > 0 ? (
                 <div className="space-y-3">
-                  <p>
+                  <div>
                     <strong>{deleteDialog.category.name}</strong> tiene{" "}
                     <strong>{deleteDialog.category._count.transactions}</strong>{" "}
-                    transacciones asociadas. Selecciona la categoría de destino
-                    para reasignarlas antes de eliminar.
-                  </p>
+                    gastos asociados. Selecciona la categoría de destino
+                    para reasignarlos antes de eliminar.
+                  </div>
                   <select
                     value={deleteDialog.reassignTo}
                     onChange={(e) =>
@@ -437,11 +437,11 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                   </select>
                 </div>
               ) : (
-                <p>
+                <div>
                   ¿Estás seguro de eliminar la categoría{" "}
                   <strong>{deleteDialog?.category.name}</strong>? Esta acción no
                   se puede deshacer.
-                </p>
+                </div>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -476,21 +476,21 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
             <AlertDialogDescription>
               {typeChangeWarning && (
                 <div className="space-y-2">
-                  <p>
+                  <div>
                     <strong>{typeChangeWarning.category.name}</strong> tiene{" "}
                     <strong>{typeChangeWarning.category._count.transactions}</strong>{" "}
-                    transacciones registradas como{" "}
+                    gastos registrados como{" "}
                     <strong>
                       {TYPE_LABELS[typeChangeWarning.category.type as CategoryType]}
                     </strong>
                     .
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     Al cambiar a{" "}
                     <strong>{TYPE_LABELS[typeChangeWarning.newType]}</strong>, las
                     métricas del dashboard (KPIs, donut, salud) se recalcularán
-                    con estas transacciones en la nueva categoría.
-                  </p>
+                    con estos gastos en la nueva categoría.
+                  </div>
                 </div>
               )}
             </AlertDialogDescription>

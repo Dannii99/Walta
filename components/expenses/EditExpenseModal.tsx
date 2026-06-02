@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -20,16 +20,16 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { updateTransaction } from "@/server/actions/transaction-actions";
 import type { Transaction, Category } from "@/types";
 
-const editTransactionSchema = z.object({
+const editExpenseSchema = z.object({
   categoryId: z.string().min(1, "Selecciona una categoría"),
   amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().max(500).optional(),
   recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]),
 });
 
-type EditTransactionForm = z.infer<typeof editTransactionSchema>;
+type EditExpenseForm = z.infer<typeof editExpenseSchema>;
 
-interface EditTransactionModalProps {
+interface EditExpenseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transaction: (Transaction & { category?: Category }) | null;
@@ -37,21 +37,21 @@ interface EditTransactionModalProps {
   onSuccess: () => void;
 }
 
-export function EditTransactionModal({
+export function EditExpenseModal({
   open,
   onOpenChange,
   transaction,
   categories,
   onSuccess,
-}: EditTransactionModalProps) {
+}: EditExpenseModalProps) {
   const {
     control,
     handleSubmit,
     reset,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<EditTransactionForm>({
-    resolver: zodResolver(editTransactionSchema),
+  } = useForm<EditExpenseForm>({
+    resolver: zodResolver(editExpenseSchema),
   });
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export function EditTransactionModal({
     }
   }, [transaction, reset]);
 
-  const onSubmit = async (data: EditTransactionForm) => {
+  const onSubmit = async (data: EditExpenseForm) => {
     if (!transaction) return;
     await updateTransaction(transaction.id, {
       categoryId: data.categoryId,
@@ -80,11 +80,11 @@ export function EditTransactionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogHeader>
-        <DialogTitle>Editar Transacción</DialogTitle>
+        <DialogTitle>Editar Gasto</DialogTitle>
         <DialogClose onClick={() => onOpenChange(false)} />
       </DialogHeader>
       <DialogContent>
-        <form id="edit-transaction-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form id="edit-expense-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="edit-category">Categoría</Label>
             <Select
@@ -149,7 +149,7 @@ export function EditTransactionModal({
         <Button variant="outline" onClick={() => onOpenChange(false)}>
           Cancelar
         </Button>
-        <Button type="submit" form="edit-transaction-form" disabled={isSubmitting}>
+        <Button type="submit" form="edit-expense-form" disabled={isSubmitting}>
           {isSubmitting ? "Guardando..." : "Guardar"}
         </Button>
       </DialogFooter>

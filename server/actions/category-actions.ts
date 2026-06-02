@@ -70,7 +70,7 @@ export async function createCategory(
   });
 
   revalidatePath("/settings");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
   revalidatePath("/dashboard");
 
   return created;
@@ -102,7 +102,7 @@ export async function updateCategory(
   });
 
   revalidatePath("/settings");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
   revalidatePath("/dashboard");
 
   return updated;
@@ -121,7 +121,7 @@ export async function deleteCategory(
   if (txCount > 0) {
     if (!reassignToCategoryId) {
       throw new Error(
-        `Esta categoría tiene ${txCount} transacciones. Debes reasignarlas antes de eliminar.`
+        `Esta categoría tiene ${txCount} gastos. Debes reasignarlos antes de eliminar.`
       );
     }
 
@@ -153,7 +153,7 @@ export async function deleteCategory(
   });
 
   revalidatePath("/settings");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
   revalidatePath("/dashboard");
 
   return { success: true };

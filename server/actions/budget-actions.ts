@@ -65,7 +65,7 @@ export async function createBudget(
   });
 
   revalidatePath("/");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
 
   return {
     ...budget,
@@ -116,7 +116,7 @@ export async function updateBudget(
   });
 
   revalidatePath("/");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
 
   return {
     ...updated,
@@ -144,7 +144,7 @@ export async function deleteBudget(budgetId: string) {
   });
 
   revalidatePath("/");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
 
   return { success: true };
 }

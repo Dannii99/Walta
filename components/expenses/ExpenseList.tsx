@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import {
@@ -16,7 +16,7 @@ import { RECURRENCE_LABELS } from "@/lib/recurrence";
 import type { Transaction, Category, CategoryType, Recurrence } from "@/types";
 import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
 
-interface TransactionListProps {
+interface ExpenseListProps {
   transactions: (Transaction & { category?: Category })[];
   onEdit: (transaction: Transaction & { category?: Category }) => void;
   onDelete: (id: string) => void;
@@ -44,11 +44,11 @@ const recurrenceColors: Record<Recurrence, string> = {
   ONE_TIME: "bg-gray-100 text-gray-800 border-gray-200",
 };
 
-export function TransactionList({
+export function ExpenseList({
   transactions,
   onEdit,
   onDelete,
-}: TransactionListProps) {
+}: ExpenseListProps) {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const sortedTransactions = [...transactions].sort((a, b) => {
@@ -64,7 +64,7 @@ export function TransactionList({
   if (transactions.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No hay transacciones para mostrar.
+        No hay gastos para mostrar.
       </div>
     );
   }

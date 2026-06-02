@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { TransactionList } from "./TransactionList";
-import { TransactionFilters, type TransactionFiltersState } from "./TransactionFilters";
-import { EditTransactionModal } from "./EditTransactionModal";
-import { AddTransactionModal } from "./AddTransactionModal";
+import { ExpenseList } from "./ExpenseList";
+import { ExpenseFilters, type ExpenseFiltersState } from "./ExpenseFilters";
+import { EditExpenseModal } from "./EditExpenseModal";
+import { AddExpenseModal } from "./AddExpenseModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import { deleteTransaction } from "@/server/actions/transaction-actions";
 import type { Transaction, Category } from "@/types";
 import { Plus } from "lucide-react";
 
-interface TransactionsClientProps {
+interface ExpensesClientProps {
   transactions: (Transaction & { category: Category })[];
   categories: Category[];
   totalsByType: Record<string, number>;
@@ -34,13 +34,13 @@ const typeColors: Record<string, string> = {
   DEBT: "bg-rose-100 text-rose-800 border-rose-200",
 };
 
-export function TransactionsClient({
+export function ExpensesClient({
   transactions,
   categories,
   totalsByType,
-}: TransactionsClientProps) {
+}: ExpensesClientProps) {
   const router = useRouter();
-  const [filters, setFilters] = useState<TransactionFiltersState>({
+  const [filters, setFilters] = useState<ExpenseFiltersState>({
     search: "",
     categoryId: "",
     type: "",
@@ -70,7 +70,7 @@ export function TransactionsClient({
 
   const handleDelete = useCallback(
     async (id: string) => {
-      if (window.confirm("¿Estás seguro de que deseas eliminar esta transacción?")) {
+      if (window.confirm("¿Estás seguro de que deseas eliminar este gasto?")) {
         await deleteTransaction(id);
         router.refresh();
       }
@@ -106,28 +106,28 @@ export function TransactionsClient({
       {/* Filters and Add */}
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Lista de Transacciones</h2>
+          <h2 className="text-lg font-semibold">Lista de Gastos</h2>
           <Button onClick={() => setIsAddOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Agregar Transacción
+            Agregar Gasto
           </Button>
         </div>
-        <TransactionFilters
+        <ExpenseFilters
           categories={categories}
           filters={filters}
           onChange={setFilters}
         />
       </div>
 
-      {/* Transaction List */}
-      <TransactionList
+      {/* Expense List */}
+      <ExpenseList
         transactions={filteredTransactions}
         onEdit={setEditTransaction}
         onDelete={handleDelete}
       />
 
       {/* Modals */}
-      <EditTransactionModal
+      <EditExpenseModal
         open={!!editTransaction}
         onOpenChange={(open) => {
           if (!open) setEditTransaction(null);
@@ -137,7 +137,7 @@ export function TransactionsClient({
         onSuccess={handleSuccess}
       />
 
-      <AddTransactionModal
+      <AddExpenseModal
         open={isAddOpen}
         onOpenChange={setIsAddOpen}
         categories={categories}

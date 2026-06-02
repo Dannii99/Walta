@@ -1,16 +1,16 @@
-﻿import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { getActiveBudgetWithTransactions } from "@/server/queries/transaction-queries";
-import { TransactionsClient } from "@/components/transactions/TransactionsClient";
+import { ExpensesClient } from "@/components/expenses/ExpensesClient";
 import { redirect } from "next/navigation";
 import type { Category, CategoryType, Transaction } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Transacciones | Presupuesto Claro",
-  description: "Gestiona tus transacciones y categoras.",
+  title: "Gastos | Presupuesto Claro",
+  description: "Gestiona tus gastos y categorías.",
 };
 
-export default async function TransactionsPage() {
+export default async function ExpensesPage() {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
@@ -21,7 +21,7 @@ export default async function TransactionsPage() {
   if (!budget) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold">Transacciones</h1>
+        <h1 className="text-2xl font-bold">Gastos</h1>
         <p className="text-muted-foreground mt-4">
           No tienes un presupuesto activo. Completa el onboarding primero.
         </p>
@@ -29,7 +29,6 @@ export default async function TransactionsPage() {
     );
   }
 
-  // Flatten all transactions with category info
   const allTransactions = budget.categories.flatMap((category) =>
     category.transactions.map((transaction) => ({
       ...transaction,
@@ -40,7 +39,6 @@ export default async function TransactionsPage() {
     }))
   );
 
-  // Calculate totals by type
   const totalsByType = budget.categories.reduce(
     (acc, category) => {
       const type = category.type as CategoryType;
@@ -62,9 +60,9 @@ export default async function TransactionsPage() {
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Transacciones</h1>
+        <h1 className="text-2xl font-bold">Gastos</h1>
       </div>
-      <TransactionsClient
+      <ExpensesClient
         transactions={allTransactions as (Transaction & { category: Category })[]}
         categories={categoriesWithType}
         totalsByType={totalsByType}

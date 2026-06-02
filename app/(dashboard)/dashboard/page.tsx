@@ -2,8 +2,21 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
-import type { Transaction, Category, CategoryType, Recurrence } from "@/types";
-import { RECURRENCE_MULTIPLIER } from "@/lib/recurrence";
+import type { Transaction, Category, CategoryType } from "@/types";
+import { getMonthlyEquivalent } from "@/lib/recurrence";
+
+const CATEGORY_COLORS = [
+  "#3B82F6",
+  "#EF4444",
+  "#10B981",
+  "#F59E0B",
+  "#8B5CF6",
+  "#EC4899",
+  "#06B6D4",
+  "#84CC16",
+  "#F97316",
+  "#6366F1",
+];
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -31,7 +44,6 @@ export default async function DashboardPage() {
 
   const income = budget.income.toNumber();
 
-  // Collect all transactions sorted by date desc
   const allTransactions: (Transaction & { category?: Category })[] = [];
   budget.categories.forEach((cat) => {
     cat.transactions.forEach((tx) => {
@@ -46,9 +58,7 @@ export default async function DashboardPage() {
       });
     });
   });
-  allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  // Calculate spending by category type
   const rule = budget.rule as { needs: number; wants: number; savings: number } | null;
   const needsPct = rule?.needs ?? 50;
   const wantsPct = rule?.wants ?? 30;
@@ -75,7 +85,7 @@ export default async function DashboardPage() {
 
     const catEquivalent = cat.transactions.reduce(
       (sum, tx) =>
-        sum + tx.amount.toNumber() * RECURRENCE_MULTIPLIER[tx.recurrence as Recurrence],
+        sum + getMonthlyEquivalent(tx.amount.toNumber(), tx.recurrence),
       0
     );
     monthlyEquivalentExpenses += catEquivalent;
@@ -99,7 +109,32 @@ export default async function DashboardPage() {
   }));
 
   const available = income - monthlyEquivalentExpenses;
-  const recentTransactions = allTransactions.slice(0, 5);
+
+  const categoriesBreakdown = budget.categories
+    .map((cat, i) => {
+      const catEquivalent = cat.transactions.reduce(
+        (sum, tx) =>
+          sum + getMonthlyEquivalent(tx.amount.toNumber(), tx.recurrence),
+        0
+      );
+      const type = cat.type.toUpperCase() as CategoryType;
+      const pct = (() => {
+        if (type === "NEEDS") return needsPct;
+        if (type === "WANTS") return wantsPct;
+        if (type === "SAVINGS") return savingsPct;
+        return 0;
+      })();
+      const limit = income * (pct / 100);
+      return {
+        id: cat.id,
+        name: cat.name,
+        type,
+        color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+        spent: catEquivalent,
+        limit,
+      };
+    })
+    .sort((a, b) => b.spent - a.spent);
 
   const categories: Category[] = budget.categories.map((cat) => ({
     ...cat,
@@ -121,7 +156,7 @@ export default async function DashboardPage() {
       savingsSpent={savingsSpent}
       savingsLimit={savingsLimit}
       donutData={donutData}
-      recentTransactions={recentTransactions}
+      categoriesBreakdown={categoriesBreakdown}
       categories={categories}
     />
   );

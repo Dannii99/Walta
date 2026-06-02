@@ -80,9 +80,9 @@ export function AlertDialogDescription({
   className?: string;
 }) {
   return (
-    <p className={cn("text-sm text-muted-foreground", className)}>
+    <div className={cn("text-sm text-muted-foreground", className)}>
       {children}
-    </p>
+    </div>
   );
 }
 

@@ -175,7 +175,7 @@ presupuesto-app/
 │   ├── (dashboard)/
 │   │   ├── page.tsx
 │   │   ├── layout.tsx
-│   │   ├── transactions/
+│   │   ├── expenses/
 │   │   ├── simulations/
 │   │   ├── history/
 │   │   └── settings/
@@ -238,7 +238,7 @@ presupuesto-app/
 
 ### Paso 3: Layout Base + Navegación
 - [ ] Layout del dashboard con sidebar responsive.
-- [ ] Navegación entre Dashboard, Transacciones, Simulaciones, Historial.
+- [ ] Navegación entre Dashboard, Gastos, Simulaciones, Historial.
 - [ ] Mostrar nombre de usuario y logout.
 
 ### Paso 4: Onboarding Mínimo

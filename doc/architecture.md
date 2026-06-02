@@ -30,7 +30,7 @@ No existe proyecto todavía. Esta arquitectura es una propuesta basada en el `pr
 
 Producto: **Aplicación de control de presupuesto personal visual + simulador financiero**.
 
-El usuario debe poder crear un presupuesto en minutos, ver su salud financiera mediante gráficos e indicadores de color (semáforo), registrar transacciones, y simular compras grandes (vehículo, vivienda) con un veredicto de viabilidad basado en su presupuesto real.
+El usuario debe poder crear un presupuesto en minutos, ver su salud financiera mediante gráficos e indicadores de color (semáforo), registrar gastos, y simular compras grandes (vehículo, vivienda) con un veredicto de viabilidad basado en su presupuesto real.
 
 El MVP incluye historial mensual y persistencia en Neon Postgres. Debe funcionar como PWA.
 
@@ -40,7 +40,7 @@ El MVP incluye historial mensual y persistencia en Neon Postgres. Debe funcionar
 |------|-----------|-----------|
 | **Framework** | Next.js 14+ (App Router) | Full-stack React, routing, API, SSR/SSG opcional |
 | **Language** | TypeScript | Tipado estricto en toda la aplicación |
-| **Database** | Neon Postgres (serverless) | Persistencia de presupuestos, transacciones, simulaciones, historial |
+| **Database** | Neon Postgres (serverless) | Persistencia de presupuestos, gastos, simulaciones, historial |
 | **ORM** | Prisma | Modelado de datos, migraciones, queries type-safe |
 | **Styling** | TailwindCSS | Utility-first CSS, rápido, consistente, personalizable |
 | **UI Components** | shadcn/ui + Tremor | Componentes base accesibles (shadcn) + componentes de dashboard financiero (Tremor) |
@@ -63,7 +63,7 @@ my-app/
 │   ├── (auth)/                   # Grupo de rutas: login, register
 │   ├── (dashboard)/              # Grupo de rutas: layout con sidebar/nav
 │   │   ├── page.tsx              # Dashboard principal (Server Component)
-│   │   ├── transactions/
+│   │   ├── expenses/
 │   │   ├── simulations/
 │   │   ├── history/
 │   │   └── settings/
@@ -117,12 +117,12 @@ my-app/
 
 ### Enfoque híbrido: Server Components + Client Islands
 
-- **Server Components (default)**: Dashboard inicial, listados de transacciones, historial mensual. Se cargan directamente desde Prisma en el servidor. Menos JS al cliente.
+- **Server Components (default)**: Dashboard inicial, listados de gastos, historial mensual. Se cargan directamente desde Prisma en el servidor. Menos JS al cliente.
 - **Client Components (islas)**: Formularios de ingreso de datos, gráficos interactivos (Recharts requiere cliente), simulador con cálculos en tiempo real, animaciones (Framer Motion).
 
 ### Comunicación Cliente-Servidor
 
-- **Server Actions** para mutaciones (crear transacción, guardar simulación). Reemplazan API routes tradicionales para operaciones simples.
+- **Server Actions** para mutaciones (crear gasto, guardar simulación). Reemplazan API routes tradicionales para operaciones simples.
 - **TanStack Query** para cachear y sincronizar datos del servidor en componentes cliente. Cuando una Server Action invalida una query, el dashboard se actualiza automáticamente.
 
 ### Modelo de Datos Frontend
@@ -137,8 +137,8 @@ No se usa Redux. La complejidad no lo justifica.
 
 ### Presupuesto (Budget)
 - `app/(dashboard)/page.tsx`: Dashboard principal. Server Component que carga el presupuesto activo.
-- `components/budget/`: Tarjetas de resumen, lista de categorías, formulario de transacción.
-- `server/actions/transaction-actions.ts`: Crear, editar, eliminar transacciones.
+- `components/budget/`: Tarjetas de resumen, lista de categorías, formulario de gasto.
+- `server/actions/transaction-actions.ts`: Crear, editar, eliminar gastos (modelo `Transaction` en Prisma).
 
 ### Simulación (Simulation)
 - `app/(dashboard)/simulations/page.tsx`: Lista de simulaciones guardadas.
@@ -269,7 +269,7 @@ export function useBudget() {
 ```
 
 - Cachea el presupuesto activo.
-- Invalida automáticamente cuando se crea/edita una transacción.
+- Invalida automáticamente cuando se crea/edita un gasto.
 
 ### Client State (Zustand)
 
@@ -283,12 +283,12 @@ interface UIState {
 }
 ```
 
-- NO guarda datos de negocio (presupuesto, transacciones). Solo estado de UI.
+- NO guarda datos de negocio (presupuesto, gastos). Solo estado de UI.
 - Permite compartir estado de draft del simulador entre vistas sin prop drilling.
 
 ### Form State (React Hook Form + Zod)
 
-- Todo formulario (transacción, simulación, reglas) usa RHF para performance y Zod para validación type-safe.
+- Todo formulario (gasto, simulación, reglas) usa RHF para performance y Zod para validación type-safe.
 
 ## 12. Error, Loading, and Empty States
 
@@ -304,7 +304,7 @@ interface UIState {
 
 ### Empty States
 - **Sin presupuesto**: Redirección automática al onboarding. No se muestra dashboard vacío.
-- **Sin transacciones**: Card ilustrada con CTA "Agregar tu primer gasto".
+- **Sin gastos**: Card ilustrada con CTA "Agregar tu primer gasto".
 - **Sin simulaciones**: Lista vacía con mensaje motivador y botón "Simular una compra".
 
 ## 13. Testing and Validation Strategy
@@ -353,7 +353,7 @@ interface UIState {
 
 ### Fase 2: Modelo de Datos + API
 - Definir schema Prisma completo (User, Budget, Category, Transaction, Simulation).
-- Crear Server Actions para CRUD de presupuesto y transacciones.
+- Crear Server Actions para CRUD de presupuesto y gastos.
 - Crear queries para Server Components.
 - Implementar `lib/currency.ts` con Dinero.js y formato COP.
 
@@ -368,9 +368,10 @@ interface UIState {
 - KPIs grandes (Ingreso, Gastos, Disponible) con animación de contador.
 - Gráfico de distribución (donut) por categoría.
 - Semáforos de salud por categoría (barras de progreso con color).
-- Lista de transacciones recientes.
+- Lista de gastos recientes (Dashboard: Distribución por Categoría; Módulo `/expenses`: tabla completa).
+- Recalcular semáforos según nueva regla.
 
-### Fase 5: Registro de Transacciones
+### Fase 5: Registro de Gastos
 - Modal/formulario para agregar/editar/eliminar gastos.
 - Actualización en tiempo real del dashboard (TanStack Query invalidation).
 
@@ -416,6 +417,6 @@ interface UIState {
     - Prisma migrate funciona contra Neon.
     - Auth permite login y aisla datos.
     - Dashboard carga datos desde Server Component.
-    - Agregar transacción actualiza dashboard sin recarga.
+    - Agregar gasto actualiza dashboard sin recarga.
     - Simulador de vehículo genera veredicto correcto según reglas de negocio.
     - PWA es instalable desde Chrome DevTools.

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,43 +19,43 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { createTransaction } from "@/server/actions/transaction-actions";
 import type { Category } from "@/types";
 
-const addTransactionSchema = z.object({
+const addExpenseSchema = z.object({
   categoryId: z.string().min(1, "Selecciona una categoría"),
   amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().max(500).optional(),
   recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]),
 });
 
-type AddTransactionForm = z.infer<typeof addTransactionSchema>;
+type AddExpenseForm = z.infer<typeof addExpenseSchema>;
 
-interface AddTransactionModalProps {
+interface AddExpenseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   categories: Category[];
   onSuccess: () => void;
 }
 
-export function AddTransactionModal({
+export function AddExpenseModal({
   open,
   onOpenChange,
   categories,
   onSuccess,
-}: AddTransactionModalProps) {
+}: AddExpenseModalProps) {
   const {
     control,
     handleSubmit,
     reset,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<AddTransactionForm>({
-    resolver: zodResolver(addTransactionSchema),
+  } = useForm<AddExpenseForm>({
+    resolver: zodResolver(addExpenseSchema),
     defaultValues: {
       amount: 0,
       recurrence: "MONTHLY",
     },
   });
 
-  const onSubmit = async (data: AddTransactionForm) => {
+  const onSubmit = async (data: AddExpenseForm) => {
     await createTransaction(
       data.categoryId,
       data.amount,
@@ -71,11 +71,11 @@ export function AddTransactionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogHeader>
-        <DialogTitle>Agregar Transacción</DialogTitle>
+        <DialogTitle>Agregar Gasto</DialogTitle>
         <DialogClose onClick={() => onOpenChange(false)} />
       </DialogHeader>
       <DialogContent>
-        <form id="add-transaction-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form id="add-expense-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="add-category">Categoría</Label>
             <Select
@@ -142,7 +142,7 @@ export function AddTransactionModal({
         <Button variant="outline" onClick={() => onOpenChange(false)}>
           Cancelar
         </Button>
-        <Button type="submit" form="add-transaction-form" disabled={isSubmitting}>
+        <Button type="submit" form="add-expense-form" disabled={isSubmitting}>
           {isSubmitting ? "Guardando..." : "Agregar"}
         </Button>
       </DialogFooter>

@@ -55,7 +55,7 @@ export async function createTransaction(
   });
 
   revalidatePath("/");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
 
   return {
     ...transaction,
@@ -117,7 +117,7 @@ export async function updateTransaction(
   });
 
   revalidatePath("/");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
 
   return {
     ...updated,
@@ -151,7 +151,7 @@ export async function deleteTransaction(id: string) {
   });
 
   revalidatePath("/");
-  revalidatePath("/transactions");
+  revalidatePath("/expenses");
 
   return { success: true };
 }

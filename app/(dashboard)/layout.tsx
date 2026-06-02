@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { DashboardProvider } from "@/components/dashboard/DashboardContext";
 import {
   LayoutDashboard,
-  Receipt,
+  Wallet,
   Calculator,
   CreditCard,
   History,
@@ -21,7 +21,7 @@ import {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/transactions", label: "Transacciones", icon: Receipt },
+  { href: "/expenses", label: "Gastos", icon: Wallet },
   { href: "/simulations", label: "Simulaciones", icon: Calculator },
   { href: "/credits", label: "Créditos", icon: CreditCard },
   { href: "/history", label: "Historial", icon: History },

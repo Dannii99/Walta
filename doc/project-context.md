@@ -177,7 +177,7 @@ El MVP debe demostrar que la experiencia visual + simulación es superior a Exce
 ### Contenido Generado por el Sistema
 - Valores numéricos formateados en moneda local (asumimos pesos colombianos o moneda configurable en futuro; para MVP, formato estándar $).
 - Porcentajes de cumplimiento de reglas.
-- Fechas de transacciones.
+- Fechas de gastos.
 - Resultados de simulaciones guardadas (título, fecha, veredicto).
 
 ### Contenido de Simulación

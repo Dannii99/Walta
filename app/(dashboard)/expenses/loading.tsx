@@ -1,6 +1,6 @@
-﻿import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function TransactionsLoading() {
+export default function ExpensesLoading() {
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
