@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
-import { HeroSection } from "@/components/dashboard/HeroSection";
-import { KPICard } from "@/components/dashboard/KPICard";
+import { SaasHeader } from "@/components/shared/SaasHeader";
+import { AvailableHero } from "@/components/dashboard/AvailableHero";
 import { SimulatorQuickAccess } from "@/components/dashboard/SimulatorQuickAccess";
 import { CategoryDonutChart } from "@/components/dashboard/CategoryDonutChart";
 import { HealthCards } from "@/components/dashboard/HealthCards";
@@ -17,6 +17,7 @@ import type { Category } from "@/types";
 import { getDynamicMessage, type HealthStatus } from "@/lib/dashboard-helpers";
 
 interface DashboardContentProps {
+  userName: string;
   budgetName: string;
   monthLabel: string;
   ruleName: string;
@@ -41,19 +42,12 @@ interface DashboardContentProps {
   categories: Category[];
 }
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 0,
-  }).format(value);
-
 export function DashboardContent({
+  userName,
   budgetName,
   monthLabel,
   ruleName,
   income,
-  expenses,
   monthlyEquivalentExpenses,
   available,
   savingsCapacity,
@@ -88,51 +82,39 @@ export function DashboardContent({
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-5 md:space-y-6 max-w-7xl mx-auto">
-      <HeroSection
-        budgetName={budgetName}
+    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 space-y-6 md:space-y-8 max-w-[1440px] mx-auto">
+      <SaasHeader
+        userName={userName}
         monthLabel={monthLabel}
+        budgetName={budgetName}
+        dynamicMessage={dynamicMessage}
+        status={healthStatus}
+        onAddExpense={() => setOpenAddModal(true)}
+      />
+
+      <AvailableHero
         available={available}
         income={income}
-        monthlyEquivalentExpenses={monthlyEquivalentExpenses}
-        status={healthStatus}
-        dynamicMessage={dynamicMessage}
+        expenses={monthlyEquivalentExpenses}
+        savingsCapacity={savingsCapacity}
+        expensesPct={Number(expensesPct)}
+        overBudget={overBudget}
         onAddExpense={() => setOpenAddModal(true)}
       />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-5 md:gap-6"
       >
-        <KPICard
-          title="Ingreso Mensual"
-          value={income}
-          icon="income"
-          subtitle="Tu base del mes"
-        />
-        <KPICard
-          title="Gastos del Mes"
-          value={monthlyEquivalentExpenses}
-          icon="expenses"
-          subtitle={`${expensesPct}% del ingreso · Real ${formatCurrency(expenses)}`}
-        />
-        <KPICard
-          title="Disponible"
-          value={available}
-          icon="available"
-          subtitle={overBudget ? "⚠️ Sobre el presupuesto" : "Lo que puedes usar"}
-        />
-        <KPICard
-          title="Capacidad de ahorro"
-          value={savingsCapacity}
-          icon="savings"
-          subtitle="Reserva este mes"
-        />
+        <div className="xl:col-span-3">
+          <CategoryDonutChart data={donutData} monthLabel={monthLabel} />
+        </div>
+        <div className="xl:col-span-2">
+          <CategoryBreakdown items={categoriesBreakdown} />
+        </div>
       </motion.div>
-
-      <SimulatorQuickAccess />
 
       <HealthCards
         ruleName={ruleName}
@@ -147,14 +129,7 @@ export function DashboardContent({
         savingsLimit={savingsLimit}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 md:gap-6">
-        <div className="xl:col-span-2">
-          <CategoryDonutChart data={donutData} variant="hero" monthLabel={monthLabel} />
-        </div>
-        <div className="xl:col-span-1">
-          <CategoryBreakdown items={categoriesBreakdown} />
-        </div>
-      </div>
+      <SimulatorQuickAccess />
 
       <AddExpenseModal
         open={openAddModal}

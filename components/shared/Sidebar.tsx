@@ -1,0 +1,120 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  Wallet,
+  Calculator,
+  CreditCard,
+  History,
+  Settings,
+  LogOut,
+  Sparkles,
+} from "lucide-react";
+
+const navItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/expenses", label: "Gastos", icon: Wallet },
+  { href: "/simulations", label: "Simulaciones", icon: Calculator },
+  { href: "/credits", label: "Créditos", icon: CreditCard },
+  { href: "/history", label: "Historial", icon: History },
+  { href: "/settings", label: "Configuración", icon: Settings },
+];
+
+export function Sidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col",
+        "w-[68px] hover:w-64 transition-[width] duration-300 ease-out",
+        "border-r border-stone-200/80 bg-white"
+      )}
+      aria-label="Navegación lateral"
+    >
+      <Link
+        href="/dashboard"
+        className="h-16 flex items-center px-[18px] border-b border-stone-200/60 shrink-0"
+      >
+        <div className="h-9 w-9 rounded-xl bg-stone-900 flex items-center justify-center shrink-0 transition-transform hover:scale-105">
+          <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
+        </div>
+        <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap overflow-hidden">
+          <p className="text-sm font-extrabold tracking-tight text-stone-900 leading-none">
+            Presupuesto
+          </p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mt-1">
+            Claro
+          </p>
+        </div>
+      </Link>
+
+      <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
+        <p className="px-3 mb-2 text-[9px] font-bold uppercase tracking-wider text-stone-400 opacity-0 hover:opacity-100 transition-opacity whitespace-nowrap">
+          Navegación
+        </p>
+        {navItems.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "group/nav relative flex items-center h-10 rounded-lg px-[10px]",
+                "text-sm font-semibold transition-colors",
+                isActive
+                  ? "bg-stone-100 text-stone-900"
+                  : "text-stone-500 hover:bg-stone-50 hover:text-stone-900"
+              )}
+            >
+              {isActive && (
+                <motion.span
+                  layoutId="sidebar-active-bar"
+                  className="absolute -left-3 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full bg-stone-900"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+              <div
+                className={cn(
+                  "h-7 w-7 rounded-md flex items-center justify-center shrink-0 transition-colors",
+                  isActive
+                    ? "bg-stone-900 text-white"
+                    : "text-stone-500 group-hover/nav:text-stone-900"
+                )}
+              >
+                <Icon className="h-4 w-4" strokeWidth={2.3} />
+              </div>
+              <span className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap overflow-hidden">
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="p-3 border-t border-stone-200/60 shrink-0">
+        <Button
+          variant="ghost"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="w-full justify-start gap-0 h-10 px-[10px] text-stone-500 hover:text-rose-600 hover:bg-rose-50/60"
+        >
+          <div className="h-7 w-7 rounded-md flex items-center justify-center shrink-0">
+            <LogOut className="h-4 w-4" strokeWidth={2.3} />
+          </div>
+          <span className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap overflow-hidden text-sm font-semibold">
+            Cerrar sesión
+          </span>
+        </Button>
+      </div>
+    </aside>
+  );
+}

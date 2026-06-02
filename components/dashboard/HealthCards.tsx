@@ -10,9 +10,10 @@ import {
   AlertTriangle,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   TrendingUp,
+  type LucideIcon,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { getRecommendation } from "@/lib/dashboard-helpers";
 
 interface HealthCardsProps {
@@ -36,135 +37,116 @@ function getStatus(percentage: number): Status {
   return "critical";
 }
 
-function getEmoji(status: Status): string {
-  if (status === "healthy") return "😊";
-  if (status === "warning") return "😐";
-  return "😟";
-}
-
-const statusStyles: Record<
+const STATUS: Record<
   Status,
   {
-    gradient: string;
-    softBg: string;
-    border: string;
-    ring: string;
     bar: string;
     text: string;
     label: string;
-    shadow: string;
+    pill: string;
+    emoji: string;
+    barTrack: string;
   }
 > = {
   healthy: {
-    gradient: "from-emerald-500 via-green-500 to-teal-500",
-    softBg: "from-emerald-50 via-green-50 to-teal-50",
-    border: "border-emerald-300/60",
-    ring: "ring-emerald-500/20",
-    bar: "[&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-teal-500",
+    bar: "[&>div]:bg-emerald-500",
     text: "text-emerald-700",
-    label: "text-emerald-800",
-    shadow: "shadow-emerald-500/20",
+    label: "Saludable",
+    pill: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    emoji: "😊",
+    barTrack: "bg-stone-100",
   },
   warning: {
-    gradient: "from-amber-500 via-orange-500 to-yellow-500",
-    softBg: "from-amber-50 via-orange-50 to-yellow-50",
-    border: "border-amber-300/60",
-    ring: "ring-amber-500/20",
-    bar: "[&>div]:bg-gradient-to-r [&>div]:from-amber-500 [&>div]:to-orange-500",
+    bar: "[&>div]:bg-amber-500",
     text: "text-amber-700",
-    label: "text-amber-800",
-    shadow: "shadow-amber-500/20",
+    label: "Ajustado",
+    pill: "bg-amber-50 text-amber-700 border-amber-200",
+    emoji: "😐",
+    barTrack: "bg-stone-100",
   },
   critical: {
-    gradient: "from-rose-500 via-red-500 to-pink-500",
-    softBg: "from-rose-50 via-red-50 to-pink-50",
-    border: "border-rose-300/60",
-    ring: "ring-rose-500/20",
-    bar: "[&>div]:bg-gradient-to-r [&>div]:from-rose-500 [&>div]:to-pink-500",
+    bar: "[&>div]:bg-rose-500",
     text: "text-rose-700",
-    label: "text-rose-800",
-    shadow: "shadow-rose-500/20",
+    label: "Excedido",
+    pill: "bg-rose-50 text-rose-700 border-rose-200",
+    emoji: "😟",
+    barTrack: "bg-stone-100",
   },
-};
-
-const statusLabel: Record<Status, string> = {
-  healthy: "Saludable",
-  warning: "Ajustado",
-  critical: "Excedido",
-};
-
-const StatusIcon = ({ status }: { status: Status }) => {
-  if (status === "healthy") return <CheckCircle2 className="h-3.5 w-3.5" />;
-  if (status === "warning") return <AlertCircle className="h-3.5 w-3.5" />;
-  return <AlertTriangle className="h-3.5 w-3.5" />;
 };
 
 interface HealthCardData {
   label: string;
   spent: number;
   limit: number;
-  Icon: typeof Home;
+  Icon: LucideIcon;
 }
 
 function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
   const percentage = limit > 0 ? (spent / limit) * 100 : 0;
   const status = getStatus(percentage);
-  const styles = statusStyles[status];
-  const emoji = getEmoji(status);
+  const styles = STATUS[status];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      whileHover={{ y: -4, scale: 1.02 }}
-      className={`relative overflow-hidden rounded-2xl border-2 ${styles.border} bg-gradient-to-br ${styles.softBg} shadow-xl ${styles.shadow} ring-1 ${styles.ring}`}
+      className="bg-white border border-stone-200/80 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 relative overflow-hidden"
     >
-      <div
-        className={`absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br ${styles.gradient} opacity-15 blur-2xl`}
+      <span
+        className={cn(
+          "absolute left-0 top-5 bottom-5 w-[3px] rounded-r-full",
+          status === "healthy" && "bg-emerald-500",
+          status === "warning" && "bg-amber-500",
+          status === "critical" && "bg-rose-500"
+        )}
       />
 
-      <div className="relative p-5 space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${styles.gradient} text-white shadow-md shrink-0`}
-            >
-              <Icon className="h-4 w-4" strokeWidth={2.5} />
+      <div className="pl-2 space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 text-stone-600 shrink-0">
+              <Icon className="h-3.5 w-3.5" strokeWidth={2.3} />
             </div>
-            <p className={`text-xs font-bold uppercase tracking-wider ${styles.label} truncate`}>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 truncate">
               {label}
             </p>
           </div>
-          <div className="text-3xl leading-none filter drop-shadow-md shrink-0" aria-hidden>
-            {emoji}
-          </div>
+          <span className="text-2xl leading-none shrink-0" aria-hidden>
+            {styles.emoji}
+          </span>
         </div>
 
         <div className="flex items-baseline gap-2">
-          <span
-            className={`text-4xl font-extrabold tracking-tight tabular-nums bg-gradient-to-br ${styles.gradient} bg-clip-text text-transparent`}
-          >
+          <span className="text-3xl md:text-4xl font-extrabold tracking-tight tabular-nums text-stone-900">
             {percentage.toFixed(0)}%
           </span>
-          <span className={`text-xs font-medium ${styles.text}`}>del límite</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+            del límite
+          </span>
         </div>
 
         <Progress
           value={Math.min(percentage, 100)}
-          className={`h-2.5 ${styles.bar}`}
+          className={cn("h-1.5", styles.barTrack, styles.bar)}
         />
 
-        <div className="flex items-center justify-between text-xs gap-2 flex-wrap">
-          <span className={`font-medium ${styles.text} tabular-nums`}>
+        <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
+          <span className={cn("text-[11px] font-bold tabular-nums", styles.text)}>
             {formatCOP(spent)}{" "}
-            <span className="opacity-60">de {formatCOP(limit)}</span>
+            <span className="text-stone-400 font-medium">de {formatCOP(limit)}</span>
           </span>
           <span
-            className={`flex items-center gap-1 font-bold uppercase tracking-wider ${styles.label} shrink-0`}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5",
+              "text-[9px] font-bold uppercase tracking-wider",
+              styles.pill
+            )}
           >
-            <StatusIcon status={status} />
-            {statusLabel[status]}
+            {status === "healthy" && <CheckCircle2 className="h-2.5 w-2.5" />}
+            {status === "warning" && <AlertCircle className="h-2.5 w-2.5" />}
+            {status === "critical" && <AlertTriangle className="h-2.5 w-2.5" />}
+            {styles.label}
           </span>
         </div>
       </div>
@@ -194,21 +176,20 @@ export function HealthCards({
   );
 
   return (
-    <div className="space-y-3">
+    <section className="space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="space-y-0.5">
-          <h2 className="text-lg md:text-xl font-bold tracking-tight flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500" />
+          <h2 className="text-base md:text-lg font-bold tracking-tight text-stone-900 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-stone-900" />
             Salud Financiera
           </h2>
-          <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3" />
-            Regla aplicada: <span className="font-bold text-foreground/80">{ruleName}</span>
+          <p className="text-[11px] text-stone-500 font-medium">
+            Regla aplicada: <span className="font-bold text-stone-700">{ruleName}</span>
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
         <HealthCard
           label="Necesidades"
           spent={needsSpent}
@@ -229,27 +210,19 @@ export function HealthCards({
         />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-        className="relative overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/40 p-3.5 md:p-4 shadow-sm ring-1 ring-black/5"
-      >
-        <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/10 to-indigo-500/10 blur-2xl" />
-        <div className="relative flex items-start gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 text-white shadow-sm">
-            <TrendingUp className="h-4 w-4" strokeWidth={2.5} />
-          </div>
-          <div className="space-y-0.5 min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
-              Recomendación
-            </p>
-            <p className="text-sm text-foreground/80 font-medium leading-relaxed">
-              {recommendation}
-            </p>
-          </div>
+      <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4 flex items-start gap-3">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-stone-900 text-white">
+          <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.3} />
         </div>
-      </motion.div>
-    </div>
+        <div className="space-y-0.5 min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+            Recomendación
+          </p>
+          <p className="text-sm text-stone-700 font-medium leading-relaxed">
+            {recommendation}
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

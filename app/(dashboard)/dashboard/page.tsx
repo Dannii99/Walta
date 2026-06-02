@@ -24,6 +24,12 @@ const CATEGORY_COLORS = [
   "#6366F1",
 ];
 
+function deriveUserName(name: string | null | undefined, email: string | null | undefined): string {
+  if (name && name.trim().length > 0) return name.split(" ")[0];
+  if (email && email.includes("@")) return email.split("@")[0];
+  return "amigo";
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) {
@@ -161,14 +167,17 @@ export default async function DashboardPage() {
 
   if (isEmpty) {
     return (
-      <div className="p-4 md:p-8 max-w-7xl mx-auto">
+      <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
         <DashboardEmptyClient categories={categories} />
       </div>
     );
   }
 
+  const userName = deriveUserName(session.user.name, session.user.email);
+
   return (
     <DashboardContent
+      userName={userName}
       budgetName={budget.name}
       monthLabel={monthLabel}
       ruleName={ruleName}
