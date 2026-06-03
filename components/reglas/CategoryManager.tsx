@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +16,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Trash2, Plus, AlertTriangle, Pencil, Save, X } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  AlertTriangle,
+  Pencil,
+  Save,
+  X,
+  Tags,
+} from "lucide-react";
 import { createCategory, updateCategory, deleteCategory } from "@/server/actions/category-actions";
 import { PREDEFINED_CATEGORIES, OTHER_CATEGORY_KEY, type PredefinedCategory } from "@/lib/categories";
+import { cn } from "@/lib/utils";
 import type { Category, CategoryType } from "@/types";
 
 type CategoryWithCount = Category & {
@@ -215,25 +224,41 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
     : [];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Categorías</CardTitle>
-        <CardDescription>
-          Agrega, edita o elimina las categorías de tu presupuesto.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="bg-white border border-stone-200/80 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-5"
+    >
+      <header className="flex items-start gap-3">
+        <div className="h-8 w-8 rounded-lg bg-stone-100 text-stone-700 flex items-center justify-center shrink-0">
+          <Tags className="h-4 w-4" strokeWidth={2.2} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base md:text-lg font-bold tracking-tight text-stone-900">
+            Categorías
+          </h2>
+          <p className="text-xs md:text-sm text-stone-500 font-medium mt-0.5 leading-relaxed">
+            Agrega, edita o elimina las categorías de tu presupuesto. Las
+            categorías son la base del dashboard.
+          </p>
+        </div>
+      </header>
+
+      <div className="space-y-4">
         {error && (
-          <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+          <div className="rounded-lg border border-rose-200 bg-rose-50/60 p-3 text-sm text-rose-700 font-medium">
             {error}
           </div>
         )}
 
-        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1 scrollbar-none">
           {categories.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">
-              Aún no tienes categorías. Agrega una abajo.
-            </p>
+            <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 p-6 text-center">
+              <p className="text-sm text-stone-600 font-medium">
+                Aún no tienes categorías. Agrega una abajo.
+              </p>
+            </div>
           ) : (
             categories.map((category) => {
               const isEditing = editingId === category.id;
@@ -243,7 +268,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
               return (
                 <div
                   key={category.id}
-                  className="flex items-center gap-2 rounded-md border p-3"
+                  className="flex items-center gap-2 rounded-xl border border-stone-200/80 bg-white p-3 transition-colors hover:bg-stone-50/50"
                   style={{ borderLeft: `4px solid ${TYPE_COLORS[type]}` }}
                 >
                   {isEditing ? (
@@ -251,13 +276,13 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <Input
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="h-8 text-sm flex-1"
+                        className="h-9 text-sm flex-1"
                         autoFocus
                       />
                       <select
                         value={editType}
                         onChange={(e) => setEditType(e.target.value as CategoryType)}
-                        className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+                        className="h-9 rounded-md border border-stone-200 bg-white px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
                       >
                         {(Object.keys(TYPE_LABELS) as CategoryType[]).map((t) => (
                           <option key={t} value={t}>
@@ -268,28 +293,38 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
                         onClick={() => saveEdit(category)}
                         disabled={isPending}
+                        aria-label="Guardar cambios"
                       >
-                        <Save className="h-4 w-4" />
+                        <Save className="h-4 w-4" strokeWidth={2.2} />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
                         onClick={cancelEdit}
                         disabled={isPending}
+                        aria-label="Cancelar edición"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4 w-4" strokeWidth={2.2} />
                       </Button>
                     </>
                   ) : (
                     <>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{category.name}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                          <Badge variant="outline" className="text-xs">
+                        <p className="font-semibold text-sm text-stone-900 truncate">
+                          {category.name}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-stone-500 mt-1 font-medium">
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0",
+                              "border-stone-200 text-stone-600"
+                            )}
+                          >
                             {TYPE_LABELS[type]}
                           </Badge>
                           <span>
@@ -300,20 +335,22 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
                         onClick={() => startEdit(category)}
                         disabled={isPending}
+                        aria-label={`Editar ${category.name}`}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" strokeWidth={2.2} />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
                         onClick={() => openDeleteDialog(category)}
                         disabled={isPending}
+                        aria-label={`Eliminar ${category.name}`}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" strokeWidth={2.2} />
                       </Button>
                     </>
                   )}
@@ -323,65 +360,69 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
           )}
         </div>
 
-        <div className="space-y-2 pt-4 border-t">
-          <p className="text-sm font-medium">Agregar categoría</p>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <option value="">Seleccionar categoría de la lista...</option>
-            <optgroup label="Necesidades">
-              {grouped.NEEDS.map((c) => (
-                <option
-                  key={c.name}
-                  value={c.name}
-                  disabled={existingNames.has(c.name.toLowerCase())}
-                >
-                  {c.name}
-                  {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="Deseos">
-              {grouped.WANTS.map((c) => (
-                <option
-                  key={c.name}
-                  value={c.name}
-                  disabled={existingNames.has(c.name.toLowerCase())}
-                >
-                  {c.name}
-                  {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="Ahorros">
-              {grouped.SAVINGS.map((c) => (
-                <option
-                  key={c.name}
-                  value={c.name}
-                  disabled={existingNames.has(c.name.toLowerCase())}
-                >
-                  {c.name}
-                  {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
-                </option>
-              ))}
-            </optgroup>
-            <option value={OTHER_CATEGORY_KEY}>Otro (personalizado)...</option>
-          </select>
+        <div className="space-y-3 pt-4 border-t border-stone-200/60">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+              Agregar categoría
+            </p>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="flex h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
+            >
+              <option value="">Seleccionar categoría de la lista...</option>
+              <optgroup label="Necesidades">
+                {grouped.NEEDS.map((c) => (
+                  <option
+                    key={c.name}
+                    value={c.name}
+                    disabled={existingNames.has(c.name.toLowerCase())}
+                  >
+                    {c.name}
+                    {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Deseos">
+                {grouped.WANTS.map((c) => (
+                  <option
+                    key={c.name}
+                    value={c.name}
+                    disabled={existingNames.has(c.name.toLowerCase())}
+                  >
+                    {c.name}
+                    {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Ahorros">
+                {grouped.SAVINGS.map((c) => (
+                  <option
+                    key={c.name}
+                    value={c.name}
+                    disabled={existingNames.has(c.name.toLowerCase())}
+                  >
+                    {c.name}
+                    {existingNames.has(c.name.toLowerCase()) ? " (ya agregada)" : ""}
+                  </option>
+                ))}
+              </optgroup>
+              <option value={OTHER_CATEGORY_KEY}>Otro (personalizado)...</option>
+            </select>
+          </div>
 
           {selectedCategory === OTHER_CATEGORY_KEY && (
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 placeholder="Nombre personalizado..."
                 value={otherName}
                 onChange={(e) => setOtherName(e.target.value)}
-                className="h-9 flex-1"
+                className="h-10 flex-1"
               />
               <select
                 value={otherType}
                 onChange={(e) => setOtherType(e.target.value as CategoryType)}
-                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                className="h-10 rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 sm:w-44"
               >
                 {TYPE_OPTIONS.map((t) => (
                   <option key={t} value={t}>
@@ -395,15 +436,14 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
           <Button
             onClick={handleAdd}
             variant="outline"
-            size="sm"
-            className="h-9 gap-1 w-full"
+            className="h-10 gap-1.5 w-full border-stone-300 text-stone-700 hover:bg-stone-50"
             disabled={isAddDisabled || isPending}
           >
-            <Plus className="h-4 w-4" />
-            Agregar
+            <Plus className="h-4 w-4" strokeWidth={2.2} />
+            Agregar categoría
           </Button>
         </div>
-      </CardContent>
+      </div>
 
       <AlertDialog
         open={!!deleteDialog}
@@ -426,7 +466,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                     onChange={(e) =>
                       setDeleteDialog({ ...deleteDialog, reassignTo: e.target.value })
                     }
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    className="flex h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
                   >
                     <option value="">Seleccionar categoría de destino...</option>
                     {otherCategories.map((c) => (
@@ -449,7 +489,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-rose-600 text-white hover:bg-rose-700"
               disabled={
                 isPending ||
                 (!!deleteDialog &&
@@ -470,7 +510,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <AlertTriangle className="h-5 w-5 text-amber-500" strokeWidth={2.2} />
               Cambiar tipo de categoría
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -497,12 +537,16 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmTypeChange} disabled={isPending}>
+            <AlertDialogAction
+              onClick={confirmTypeChange}
+              disabled={isPending}
+              className="bg-stone-900 text-white hover:bg-stone-800"
+            >
               Cambiar tipo
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </motion.section>
   );
 }

@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Wallet,
   Calculator,
+  SlidersHorizontal,
   CreditCard,
   History,
   Settings,
@@ -23,6 +24,7 @@ const primaryTabs = [
 ];
 
 const moreItems = [
+  { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/credits", label: "Créditos", icon: CreditCard },
   { href: "/history", label: "Historial", icon: History },
   { href: "/settings", label: "Configuración", icon: Settings },

@@ -66,7 +66,8 @@ my-app/
 │   │   ├── expenses/
 │   │   ├── simulations/
 │   │   ├── history/
-│   │   └── settings/
+│   │   ├── reglas/               # Regla de presupuesto (50/30/20) + CRUD categorías
+│   │   └── settings/             # Personalización (tema, etc.)
 │   ├── api/                      # API Routes (webhooks, auth callbacks si es necesario)
 │   ├── layout.tsx                # Root layout (providers, fonts, metadata)
 │   └── globals.css
@@ -148,7 +149,8 @@ No se usa Redux. La complejidad no lo justifica.
 
 ### Reglas Financieras (Rules)
 - `lib/constants.ts`: Regla 50/30/20 por defecto.
-- `app/(dashboard)/settings/rules/page.tsx`: Editor de porcentajes.
+- `app/(dashboard)/reglas/page.tsx`: Módulo top-level con editor de porcentajes (RuleEditor) y CRUD de categorías (CategoryManager).
+- `components/reglas/`: Componentes del módulo.
 - `hooks/use-health-status.ts`: Calcula el estado de salud (verde/amarillo/rojo) comparando gastos reales vs regla.
 
 ### Historial Mensual (History)

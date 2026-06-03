@@ -69,7 +69,7 @@ export async function createCategory(
     },
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/reglas");
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
 
@@ -101,7 +101,7 @@ export async function updateCategory(
     data: parsed,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/reglas");
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
 
@@ -152,7 +152,7 @@ export async function deleteCategory(
     where: { id: categoryId },
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/reglas");
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
 

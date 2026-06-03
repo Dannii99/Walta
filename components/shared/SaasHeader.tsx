@@ -138,7 +138,7 @@ export function SaasHeader({
           variant="outline"
           className="border-stone-300 text-stone-700 hover:bg-stone-50"
         >
-          <Link href="/settings">
+          <Link href="/reglas">
             <Settings className="h-4 w-4 mr-1.5" />
             Ajustar presupuesto
           </Link>

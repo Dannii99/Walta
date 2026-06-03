@@ -79,6 +79,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Current State
 
 - Root `app/page.tsx` redirects unauthenticated users to `/login` and authenticated users to `/dashboard`.
+- **Módulo "Reglas" (`/reglas`):**
+  - `app/(dashboard)/reglas/page.tsx` — Server Component con metadata. Contiene `RuleEditor` (regla 50/30/20) y `CategoryManager` (CRUD con reasignación).
+  - `components/reglas/RuleEditor.tsx` y `components/reglas/CategoryManager.tsx` — Componentes del módulo.
+  - `app/(dashboard)/reglas/loading.tsx` — Skeleton de carga.
+  - Server actions revalidan `/reglas` en `budget-actions.ts` y `category-actions.ts`.
+- **Módulo "Configuración" (`/settings`):**
+  - `app/(dashboard)/settings/page.tsx` — Placeholder. Próximamente: tema light/dark como primera config administrable.
 - **Fase 4 (Dashboard Visual) implemented:**
   - `app/(dashboard)/dashboard/page.tsx` — Server Component fetching budget + transactions, calculating KPIs, health indicators, donut chart data, and category breakdown. Passes all data as plain props to client components.
   - `components/dashboard/DashboardContent.tsx` — Orchestrates layout (Header → Hero Donut → KPIs → Health Cards → Category Breakdown) and manages Add expense modal.
@@ -87,7 +94,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - `components/dashboard/HealthCards.tsx` — 3 separate cards for Needs/Wants/Savings with emoji traffic-light faces (😊/😐/😟), color-tinted backgrounds, left border accents, and progress bars using user's `budget.rule`.
   - `components/dashboard/CategoryBreakdown.tsx` — Detailed breakdown of spending per category with bars, % of total, and individual limits. Replaces the old `RecentTransactions` widget.
   - `components/dashboard/DashboardContext.tsx` — Provides `openAddModal` state and `triggerRefresh` callback across dashboard layout.
-  - `app/(dashboard)/layout.tsx` — Wraps children with `DashboardProvider`. Sidebar includes Dashboard, Gastos, Simulaciones, Créditos, Historial, Configuración.
+  - `app/(dashboard)/layout.tsx` — Wraps children with `DashboardProvider`. Sidebar includes Dashboard, Gastos, Simulaciones, Reglas, Créditos, Historial, Configuración.
   - New UI components: `components/ui/alert-dialog.tsx`, `components/ui/progress.tsx`.
 - **Módulo "Gastos" (`/expenses`):**
   - `app/(dashboard)/expenses/page.tsx` — Server Component with metadata, totals-by-type cards, filters and full table.

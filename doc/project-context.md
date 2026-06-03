@@ -130,7 +130,7 @@ El MVP debe demostrar que la experiencia visual + simulación es superior a Exce
 7. El usuario puede guardar la simulación para revisarla luego o descartarla.
 
 ### Flow 5: Ajustar Regla Financiera
-1. El usuario va a "Configuración de reglas".
+1. El usuario va al módulo "Reglas".
 2. Ve la regla actual con porcentajes editables.
 3. Modifica los porcentajes (validando que sumen 100%).
 4. Guarda.
