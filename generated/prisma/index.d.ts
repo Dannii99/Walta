@@ -6292,6 +6292,8 @@ export namespace Prisma {
     userId: string | null
     type: string | null
     title: string | null
+    aiAnalysis: string | null
+    aiAnalysisGeneratedAt: Date | null
     createdAt: Date | null
   }
 
@@ -6300,6 +6302,8 @@ export namespace Prisma {
     userId: string | null
     type: string | null
     title: string | null
+    aiAnalysis: string | null
+    aiAnalysisGeneratedAt: Date | null
     createdAt: Date | null
   }
 
@@ -6310,6 +6314,8 @@ export namespace Prisma {
     title: number
     inputs: number
     result: number
+    aiAnalysis: number
+    aiAnalysisGeneratedAt: number
     createdAt: number
     _all: number
   }
@@ -6320,6 +6326,8 @@ export namespace Prisma {
     userId?: true
     type?: true
     title?: true
+    aiAnalysis?: true
+    aiAnalysisGeneratedAt?: true
     createdAt?: true
   }
 
@@ -6328,6 +6336,8 @@ export namespace Prisma {
     userId?: true
     type?: true
     title?: true
+    aiAnalysis?: true
+    aiAnalysisGeneratedAt?: true
     createdAt?: true
   }
 
@@ -6338,6 +6348,8 @@ export namespace Prisma {
     title?: true
     inputs?: true
     result?: true
+    aiAnalysis?: true
+    aiAnalysisGeneratedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -6421,6 +6433,8 @@ export namespace Prisma {
     title: string
     inputs: JsonValue
     result: JsonValue
+    aiAnalysis: string | null
+    aiAnalysisGeneratedAt: Date | null
     createdAt: Date
     _count: SimulationCountAggregateOutputType | null
     _min: SimulationMinAggregateOutputType | null
@@ -6448,6 +6462,8 @@ export namespace Prisma {
     title?: boolean
     inputs?: boolean
     result?: boolean
+    aiAnalysis?: boolean
+    aiAnalysisGeneratedAt?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["simulation"]>
@@ -6459,6 +6475,8 @@ export namespace Prisma {
     title?: boolean
     inputs?: boolean
     result?: boolean
+    aiAnalysis?: boolean
+    aiAnalysisGeneratedAt?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["simulation"]>
@@ -6470,6 +6488,8 @@ export namespace Prisma {
     title?: boolean
     inputs?: boolean
     result?: boolean
+    aiAnalysis?: boolean
+    aiAnalysisGeneratedAt?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["simulation"]>
@@ -6481,10 +6501,12 @@ export namespace Prisma {
     title?: boolean
     inputs?: boolean
     result?: boolean
+    aiAnalysis?: boolean
+    aiAnalysisGeneratedAt?: boolean
     createdAt?: boolean
   }
 
-  export type SimulationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "type" | "title" | "inputs" | "result" | "createdAt", ExtArgs["result"]["simulation"]>
+  export type SimulationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "type" | "title" | "inputs" | "result" | "aiAnalysis" | "aiAnalysisGeneratedAt" | "createdAt", ExtArgs["result"]["simulation"]>
   export type SimulationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -6507,6 +6529,8 @@ export namespace Prisma {
       title: string
       inputs: Prisma.JsonValue
       result: Prisma.JsonValue
+      aiAnalysis: string | null
+      aiAnalysisGeneratedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["simulation"]>
     composites: {}
@@ -6938,6 +6962,8 @@ export namespace Prisma {
     readonly title: FieldRef<"Simulation", 'String'>
     readonly inputs: FieldRef<"Simulation", 'Json'>
     readonly result: FieldRef<"Simulation", 'Json'>
+    readonly aiAnalysis: FieldRef<"Simulation", 'String'>
+    readonly aiAnalysisGeneratedAt: FieldRef<"Simulation", 'DateTime'>
     readonly createdAt: FieldRef<"Simulation", 'DateTime'>
   }
     
@@ -12203,6 +12229,8 @@ export namespace Prisma {
     title: 'title',
     inputs: 'inputs',
     result: 'result',
+    aiAnalysis: 'aiAnalysis',
+    aiAnalysisGeneratedAt: 'aiAnalysisGeneratedAt',
     createdAt: 'createdAt'
   };
 
@@ -12676,6 +12704,8 @@ export namespace Prisma {
     title?: StringFilter<"Simulation"> | string
     inputs?: JsonFilter<"Simulation">
     result?: JsonFilter<"Simulation">
+    aiAnalysis?: StringNullableFilter<"Simulation"> | string | null
+    aiAnalysisGeneratedAt?: DateTimeNullableFilter<"Simulation"> | Date | string | null
     createdAt?: DateTimeFilter<"Simulation"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -12687,6 +12717,8 @@ export namespace Prisma {
     title?: SortOrder
     inputs?: SortOrder
     result?: SortOrder
+    aiAnalysis?: SortOrderInput | SortOrder
+    aiAnalysisGeneratedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
@@ -12701,6 +12733,8 @@ export namespace Prisma {
     title?: StringFilter<"Simulation"> | string
     inputs?: JsonFilter<"Simulation">
     result?: JsonFilter<"Simulation">
+    aiAnalysis?: StringNullableFilter<"Simulation"> | string | null
+    aiAnalysisGeneratedAt?: DateTimeNullableFilter<"Simulation"> | Date | string | null
     createdAt?: DateTimeFilter<"Simulation"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
@@ -12712,6 +12746,8 @@ export namespace Prisma {
     title?: SortOrder
     inputs?: SortOrder
     result?: SortOrder
+    aiAnalysis?: SortOrderInput | SortOrder
+    aiAnalysisGeneratedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: SimulationCountOrderByAggregateInput
     _max?: SimulationMaxOrderByAggregateInput
@@ -12728,6 +12764,8 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Simulation"> | string
     inputs?: JsonWithAggregatesFilter<"Simulation">
     result?: JsonWithAggregatesFilter<"Simulation">
+    aiAnalysis?: StringNullableWithAggregatesFilter<"Simulation"> | string | null
+    aiAnalysisGeneratedAt?: DateTimeNullableWithAggregatesFilter<"Simulation"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Simulation"> | Date | string
   }
 
@@ -13355,6 +13393,8 @@ export namespace Prisma {
     title: string
     inputs: JsonNullValueInput | InputJsonValue
     result: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: string | null
+    aiAnalysisGeneratedAt?: Date | string | null
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutSimulationsInput
   }
@@ -13366,6 +13406,8 @@ export namespace Prisma {
     title: string
     inputs: JsonNullValueInput | InputJsonValue
     result: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: string | null
+    aiAnalysisGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -13375,6 +13417,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     inputs?: JsonNullValueInput | InputJsonValue
     result?: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: NullableStringFieldUpdateOperationsInput | string | null
+    aiAnalysisGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSimulationsNestedInput
   }
@@ -13386,6 +13430,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     inputs?: JsonNullValueInput | InputJsonValue
     result?: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: NullableStringFieldUpdateOperationsInput | string | null
+    aiAnalysisGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -13396,6 +13442,8 @@ export namespace Prisma {
     title: string
     inputs: JsonNullValueInput | InputJsonValue
     result: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: string | null
+    aiAnalysisGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -13405,6 +13453,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     inputs?: JsonNullValueInput | InputJsonValue
     result?: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: NullableStringFieldUpdateOperationsInput | string | null
+    aiAnalysisGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -13415,6 +13465,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     inputs?: JsonNullValueInput | InputJsonValue
     result?: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: NullableStringFieldUpdateOperationsInput | string | null
+    aiAnalysisGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14169,6 +14221,17 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type SimulationCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
@@ -14176,6 +14239,8 @@ export namespace Prisma {
     title?: SortOrder
     inputs?: SortOrder
     result?: SortOrder
+    aiAnalysis?: SortOrder
+    aiAnalysisGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -14184,6 +14249,8 @@ export namespace Prisma {
     userId?: SortOrder
     type?: SortOrder
     title?: SortOrder
+    aiAnalysis?: SortOrder
+    aiAnalysisGeneratedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -14192,7 +14259,23 @@ export namespace Prisma {
     userId?: SortOrder
     type?: SortOrder
     title?: SortOrder
+    aiAnalysis?: SortOrder
+    aiAnalysisGeneratedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -14789,6 +14872,10 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type UserUpdateOneRequiredWithoutSimulationsNestedInput = {
     create?: XOR<UserCreateWithoutSimulationsInput, UserUncheckedCreateWithoutSimulationsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSimulationsInput
@@ -15104,6 +15191,31 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -15171,6 +15283,8 @@ export namespace Prisma {
     title: string
     inputs: JsonNullValueInput | InputJsonValue
     result: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: string | null
+    aiAnalysisGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -15180,6 +15294,8 @@ export namespace Prisma {
     title: string
     inputs: JsonNullValueInput | InputJsonValue
     result: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: string | null
+    aiAnalysisGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -15307,6 +15423,8 @@ export namespace Prisma {
     title?: StringFilter<"Simulation"> | string
     inputs?: JsonFilter<"Simulation">
     result?: JsonFilter<"Simulation">
+    aiAnalysis?: StringNullableFilter<"Simulation"> | string | null
+    aiAnalysisGeneratedAt?: DateTimeNullableFilter<"Simulation"> | Date | string | null
     createdAt?: DateTimeFilter<"Simulation"> | Date | string
   }
 
@@ -16208,6 +16326,8 @@ export namespace Prisma {
     title: string
     inputs: JsonNullValueInput | InputJsonValue
     result: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: string | null
+    aiAnalysisGeneratedAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -16273,6 +16393,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     inputs?: JsonNullValueInput | InputJsonValue
     result?: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: NullableStringFieldUpdateOperationsInput | string | null
+    aiAnalysisGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -16282,6 +16404,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     inputs?: JsonNullValueInput | InputJsonValue
     result?: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: NullableStringFieldUpdateOperationsInput | string | null
+    aiAnalysisGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -16291,6 +16415,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     inputs?: JsonNullValueInput | InputJsonValue
     result?: JsonNullValueInput | InputJsonValue
+    aiAnalysis?: NullableStringFieldUpdateOperationsInput | string | null
+    aiAnalysisGeneratedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

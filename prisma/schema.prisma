@@ -54,14 +54,16 @@ model Transaction {
 }
 
 model Simulation {
-  id            String         @id @default(cuid())
-  userId        String
-  user          User           @relation(fields: [userId], references: [id])
-  type          String         // VEHICLE, HOUSING, etc.
-  title         String
-  inputs        Json           // { price, downPayment, term, rate }
-  result        Json           // { monthlyPayment, verdict, availableAfter }
-  createdAt     DateTime       @default(now())
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id])
+  type                  String    // VEHICLE, HOUSING, etc.
+  title                 String
+  inputs                Json      // { price, downPayment, term, rate }
+  result                Json      // { monthlyPayment, verdict, availableAfter }
+  aiAnalysis            String?   // JSON stringified: { verdict_explanation, recommendations, risks, alternative_suggestion }
+  aiAnalysisGeneratedAt DateTime?
+  createdAt             DateTime  @default(now())
 }
 
 model MonthlySnapshot {

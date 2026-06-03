@@ -163,6 +163,8 @@ exports.Prisma.SimulationScalarFieldEnum = {
   title: 'title',
   inputs: 'inputs',
   result: 'result',
+  aiAnalysis: 'aiAnalysis',
+  aiAnalysisGeneratedAt: 'aiAnalysisGeneratedAt',
   createdAt: 'createdAt'
 };
 
