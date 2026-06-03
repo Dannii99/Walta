@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence } from "framer-motion";
+import { Save, Loader2, Sparkles, Calculator } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,14 +16,15 @@ import { SimulationResult } from "./SimulationResult";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { RateInput } from "./RateInput";
 import { createSimulation } from "@/server/actions/simulation-actions";
+import { invalidateInsightsCache } from "@/server/actions/ai-actions";
 import {
   calculateFrenchEA,
   calculateNominalMonthly,
   getVerdict,
+  verdictToDb,
 } from "@/lib/simulation-engine";
 import { formatCOP } from "@/lib/currency";
 import { REFERENCE_RATES } from "@/lib/constants";
-import type { Verdict } from "@/lib/simulation-engine";
 import type { CreditType } from "@/lib/constants";
 
 const simulatorSchema = z.object({
@@ -40,13 +43,6 @@ interface SimulatorFormProps {
   availableMoney: number;
 }
 
-const verdictToDb: Record<Verdict, "APPROVED" | "WARNING" | "REJECTED"> = {
-  SAFE: "APPROVED",
-  TIGHT: "WARNING",
-  RISKY: "REJECTED",
-  NOT_RECOMMENDED: "REJECTED",
-};
-
 const creditTypeLabels: Record<CreditType, string> = {
   vehicle: "Vehículo",
   personal: "Personal / Libre inversión",
@@ -63,8 +59,7 @@ const defaultRates: Record<CreditType, number> = {
 
 export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
   const router = useRouter();
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
+  const [isPending, startTransition] = useTransition();
 
   const {
     register,
@@ -121,42 +116,50 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
   };
 
   const handleSave = async (formData: SimulatorFormData) => {
-    setIsSaving(true);
-    setSaveMessage("");
-    try {
-      const title = `${creditTypeLabels[formData.creditType]} - ${formData.name}`;
-      await createSimulation(
-        formData.creditType.toUpperCase() as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
-        title,
-        {
-          price: formData.price,
-          downPayment: formData.downPayment,
-          term: result.termMonths,
-          rate: formData.rate,
-          formula: formData.formula,
-        },
-        {
-          monthlyPayment: result.monthlyPayment,
-          verdict: verdictToDb[result.verdict],
-          availableAfter: result.remainingAfter,
-          totalInterest: result.totalInterest,
-          totalCost: result.totalCost,
-        }
-      );
-      setSaveMessage("Simulación guardada correctamente.");
-      router.push("/simulations");
-    } catch {
-      setSaveMessage("Error al guardar la simulación.");
-    } finally {
-      setIsSaving(false);
-    }
+    startTransition(async () => {
+      try {
+        const title = `${creditTypeLabels[formData.creditType]} - ${formData.name}`;
+        await createSimulation(
+          formData.creditType.toUpperCase() as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
+          title,
+          {
+            price: formData.price,
+            downPayment: formData.downPayment,
+            term: result.termMonths,
+            rate: formData.rate,
+            formula: formData.formula,
+          },
+          {
+            monthlyPayment: result.monthlyPayment,
+            verdict: verdictToDb[result.verdict],
+            availableAfter: result.remainingAfter,
+            totalInterest: result.totalInterest,
+            totalCost: result.totalCost,
+          }
+        );
+        await invalidateInsightsCache();
+        toast.success("Simulación guardada", {
+          description: "Podrás ver el análisis inteligente en la vista de detalle.",
+        });
+        router.push("/simulations");
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "No se pudo guardar la simulación";
+        toast.error(message);
+      }
+    });
   };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Datos del Préstamo</CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 flex items-center justify-center shrink-0">
+              <Calculator className="h-3.5 w-3.5" strokeWidth={2.2} />
+            </div>
+            <CardTitle className="text-base">Datos del préstamo</CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           <form
@@ -174,7 +177,9 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   {...register("name")}
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
 
@@ -184,7 +189,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   id="creditType"
                   {...register("creditType")}
                   onChange={(e) => handleCreditTypeChange(e.target.value as CreditType)}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 dark:focus-visible:ring-stone-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="vehicle">{creditTypeLabels.vehicle}</option>
                   <option value="personal">{creditTypeLabels.personal}</option>
@@ -207,7 +212,9 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   )}
                 />
                 {errors.price && (
-                  <p className="text-sm text-destructive">{errors.price.message}</p>
+                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                    {errors.price.message}
+                  </p>
                 )}
               </div>
 
@@ -225,7 +232,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   )}
                 />
                 {errors.downPayment && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-rose-600 dark:text-rose-400">
                     {errors.downPayment.message}
                   </p>
                 )}
@@ -241,7 +248,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   {...register("termYears", { valueAsNumber: true })}
                 />
                 {errors.termYears && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-rose-600 dark:text-rose-400">
                     {errors.termYears.message}
                   </p>
                 )}
@@ -259,7 +266,9 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   )}
                 />
                 {errors.rate && (
-                  <p className="text-sm text-destructive">{errors.rate.message}</p>
+                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                    {errors.rate.message}
+                  </p>
                 )}
               </div>
 
@@ -268,7 +277,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                 <select
                   id="formula"
                   {...register("formula")}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 dark:focus-visible:ring-stone-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="french_ea">
                     Amortización Francesa (EA)
@@ -280,40 +289,60 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 pt-2">
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? "Guardando..." : "Guardar Simulación"}
+            <div className="flex items-center gap-3 pt-2">
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-sm"
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-1.5" />
+                    Guardar simulación
+                  </>
+                )}
               </Button>
-              {saveMessage && (
-                <span
-                  className={`text-sm ${saveMessage.includes("Error") ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}
-                >
-                  {saveMessage}
-                </span>
-              )}
+              <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                <Sparkles className="h-3 w-3" />
+                <span>Generará análisis IA al guardar</span>
+              </div>
             </div>
           </form>
         </CardContent>
       </Card>
 
-      {/* Real-time calculation */}
       <Card>
         <CardHeader>
-          <CardTitle>Cálculo en Tiempo Real</CardTitle>
+          <CardTitle className="text-base">Cálculo en tiempo real</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Monto a financiar</p>
-              <p className="text-lg font-semibold">{formatCOP(result.principal)}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Monto a financiar
+              </p>
+              <p className="text-lg font-bold tabular-nums text-stone-900 dark:text-stone-50">
+                {formatCOP(result.principal)}
+              </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Plazo en meses</p>
-              <p className="text-lg font-semibold">{result.termMonths}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Plazo
+              </p>
+              <p className="text-lg font-bold tabular-nums text-stone-900 dark:text-stone-50">
+                {result.termMonths} meses
+              </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Pago mensual estimado</p>
-              <p className="text-lg font-semibold text-primary">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                Cuota mensual
+              </p>
+              <p className="text-lg font-bold tabular-nums text-primary">
                 {formatCOP(result.monthlyPayment)}
               </p>
             </div>
@@ -321,7 +350,6 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
         </CardContent>
       </Card>
 
-      {/* Result reveal */}
       <AnimatePresence>
         {result.monthlyPayment > 0 && (
           <SimulationResult
