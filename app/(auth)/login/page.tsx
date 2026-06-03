@@ -1,91 +1,68 @@
-"use client";
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { Wallet } from "lucide-react";
+import { LoginHero } from "@/components/auth/LoginHero";
+import { LoginForm } from "@/components/auth/LoginForm";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogIn } from "lucide-react";
+export const metadata: Metadata = {
+  title: "Iniciar sesión | Walta",
+  description:
+    "Accede a tu presupuesto, visualiza tu salud financiera y simula decisiones con Walta.",
+};
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("demo@example.com");
-  const [password, setPassword] = useState("demo123");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      // Usamos redirect: true para que Auth.js maneje la redirección completa
-      // (full page refresh). Esto asegura que la cookie de sesión JWT se setee
-      // correctamente antes de navegar al dashboard.
-      await signIn("credentials", {
-        email,
-        password,
-        redirect: true,
-        callbackUrl: "/dashboard",
-      });
-    } catch {
-      setError("Error al iniciar sesión. Intenta de nuevo.");
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Walta
-          </CardTitle>
-          <CardDescription className="text-center">
-            Tu dinero, más claro.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 dark:bg-destructive/20 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+    <main className="min-h-screen bg-background">
+      <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+        <LoginHero />
+
+        <div className="flex flex-col">
+          <div className="md:hidden flex items-center justify-center gap-3 px-6 pt-8 pb-2">
+            <div className="h-11 w-11 rounded-xl bg-stone-900 dark:bg-stone-100 flex items-center justify-center shrink-0">
+              <Wallet
+                className="h-5 w-5 text-white dark:text-stone-900"
+                strokeWidth={2.3}
+                aria-hidden
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+            <div className="min-w-0">
+              <p className="text-base font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-none">
+                Walta
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mt-1">
+                Tu dinero, más claro.
+              </p>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
-                "Iniciando sesión..."
-              ) : (
-                <>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Iniciar Sesión
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center p-6 md:p-10">
+            <Suspense fallback={<LoginFormFallback />}>
+              <LoginForm />
+            </Suspense>
+          </div>
+
+          <p className="md:hidden px-6 pb-6 text-center text-[10px] font-medium text-stone-500 dark:text-stone-400">
+            © 2026 Walta. Hecho con cuidado para tu bolsillo.
+          </p>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function LoginFormFallback() {
+  return (
+    <div
+      role="status"
+      aria-label="Cargando formulario"
+      className="w-full max-w-md mx-auto space-y-4"
+    >
+      <div className="h-4 w-32 mx-auto md:mx-0 rounded-md bg-stone-200/80 dark:bg-stone-800 animate-pulse" />
+      <div className="h-8 w-3/4 mx-auto md:mx-0 rounded-md bg-stone-200/80 dark:bg-stone-800 animate-pulse" />
+      <div className="h-4 w-1/2 mx-auto md:mx-0 rounded-md bg-stone-200/80 dark:bg-stone-800 animate-pulse" />
+      <div className="h-10 w-full rounded-md bg-stone-200/80 dark:bg-stone-800 animate-pulse" />
+      <div className="h-10 w-full rounded-md bg-stone-200/80 dark:bg-stone-800 animate-pulse" />
+      <div className="h-11 w-full rounded-md bg-stone-200/80 dark:bg-stone-800 animate-pulse" />
     </div>
   );
 }
