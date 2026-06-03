@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Creditos | Presupuesto Claro",
+  title: "Creditos | Walta",
   description: "Seguimiento de tus creditos y prestamos.",
 };
 

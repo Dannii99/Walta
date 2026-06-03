@@ -2,7 +2,7 @@
 import { WifiOff } from "lucide-react";
 
 export const metadata = {
-  title: "Sin conexin | Presupuesto Claro",
+  title: "Sin conexión | Walta",
   description: "Parece que no tienes conexin a internet.",
 };
 

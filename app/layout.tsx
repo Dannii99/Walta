@@ -9,14 +9,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Presupuesto Claro",
+  title: "Walta — Tu dinero, más claro",
   description:
     "Controla tu dinero de forma visual. Simula decisiones financieras importantes.",
   manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3B82F6",
+  themeColor: "#0c0a09",
 };
 
 export default function RootLayout({

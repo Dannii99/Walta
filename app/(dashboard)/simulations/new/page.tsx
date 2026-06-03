@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Nueva Simulación | Presupuesto Claro",
+  title: "Nueva Simulación | Walta",
   description: "Simula la compra de un vehículo, vivienda o crédito personal y evalúa si cabe en tu presupuesto.",
 };
 

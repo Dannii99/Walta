@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   await params;
   return {
-    title: `Editar Crédito | Presupuesto Claro`,
+    title: `Editar Crédito | Walta`,
   };
 }
 

@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import type { MonthlySnapshot } from "@/types";
 
 export const metadata: Metadata = {
-  title: "Historial Mensual | Presupuesto Claro",
+  title: "Historial Mensual | Walta",
   description: "Revisa el historial mensual de tus presupuestos y cierra meses.",
 };
 

@@ -70,16 +70,16 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
         </div>
 
         {hasData ? (
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
             <div className="lg:col-span-3 relative">
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={340}>
                 <PieChart>
                   <Pie
                     data={chartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={75}
-                    outerRadius={115}
+                    innerRadius={90}
+                    outerRadius={135}
                     paddingAngle={2}
                     dataKey="value"
                     stroke="white"
@@ -121,13 +121,13 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
                 <span className="text-[9px] font-bold uppercase tracking-wider text-stone-500">
                   Total mes
                 </span>
-                <span className="text-xl md:text-2xl font-extrabold mt-0.5 text-stone-900 tabular-nums">
+                <span className="text-2xl md:text-3xl font-extrabold mt-0.5 text-stone-900 tabular-nums">
                   {formatCurrency(total)}
                 </span>
               </div>
             </div>
 
-            <div className="lg:col-span-2 flex flex-col gap-1.5 max-h-[320px] overflow-y-auto -mr-1 pr-1">
+            <div className="lg:col-span-2 flex flex-col gap-1.5 max-h-[360px] overflow-y-auto -mr-1 pr-1 scrollbar-none">
               {chartData.map((entry) => {
                 const pct = total > 0 ? (entry.value / total) * 100 : 0;
                 return (
@@ -158,7 +158,7 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[280px] gap-3 px-4 text-center">
+          <div className="flex flex-col items-center justify-center h-[340px] gap-3 px-4 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100">
               <PieIcon className="h-5 w-5 text-stone-500" />
             </div>

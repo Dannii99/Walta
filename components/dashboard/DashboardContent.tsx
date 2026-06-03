@@ -9,9 +9,9 @@ import { SimulatorQuickAccess } from "@/components/dashboard/SimulatorQuickAcces
 import { CategoryDonutChart } from "@/components/dashboard/CategoryDonutChart";
 import { HealthCards } from "@/components/dashboard/HealthCards";
 import {
-  CategoryBreakdown,
-  type BreakdownItem,
-} from "@/components/dashboard/CategoryBreakdown";
+  CategoryLimitsBarChart,
+  type BarChartItem,
+} from "@/components/dashboard/CategoryLimitsBarChart";
 import { AddExpenseModal } from "@/components/expenses/AddExpenseModal";
 import type { Category } from "@/types";
 import { getDynamicMessage, type HealthStatus } from "@/lib/dashboard-helpers";
@@ -38,7 +38,7 @@ interface DashboardContentProps {
   savingsSpent: number;
   savingsLimit: number;
   donutData: { name: string; value: number; color?: string }[];
-  categoriesBreakdown: BreakdownItem[];
+  categoriesBreakdown: BarChartItem[];
   categories: Category[];
 }
 
@@ -103,17 +103,19 @@ export function DashboardContent({
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
-        className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-5 md:gap-6"
       >
-        <div className="xl:col-span-3">
-          <CategoryDonutChart data={donutData} monthLabel={monthLabel} />
-        </div>
-        <div className="xl:col-span-2">
-          <CategoryBreakdown items={categoriesBreakdown} />
-        </div>
+        <CategoryDonutChart data={donutData} monthLabel={monthLabel} />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <CategoryLimitsBarChart items={categoriesBreakdown} />
       </motion.div>
 
       <HealthCards

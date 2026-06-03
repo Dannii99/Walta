@@ -7,7 +7,7 @@ import type { BudgetRule, Category } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Configuración | Presupuesto Claro",
+  title: "Configuración | Walta",
   description: "Configura las reglas de tu presupuesto y preferencias.",
 };
 

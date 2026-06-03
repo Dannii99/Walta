@@ -167,7 +167,7 @@ El MVP debe demostrar que la experiencia visual + simulación es superior a Exce
 ## 10. Content Requirements
 
 ### Textos Fijos
-- Nombre del producto (a definir, ej. "Presupuesto Claro", "FinVista", etc.).
+- Nombre del producto: **Walta** — tagline: "Tu dinero, más claro."
 - Pantalla de bienvenida: 3 frases de valor (ej. "Toma el control de tu dinero", "Visualiza tu salud financiera", "Simula decisiones importantes").
 - Etiquetas del Dashboard: "Ingreso total", "Gastos totales", "Dinero disponible", "Ahorro acumulado".
 - Nombres de categorías por defecto: "Necesidades", "Deseos", "Ahorro e Inversión", "Deudas".

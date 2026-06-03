@@ -14,7 +14,6 @@ import {
   History,
   Settings,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 
 const navItems = [
@@ -43,20 +42,20 @@ export function Sidebar() {
         className="h-16 flex items-center px-[18px] border-b border-stone-200/60 shrink-0"
       >
         <div className="h-9 w-9 rounded-xl bg-stone-900 flex items-center justify-center shrink-0 transition-transform hover:scale-105">
-          <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
+          <Wallet className="h-4 w-4 text-white" strokeWidth={2.3} />
         </div>
         <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap overflow-hidden">
           <p className="text-sm font-extrabold tracking-tight text-stone-900 leading-none">
-            Presupuesto
+            Walta
           </p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mt-1">
-            Claro
+          <p className="text-[9px] font-bold uppercase tracking-wider text-stone-500 mt-1">
+            Tu dinero, más claro.
           </p>
         </div>
       </Link>
 
-      <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
-        <p className="px-3 mb-2 text-[9px] font-bold uppercase tracking-wider text-stone-400 opacity-0 hover:opacity-100 transition-opacity whitespace-nowrap">
+      <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto scrollbar-none">
+        <p className="px-3 mb-2 text-[9px] font-bold uppercase tracking-wider text-stone-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
           Navegación
         </p>
         {navItems.map((item) => {
@@ -73,7 +72,7 @@ export function Sidebar() {
                 "text-sm font-semibold transition-colors",
                 isActive
                   ? "bg-stone-100 text-stone-900"
-                  : "text-stone-500 hover:bg-stone-50 hover:text-stone-900"
+                  : "text-stone-700 hover:bg-stone-50 hover:text-stone-900"
               )}
             >
               {isActive && (

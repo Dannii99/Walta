@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dashboard | Presupuesto Claro",
+  title: "Dashboard | Walta",
   description: "Resumen general de tu presupuesto personal.",
 };
 
@@ -20,11 +20,11 @@ export default async function DashboardPage() {
     <div className="p-8">
       <h1 className="text-3xl font-bold">Dashboard</h1>
       <p className="text-muted-foreground mt-2">
-        Bienvenido a Presupuesto Claro
+        Bienvenido a Walta
       </p>
       {budget && (
         <p className="mt-4 text-sm text-muted-foreground">
-          Presupuesto activo: {budget.name} — Ingresos: ${parseFloat(budget.income).toLocaleString("es-CO")}
+          Plan activo: {budget.name} — Ingresos: ${parseFloat(budget.income).toLocaleString("es-CO")}
         </p>
       )}
     </div>

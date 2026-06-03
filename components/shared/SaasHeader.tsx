@@ -45,7 +45,20 @@ function StatusBadge({ status }: StatusBadgeProps) {
         cfg.pill
       )}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
+      <span className="relative inline-flex h-2 w-2">
+        <span
+          className={cn(
+            "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+            cfg.dot
+          )}
+        />
+        <span
+          className={cn(
+            "relative inline-flex rounded-full h-2 w-2",
+            cfg.dot
+          )}
+        />
+      </span>
       {cfg.label}
     </span>
   );

@@ -1,11 +1,11 @@
 {
-  "name": "Presupuesto Claro",
-  "short_name": "Presupuesto",
-  "description": "Controla tu dinero de forma visual. Simula decisiones financieras importantes.",
+  "name": "Walta",
+  "short_name": "Walta",
+  "description": "Tu dinero, más claro. Controla tu presupuesto de forma visual.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F8FAFC",
-  "theme_color": "#3B82F6",
+  "background_color": "#FAFAF7",
+  "theme_color": "#0c0a09",
   "orientation": "portrait",
   "scope": "/",
   "icons": [

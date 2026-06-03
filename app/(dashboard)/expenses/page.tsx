@@ -6,7 +6,7 @@ import type { Category, CategoryType, Transaction } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Gastos | Presupuesto Claro",
+  title: "Gastos | Walta",
   description: "Gestiona tus gastos y categorías.",
 };
 

@@ -40,10 +40,10 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Presupuesto Claro
+            Walta
           </CardTitle>
           <CardDescription className="text-center">
-            Inicia sesión para gestionar tu presupuesto
+            Tu dinero, más claro.
           </CardDescription>
         </CardHeader>
         <CardContent>

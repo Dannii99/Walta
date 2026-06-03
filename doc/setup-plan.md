@@ -2,7 +2,7 @@
 
 ## 1. Goal
 
-Inicializar el proyecto completo de **Presupuesto Personal Visual + Simulador Financiero** con el stack Next.js 14+ full-stack, Prisma + Neon Postgres, PWA, y el sistema de diseño visual (shadcn/ui + Tremor + Framer Motion).
+Inicializar el proyecto completo de **Walta — Tu dinero, más claro** (Visual Personal Budget + Financial Simulator) con el stack Next.js 16 full-stack, Prisma + Neon Postgres, PWA, y el sistema de diseño visual (shadcn/ui + Tailwind v4 + Framer Motion).
 
 Este documento es la guía de arranque. Siguiendo estos pasos, el proyecto quedará listo para que el agente especialista implemente las fases del `architecture.md`.
 
@@ -159,7 +159,7 @@ Wrappers necesarios en el root:
 
 ### 6.7 Metadata y SEO base
 En `app/layout.tsx`:
-- `title`: "Presupuesto Claro" (o nombre final)
+- `title`: "Walta — Tu dinero, más claro"
 - `description`: "Controla tu dinero de forma visual. Simula decisiones financieras importantes."
 - `theme-color` para PWA.
 
