@@ -11,6 +11,7 @@ import {
   Tooltip,
   LabelList,
 } from "recharts";
+import { useTheme } from "next-themes";
 import {
   BarChart3,
   TrendingUp,
@@ -68,6 +69,8 @@ interface YTickProps {
 
 export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
   const [filter, setFilter] = useState<FilterKey>("all");
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const sorted = useMemo(
     () => [...items].sort((a, b) => b.spent - a.spent),
@@ -135,7 +138,7 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
         height,
         rx,
         ry: rx,
-        fill: "#f5f5f4",
+        fill: isDark ? "#1e293b" : "#f5f5f4",
       }),
       fillWidth > 0
         ? createElement("rect", {
@@ -165,7 +168,7 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
           x: 0,
           y: -3,
           textAnchor: "end",
-          fill: "#1c1917",
+          fill: isDark ? "#f8fafc" : "#1c1917",
           fontSize: 12,
           fontWeight: 600,
         },
@@ -177,7 +180,7 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
           x: 0,
           y: 11,
           textAnchor: "end",
-          fill: "#78716c",
+          fill: isDark ? "#94a3b8" : "#78716c",
           fontSize: 10,
           fontWeight: 500,
         },
@@ -186,24 +189,27 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
     );
   };
 
+  const labelFill = isDark ? "#f8fafc" : "#0c0a09";
+  const cursorFill = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="bg-white border border-stone-200/80 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
     >
       <div className="p-5 md:p-6 space-y-5">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 text-stone-700 shrink-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
               <BarChart3 className="h-3.5 w-3.5" strokeWidth={2.3} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm font-bold tracking-tight text-stone-900">
+              <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-50">
                 Gastado vs Límite
               </h2>
-              <p className="text-[11px] text-stone-500 font-medium">
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
                 Equivalente mensual · top {topN.length} categorías
               </p>
             </div>
@@ -233,12 +239,12 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
         </div>
 
         {!hasData ? null : topN.length === 0 ? (
-          <div className="text-center py-10 text-stone-500 text-sm">
+          <div className="text-center py-10 text-stone-500 dark:text-stone-400 text-sm">
             <p className="font-medium">Sin categorías en este filtro</p>
             <button
               type="button"
               onClick={() => setFilter("all")}
-              className="text-xs text-stone-700 underline mt-1"
+              className="text-xs text-stone-700 dark:text-stone-300 underline mt-1"
             >
               Ver todas
             </button>
@@ -273,47 +279,47 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
                     tick={renderYTick}
                   />
                   <Tooltip
-                    cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                    cursor={{ fill: cursorFill }}
                     content={({ active, payload }) => {
                       if (!active || !payload?.length) return null;
                       const d = payload[0]?.payload as BarDatum;
                       const pct = d.limit > 0 ? (d.spent / d.limit) * 100 : 0;
                       const over = d.spent > d.limit && d.limit > 0;
                       return (
-                        <div className="rounded-lg border border-stone-200 bg-white shadow-md p-2.5 min-w-[200px]">
+                        <div className="rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 shadow-md p-2.5 min-w-[200px]">
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <div
                               className="h-2 w-2 rounded-full"
                               style={{ backgroundColor: d.color }}
                             />
-                            <span className="text-xs font-semibold text-stone-900 truncate">
+                            <span className="text-xs font-semibold text-stone-900 dark:text-stone-50 truncate">
                               {d.name}
                             </span>
                           </div>
                           <div className="space-y-0.5 text-[11px]">
                             <div className="flex justify-between gap-3">
-                              <span className="text-stone-500">Gastado</span>
-                              <span className="font-bold text-stone-900 tabular-nums">
+                              <span className="text-stone-500 dark:text-stone-400">Gastado</span>
+                              <span className="font-bold text-stone-900 dark:text-stone-50 tabular-nums">
                                 {formatCurrency(d.spent)}
                               </span>
                             </div>
                             <div className="flex justify-between gap-3">
-                              <span className="text-stone-500">Límite</span>
-                              <span className="font-bold text-stone-900 tabular-nums">
+                              <span className="text-stone-500 dark:text-stone-400">Límite</span>
+                              <span className="font-bold text-stone-900 dark:text-stone-50 tabular-nums">
                                 {d.limit > 0 ? formatCurrency(d.limit) : "—"}
                               </span>
                             </div>
                             {d.limit > 0 && (
-                              <div className="flex justify-between gap-3 pt-0.5 border-t border-stone-100">
-                                <span className="text-stone-500">% usado</span>
+                              <div className="flex justify-between gap-3 pt-0.5 border-t border-stone-100 dark:border-stone-700">
+                                <span className="text-stone-500 dark:text-stone-400">% usado</span>
                                 <span
                                   className={cn(
                                     "font-bold tabular-nums",
                                     over
-                                      ? "text-rose-700"
+                                      ? "text-rose-700 dark:text-rose-400"
                                       : pct > 85
-                                      ? "text-amber-700"
-                                      : "text-stone-900"
+                                      ? "text-amber-700 dark:text-amber-400"
+                                      : "text-stone-900 dark:text-stone-50"
                                   )}
                                 >
                                   {pct.toFixed(0)}%
@@ -339,7 +345,7 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
                         formatCurrency(typeof v === "number" ? v : 0)
                       }
                       style={{
-                        fill: "#0c0a09",
+                        fill: labelFill,
                         fontSize: 11,
                         fontWeight: 700,
                       }}
@@ -349,30 +355,30 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
               </ResponsiveContainer>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-stone-100">
+            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-stone-100 dark:border-stone-800">
               <SummaryStat
                 icon={BarChart3}
                 label="Categorías"
                 value={String(sorted.length)}
-                valueColor="text-stone-900"
+                valueColor="text-stone-900 dark:text-stone-50"
               />
               <SummaryStat
                 icon={TrendingUp}
                 label="Gastado"
                 value={formatCOP(totalSpent)}
-                valueColor="text-stone-900"
+                valueColor="text-stone-900 dark:text-stone-50"
               />
               <SummaryStat
                 icon={AlertTriangle}
                 label="Excedidas"
                 value={String(exceededCount)}
-                valueColor={exceededCount > 0 ? "text-rose-700" : "text-stone-900"}
+                valueColor={exceededCount > 0 ? "text-rose-700 dark:text-rose-400" : "text-stone-900 dark:text-stone-50"}
               />
             </div>
 
-            <div className="flex items-center gap-3 text-[10px] text-stone-500 flex-wrap">
+            <div className="flex items-center gap-3 text-[10px] text-stone-500 dark:text-stone-400 flex-wrap">
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-3 rounded-sm bg-stone-100 border border-stone-200" />
+                <span className="h-2 w-3 rounded-sm bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700" />
                 Disponible
               </span>
               <span className="flex items-center gap-1.5">
@@ -406,12 +412,12 @@ interface FilterChipProps {
 function FilterChip({ active, onClick, label, count, tone }: FilterChipProps) {
   const toneClass = (() => {
     if (!active)
-      return "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100";
+      return "bg-stone-50 dark:bg-stone-900/60 border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800";
     if (tone === "amber")
-      return "bg-amber-50 border-amber-200 text-amber-700";
+      return "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400";
     if (tone === "rose")
-      return "bg-rose-50 border-rose-200 text-rose-700";
-    return "bg-stone-900 border-stone-900 text-white";
+      return "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400";
+    return "bg-stone-900 dark:bg-stone-100 border-stone-900 dark:border-stone-100 text-white dark:text-stone-900";
   })();
   return (
     <button
@@ -427,9 +433,9 @@ function FilterChip({ active, onClick, label, count, tone }: FilterChipProps) {
       <span
         className={cn(
           "tabular-nums",
-          active && tone === undefined && "text-white/70",
-          active && tone === "amber" && "text-amber-700/70",
-          active && tone === "rose" && "text-rose-700/70"
+          active && tone === undefined && "text-white/70 dark:text-stone-900/70",
+          active && tone === "amber" && "text-amber-700/70 dark:text-amber-400/70",
+          active && tone === "rose" && "text-rose-700/70 dark:text-rose-400/70"
         )}
       >
         {count}
@@ -448,7 +454,7 @@ interface SummaryStatProps {
 function SummaryStat({ icon: Icon, label, value, valueColor }: SummaryStatProps) {
   return (
     <div className="space-y-0.5">
-      <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-stone-500">
+      <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
         <Icon className="h-2.5 w-2.5" />
         {label}
       </div>

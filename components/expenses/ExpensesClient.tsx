@@ -28,10 +28,10 @@ const typeLabels: Record<string, string> = {
 };
 
 const typeColors: Record<string, string> = {
-  NEEDS: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  WANTS: "bg-amber-100 text-amber-800 border-amber-200",
-  SAVINGS: "bg-blue-100 text-blue-800 border-blue-200",
-  DEBT: "bg-rose-100 text-rose-800 border-rose-200",
+  NEEDS: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+  WANTS: "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+  SAVINGS: "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+  DEBT: "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-900",
 };
 
 export function ExpensesClient({

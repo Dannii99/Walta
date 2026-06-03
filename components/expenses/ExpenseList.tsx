@@ -39,9 +39,9 @@ const typeColors: Record<CategoryType, string> = {
 };
 
 const recurrenceColors: Record<Recurrence, string> = {
-  MONTHLY: "bg-blue-100 text-blue-800 border-blue-200",
-  BIWEEKLY: "bg-purple-100 text-purple-800 border-purple-200",
-  ONE_TIME: "bg-gray-100 text-gray-800 border-gray-200",
+  MONTHLY: "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+  BIWEEKLY: "bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-400 border-purple-200 dark:border-purple-900",
+  ONE_TIME: "bg-gray-100 dark:bg-stone-800 text-gray-800 dark:text-stone-300 border-gray-200 dark:border-stone-700",
 };
 
 export function ExpenseList({

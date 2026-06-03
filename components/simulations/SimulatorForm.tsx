@@ -286,7 +286,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
               </Button>
               {saveMessage && (
                 <span
-                  className={`text-sm ${saveMessage.includes("Error") ? "text-destructive" : "text-emerald-600"}`}
+                  className={`text-sm ${saveMessage.includes("Error") ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}
                 >
                   {saveMessage}
                 </span>

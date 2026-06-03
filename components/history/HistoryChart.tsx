@@ -10,6 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useTheme } from "next-themes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { MonthlySnapshot } from "@/types";
 
@@ -33,7 +34,9 @@ const monthNames = [
 ];
 
 export function HistoryChart({ snapshots }: HistoryChartProps) {
-  // Sort ascending for the chart (oldest first)
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const sorted = [...snapshots].sort((a, b) => {
     if (a.year !== b.year) return a.year - b.year;
     return a.month - b.month;
@@ -60,6 +63,9 @@ export function HistoryChart({ snapshots }: HistoryChartProps) {
     return [formatted, ""];
   };
 
+  const gridStroke = isDark ? "#334155" : "#e7e5e4";
+  const axisFill = isDark ? "#94a3b8" : "#57534e";
+
   return (
     <Card>
       <CardHeader>
@@ -69,10 +75,15 @@ export function HistoryChart({ snapshots }: HistoryChartProps) {
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 12, fill: axisFill }}
+                stroke={axisFill}
+              />
               <YAxis
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: axisFill }}
+                stroke={axisFill}
                 tickFormatter={(value: number) =>
                   new Intl.NumberFormat("es-CO", {
                     notation: "compact",
@@ -80,8 +91,17 @@ export function HistoryChart({ snapshots }: HistoryChartProps) {
                   }).format(value)
                 }
               />
-              <Tooltip formatter={formatTooltip as unknown as React.ComponentProps<typeof Tooltip>['formatter']} />
-              <Legend />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: isDark ? "#1e293b" : "#ffffff",
+                  border: `1px solid ${gridStroke}`,
+                  borderRadius: "0.5rem",
+                  color: isDark ? "#f8fafc" : "#0c0a09",
+                }}
+                cursor={{ fill: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}
+                formatter={formatTooltip as unknown as React.ComponentProps<typeof Tooltip>['formatter']}
+              />
+              <Legend wrapperStyle={{ color: axisFill }} />
               <Bar dataKey="Gastos" fill="#ef4444" radius={[4, 4, 0, 0]} />
               <Bar dataKey="Ahorros" fill="#22c55e" radius={[4, 4, 0, 0]} />
             </BarChart>

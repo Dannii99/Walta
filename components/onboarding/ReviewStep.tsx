@@ -246,7 +246,7 @@ export function ReviewStep({
       <div className="rounded-lg border p-4">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Total asignado</span>
-          <span className={`text-lg font-bold ${isValid ? "text-emerald-600" : "text-destructive"}`}>
+          <span className={`text-lg font-bold ${isValid ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
             {formatCOP(totalAllocated)}
           </span>
         </div>

@@ -637,10 +637,10 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                               className={`px-2 py-1 text-xs rounded-md transition-colors ${
                                 sync.status === status
                                   ? status === "PAID"
-                                    ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                    ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
                                     : status === "PENDING"
-                                      ? "bg-amber-100 text-amber-800 border border-amber-200"
-                                      : "bg-red-100 text-red-800 border border-red-200"
+                                      ? "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border border-amber-200 dark:border-amber-900"
+                                      : "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-900"
                                   : "bg-background text-muted-foreground border border-border hover:bg-muted"
                               }`}
                             >

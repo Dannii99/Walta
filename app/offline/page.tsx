@@ -8,8 +8,8 @@ export const metadata = {
 
 export default function OfflinePage() {
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <Card className="max-w-md w-full">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-background">
+      <Card className="max-w-md w-full border-stone-200/80 dark:border-stone-800">
         <CardHeader className="text-center">
           <WifiOff className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
           <CardTitle>Sin conexin</CardTitle>

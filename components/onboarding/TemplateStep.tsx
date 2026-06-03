@@ -60,7 +60,7 @@ export function TemplateStep({ value, onChange }: TemplateStepProps) {
               <Card
                 className={`cursor-pointer transition-all ${
                   selected
-                    ? "border-primary ring-2 ring-primary/20"
+                    ? "border-primary ring-2 ring-primary/20 dark:ring-primary/30"
                     : "border-border hover:border-muted-foreground/50"
                 }`}
                 onClick={() => onChange(template.id)}

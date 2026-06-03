@@ -34,7 +34,6 @@ export function LoanProgressBar({ loan, schedule }: LoanProgressBarProps) {
         <CardTitle className="text-base">Progreso del Crédito</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Segmented progress bar */}
         <div className="space-y-2">
           <div className="flex h-3 w-full rounded-full overflow-hidden">
             {counts.paid > 0 && (
@@ -60,7 +59,7 @@ export function LoanProgressBar({ loan, schedule }: LoanProgressBarProps) {
             )}
             {counts.upcoming > 0 && (
               <div
-                className="bg-slate-300 h-full"
+                className="bg-slate-300 dark:bg-slate-700 h-full"
                 style={{ width: `${upcomingPct}%` }}
                 title={`${counts.upcoming} futuras`}
               />
@@ -71,7 +70,6 @@ export function LoanProgressBar({ loan, schedule }: LoanProgressBarProps) {
           </p>
         </div>
 
-        {/* Capital amortized */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Capital amortizado</span>

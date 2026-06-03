@@ -40,14 +40,14 @@ export function ReglasClient({
     <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
       <div className="space-y-6 md:space-y-8 max-w-3xl">
         <header className="space-y-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
             <SlidersHorizontal className="h-3 w-3" strokeWidth={2.4} />
             Reglas
           </p>
-          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-stone-900 leading-[1.1]">
+          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-[1.1]">
             Configura tu presupuesto
           </h1>
-          <p className="text-sm md:text-[15px] text-stone-600 font-medium max-w-2xl leading-relaxed">
+          <p className="text-sm md:text-[15px] text-stone-600 dark:text-stone-400 font-medium max-w-2xl leading-relaxed">
             Define tu ingreso, cómo se distribuye y qué categorías lo componen.
             Todos los cambios recalculan tu dashboard.
           </p>

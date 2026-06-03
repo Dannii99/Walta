@@ -228,17 +228,17 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="bg-white border border-stone-200/80 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-5"
+      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-5"
     >
       <header className="flex items-start gap-3">
-        <div className="h-8 w-8 rounded-lg bg-stone-100 text-stone-700 flex items-center justify-center shrink-0">
+        <div className="h-8 w-8 rounded-lg bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200 flex items-center justify-center shrink-0">
           <Tags className="h-4 w-4" strokeWidth={2.2} />
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="text-base md:text-lg font-bold tracking-tight text-stone-900">
+          <h2 className="text-base md:text-lg font-bold tracking-tight text-stone-900 dark:text-stone-50">
             Categorías
           </h2>
-          <p className="text-xs md:text-sm text-stone-500 font-medium mt-0.5 leading-relaxed">
+          <p className="text-xs md:text-sm text-stone-500 dark:text-stone-400 font-medium mt-0.5 leading-relaxed">
             Agrega, edita o elimina las categorías de tu presupuesto. Las
             categorías son la base del dashboard.
           </p>
@@ -247,15 +247,15 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
 
       <div className="space-y-4">
         {error && (
-          <div className="rounded-lg border border-rose-200 bg-rose-50/60 p-3 text-sm text-rose-700 font-medium">
+          <div className="rounded-lg border border-rose-200 bg-rose-50/60 dark:border-rose-900/60 dark:bg-rose-950/30 p-3 text-sm text-rose-700 dark:text-rose-400 font-medium">
             {error}
           </div>
         )}
 
         <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1 scrollbar-none">
           {categories.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50/50 p-6 text-center">
-              <p className="text-sm text-stone-600 font-medium">
+            <div className="rounded-xl border border-dashed border-stone-300 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900/30 p-6 text-center">
+              <p className="text-sm text-stone-600 dark:text-stone-400 font-medium">
                 Aún no tienes categorías. Agrega una abajo.
               </p>
             </div>
@@ -268,7 +268,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
               return (
                 <div
                   key={category.id}
-                  className="flex items-center gap-2 rounded-xl border border-stone-200/80 bg-white p-3 transition-colors hover:bg-stone-50/50"
+                  className="flex items-center gap-2 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900/40 p-3 transition-colors hover:bg-stone-50/50 dark:hover:bg-stone-800/40"
                   style={{ borderLeft: `4px solid ${TYPE_COLORS[type]}` }}
                 >
                   {isEditing ? (
@@ -282,7 +282,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <select
                         value={editType}
                         onChange={(e) => setEditType(e.target.value as CategoryType)}
-                        className="h-9 rounded-md border border-stone-200 bg-white px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
+                        className="h-9 rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-2 text-sm text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 dark:focus-visible:ring-stone-600"
                       >
                         {(Object.keys(TYPE_LABELS) as CategoryType[]).map((t) => (
                           <option key={t} value={t}>
@@ -293,7 +293,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-50 dark:hover:bg-stone-800"
                         onClick={() => saveEdit(category)}
                         disabled={isPending}
                         aria-label="Guardar cambios"
@@ -303,7 +303,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-50 dark:hover:bg-stone-800"
                         onClick={cancelEdit}
                         disabled={isPending}
                         aria-label="Cancelar edición"
@@ -314,15 +314,15 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                   ) : (
                     <>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-stone-900 truncate">
+                        <p className="font-semibold text-sm text-stone-900 dark:text-stone-50 truncate">
                           {category.name}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-stone-500 mt-1 font-medium">
+                        <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium">
                           <Badge
                             variant="outline"
                             className={cn(
                               "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0",
-                              "border-stone-200 text-stone-600"
+                              "border-stone-200 text-stone-600 dark:border-stone-700 dark:text-stone-300"
                             )}
                           >
                             {TYPE_LABELS[type]}
@@ -335,7 +335,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+                        className="h-8 w-8 text-stone-600 hover:text-stone-900 hover:bg-stone-100 dark:text-stone-400 dark:hover:text-stone-50 dark:hover:bg-stone-800"
                         onClick={() => startEdit(category)}
                         disabled={isPending}
                         aria-label={`Editar ${category.name}`}
@@ -345,7 +345,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                        className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:text-rose-300 dark:hover:bg-rose-950/40"
                         onClick={() => openDeleteDialog(category)}
                         disabled={isPending}
                         aria-label={`Eliminar ${category.name}`}
@@ -360,15 +360,15 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
           )}
         </div>
 
-        <div className="space-y-3 pt-4 border-t border-stone-200/60">
+        <div className="space-y-3 pt-4 border-t border-stone-200/60 dark:border-stone-800">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 mb-2">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
               Agregar categoría
             </p>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="flex h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
+              className="flex h-10 w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3 text-sm text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 dark:focus-visible:ring-stone-600"
             >
               <option value="">Seleccionar categoría de la lista...</option>
               <optgroup label="Necesidades">
@@ -422,7 +422,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
               <select
                 value={otherType}
                 onChange={(e) => setOtherType(e.target.value as CategoryType)}
-                className="h-10 rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 sm:w-44"
+                className="h-10 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3 text-sm text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 dark:focus-visible:ring-stone-600 sm:w-44"
               >
                 {TYPE_OPTIONS.map((t) => (
                   <option key={t} value={t}>
@@ -436,7 +436,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
           <Button
             onClick={handleAdd}
             variant="outline"
-            className="h-10 gap-1.5 w-full border-stone-300 text-stone-700 hover:bg-stone-50"
+            className="h-10 gap-1.5 w-full border-stone-300 text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800/60"
             disabled={isAddDisabled || isPending}
           >
             <Plus className="h-4 w-4" strokeWidth={2.2} />
@@ -466,7 +466,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                     onChange={(e) =>
                       setDeleteDialog({ ...deleteDialog, reassignTo: e.target.value })
                     }
-                    className="flex h-10 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
+                    className="flex h-10 w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3 text-sm text-stone-900 dark:text-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 dark:focus-visible:ring-stone-600"
                   >
                     <option value="">Seleccionar categoría de destino...</option>
                     {otherCategories.map((c) => (
@@ -540,7 +540,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
             <AlertDialogAction
               onClick={confirmTypeChange}
               disabled={isPending}
-              className="bg-stone-900 text-white hover:bg-stone-800"
+              className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
             >
               Cambiar tipo
             </AlertDialogAction>

@@ -39,7 +39,7 @@ export function MobileBottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background/80 backdrop-blur-xl border-t border-border/60 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] pb-[env(safe-area-inset-bottom)]"
+        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/85 dark:bg-stone-950/85 backdrop-blur-xl border-t border-stone-200/60 dark:border-stone-800 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] pb-[env(safe-area-inset-bottom)]"
         aria-label="Navegación principal"
       >
         <ul className="grid grid-cols-4">
@@ -52,7 +52,9 @@ export function MobileBottomNav() {
                   href={item.href}
                   className={cn(
                     "relative flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-semibold transition-colors",
-                    isActive ? "text-indigo-600" : "text-muted-foreground hover:text-foreground"
+                    isActive
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
                   )}
                 >
                   {isActive && (
@@ -80,8 +82,8 @@ export function MobileBottomNav() {
               className={cn(
                 "relative w-full flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-semibold transition-colors",
                 isMoreActive
-                  ? "text-indigo-600"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-indigo-600 dark:text-indigo-400"
+                  : "text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-50"
               )}
               aria-label="Más opciones"
             >
@@ -117,16 +119,18 @@ export function MobileBottomNav() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-background border-t border-border/60 shadow-2xl pb-[env(safe-area-inset-bottom)]"
+              className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-stone-950 border-t border-stone-200/60 dark:border-stone-800 shadow-2xl pb-[env(safe-area-inset-bottom)]"
             >
               <div className="flex justify-center pt-3 pb-1">
-                <span className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+                <span className="h-1.5 w-12 rounded-full bg-stone-300/70 dark:bg-stone-700" />
               </div>
               <div className="flex items-center justify-between px-5 py-2">
-                <h3 className="text-base font-bold tracking-tight">Más opciones</h3>
+                <h3 className="text-base font-bold tracking-tight text-stone-900 dark:text-stone-50">
+                  Más opciones
+                </h3>
                 <button
                   onClick={() => setMoreOpen(false)}
-                  className="p-1.5 rounded-md hover:bg-accent"
+                  className="p-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400"
                   aria-label="Cerrar"
                 >
                   <X className="h-5 w-5" />
@@ -144,8 +148,8 @@ export function MobileBottomNav() {
                         className={cn(
                           "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors",
                           isActive
-                            ? "bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 text-indigo-700"
-                            : "text-foreground/80 hover:bg-accent"
+                            ? "bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 text-indigo-700 dark:from-blue-950/50 dark:via-indigo-950/50 dark:to-purple-950/50 dark:text-indigo-300"
+                            : "text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-stone-800/60"
                         )}
                       >
                         <div
@@ -153,7 +157,7 @@ export function MobileBottomNav() {
                             "flex h-9 w-9 items-center justify-center rounded-lg",
                             isActive
                               ? "bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 text-white shadow-md"
-                              : "bg-muted text-muted-foreground"
+                              : "bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400"
                           )}
                         >
                           <Icon className="h-4 w-4" strokeWidth={2.5} />

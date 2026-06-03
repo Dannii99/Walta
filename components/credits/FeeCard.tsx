@@ -54,8 +54,8 @@ export function FeeCard({ fee, onDelete }: FeeCardProps) {
             variant="outline"
             className={`mt-1.5 text-[10px] ${
               fee.type === "monthly"
-                ? "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50"
-                : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-50"
+                ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900"
+                : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900"
             }`}
           >
             {fee.type === "monthly" ? "Mensual" : "Inicial"}

@@ -19,9 +19,9 @@ const typeLabels: Record<string, string> = {
 };
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-  ACTIVE: { label: "Activo", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  PAID_OFF: { label: "Pagado", color: "bg-blue-100 text-blue-800 border-blue-200" },
-  DEFAULTED: { label: "En mora", color: "bg-red-100 text-red-800 border-red-200" },
+  ACTIVE: { label: "Activo", color: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900" },
+  PAID_OFF: { label: "Pagado", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900" },
+  DEFAULTED: { label: "En mora", color: "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400 border-red-200 dark:border-red-900" },
 };
 
 export function LoanListCard({ loan }: LoanListCardProps) {

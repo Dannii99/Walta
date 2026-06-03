@@ -112,10 +112,10 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
               variant="outline"
               className={
                 loan.status === "ACTIVE"
-                  ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                  ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900"
                   : loan.status === "PAID_OFF"
-                    ? "bg-blue-100 text-blue-800 border-blue-200"
-                    : "bg-red-100 text-red-800 border-red-200"
+                    ? "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900"
+                    : "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400 border-red-200 dark:border-red-900"
               }
             >
               {loan.status === "ACTIVE" && "Activo"}
@@ -136,7 +136,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
           </Link>
           <Button
             variant="outline"
-            className="gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/40"
             onClick={() => setShowDeleteDialog(true)}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -221,7 +221,7 @@ export function LoanDetailClient({ loan }: LoanDetailClientProps) {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 text-white hover:bg-red-700"
+              className="bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
             >
               {isDeleting ? "Eliminando..." : "Eliminar crédito"}
             </AlertDialogAction>
@@ -309,7 +309,7 @@ function ExtrasList({ extras }: { extras: LoanExtraPayment[] }) {
                 </p>
                 {e.note && <p className="text-xs text-muted-foreground">{e.note}</p>}
               </div>
-              <span className="font-bold text-sm text-emerald-600">{formatCOP(parseFloat(e.amount))}</span>
+              <span className="font-bold text-sm text-emerald-600 dark:text-emerald-400">{formatCOP(parseFloat(e.amount))}</span>
             </div>
           ))}
         </div>

@@ -260,13 +260,13 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
         </AnimatePresence>
 
         {error && (
-          <div className="mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+          <div className="mt-4 rounded-md bg-destructive/10 dark:bg-destructive/20 p-3 text-sm text-destructive">
             {error}
           </div>
         )}
 
         {step > 1 && (
-          <div className="flex items-center justify-between pt-6 mt-6 border-t">
+          <div className="flex items-center justify-between pt-6 mt-6 border-t border-stone-200/80 dark:border-stone-800">
             <Button variant="ghost" size="sm" onClick={handleBack}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Atrás

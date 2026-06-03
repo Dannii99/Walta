@@ -182,7 +182,7 @@ export function LoanCharts({ loan, simulatedExtraAmount = 0 }: LoanChartsProps) 
                 <Bar dataKey="conAbono" name="Con abono" fill="#10b981" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
-            <p className="text-xs text-center text-emerald-600 font-medium mt-2">
+            <p className="text-xs text-center text-emerald-600 dark:text-emerald-400 font-medium mt-2">
               Ahorro: {formatCOP(originalCost - newCost)}
             </p>
           </CardContent>

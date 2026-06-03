@@ -18,26 +18,26 @@ interface SimulationResultProps {
 const verdictConfig: Record<Verdict, { label: string; color: string; badge: string; description: string }> = {
   SAFE: {
     label: "Seguro",
-    color: "text-emerald-600",
-    badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    color: "text-emerald-600 dark:text-emerald-400",
+    badge: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
     description: "El pago mensual representa menos del 30% de tus fondos disponibles.",
   },
   TIGHT: {
     label: "Ajustado",
-    color: "text-amber-600",
-    badge: "bg-amber-100 text-amber-800 border-amber-200",
+    color: "text-amber-600 dark:text-amber-400",
+    badge: "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
     description: "El pago mensual representa entre 30% y 50% de tus fondos. Ten cuidado.",
   },
   RISKY: {
     label: "Riesgoso",
-    color: "text-orange-600",
-    badge: "bg-orange-100 text-orange-800 border-orange-200",
+    color: "text-orange-600 dark:text-orange-400",
+    badge: "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-400 border-orange-200 dark:border-orange-900",
     description: "El pago mensual supera el 50% de tus fondos. No recomendado.",
   },
   NOT_RECOMMENDED: {
     label: "No Recomendado",
-    color: "text-rose-600",
-    badge: "bg-rose-100 text-rose-800 border-rose-200",
+    color: "text-rose-600 dark:text-rose-400",
+    badge: "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-900",
     description: "El pago mensual supera tus fondos disponibles o es mayor al 70%.",
   },
 };
@@ -86,7 +86,7 @@ export function SimulationResult({
             </div>
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Restante después del pago</p>
-              <p className={`text-xl font-bold ${remainingAfter >= 0 ? "text-emerald-600" : "text-destructive"}`}>
+              <p className={`text-xl font-bold ${remainingAfter >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
                 {formatCOP(remainingAfter)}
               </p>
             </div>

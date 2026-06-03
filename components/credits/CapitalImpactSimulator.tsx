@@ -68,16 +68,16 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
       icon: TrendingDown,
       label: "Meses ahorrados",
       value: monthsSaved > 0 ? `${monthsSaved} meses` : "Sin cambio",
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-900/60",
       visible: simulatedAmount > 0,
     },
     {
       icon: PiggyBank,
       label: "Intereses ahorrados",
       value: formatCOP(interestSaved),
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200/60 dark:border-emerald-900/60",
       visible: simulatedAmount > 0 && interestSaved > 0,
     },
     {
@@ -89,13 +89,12 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
             year: "numeric",
           })
         : "ÔÇö",
-      color: "text-blue-600",
-      bg: "bg-blue-50",
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-950/30 border-blue-200/60 dark:border-blue-900/60",
       visible: simulatedAmount > 0,
     },
   ].filter((kpi) => kpi.visible);
 
-  // Table rows: show first 6 + last 2
   function getPreviewRows(schedule: typeof scheduleOriginal) {
     if (schedule.length <= 8) return schedule;
     return [...schedule.slice(0, 6), ...schedule.slice(-2)];
@@ -117,7 +116,6 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Input */}
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
             <div className="flex-1 w-full">
               <label className="text-sm font-medium mb-2 block">
@@ -137,7 +135,6 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
             )}
           </div>
 
-          {/* KPIs */}
           {simulatedAmount > 0 && kpiCards.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -164,14 +161,12 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
             </motion.div>
           )}
 
-          {/* Side-by-side tables */}
           {simulatedAmount > 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-4"
             >
-              {/* BEFORE */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-muted-foreground">ANTES del abono</h3>
@@ -190,7 +185,7 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
                     </thead>
                     <tbody className="divide-y">
                       {originalRows.map((row, i, arr) => (
-                        <tr key={row.month} className={row.status === "PAID" ? "bg-emerald-50/30" : ""}>
+                        <tr key={row.month} className={row.status === "PAID" ? "bg-emerald-50/30 dark:bg-emerald-950/20" : ""}>
                           <td className="px-3 py-2">
                             {i === arr.length - 1 && arr.length > 8 ? "..." : row.month}
                           </td>
@@ -213,17 +208,16 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
                 </p>
               </div>
 
-              {/* AFTER */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-emerald-600">DESPU├ëS del abono</h3>
-                  <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-800 border-emerald-200">
+                  <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">DESPU├ëS del abono</h3>
+                  <Badge variant="outline" className="text-xs bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900">
                     {newTerm} meses · {formatCOP(newTotalInterest)} intereses
                   </Badge>
                 </div>
-                <div className="border rounded-lg overflow-hidden border-emerald-200">
+                <div className="border rounded-lg overflow-hidden border-emerald-200 dark:border-emerald-900">
                   <table className="w-full text-xs">
-                    <thead className="bg-emerald-50/50">
+                    <thead className="bg-emerald-50/50 dark:bg-emerald-950/30">
                       <tr>
                         <th className="px-3 py-2 text-left font-medium">Mes</th>
                         <th className="px-3 py-2 text-right font-medium">Cuota</th>
@@ -234,14 +228,14 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
                       {newRows.map((row, i, arr) => (
                         <tr
                           key={row.month}
-                          className={`${row.status === "PAID" ? "bg-emerald-50/30" : ""} ${
-                            row.extraPayment > 0 ? "bg-emerald-100/50 font-medium" : ""
+                          className={`${row.status === "PAID" ? "bg-emerald-50/30 dark:bg-emerald-950/20" : ""} ${
+                            row.extraPayment > 0 ? "bg-emerald-100/50 dark:bg-emerald-950/40 font-medium" : ""
                           }`}
                         >
                           <td className="px-3 py-2">
                             {i === arr.length - 1 && arr.length > 8 ? "..." : row.month}
                             {row.extraPayment > 0 && (
-                              <span className="ml-1 text-emerald-600 text-[10px]">
+                              <span className="ml-1 text-emerald-600 dark:text-emerald-400 text-[10px]">
                                 (+{formatCOP(row.extraPayment)})
                               </span>
                             )}
@@ -255,7 +249,7 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
                     </tbody>
                   </table>
                 </div>
-                <p className="text-xs text-center text-emerald-600 font-medium">
+                <p className="text-xs text-center text-emerald-600 dark:text-emerald-400 font-medium">
                   {newPayoffDate
                     ? `Nuevo pago total: ${newPayoffDate.toLocaleDateString("es-CO", {
                         month: "long",
@@ -269,7 +263,6 @@ export function CapitalImpactSimulator({ loan }: CapitalImpactSimulatorProps) {
         </CardContent>
       </Card>
 
-      {/* Apply modal */}
       {showApplyModal && (
         <CapitalContributionForm
           onRecord={async () => {

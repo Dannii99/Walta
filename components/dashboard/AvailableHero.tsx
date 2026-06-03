@@ -16,9 +16,9 @@ interface MiniStatProps {
 }
 
 const TONE_TEXT: Record<NonNullable<MiniStatProps["tone"]>, string> = {
-  default: "text-stone-900",
-  warning: "text-amber-700",
-  positive: "text-emerald-700",
+  default: "text-stone-900 dark:text-stone-50",
+  warning: "text-amber-700 dark:text-amber-400",
+  positive: "text-emerald-700 dark:text-emerald-400",
 };
 
 function MiniStat({ label, value, icon: Icon, borderLeft = false, tone = "default" }: MiniStatProps) {
@@ -42,10 +42,10 @@ function MiniStat({ label, value, icon: Icon, borderLeft = false, tone = "defaul
     <div
       className={cn(
         "flex flex-col gap-1.5 px-4 md:px-5 py-2",
-        borderLeft && "border-l border-stone-200/60"
+        borderLeft && "border-l border-stone-200/60 dark:border-stone-800"
       )}
     >
-      <div className="flex items-center gap-1.5 text-stone-500">
+      <div className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
         <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
         <span className="text-[10px] font-bold uppercase tracking-wider">
           {label}
@@ -105,24 +105,24 @@ export function AvailableHero({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white border border-stone-200/80 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden"
+      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden"
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 p-6 md:p-8">
         <div className="space-y-2 min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
             Tu dinero este mes
           </p>
           <p
             className={cn(
               "text-4xl md:text-6xl font-extrabold tracking-tight tabular-nums leading-[1.05]",
               available < 0
-                ? "text-rose-700"
-                : "bg-gradient-to-br from-indigo-600 to-violet-600 bg-clip-text text-transparent"
+                ? "text-rose-700 dark:text-rose-400"
+                : "bg-gradient-to-br from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent"
             )}
           >
             {formatted}
           </p>
-          <p className="text-xs md:text-sm text-stone-500 font-medium">
+          <p className="text-xs md:text-sm text-stone-500 dark:text-stone-400 font-medium">
             {overBudget
               ? "Sobre el límite — revisa tus gastos."
               : available < 0
@@ -132,14 +132,14 @@ export function AvailableHero({
         </div>
         <Button
           onClick={onAddExpense}
-          className="bg-stone-900 text-white hover:bg-stone-800 shadow-sm shrink-0"
+          className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-sm shrink-0"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           Agregar gasto
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 border-t border-stone-200/60 bg-stone-50/30">
+      <div className="grid grid-cols-1 sm:grid-cols-3 border-t border-stone-200/60 dark:border-stone-800 bg-stone-50/30 dark:bg-stone-900/40">
         <MiniStat
           label="Ingreso"
           value={income}

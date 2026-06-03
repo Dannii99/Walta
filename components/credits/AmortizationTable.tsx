@@ -87,14 +87,13 @@ export function AmortizationTable({ schedule, onMarkPaid }: AmortizationTablePro
             ))}
           </div>
         </div>
-        {/* Summary row */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2">
-          <span className="text-emerald-600 font-medium">{counts.paid} pagadas</span>
-          <span className="text-amber-600 font-medium">{counts.pending} pendientes</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-medium">{counts.paid} pagadas</span>
+          <span className="text-amber-600 dark:text-amber-400 font-medium">{counts.pending} pendientes</span>
           {counts.defaulted > 0 && (
-            <span className="text-red-600 font-medium">{counts.defaulted} en mora</span>
+            <span className="text-red-600 dark:text-red-400 font-medium">{counts.defaulted} en mora</span>
           )}
-          <span className="text-slate-500 font-medium">{counts.upcoming} futuras</span>
+          <span className="text-slate-500 dark:text-slate-400 font-medium">{counts.upcoming} futuras</span>
         </div>
       </CardHeader>
       <CardContent className="p-0">
@@ -122,17 +121,17 @@ export function AmortizationTable({ schedule, onMarkPaid }: AmortizationTablePro
                     : 0;
 
                 const statusColors = {
-                  PAID: "bg-emerald-50/50",
-                  PENDING: "bg-amber-50/50",
-                  DEFAULTED: "bg-red-50/50",
+                  PAID: "bg-emerald-50/50 dark:bg-emerald-950/20",
+                  PENDING: "bg-amber-50/50 dark:bg-amber-950/20",
+                  DEFAULTED: "bg-red-50/50 dark:bg-red-950/20",
                   UPCOMING: "",
                 };
 
                 const badgeColors = {
-                  PAID: "bg-emerald-100 text-emerald-800 border-emerald-200",
-                  PENDING: "bg-amber-100 text-amber-800 border-amber-200",
-                  DEFAULTED: "bg-red-100 text-red-800 border-red-200",
-                  UPCOMING: "bg-slate-100 text-slate-800 border-slate-200",
+                  PAID: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+                  PENDING: "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+                  DEFAULTED: "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400 border-red-200 dark:border-red-900",
+                  UPCOMING: "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700",
                 };
 
                 const statusLabels = {
@@ -162,7 +161,7 @@ export function AmortizationTable({ schedule, onMarkPaid }: AmortizationTablePro
                     <td className="px-4 py-3 text-right">{formatCOP(row.principal)}</td>
                     <td className="px-4 py-3 text-right">
                       {row.extraPayment > 0 ? (
-                        <span className="text-emerald-600 font-medium">
+                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
                           {formatCOP(row.extraPayment)}
                         </span>
                       ) : (
@@ -192,7 +191,7 @@ export function AmortizationTable({ schedule, onMarkPaid }: AmortizationTablePro
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-7 w-7 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          className="h-7 w-7 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:text-emerald-300 dark:hover:bg-emerald-950/40"
                           onClick={() => onMarkPaid(row.month)}
                           title="Marcar como pagada"
                         >

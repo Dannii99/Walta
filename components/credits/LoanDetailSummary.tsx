@@ -97,9 +97,9 @@ export function LoanDetailSummary({ loan }: LoanDetailSummaryProps) {
       </div>
 
       {loan.status === "DEFAULTED" && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30">
           <CardContent className="py-4">
-            <div className="flex items-center gap-2 text-red-800">
+            <div className="flex items-center gap-2 text-red-800 dark:text-red-400">
               <span className="font-semibold">Credito en mora</span>
               <span className="text-sm">
                 Hay cuotas vencidas sin pago
@@ -110,9 +110,9 @@ export function LoanDetailSummary({ loan }: LoanDetailSummaryProps) {
       )}
 
       {hasPendingPastPayments && loan.status !== "DEFAULTED" && (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30">
           <CardContent className="py-4">
-            <div className="flex items-center gap-2 text-amber-800">
+            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-400">
               <span className="font-semibold">Proximo pago vencido</span>
               <span className="text-sm">
                 Hay cuotas pasadas pendientes de sincronizacion

@@ -48,7 +48,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
                 </motion.div>
                 <span
                   className={`mt-1 hidden text-xs font-medium sm:block ${
-                    isCurrent ? "text-foreground" : "text-muted-foreground"
+                    isCurrent ? "text-foreground dark:text-stone-100" : "text-muted-foreground"
                   }`}
                 >
                   {step.label}

@@ -287,7 +287,7 @@ export function LoanEditForm({ loan }: LoanEditFormProps) {
               Cancelar
             </Button>
             {saveMessage && (
-              <span className={`text-sm ${saveMessage.includes("Error") ? "text-destructive" : "text-emerald-600"}`}>
+              <span className={`text-sm ${saveMessage.includes("Error") ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>
                 {saveMessage}
               </span>
             )}

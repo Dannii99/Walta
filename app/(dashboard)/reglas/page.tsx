@@ -28,10 +28,10 @@ export default async function ReglasPage() {
     return (
       <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
         <div className="space-y-4 max-w-3xl">
-          <h1 className="text-2xl font-bold tracking-tight text-stone-900">
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
             Reglas
           </h1>
-          <p className="text-sm text-stone-600 font-medium">
+          <p className="text-sm text-stone-600 dark:text-stone-400 font-medium">
             No tienes un presupuesto activo. Completa el onboarding primero.
           </p>
         </div>
