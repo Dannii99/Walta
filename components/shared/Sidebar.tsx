@@ -31,7 +31,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col",
+        "fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col group",
         "w-[68px] hover:w-64 transition-[width] duration-300 ease-out",
         "border-r border-stone-200/80 bg-white"
       )}

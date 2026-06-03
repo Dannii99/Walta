@@ -133,15 +133,6 @@ export default async function DashboardPage() {
   const monthLabel = formatMonthName();
   const ruleName = formatRuleName(rule);
 
-  const typeCounts = budget.categories.reduce<Record<string, number>>(
-    (acc, cat) => {
-      const type = cat.type.toUpperCase();
-      acc[type] = (acc[type] ?? 0) + 1;
-      return acc;
-    },
-    {}
-  );
-
   const categoriesBreakdown = budget.categories
     .map((cat, i) => {
       const catEquivalent = cat.transactions.reduce(
@@ -158,8 +149,7 @@ export default async function DashboardPage() {
           : type === "SAVINGS"
           ? savingsPct
           : 0;
-      const count = typeCounts[type] ?? 1;
-      const limit = (income * (typePct / 100)) / count;
+      const limit = income * (typePct / 100);
       return {
         id: cat.id,
         name: cat.name,

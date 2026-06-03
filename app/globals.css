@@ -101,3 +101,21 @@ body {
     display: none;
   }
 }
+
+.recharts-wrapper svg,
+.recharts-wrapper svg *,
+.recharts-surface,
+.recharts-bar-rectangle,
+.recharts-rectangle,
+.recharts-active-bar {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recharts-bar-rectangle:focus,
+.recharts-bar-rectangle:focus-visible,
+.recharts-active-bar:focus,
+.recharts-active-bar:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { createElement, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -9,14 +9,16 @@ import {
   YAxis,
   ResponsiveContainer,
   Tooltip,
-  Cell,
   LabelList,
 } from "recharts";
-import { BarChart3, Plus, TrendingUp, AlertTriangle, Tag, type LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { formatCOP } from "@/lib/currency";
-import { useDashboard } from "@/components/dashboard/DashboardContext";
+import {
+  BarChart3,
+  TrendingUp,
+  AlertTriangle,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatCOP } from "@/lib/currency";
 import type { CategoryType } from "@/types";
 
 export interface BarChartItem {
@@ -41,8 +43,30 @@ const formatCurrency = (value: number) =>
 
 type FilterKey = "all" | "exceeded" | "near";
 
+interface BarDatum {
+  name: string;
+  spent: number;
+  limit: number;
+  color: string;
+  type: CategoryType;
+  id: string;
+}
+
+interface CustomBarProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  payload?: BarDatum;
+}
+
+interface YTickProps {
+  x?: number | string;
+  y?: number | string;
+  payload?: { value: string };
+}
+
 export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
-  const { setOpenAddModal } = useDashboard();
   const [filter, setFilter] = useState<FilterKey>("all");
 
   const sorted = useMemo(
@@ -51,7 +75,6 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
   );
 
   const totalSpent = sorted.reduce((sum, i) => sum + i.spent, 0);
-  const totalLimit = sorted.reduce((sum, i) => sum + i.limit, 0);
   const hasData = sorted.length > 0 && totalSpent > 0;
   const exceededCount = sorted.filter(
     (i) => i.limit > 0 && i.spent > i.limit
@@ -76,14 +99,92 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
 
   const topN = filtered.slice(0, 8);
 
-  const barData = topN.map((i) => ({
+  const barData: BarDatum[] = topN.map((i) => ({
     name: i.name,
     spent: i.spent,
-    limit: Math.max(i.limit, i.spent),
+    limit: i.limit,
     color: i.color,
     type: i.type,
     id: i.id,
   }));
+
+  const renderCustomBar = (props: CustomBarProps) => {
+    const { x = 0, y = 0, width = 0, height = 0, payload } = props;
+    if (!payload) return null;
+    const { spent, limit, color } = payload;
+    const hasLimit = limit > 0;
+    const pct = hasLimit ? (spent / limit) * 100 : 0;
+    const statusColor = !hasLimit
+      ? color
+      : pct > 100
+      ? "#e11d48"
+      : pct > 85
+      ? "#f59e0b"
+      : "#10b981";
+    const fillRatio = hasLimit ? Math.min(spent / limit, 1) : 1;
+    const fillWidth = width * fillRatio;
+    const rx = Math.min(4, height / 2);
+
+    return createElement(
+      "g",
+      null,
+      createElement("rect", {
+        x,
+        y,
+        width,
+        height,
+        rx,
+        ry: rx,
+        fill: "#f5f5f4",
+      }),
+      fillWidth > 0
+        ? createElement("rect", {
+            x,
+            y,
+            width: fillWidth,
+            height,
+            rx,
+            ry: rx,
+            fill: statusColor,
+          })
+        : null
+    );
+  };
+
+  const renderYTick = (props: YTickProps) => {
+    const { x = 0, y = 0, payload } = props;
+    if (!payload) return null;
+    const item = barData.find((d) => d.name === payload.value);
+    if (!item) return null;
+    return createElement(
+      "g",
+      { transform: `translate(${x},${y})` },
+      createElement(
+        "text",
+        {
+          x: 0,
+          y: -3,
+          textAnchor: "end",
+          fill: "#1c1917",
+          fontSize: 12,
+          fontWeight: 600,
+        },
+        item.name
+      ),
+      createElement(
+        "text",
+        {
+          x: 0,
+          y: 11,
+          textAnchor: "end",
+          fill: "#78716c",
+          fontSize: 10,
+          fontWeight: 500,
+        },
+        item.limit > 0 ? `de ${formatCurrency(item.limit)}` : "Sin límite"
+      )
+    );
+  };
 
   return (
     <motion.div
@@ -131,27 +232,9 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
           </div>
         </div>
 
-        {!hasData ? (
-          <div className="text-center py-12 text-stone-500 text-sm space-y-3">
-            <div className="mx-auto h-10 w-10 rounded-full bg-stone-100 flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-stone-500" />
-            </div>
-            <p className="font-medium">Aún no hay datos para graficar</p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setOpenAddModal(true)}
-              className="border-stone-300 text-stone-700 hover:bg-stone-50"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Agregar tu primer gasto
-            </Button>
-          </div>
-        ) : topN.length === 0 ? (
+        {!hasData ? null : topN.length === 0 ? (
           <div className="text-center py-10 text-stone-500 text-sm">
-            <p className="font-medium">
-              Sin categorías en este filtro
-            </p>
+            <p className="font-medium">Sin categorías en este filtro</p>
             <button
               type="button"
               onClick={() => setFilter("all")}
@@ -162,34 +245,39 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
           </div>
         ) : (
           <>
-            <div className="h-[320px] md:h-[360px]">
+            <div
+              className="h-[320px] md:h-[360px] outline-none focus:outline-none"
+              tabIndex={-1}
+              style={{ outline: "none" }}
+              onMouseDown={(e) => e.preventDefault()}
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={barData}
                   layout="vertical"
-                  margin={{ top: 5, right: 60, left: 0, bottom: 5 }}
-                  barCategoryGap={6}
+                  margin={{ top: 5, right: 64, left: 0, bottom: 5 }}
+                  barCategoryGap={10}
+                  style={{ cursor: "pointer", outline: "none" }}
                 >
                   <XAxis
                     type="number"
                     hide
-                    domain={[0, (dataMax: number) => dataMax * 1.05]}
+                    domain={[0, (dataMax: number) => Math.max(dataMax * 1.05, 100)]}
                   />
                   <YAxis
                     type="category"
                     dataKey="name"
-                    width={110}
+                    width={120}
                     tickLine={false}
                     axisLine={false}
-                    tick={{ fill: "#57534e", fontSize: 12, fontWeight: 600 }}
+                    tick={renderYTick}
                   />
                   <Tooltip
-                    cursor={{ fill: "rgba(0,0,0,0.02)" }}
+                    cursor={{ fill: "rgba(0,0,0,0.04)" }}
                     content={({ active, payload }) => {
                       if (!active || !payload?.length) return null;
-                      const d = payload[0]?.payload as (typeof barData)[number];
-                      const pct =
-                        d.limit > 0 ? (d.spent / d.limit) * 100 : 0;
+                      const d = payload[0]?.payload as BarDatum;
+                      const pct = d.limit > 0 ? (d.spent / d.limit) * 100 : 0;
                       const over = d.spent > d.limit && d.limit > 0;
                       return (
                         <div className="rounded-lg border border-stone-200 bg-white shadow-md p-2.5 min-w-[200px]">
@@ -212,9 +300,7 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
                             <div className="flex justify-between gap-3">
                               <span className="text-stone-500">Límite</span>
                               <span className="font-bold text-stone-900 tabular-nums">
-                                {d.limit > 0
-                                  ? formatCurrency(d.limit)
-                                  : "—"}
+                                {d.limit > 0 ? formatCurrency(d.limit) : "—"}
                               </span>
                             </div>
                             {d.limit > 0 && (
@@ -241,29 +327,17 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
                   />
                   <Bar
                     dataKey="limit"
-                    fill="#0c0a09"
-                    radius={[0, 6, 6, 0]}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="spent"
-                    radius={[0, 6, 6, 0]}
-                    maxBarSize={28}
+                    shape={renderCustomBar}
+                    isAnimationActive={true}
+                    animationDuration={700}
+                    background={false}
                   >
-                    {barData.map((entry, index) => {
-                      const isOver =
-                        entry.limit > 0 && entry.spent > entry.limit;
-                      return (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={isOver ? "#e11d48" : entry.color}
-                        />
-                      );
-                    })}
                     <LabelList
                       dataKey="spent"
                       position="right"
-                      formatter={(v) => formatCurrency(typeof v === "number" ? v : 0)}
+                      formatter={(v) =>
+                        formatCurrency(typeof v === "number" ? v : 0)
+                      }
                       style={{
                         fill: "#0c0a09",
                         fontSize: 11,
@@ -275,7 +349,7 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
               </ResponsiveContainer>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-stone-100">
+            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-stone-100">
               <SummaryStat
                 icon={BarChart3}
                 label="Categorías"
@@ -294,26 +368,20 @@ export function CategoryLimitsBarChart({ items }: CategoryLimitsBarChartProps) {
                 value={String(exceededCount)}
                 valueColor={exceededCount > 0 ? "text-rose-700" : "text-stone-900"}
               />
-              <SummaryStat
-                icon={Tag}
-                label="Disponible"
-                value={formatCOP(Math.max(totalLimit - totalSpent, 0))}
-                valueColor={
-                  totalLimit - totalSpent > 0
-                    ? "text-emerald-700"
-                    : "text-stone-900"
-                }
-              />
             </div>
 
             <div className="flex items-center gap-3 text-[10px] text-stone-500 flex-wrap">
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-3 rounded-sm bg-stone-900" />
-                Límite
+                <span className="h-2 w-3 rounded-sm bg-stone-100 border border-stone-200" />
+                Disponible
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-3 rounded-sm bg-stone-700" />
-                Gastado dentro del límite
+                <span className="h-2 w-3 rounded-sm bg-emerald-500" />
+                Saludable
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-3 rounded-sm bg-amber-500" />
+                Cerca del límite
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-3 rounded-sm bg-rose-500" />
@@ -337,7 +405,8 @@ interface FilterChipProps {
 
 function FilterChip({ active, onClick, label, count, tone }: FilterChipProps) {
   const toneClass = (() => {
-    if (!active) return "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100";
+    if (!active)
+      return "bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100";
     if (tone === "amber")
       return "bg-amber-50 border-amber-200 text-amber-700";
     if (tone === "rose")
