@@ -2,13 +2,21 @@ import { auth } from "@/lib/auth";
 import { getActiveBudgetWithTransactions } from "@/server/queries/transaction-queries";
 import { ExpensesClient } from "@/components/expenses/ExpensesClient";
 import { redirect } from "next/navigation";
-import type { Category, CategoryType, Transaction } from "@/types";
+import type {
+  Category,
+  CategoryType,
+  Transaction,
+  BudgetRule,
+} from "@/types";
 import type { Metadata } from "next";
+import { getMonthlyEquivalent } from "@/lib/recurrence";
 
 export const metadata: Metadata = {
   title: "Gastos | Walta",
   description: "Gestiona tus gastos y categorías.",
 };
+
+const DISPLAY_TYPES: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
 
 export default async function ExpensesPage() {
   const session = await auth();
@@ -20,7 +28,7 @@ export default async function ExpensesPage() {
 
   if (!budget) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
         <h1 className="text-2xl font-bold">Gastos</h1>
         <p className="text-muted-foreground mt-4">
           No tienes un presupuesto activo. Completa el onboarding primero.
@@ -29,28 +37,53 @@ export default async function ExpensesPage() {
     );
   }
 
-  const allTransactions = budget.categories.flatMap((category) =>
-    category.transactions.map((transaction) => ({
-      ...transaction,
-      category: {
-        ...category,
-        type: category.type as CategoryType,
-      } as Category,
-    }))
-  );
+  const income = parseFloat(budget.income);
+  const rule: BudgetRule =
+    (budget.rule as unknown as BudgetRule) ??
+    { needs: 50, wants: 30, savings: 20 };
 
-  const totalsByType = budget.categories.reduce(
-    (acc, category) => {
-      const type = category.type as CategoryType;
-      const sum = category.transactions.reduce(
-        (s, t) => s + parseFloat(t.amount),
-        0
-      );
-      acc[type] = (acc[type] || 0) + sum;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  const allTransactions: (Transaction & { category: Category })[] =
+    budget.categories.flatMap((category) =>
+      category.transactions.map((transaction) => ({
+        ...transaction,
+        recurrence: (transaction.recurrence ?? "MONTHLY") as Transaction["recurrence"],
+        category: {
+          ...category,
+          type: category.type as CategoryType,
+        } as Category,
+      }))
+    );
+
+  const totalsByType: Record<CategoryType, number> = {
+    NEEDS: 0,
+    WANTS: 0,
+    SAVINGS: 0,
+    DEBT: 0,
+  };
+
+  let totalEquivalent = 0;
+  let recurringTotal = 0;
+  let oneTimeTotal = 0;
+
+  for (const t of allTransactions) {
+    const amount = parseFloat(t.amount);
+    const equiv = getMonthlyEquivalent(amount, t.recurrence);
+    const visibleType: CategoryType =
+      t.category?.type === "DEBT" ? "SAVINGS" : t.category?.type ?? "NEEDS";
+
+    totalsByType[visibleType] += equiv;
+    totalEquivalent += equiv;
+
+    if (t.recurrence === "ONE_TIME") {
+      oneTimeTotal += amount;
+    } else {
+      recurringTotal += equiv;
+    }
+  }
+
+  const visibleTotals = Object.fromEntries(
+    DISPLAY_TYPES.map((t) => [t, totalsByType[t]])
+  ) as Record<"NEEDS" | "WANTS" | "SAVINGS", number>;
 
   const categoriesWithType = budget.categories.map((cat) => ({
     ...cat,
@@ -58,15 +91,19 @@ export default async function ExpensesPage() {
   })) as Category[];
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Gastos</h1>
+    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
+      <div className="max-w-5xl mx-auto space-y-6 md:space-y-8">
+        <ExpensesClient
+          transactions={allTransactions}
+          categories={categoriesWithType}
+          income={income}
+          rule={rule}
+          totalsByType={visibleTotals}
+          totalEquivalent={totalEquivalent}
+          recurringTotal={recurringTotal}
+          oneTimeTotal={oneTimeTotal}
+        />
       </div>
-      <ExpensesClient
-        transactions={allTransactions as (Transaction & { category: Category })[]}
-        categories={categoriesWithType}
-        totalsByType={totalsByType}
-      />
     </div>
   );
 }

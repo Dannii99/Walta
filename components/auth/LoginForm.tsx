@@ -14,6 +14,8 @@ import {
   Loader2,
   Sparkles,
   Check,
+  Wallet,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -249,6 +251,23 @@ export function LoginForm() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <OAuthButton provider="google" />
           <OAuthButton provider="github" />
+        </div>
+
+        <div className="md:hidden -mx-6 px-6 overflow-x-auto scrollbar-none">
+          <div className="flex gap-2 pb-1">
+            <div className="flex items-center gap-2 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 px-3 py-1.5 shrink-0">
+              <Wallet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+              <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 whitespace-nowrap">Regla 50/30/20</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 px-3 py-1.5 shrink-0">
+              <BarChart3 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
+              <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 whitespace-nowrap">Salud al instante</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 px-3 py-1.5 shrink-0">
+              <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" strokeWidth={2.5} />
+              <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 whitespace-nowrap">Simula decisiones</span>
+            </div>
+          </div>
         </div>
 
         <div className="rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 p-3">

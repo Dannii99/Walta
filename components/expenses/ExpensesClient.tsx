@@ -1,132 +1,170 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Plus, Wallet, ArrowLeftRight } from "lucide-react";
+import { toast } from "sonner";
 import { ExpenseList } from "./ExpenseList";
-import { ExpenseFilters, type ExpenseFiltersState } from "./ExpenseFilters";
+import {
+  ExpenseFilters,
+  DEFAULT_FILTERS,
+  type ExpenseFiltersState,
+} from "./ExpenseFilters";
+import { ExpenseSummary } from "./ExpenseSummary";
+import { ExpenseTypeCards } from "./ExpenseTypeCards";
 import { EditExpenseModal } from "./EditExpenseModal";
 import { AddExpenseModal } from "./AddExpenseModal";
+import { DeleteExpenseDialog } from "./DeleteExpenseDialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { formatCOP } from "@/lib/currency";
+import { formatMonthName } from "@/lib/dashboard-helpers";
 import { deleteTransaction } from "@/server/actions/transaction-actions";
-import type { Transaction, Category } from "@/types";
-import { Plus } from "lucide-react";
+import type { BudgetRule, Category, Transaction } from "@/types";
 
 interface ExpensesClientProps {
   transactions: (Transaction & { category: Category })[];
   categories: Category[];
-  totalsByType: Record<string, number>;
+  income: number;
+  rule: BudgetRule;
+  totalsByType: Record<"NEEDS" | "WANTS" | "SAVINGS", number>;
+  totalEquivalent: number;
+  recurringTotal: number;
+  oneTimeTotal: number;
 }
-
-const typeLabels: Record<string, string> = {
-  NEEDS: "Necesidades",
-  WANTS: "Deseos",
-  SAVINGS: "Ahorros",
-  DEBT: "Deudas",
-};
-
-const typeColors: Record<string, string> = {
-  NEEDS: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
-  WANTS: "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
-  SAVINGS: "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900",
-  DEBT: "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-900",
-};
 
 export function ExpensesClient({
   transactions,
   categories,
+  income,
+  rule,
   totalsByType,
+  totalEquivalent,
+  recurringTotal,
+  oneTimeTotal,
 }: ExpensesClientProps) {
   const router = useRouter();
-  const [filters, setFilters] = useState<ExpenseFiltersState>({
-    search: "",
-    categoryId: "",
-    type: "",
-    dateFrom: "",
-    dateTo: "",
-  });
-  const [editTransaction, setEditTransaction] = useState<(Transaction & { category?: Category }) | null>(null);
+  const [filters, setFilters] = useState<ExpenseFiltersState>(DEFAULT_FILTERS);
+  const [editTransaction, setEditTransaction] = useState<
+    (Transaction & { category?: Category }) | null
+  >(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<
+    (Transaction & { category?: Category }) | null
+  >(null);
 
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter((t) => {
-      const matchesSearch =
-        !filters.search ||
-        (t.description?.toLowerCase().includes(filters.search.toLowerCase()) ?? false);
-      const matchesCategory =
-        !filters.categoryId || t.categoryId === filters.categoryId;
-      const matchesType =
-        !filters.type || t.category?.type === filters.type;
-      const matchesDateFrom =
-        !filters.dateFrom || new Date(t.date) >= new Date(filters.dateFrom);
-      const matchesDateTo =
-        !filters.dateTo || new Date(t.date) <= new Date(filters.dateTo);
+  const filteredTransactions = transactions.filter((t) => {
+    const matchesSearch =
+      !filters.search ||
+      (t.description?.toLowerCase().includes(filters.search.toLowerCase()) ??
+        false);
+    const matchesCategory =
+      !filters.categoryId || t.categoryId === filters.categoryId;
+    const matchesType = !filters.type || t.category?.type === filters.type;
+    const matchesRecurrence =
+      !filters.recurrence || t.recurrence === filters.recurrence;
+    return matchesSearch && matchesCategory && matchesType && matchesRecurrence;
+  });
 
-      return matchesSearch && matchesCategory && matchesType && matchesDateFrom && matchesDateTo;
-    });
-  }, [transactions, filters]);
-
-  const handleDelete = useCallback(
-    async (id: string) => {
-      if (window.confirm("¿Estás seguro de que deseas eliminar este gasto?")) {
-        await deleteTransaction(id);
-        router.refresh();
-      }
-    },
-    [router]
-  );
+  const handleDelete = useCallback(async (): Promise<void> => {
+    if (!pendingDelete) return;
+    try {
+      await deleteTransaction(pendingDelete.id);
+      toast.success("Gasto eliminado");
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      toast.error("No pudimos eliminar el gasto");
+      throw err;
+    }
+  }, [pendingDelete, router]);
 
   const handleSuccess = useCallback(() => {
     router.refresh();
   }, [router]);
 
-  return (
-    <div className="space-y-6">
-      {/* Totals by type */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {Object.entries(totalsByType).map(([type, total]) => (
-          <Card key={type}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">
-                {typeLabels[type] ?? type}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCOP(total)}</div>
-              <Badge variant="outline" className={typeColors[type] ?? ""}>
-                {type}
-              </Badge>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+  const clearFilters = useCallback(() => {
+    setFilters(DEFAULT_FILTERS);
+  }, []);
 
-      {/* Filters and Add */}
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Lista de Gastos</h2>
-          <Button onClick={() => setIsAddOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Agregar Gasto
-          </Button>
+  return (
+    <div className="space-y-6 md:space-y-8">
+      <header className="space-y-2">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          Tus finanzas
+        </p>
+        <div className="flex items-end justify-between gap-3 flex-wrap">
+          <div className="min-w-0 space-y-1">
+            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-[1.1]">
+              Gastos
+            </h1>
+            <p className="text-sm md:text-[15px] text-stone-600 dark:text-stone-400 font-medium max-w-2xl leading-relaxed">
+              Gestiona cada cargo de tu presupuesto. Usa la frecuencia para
+              ver el impacto real de tus gastos recurrentes.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-medium">
+              <Wallet className="h-3.5 w-3.5" />
+              {formatMonthName()}
+            </span>
+            <Button
+              onClick={() => setIsAddOpen(true)}
+              className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-sm"
+            >
+              <Plus className="h-4 w-4 mr-1.5" />
+              Agregar gasto
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <ExpenseSummary
+        totalEquivalent={totalEquivalent}
+        recurringTotal={recurringTotal}
+        oneTimeTotal={oneTimeTotal}
+        income={income}
+      />
+
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-2 px-1">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            Distribución
+          </h2>
+          <p className="text-xs text-stone-500 dark:text-stone-400 hidden sm:flex items-center gap-1.5">
+            <ArrowLeftRight className="h-3 w-3" />
+            Equivalentes mensuales según regla{" "}
+            {rule.needs}/{rule.wants}/{rule.savings}
+          </p>
+        </div>
+        <ExpenseTypeCards
+          totals={totalsByType}
+          income={income}
+          rule={rule}
+        />
+      </section>
+
+      <section className="space-y-3">
+        <div className="px-1">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            Lista de gastos
+          </h2>
         </div>
         <ExpenseFilters
           categories={categories}
           filters={filters}
           onChange={setFilters}
+          onClear={clearFilters}
+          count={filteredTransactions.length}
+          total={transactions.length}
         />
-      </div>
+        <ExpenseList
+          transactions={filteredTransactions}
+          onEdit={setEditTransaction}
+          onDelete={setPendingDelete}
+          onAdd={() => setIsAddOpen(true)}
+          onClearFilters={clearFilters}
+        />
+      </section>
 
-      {/* Expense List */}
-      <ExpenseList
-        transactions={filteredTransactions}
-        onEdit={setEditTransaction}
-        onDelete={handleDelete}
-      />
-
-      {/* Modals */}
       <EditExpenseModal
         open={!!editTransaction}
         onOpenChange={(open) => {
@@ -142,6 +180,14 @@ export function ExpensesClient({
         onOpenChange={setIsAddOpen}
         categories={categories}
         onSuccess={handleSuccess}
+      />
+
+      <DeleteExpenseDialog
+        transaction={pendingDelete}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+        onConfirm={handleDelete}
       />
     </div>
   );
