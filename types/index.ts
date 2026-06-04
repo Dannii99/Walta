@@ -168,3 +168,15 @@ export interface AmortizationRow {
   status: "PAID" | "PENDING" | "DEFAULTED" | "UPCOMING";
   actualPayment?: LoanPayment | null;
 }
+
+export type {
+  TimelineEvent,
+  TimelineEventType,
+  TimelinePage,
+  TimelineCursor,
+  SimulationCreatedEvent,
+  LoanCreatedEvent,
+  LoanPaymentEvent,
+  LoanExtraPaymentEvent,
+  LoanPaidOffEvent,
+} from "@/lib/timeline-types";

@@ -1,7 +1,9 @@
 ﻿"use client";
 
 import { useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function HistoryError({
   error,
@@ -15,11 +17,13 @@ export default function HistoryError({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] p-8 space-y-4">
-      <h2 className="text-xl font-bold">Error al cargar el historial</h2>
-      <p className="text-muted-foreground text-center max-w-md">
-        No se pudo cargar el historial mensual. Intenta nuevamente.
-      </p>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 space-y-4 max-w-md mx-auto">
+      <Alert variant="destructive" icon={AlertTriangle}>
+        <AlertTitle>Error al cargar el historial</AlertTitle>
+        <AlertDescription>
+          No se pudo cargar la línea de tiempo. Intenta nuevamente.
+        </AlertDescription>
+      </Alert>
       <Button onClick={reset}>Reintentar</Button>
     </div>
   );

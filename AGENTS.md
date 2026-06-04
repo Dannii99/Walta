@@ -33,7 +33,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - **App Router** with route groups:
   - `app/(auth)/login/page.tsx` — Login page (public)
-  - `app/(dashboard)/` — Protected routes (`page.tsx`, `transactions/`, `simulations/`, `history/`, `settings/`)
+  - `app/(dashboard)/` — Protected routes (`dashboard/`, `expenses/`, `simulations/`, `reglas/`, `credits/`, `history/`, `settings/`, `onboarding/`)
   - `app/api/auth/[...nextauth]/route.ts` — Auth.js API endpoint
 - **Proxy** (`proxy.ts`): renamed from `middleware.ts` per Next.js 16 deprecation. Redirects unauthenticated users from `/` and `/dashboard/*` to `/login`; redirects logged-in users away from `/login`.
 - **Prisma singleton** at `lib/prisma.ts` (prevents multiple instances in dev).
@@ -56,7 +56,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Testing
 
 - **Vitest** config: `vitest.config.ts` (jsdom environment, globals enabled, `@/` alias mapped).
-- **49 unit tests** passing: `tests/unit/simulation-engine.test.ts`, `tests/unit/currency.test.ts`, and `tests/unit/loan-*.test.ts`.
+- **119 unit tests** passing: `tests/unit/simulation-engine.test.ts`, `tests/unit/currency.test.ts`, `tests/unit/timeline-queries.test.ts` (19), and `tests/unit/loan-*.test.ts` (incl. AI prompts + Groq client + loan advisor + loan insights).
+- Vitest `test.server.deps.inline: ["next-auth", "@auth/core"]` porque `next-auth/lib/env.js` requiere `next/server`. Alias `server-only` → `tests/stubs/server-only.ts` (export vacío) — necesario para `lib/timeline-types.ts` (sin `"server-only"` para import desde client).
 - Playwright is installed but no E2E specs written yet.
 
 ## Styling & UI
@@ -99,6 +100,38 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Current State
 
 - Root `app/page.tsx` redirects unauthenticated users to `/login` and authenticated users to `/dashboard`.
+- **Módulo "Historial" (`/history`):**
+  - `app/(dashboard)/history/page.tsx` — Server Component con 2 tabs vía `?tab=timeline|snapshots` (default `timeline`). `Promise.all` sobre `getUserBudgets` + `getTimelineEvents`.
+  - `app/(dashboard)/history/loading.tsx` — Skeleton con header + tabs + 6 cards.
+  - `app/(dashboard)/history/error.tsx` — Error boundary con `Alert` destructive.
+  - **NO es cierre contable manual** — es **línea de tiempo de decisiones financieras** (simulaciones, créditos, pagos, abonos). Coherente con `doc/project-context.md:30` "asistente financiero visual" (no contable).
+  - **Eventos derivados on-the-fly** desde `Simulation` + `Loan` + `LoanPayment` + `LoanExtraPayment`. **NO existe tabla `Event`** — `getTimelineEvents` computa 5 tipos en cada request.
+  - 5 tipos de eventos:
+    - `SIMULATION_CREATED` — incluye `verdict` (APPROVED/REJECTED/INCONCLUSIVE) + `monthlyPayment`/`principal`/`type`/`title`.
+    - `LOAN_CREATED` — incluye `loanType`, `principal`, `termMonths`, `monthlyPayment`.
+    - `LOAN_PAYMENT` — incluye `installmentNumber` (1-based, ASC), `amount`, `interest`, `principal`.
+    - `LOAN_EXTRA_PAYMENT` — incluye `amount`, `reason` (opcional).
+    - `LOAN_PAID_OFF` (sintético) — emitido cuando `paidInstallments >= termMonths`. `occurredAt` = `lastPayment.paidDate ?? loan.updatedAt`.
+  - `lib/timeline-types.ts` — discriminated union + Zod schemas + labels + `buildEventId` helper. **Sin `import "server-only"`** (debe ser importable desde client).
+  - `server/queries/timeline-queries.ts` — `getTimelineEvents(userId, opts)` (consulta DB) + `buildTimelineEvents(raw, types)` (puro testeable) + `sortAndPaginateEvents(events, limit, cursor)` (puro testeable). Cursor = `{ occurredAt: ISOString, id: string }` (objeto, no base64).
+  - `server/actions/timeline-actions.ts` — `loadMoreTimelineAction({ cursor, types, limit? })` con `auth()` + `timelineEventTypesSchema.parse`. `pageSize` default 30, max 100, min 1. **NO revalida path** porque la query es derivada on-the-fly.
+  - **Server actions de sim/préstamo NO necesitan `revalidatePath('/history')`** — la página es siempre re-derivada en cada request.
+  - `components/history/Tabs.tsx` — Custom tabs con ARIA (`role="tablist"`, `aria-selected`, `aria-controls`) + URL sync via `useRouter` + `useSearchParams`. Keyboard nav ArrowLeft/Right con wrap.
+  - `components/history/Timeline.tsx` — Orchestrator client con `useTransition` + `useMemo` (filteredEvents + grouped by month via `groupTimelineByMonth`) + `loadMoreTimelineAction`. Empty state si `initialTotal === 0 && events.length === 0`.
+  - `components/history/TimelineEvent.tsx` — Single event con discriminated union switch + `motion.li` stagger (`initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, duration: 0.25`). Verdict badge inline.
+  - `components/history/TimelineFilters.tsx` — Multi-select chips con `data-active` + `aria-pressed` + count display (patrón `CreditsFilters.tsx`).
+  - `components/history/EventIcon.tsx` — Mapa `EVENT_VISUAL` con icon Lucide + `dotClass`/`ringClass`/`iconBgClass`/`iconFgClass` + label. 5 tipos.
+  - `components/history/TimelineEmpty.tsx` — Empty state con CTAs contextuales (`/simulations/new` o `/credits/new` si tiene budget, sino `/onboarding`).
+  - `components/history/TimelineSkeleton.tsx` — 6 cards con `animate-pulse`.
+  - `components/history/SnapshotsLegacy.tsx` — Wrapper con `Alert warning` + `HistoryChart` + `MonthlySnapshotCard` grid. Mantiene snapshots manuales visibles pero separados.
+  - `components/history/HistoryChart.tsx` — Intacto (Recharts wrapper auditado).
+  - `components/history/MonthlySnapshotCard.tsx` — Intacto (uso legacy).
+  - `components/history/CloseMonthButton.tsx` — **ELIMINADO** (no se puede crear snapshots manuales).
+  - `components/ui/alert.tsx` — **NUEVO** UI component con 5 variants (`default`/`info`/`warning`/`success`/`destructive`) + `icon` Lucide prop + `AlertTitle` + `AlertDescription`. Usado en `error.tsx` y `SnapshotsLegacy.tsx`.
+  - Cursor pagination correctness: en orden DESC, "después del cursor" = `eTime < cursorTime || (eTime === cursorTime && e.id < cursor.id)`. `localeCompare` con signo INVERTIDO vs búsqueda original.
+  - Container pattern: `max-w-[1440px] mx-auto p-4 md:px-6 lg:px-10 py-6 md:py-8` + inner `max-w-3xl space-y-6 md:space-y-8`.
+  - `scripts/seed-timeline-demo.ts` — Script idempotente con `upsert` (IDs deterministas `seed-*`). Crea 2 sims (`VEHICLE` aprobado, `HOUSING` rechazado) + 1 loan con 8 payments (interés+capital computados) + 2 extras. Cargar con `npx tsx scripts/seed-timeline-demo.ts` (requiere `.env` con `DATABASE_URL`).
+  - Schema: **sin cambios** (datos derivados on-the-fly). Futuro: `MonthlySnapshot.triggerEvent String?` para snapshots automáticos.
 - **Módulo "Reglas" (`/reglas`):**
   - `app/(dashboard)/reglas/page.tsx` — Server Component con metadata. 3 tabs custom (Ingreso, Regla, Categorías) con `AnimatePresence`.
   - `components/reglas/ReglasClient.tsx` — Orquestador con Tabs y motion.
