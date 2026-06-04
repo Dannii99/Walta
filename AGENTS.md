@@ -33,12 +33,41 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - **App Router** with route groups:
   - `app/(auth)/login/page.tsx` — Login page (public)
-  - `app/(dashboard)/` — Protected routes (`dashboard/`, `expenses/`, `simulations/`, `reglas/`, `credits/`, `history/`, `settings/`, `onboarding/`)
+  - `app/(dashboard)/` — Protected routes (`dashboard/`, `expenses/`, `simulations/`, `reglas/`, `credits/`, `history/`, `settings/`)
+  - `app/onboarding/page.tsx` — Top-level 4-step wizard (NOT in dashboard group)
+  - `app/offline/page.tsx` — Static PWA fallback
   - `app/api/auth/[...nextauth]/route.ts` — Auth.js API endpoint
 - **Proxy** (`proxy.ts`): renamed from `middleware.ts` per Next.js 16 deprecation. Redirects unauthenticated users from `/` and `/dashboard/*` to `/login`; redirects logged-in users away from `/login`.
-- **Prisma singleton** at `lib/prisma.ts` (prevents multiple instances in dev).
-- **Auth config** at `lib/auth.ts` — hardcoded demo user `demo@example.com` / `demo123`. JWT strategy.
-- **Providers** in `app/providers.tsx`: `SessionProvider` + `ThemeProvider` (next-themes, attribute="class", storageKey="walta-theme", disableTransitionOnChange) + `QueryClientProvider` (TanStack Query). `Toaster` (sonner) queda fuera intencionalmente.
+- **Prisma singleton** at `lib/prisma.ts` (prevents multiple instances in dev) using `PrismaNeon` adapter.
+- **Auth config** at `lib/auth.ts` — hardcoded demo user `demo@example.com` / `demo123`. JWT strategy. 66 lines.
+- **Providers** in `app/providers.tsx`: `SessionProvider` + `ThemeProvider` (next-themes, attribute="class", storageKey="walta-theme", disableTransitionOnChange) + `QueryClientProvider` (TanStack Query). `Toaster` (sonner) DENTRO de `<QueryClientProvider>`.
+- **Documentación canónica en `doc/`** (5 archivos): `README.md` (índice), `architecture.md` (~600 líneas, comprehensive), `module-reference.md` (~700 líneas, tour módulo-por-módulo), `project-context.md` (~250 líneas, producto), `setup-plan.md` (~150 líneas, dev setup).
+
+## Stack Reality Check
+
+Versions exactas en `package.json`:
+- **next@16.2.6** (App Router, **Turbopack default**, NO webpack)
+- **react@19.2.4** + react-dom@19.2.4
+- **typescript@5.x** (strict)
+- **prisma@7.8.0** (cliente generado en `generated/prisma/`, NO `node_modules/.prisma/client`)
+- **@prisma/adapter-neon** + **@neondatabase/serverless@1.1.x** (Prisma 7 requiere adapter)
+- **tailwindcss@4.x** (CSS-based config en `app/globals.css` vía `@theme inline`. **No `tailwind.config.ts`**)
+- **shadcn/ui** style `base-nova` — 13 componentes en `components/ui/`
+- **recharts@3.8.1**, **framer-motion@12.40.0**, **lucide-react**
+- **next-themes@0.4.6**, **sonner@2.0.7**
+- **react-hook-form@7.76.1** + **@hookform/resolvers@5.4.0** + **zod@4.4.3**
+- **next-auth@5.0.0-beta.31** (Auth.js v5)
+- **dinero.js@2.0.2** (solo en `lib/currency.ts` para math; UI usa `Intl.NumberFormat("es-CO", ...)` vía `formatCOP`)
+- **vitest@4.1.7** + **@playwright/test@1.60.0**
+- **eslint@9.x** (flat config en `eslint.config.mjs`)
+
+**Instalados pero NO usados (candidatos a remover):**
+- `zustand@5.0.14` — 0 imports en source. Legacy de scaffolding inicial.
+- `next-pwa@5.6.0` — **incompatible con Next 16 + Turbopack**. En `package.json` pero **NO** en `next.config.ts`. Ver "PWA Status" abajo.
+- `@tanstack/react-query@5.100.14` — configurado en `app/providers.tsx` para futuro, pero 0 `useQuery` en producción. Data flow real: Server Component → `prisma.find*` → render. Mutaciones: Server Actions + `revalidatePath`.
+
+**Removidos en dev cleanup:**
+- `@tremor/react` — desinstalado, 0 imports. `node_modules/@tremor` no existe. `npm install` regenerado a 843 paquetes sin `ERESOLVE`.
 
 ## Financial Precision Rules (Critical)
 
@@ -90,12 +119,20 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - **DESACTIVADO TEMPORALMENTE.** `next-pwa` es incompatible con Next.js 16 + Turbopack.
 - `public/manifest.json` and icons exist but the service worker no se genera.
+- `app/offline/page.tsx` es un fallback static con `Card` + `WifiOff` icon. Se renderiza si la red falla, pero **no hay service worker** que la sirva.
 - Si en el futuro se re-implementa PWA, usar `serwist` o esperar soporte oficial de `next-pwa` para Next.js 16.
+
+## Sidebar / Mobile Nav
+
+- `components/shared/Sidebar.tsx` — sidebar desktop colapsable. `w-[68px]` por defecto, `hover:w-64` con `group` class en `<aside>`. Active route con border-left + bg. Links: Dashboard, Gastos, Simulaciones, Reglas, Créditos, Historial, Configuración.
+- `components/shared/MobileBottomNav.tsx` — bottom nav en mobile (`<md`). 4 items: Dashboard, Gastos, Simulaciones, Créditos. Reglas/Historial/Configuración accesibles desde el sidebar.
+- Layout en `app/(dashboard)/layout.tsx` envuelve children con `<DashboardProvider>`. Content area con `pb-16 md:pb-0` para el bottom nav.
 
 ## Auth & Environment
 
-- `.env` contains `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, and a **GROQ_API_KEY** (for AI features).
-- `.env` is gitignored — never commit it. The repo contains a hardcoded Neon DB URL and secrets that must be rotated for production.
+- `.env` contiene `DATABASE_URL` (Neon Postgres pooled URL con `sslmode=require`), `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, y un **`GROQ_API_KEY`** (para features de IA).
+- `.env` está en `.gitignore` — NUNCA commitearlo. El repo tiene un Neon DB URL hardcodeado y secrets que DEBEN rotarse para producción.
+- NextAuth v5 `auth()` se llama en cada Server Component protegido. Si `session?.user?.id` falta, redirige a `/login` (manejado en `proxy.ts` para rutas completas y en cada page para casos puntuales).
 
 ## Current State
 
@@ -169,6 +206,71 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Fase 3 (Onboarding) implemented:** 4-step wizard (`/onboarding`) with animated welcome, template selection, income input, and category review. Redirects from dashboard if no budget exists.
 - `server/actions/`, `server/queries/`, `hooks/`, and `components/` directories are fully populated.
 - `types/index.ts` defines domain types mirroring Prisma schema.
+- **Módulo "Créditos" (`/credits`):**
+  - `app/(dashboard)/credits/page.tsx` — Server Component minimal. Carga `getUserLoans` + `getActiveLoanCapacity`, renderiza `<CreditsClient />` con `<AILoanInsightsBanner />` arriba.
+  - `app/(dashboard)/credits/new/page.tsx` — Server Component. 2-col grid con `<AvailableCreditCard />` + `<LoanForm mode="new" />`.
+  - `app/(dashboard)/credits/[id]/page.tsx` — Server Component. `notFound()` si loan no existe. Renderiza `<CreditDetailClient />` con `<AILoanAdvisorCard />` integrado.
+  - `app/(dashboard)/credits/[id]/edit/page.tsx` — Reutiliza `<LoanForm mode="edit" />` con data precargada.
+  - `components/credits/CreditsClient.tsx` — Orchestrator list con `<AILoanInsightsBanner />` + filtros + grid.
+  - `components/credits/CreditCard.tsx` — Single loan card. Status badge + progress bar + monthly payment.
+  - `components/credits/CreditsFilters.tsx` — Multi-select chips con `data-active` + `aria-pressed`.
+  - `components/credits/EmptyCreditsState.tsx` — Empty state con CTA.
+  - `components/credits/NewCreditButton.tsx` — **Custom dropdown** (NO Radix) con `useState` + `useRef` + click outside + ESC.
+  - `components/credits/LoanForm.tsx` — **3-step wizard** (Datos → Cuotas → Confirmar). 748 líneas. RHF + Zod.
+  - `components/credits/LoanPreviewCard.tsx` — Live preview del engine.
+  - `components/credits/FeeForm.tsx` + `FeeCard.tsx` + `FeesSection.tsx` — SaaS-style fee CRUD.
+  - `components/credits/CreditDetailClient.tsx` — Detail orchestrator (8+ sub-componentes: header, summary, progress, payments list, extras list, amortization, charts, AI advisor).
+  - `components/credits/CreditCharts.tsx` — 2 Recharts charts (capital over time + interest vs principal). Ambos envueltos en `<div className="h-[250px] w-full">`.
+  - `components/credits/DeleteCreditDialog.tsx` — AlertDialog con cascade warning.
+  - `components/credits/AvailableCreditCard.tsx` — 3 estados (good/medium/over) según `getActiveLoanCapacity`. Ratio tiers: < 30% emerald, 30-50% amber, > 50% rose.
+  - `components/credits/AILoanAdvisorCard.tsx` — Per-loan AI (24h memory cache).
+  - `components/credits/AILoanInsightsBanner.tsx` — Cross-loan insights (1h memory cache).
+  - `components/credits/CreateFromSimulationButton.tsx` — "Convertir simulación a crédito" CTA.
+  - `lib/credit-engine.ts` — `getLoanSummary` (movido desde `simulation-engine.ts`), `LOAN_HEALTH_CONFIG`, `getLoanHealthFromCapacity`, `HEALTH_THRESHOLDS`.
+  - `lib/credit-types.ts` — `LOAN_TYPES`, `LOAN_STATUSES`, `LOAN_FORMULA_LABELS`, `parseLoan`, parsers defensivos.
+  - `lib/loan-engine.ts` — `generateAmortizationSchedule`, `calculateRemainingBalance`, `getProjectedPayoffDate`, `getDaysOverdue`.
+  - `lib/loan-fees.ts` — `calculateTotalMonthlyFees`, `calculateTotalUpfrontFees`, `getFeeIcon` (Lucide picker).
+  - `lib/ai/loan-advisor.ts` — `generateLoanAdvisorAnalysis` con cache 24h in-memory + `invalidateLoanAdvisorCache(userId, loanId)`.
+  - `lib/ai/loan-insights.ts` — `generateLoanInsights` con cache 1h in-memory + `clearLoanInsightsCache(userId)`.
+  - `lib/ai/loan-prompts.ts` — `LOAN_ADVISOR_SYSTEM` + `LOAN_INSIGHTS_SYSTEM` + builders.
+  - `server/actions/loan-actions.ts` — 6 funciones: `createLoanAction`, `updateLoanAction`, `deleteLoanAction`, `recordPaymentAction`, `deletePaymentAction`, `recordExtraPaymentAction`, `deleteExtraPaymentAction`. **TODAS invalidan AI cache** + `revalidateCreditPaths(loanId?)`.
+  - `server/queries/loan-queries.ts` — `getUserLoans`, `getLoanById`, `getLoanStats`, `getActiveLoansForAI`, `getActiveLoanCapacity`.
+  - **Naming convention**: `Credit*` = UI components (Spanish) / `Loan*` = domain types + Prisma model (English). Cuando en duda, el nombre del archivo refleja la capa.
+  - **Moratory detection** = `loan.status === "DEFAULTED"`, NO en `LoanPayment`.
+- **Capa IA (`lib/ai/` + GROQ):**
+  - **Model**: `llama-3.3-70b-versatile` vía fetch directo a GROQ. **NO SDK**.
+  - **4 features** activas: sim advisor, sim insights, loan advisor, loan insights.
+  - **`lib/ai/groq-client.ts`** — `callGroqChat(messages, options)`. Retries 2 con backoff exponencial. **5 typed errors**: `GroqError` (base), `GroqAuthError` (401/403), `GroqRateLimitError` (429), `GroqServiceError` (5xx), `GroqTimeoutError` (AbortError), `GroqParseError` (JSON parse fail).
+  - **`lib/ai/schemas.ts`** — `AdvisorAnalysisSchema`, `InsightsResponseSchema`, `LoanAdvisorSchema` (alias), `LoanInsightsSchema` (alias). Zod validation en cada response de GROQ.
+  - **`lib/ai/prompts.ts`** — `SIM_ADVISOR_SYSTEM` + `SIM_INSIGHTS_SYSTEM` + builders.
+  - **`lib/ai/loan-prompts.ts`** — `LOAN_ADVISOR_SYSTEM` + `LOAN_INSIGHTS_SYSTEM` + builders.
+  - **`lib/ai/simulation-advisor.ts`** — `generateSimulationAdvisorAnalysis`. **DB cache 24h** en `Simulation.aiAnalysis` + `aiAnalysisGeneratedAt`.
+  - **`lib/ai/simulation-insights.ts`** — `generateSimulationInsights`. **Memory cache 1h** (per process).
+  - **`lib/ai/loan-advisor.ts`** — `generateLoanAdvisorAnalysis`. **Memory cache 24h** + invalidation en TODAS las mutations de loans.
+  - **`lib/ai/loan-insights.ts`** — `generateLoanInsights`. **Memory cache 1h** + invalidation en TODAS las mutations.
+  - **Server actions** en `server/actions/ai-actions.ts`: `generateSimulationAdvisorAction(simulationId)`, `generateSimulationInsightsAction()`, `generateLoanAdvisorAction(loanId)`, `generateLoanInsightsAction()`. Todos con `auth()` primero.
+  - **Temperatures**: 0.4 advisor / 0.5 insights. Default `maxTokens: 1500`. Default `timeout: 30s`.
+  - **Disclaimer UI obligatorio** en cada card: "Análisis generado por IA. No constituye asesoría financiera profesional." + cache timestamp ("Cache · 4 jun, 19:42" o "Nuevo · 4 jun, 19:42").
+  - **GOTCHA: en serverless, in-memory cache es per-instance**. Aceptable porque TTL es 1-24h. Para multi-instance, migrar a DB-backed.
+- **Recurrence helpers (`lib/recurrence.ts`):**
+  - `getMonthlyEquivalent(amount, recurrence)` — convierte BIWEEKLY (×2) y ONE_TIME (÷12) a base mensual.
+  - `getNextOccurrence(date, recurrence)` — próxima fecha de ocurrencia.
+  - `formatDateForInput(date)` — formato YYYY-MM-DD para `<input type="date">`.
+  - `RECURRENCE_LABELS` + `RECURRENCE_DESCRIPTIONS` + `RECURRENCE_MULTIPLIER`.
+- **Simulations engine** (`lib/simulation-engine.ts` + `lib/simulation-types.ts`):
+  - `calculateFrenchEA(nominalMonthly)` — convierte nominal mensual a EA: `(1 + n)^12 - 1`.
+  - `calculateNominalMonthly(ea)` — inverso.
+  - `getVerdict(capacityRatio)` — engine `Verdict` (SAFE/TIGHT/RISKY/NOT_RECOMMENDED).
+  - `ENGINE_TO_DB` + `DB_TO_ENGINE` maps: `SAFE`↔`APPROVED`, `TIGHT`↔`WARNING`, `RISKY`↔`REJECTED`.
+  - `VERDICT_CONFIG` + `VERDICT_LABELS` + `VERDICT_PILL` para UI.
+  - `parseSimulationInputs(raw)` + `parseSimulationResult(raw)` — defensive parsers con safe defaults.
+  - `labelOr(value, map)` — forma estándar para labels de enums en UI.
+  - `TYPE_LABELS` + `TYPE_ICON_BG` — config visual por tipo de simulación.
+- **Scripts (`scripts/`):**
+  - `scripts/seed-timeline-demo.ts` — Idempotente con `upsert` (IDs `seed-*`). Crea 2 sims (VEHICLE aprobado + HOUSING rechazado) + 1 loan con 8 payments (interés+capital computados) + 2 extras. Cargar con `npx tsx scripts/seed-timeline-demo.ts` (requiere `.env` con `DATABASE_URL`). **Usa `PrismaNeon` adapter** (igual que `lib/prisma.ts`).
+  - `scripts/test-ai-prompt.ts` — Smoke test para sim AI. Genera `scripts/test-ai-output.md` (gitignored).
+  - `scripts/test-loan-ai.ts` — Smoke test para loan AI. Genera `scripts/test-loan-ai-output.md` (gitignored).
+  - **Recharts `ResponsiveContainer` GOTCHA**: si el seed script importa Prisma, DEBE usar `PrismaNeon` adapter. Prisma 7 strict rechaza `new PrismaClient()` directo sin adapter.
 
 ## Validation Before Commit
 

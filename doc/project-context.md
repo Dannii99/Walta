@@ -1,243 +1,308 @@
 # Project Context
 
+The "what" and "why" of **Walta — Tu dinero, más claro**. This document describes the product vision, target users, MVP scope, and success criteria. It is intentionally **product-focused**, not implementation-focused.
+
+For how the product is *built* today, see [`architecture.md`](./architecture.md). For module-by-module implementation details, see [`module-reference.md`](./module-reference.md). For developer setup, see [`setup-plan.md`](./setup-plan.md). For the agent quickstart, see [`../AGENTS.md`](../AGENTS.md).
+
 ## 1. Project Summary
 
-Una aplicación web de control de presupuesto personal diseñada para reemplazar las hojas de cálculo con una experiencia visual, interactiva y orientada a la toma de decisiones. El producto permite a los usuarios crear presupuestos desde cero o usando plantillas, registrar ingresos y gastos categorizados, visualizar su situación financiera actual mediante gráficos e indicadores de color, evaluar si cumplen reglas financieras saludables (como distribuciones porcentuales del ingreso), y simular decisiones importantes (compra de vehículo, vivienda, metas de ahorro) para entender si son viables según su capacidad real de pago.
+A web app for personal budget control that **replaces spreadsheets with a visual, interactive, decision-oriented experience**. Users create budgets, register income and categorized expenses, see their financial health via graphs and color indicators, evaluate if they follow healthy financial rules (e.g. 50/30/20 distribution), and simulate major decisions (vehicle, housing, savings goals) to understand if they are viable against their real budget capacity.
+
+The product is **web-only**, single-currency (COP), with a hardcoded demo user in the MVP. The product speaks Spanish.
 
 ## 2. Problem Statement
 
-La mayoría de las personas controlan sus finanzas personales en Excel o no las controlan de forma estructurada. Esto genera tres problemas principales:
+Most people control their personal finances in Excel or do not control them in a structured way. This generates three main problems:
 
-- **Falta de claridad visual**: Los números en una tabla no permiten ver de inmediato si la situación financiera es saludable, si se está gastando de más, o cuánto dinero realmente queda disponible.
-- **Dificultad para aplicar reglas financieras**: Conceptos como "gastar máximo el 50% en necesidades" o "ahorrar el 20%" son difíciles de monitorear manualmente sin errores.
-- **Incertidumbre ante decisiones grandes**: Cuando una persona quiere saber si puede comprar un carro, una casa o invertir, recurre a calculadoras aisladas o suposiciones sin integrar su presupuesto real. No existe una herramienta que conecte su situación financiera diaria con la viabilidad de decisiones importantes.
+- **Lack of visual clarity**: Numbers in a table do not let you see immediately if the financial situation is healthy, if you are overspending, or how much money is actually available.
+- **Difficulty applying financial rules**: Concepts like "spend at most 50% on needs" or "save 20%" are hard to monitor manually without errors.
+- **Uncertainty in big decisions**: When a person wants to know if they can buy a car, a house, or invest, they turn to isolated calculators or assumptions without integrating their real budget. There is no tool that connects daily financial situation with the viability of important decisions.
 
 ## 3. Target Users
 
 ### Primary User
-- **Adultos de 25 a 45 años** con ingreso fijo o variable que desean organizar sus finanzas personales sin complejidad.
-- Usuarios que han intentado usar Excel pero lo abandonan por falta de tiempo o porque no les da insights.
-- Personas que están considerando compras importantes (vehículo, vivienda) y necesitan validar si pueden asumirlas.
+
+- **Adults aged 25 to 45** with fixed or variable income who want to organize their personal finances without complexity.
+- Users who have tried using Excel but abandoned it for lack of time or because it did not give them insights.
+- People who are considering important purchases (vehicle, housing) and need to validate if they can take them on.
 
 ### Secondary User
-- **Parejas o familias** que quieren visualizar un presupuesto conjunto (en etapas futuras).
-- **Jóvenes profesionales** que empiezan a independizarse y quieren crear su primer presupuesto con guía.
+
+- **Couples or families** who want to visualize a joint budget (in future iterations).
+- **Young professionals** who are starting to live independently and want to create their first budget with guidance.
 
 ## 4. Value Proposition
 
-"Entiende tu dinero de un vistazo y toma decisiones grandes con confianza."
+"Understand your money at a glance and make big decisions with confidence."
 
-En lugar de ser una tabla pasiva, el producto es un **asistente financiero visual** que:
-- Muestra si tu presupuesto es saludable con colores y señales claras (tipo semáforo).
-- Te dice exactamente cuánto puedes destinar a cada categoría según reglas financieras probadas.
-- Simula decisiones importantes usando tu presupuesto real, no estimaciones sueltas.
-- Se siente moderna, rápida y motivadora, no como una obligación contable.
+Instead of being a passive table, the product is a **visual financial assistant** that:
+
+- Shows if your budget is healthy with colors and clear signals (traffic-light style).
+- Tells you exactly how much you can allocate to each category according to proven financial rules.
+- Simulates important decisions using your real budget, not loose estimates.
+- Feels modern, fast and motivating, not like a bookkeeping chore.
 
 ## 5. MVP Objective
 
-Lanzar una aplicación web funcional que permita a un usuario:
-1. Crear un presupuesto personal en menos de 5 minutos.
-2. Visualizar su estado financiero actual de forma inmediata y atractiva.
-3. Saber si está cumpliendo con una regla de distribución del ingreso.
-4. Simular si una compra grande (vehículo) es viable según su capacidad de pago mensual.
+Ship a working web app that lets a user:
 
-El MVP debe demostrar que la experiencia visual + simulación es superior a Excel para este propósito.
+1. Create a personal budget in under 5 minutes.
+2. Visualize their current financial state immediately and attractively.
+3. Know if they are complying with an income distribution rule.
+4. Simulate whether a major purchase (vehicle, housing) is viable according to their real monthly payment capacity.
+5. Track active credits and see AI-assisted insights on their financial decisions.
+6. See a chronological history of financial decisions (simulations, credits, payments).
+
+The MVP demonstrates that the visual + simulation experience is superior to Excel for this purpose.
 
 ## 6. MVP Scope
 
-### Must Have
+### Must Have (Shipped)
 
-- **Creación de presupuesto**: Flujo inicial donde el usuario elige entre plantilla predefinida (ej. 50/30/20) o presupuesto en blanco. Debe poder personalizar categorías y montos.
-- **Registro de ingresos y gastos**: Formulario simple para agregar ingresos totales mensuales y gastos categorizados (necesidades, deseos, ahorro, deudas). Edición y eliminación de ítems.
-- **Dashboard visual principal**: Pantalla principal que muestre:
-  - Ingreso total, gasto total, dinero disponible.
-  - Gráfico de distribución del presupuesto (por categorías).
-  - Indicadores visuales de salud por categoría (ej. color verde/amarillo/rojo según si respeta los porcentajes de la regla aplicada).
-  - Porcentajes y números claros.
-- **Regla financiera por defecto**: Implementar al menos una regla configurable (ej. 50% necesidades, 30% deseos, 20% ahorro/deuda). Mostrar alerta visual si alguna categoría excede el porcentaje recomendado.
-- **Simulador de compra de vehículo**: Módulo donde el usuario ingresa:
-  - Precio del vehículo o rango.
-  - Cuánto puede dar de entrada.
-  - Plazo deseado.
-  - Tasa de interés estimada (o usar una por defecto).
-  El sistema calcula la cuota mensual y la compara con el dinero disponible real del presupuesto. Muestra un veredicto visual: "Seguro", "Ajustado", "Riesgoso", "No recomendable".
-- **Persistencia local**: Los datos deben guardarse para que el usuario no pierda su presupuesto al recargar (asumimos localStorage o similar para el MVP; no requiere backend obligatorio en esta etapa).
+- **Budget creation**: Initial flow with predefined templates (50/30/20, 60/20/20, 40/30/30). User picks a template, enters income, reviews 27 predefined categories split by bucket. Stores in Postgres (Neon).
+- **Income and expense registration**: Forms to add/edit/delete expenses. Categories, amount, description, type (FIXED/VARIABLE), and recurrence (MONTHLY/BIWEEKLY/ONE_TIME).
+- **Visual dashboard**: Main screen showing:
+  - Total income, total expenses, available money.
+  - Donut chart of expense distribution.
+  - 3 health cards (Needs/Wants/Savings) with traffic-light faces and progress bars.
+  - Per-category breakdown with bars and percentages.
+- **Configurable financial rule**: 50% needs, 30% wants, 20% savings as default. User can edit any rule; system validates sum = 100%. Visual alert when a bucket exceeds its percentage.
+- **Multiple simulators**: Vehicle, housing (rent or buy), personal, education, other. Each computes monthly payment, available money after, verdict (APPROVED/WARNING/REJECTED), and total interest.
+- **Server-side persistence**: All data stored in Postgres via Prisma. **No localStorage**. Auth required (hardcoded demo user for now).
+- **AI advisor per simulation**: On-demand deep analysis from GROQ (`llama-3.3-70b-versatile`). 24h DB cache. Includes disclaimer.
+- **AI insights banner**: Cross-simulation strategic findings. 1h in-memory cache.
+- **Credit tracking**: Full loan tracker with amortization, fees, payment recording, extra payments, moratory detection. AI advisor + AI insights.
+- **Decision timeline**: Chronological view of all financial decisions (simulations created, credits created, payments recorded, extras). Derived on-the-fly. Cursor pagination. Filters.
+- **Settings**: Theme (light/dark/system) + account info + sign out.
+- **Dark mode complete**: All modules support light/dark with next-themes class-based toggle.
+- **Mobile responsive**: Sidebar collapses to bottom nav on mobile.
 
-### Should Have
+### Should Have (Shipped)
 
-- **Múltiples plantillas de presupuesto**: Además de 50/30/20, ofrecer otras como 60/20/20, regla del 10% inversión, plantilla para deudas agresivas, etc.
-- **Reglas financieras personalizables**: Permitir al usuario crear su propia regla de porcentajes.
-- **Simulador de vivienda**: Similar al de vehículo pero para compra o arriendo de vivienda.
-- **Metas de ahorro**: Permitir definir una meta (ej. "vacaciones", "fondo de emergencia") y ver el progreso visual.
-- **Historial mensual**: Permitir crear presupuestos por mes y ver evolución básica.
+- Multiple budget templates (3 currently).
+- Customizable rules (free percentages that must sum to 100%).
+- Housing simulator (arriendo + compra).
+- Monthly snapshots (legacy, visible in `/history?tab=snapshots`).
+- Color-coded health indicators (semáforo).
+- Editable categories (CRUD in `/reglas`).
+- AI-assisted advice (4 features: sim advisor, sim insights, loan advisor, loan insights).
 
-### Could Have
+### Could Have (Future)
 
-- **Simulador de inversiones**: Calcular rendimiento potencial de una inversión usando el dinero disponible.
-- **Comparador de modelos/marcas**: En la simulación de vehículo, sugerir rangos de marcas o modelos según el presupuesto calculado.
-- **Exportar resumen a PDF o imagen**.
-- **Modo oscuro/claro**.
-- **Onboarding interactivo con tooltips**.
+- Savings goals module.
+- Investment simulator.
+- Brand/model comparison for vehicle simulation.
+- Export to PDF or image.
+- Interactive onboarding with tooltips.
+- i18n (English version of the UI).
+- Currency switcher (COP, USD, EUR).
+- Real-time collaboration (multi-user).
 
-### Out of Scope
+### Out of Scope (Confirmed)
 
-- Conexión automática con bancos o APIs financieras.
-- Gestión de inversiones reales o portfolios.
-- Contabilidad para negocios o freelance avanzado.
-- Aplicación móvil nativa (el MVP es web responsive).
-- Multiusuario o colaboración en tiempo real.
-- Autenticación de usuarios con backend (el MVP puede funcionar sin login).
-- Múltiples monedas o conversiones.
-- Recordatorios o notificaciones push.
+- Bank integrations or financial APIs.
+- Real investment management or portfolios.
+- Business/freelance accounting.
+- Native mobile app (web responsive only).
+- Real-time multi-user collaboration.
+- Multi-tenant authentication (the MVP has a hardcoded demo user).
+- Email notifications or push notifications.
+- Receipt OCR or auto-categorization.
 
 ## 7. Main User Flows
 
-### Flow 1: Primer Presupuesto (Onboarding)
-1. El usuario llega a la aplicación.
-2. Ve una pantalla de bienvenida que explica el propósito en 3 frases cortas.
-3. Elige "Usar plantilla" o "Empezar en blanco".
-4. Si elige plantilla, selecciona una (ej. 50/30/20) y ve las categorías prellenadas.
-5. Ingresa su ingreso mensual total.
-6. Revisa y ajusta los montos o porcentajes de cada categoría.
-7. Guarda y llega al Dashboard.
+### Flow 1: First Budget (Onboarding)
 
-### Flow 2: Registrar Gasto e Ir al Dashboard
-1. Desde el Dashboard, el usuario hace clic en "Agregar gasto".
-2. Selecciona categoría, ingresa monto, descripción opcional y fecha.
-3. Guarda.
-4. El Dashboard se actualiza inmediatamente: gráficos cambian, indicadores de color se ajustan, disponible se recalcula.
+1. The user logs in (demo@example.com / demo123 in the MVP).
+2. Lands on `/dashboard`. Detected no budget → redirected to `/onboarding`.
+3. Sees welcome screen with value proposition.
+4. Picks a budget template (3 options).
+5. Enters monthly income.
+6. Reviews the 27 seeded categories.
+7. Submits. Creates `Budget` + 27 `Category` rows. Redirects to `/dashboard`.
 
-### Flow 3: Revisar Salud Financiera
-1. El usuario está en el Dashboard.
-2. Ve una sección "Regla aplicada: 50/30/20".
-3. Observa barras de progreso o semáforos por categoría:
-   - Necesidades: 48% (verde).
-   - Deseos: 35% (rojo - excedido).
-   - Ahorro: 12% (amarillo - bajo).
-4. Lee una recomendación breve: "Estás gastando 5% más en deseos. Podrías redirigir $X a ahorro."
+### Flow 2: Add Expense and See Updated Dashboard
 
-### Flow 4: Simular Compra de Vehículo
-1. El usuario navega al módulo "Simulaciones".
-2. Selecciona "¿Puedo comprar un vehículo?".
-3. Ingresa precio del vehículo, entrada disponible, plazo (años), tasa de interés.
-4. El sistema calcula cuota mensual estimada.
-5. Compara la cuota con el "dinero disponible" real del presupuesto.
-6. Muestra resultado visual:
-   - Cuota mensual: $X.
-   - Disponible actual: $Y.
-   - Restaría $Z de tu disponible.
-   - Veredicto: "Ajustado" (amarillo) con explicación.
-7. El usuario puede guardar la simulación para revisarla luego o descartarla.
+1. From `/dashboard`, the user clicks "Agregar gasto".
+2. Modal opens: amount (with thousands mask), description, category, type, recurrence, date.
+3. Saves.
+4. Dashboard re-renders server-side: KPIs update, donut adjusts, health colors shift.
+5. `/expenses` list also updates.
 
-### Flow 5: Ajustar Regla Financiera
-1. El usuario va al módulo "Reglas".
-2. Ve la regla actual con porcentajes editables.
-3. Modifica los porcentajes (validando que sumen 100%).
-4. Guarda.
-5. El Dashboard recalcula todos los indicadores según la nueva regla.
+### Flow 3: Review Financial Health
+
+1. The user is on `/dashboard`.
+2. Sees 3 health cards (Necesidades / Deseos / Ahorro).
+3. Each card shows a face (😊/😐/😟), the current %, the budget %, and a progress bar.
+4. Example: Necesidades 48% (😊 on target), Deseos 35% (😟 exceeded), Ahorro 12% (😐 below target).
+5. Dynamic message under the donut explains the situation in plain language.
+
+### Flow 4: Simulate a Vehicle Purchase
+
+1. The user navigates to `/simulations/new`.
+2. Sees "Available money" card (income - current expenses - active loan payments).
+3. Fills the form: type (VEHICLE), price, down payment, term, rate, formula.
+4. Sees a live preview of monthly payment + verdict.
+5. Submits. Saved to DB. Verdict (APPROVED/WARNING/REJECTED) is stored.
+6. Lands on `/simulations` with the new card visible + AI Insights banner at the top.
+7. Clicks the new sim → detail page with `AI Advisor` card that calls GROQ on mount.
+
+### Flow 5: Track a Credit
+
+1. The user navigates to `/credits/new`.
+2. 3-step wizard: Datos (type, principal, term, rate, formula) → Cuotas (fees) → Confirmar.
+3. Submits. Credit is created with status `ACTIVE`.
+4. Lands on `/credits` list. The new credit appears with an "Available credit" card at the top.
+5. Clicks the credit → detail page with: summary, progress bar, payment recording, amortization table, charts, AI Advisor.
+6. Records a payment: principal + interest split is computed automatically, stored as `LoanPayment`.
+7. Records an extra payment (capital contribution): stored as `LoanExtraPayment`. Amortization updates.
+
+### Flow 6: Review Decision Timeline
+
+1. The user navigates to `/history` (default tab).
+2. Sees all events in reverse chronological order, grouped by month.
+3. Filters by type: simulations, credits, payments, extras.
+4. Scrolls to the bottom. Clicks "Cargar más". Next 30 events load.
+5. Clicks an event → goes to the detail page (sim or credit).
+
+### Flow 7: Adjust Rule
+
+1. The user navigates to `/reglas`.
+2. Sees 3 tabs: Ingreso, Regla, Categorías.
+3. Edits the rule percentages. Sum must = 100% (save disabled otherwise).
+4. Submits. Dashboard re-renders with new rule applied to all KPIs.
 
 ## 8. Functional Requirements
 
-1. El sistema debe permitir crear un presupuesto con al menos 3 categorías principales (necesidades, deseos, ahorro/deuda).
-2. El sistema debe permitir ingresar un monto de ingreso total mensual.
-3. El sistema debe permitir agregar, editar y eliminar gastos individuales con categoría, monto y descripción.
-4. El sistema debe calcular automáticamente el total gastado por categoría y el dinero disponible (ingreso - gastos).
-5. El sistema debe mostrar un dashboard con al menos un gráfico de distribución y números resumen claros.
-6. El sistema debe implementar una regla de porcentajes sobre el ingreso y mostrar el cumplimiento visualmente (indicadores de color o barras).
-7. El sistema debe alertar visualmente cuando una categoría excede el porcentaje definido por la regla.
-8. El sistema debe incluir un simulador de financiamiento de vehículo que calcule cuota mensual basada en precio, entrada, plazo y tasa.
-9. El simulador debe comparar la cuota mensual con el dinero disponible del presupuesto y mostrar un veredicto cualitativo (seguro, ajustado, riesgoso, no recomendable).
-10. El sistema debe persistir los datos del presupuesto entre sesiones sin requerir autenticación.
-11. El sistema debe permitir reiniciar o crear un nuevo presupuesto desde cero.
+1. The system must allow creating a budget with at least 3 main category buckets (needs, wants, savings/debt). 27 predefined categories are seeded.
+2. The system must allow entering a total monthly income.
+3. The system must allow adding, editing, and deleting individual expenses with category, amount, description, type, recurrence, and date.
+4. The system must automatically compute the total spent per category and the available money (income - expenses - active loan payments).
+5. The system must show a dashboard with a donut chart, KPI cards, and per-category breakdown.
+6. The system must apply a percentage rule to income and show compliance visually (color indicators and progress bars).
+7. The system must visually alert when a category exceeds its defined percentage.
+8. The system must include a vehicle simulator that computes monthly payment from price, down payment, term, and rate.
+9. The simulator must compare the monthly payment to the available money in the budget and show a qualitative verdict (APPROVED/WARNING/REJECTED).
+10. The system must persist data between sessions (Postgres) and require authentication.
+11. The system must allow creating a new budget from scratch (deletion is future).
+12. The system must support multiple budget templates (3 currently).
+13. The system must allow customizing the financial rule percentages.
+14. The system must track active credits with amortization, payment recording, and capital contributions.
+15. The system must show a chronological timeline of financial decisions.
+16. The system must support light, dark, and system themes.
+17. The system must provide AI-assisted analysis on demand for simulations and credits, with a visible disclaimer.
+18. The system must be responsive on mobile (sidebar collapses to bottom nav).
 
 ## 9. Business Rules
 
-1. **Regla de porcentajes**: La suma de los porcentajes asignados a las categorías de una regla financiera debe ser exactamente 100%. El sistema debe validar esto.
-2. **Cálculo de disponible**: Dinero disponible = Ingreso total - Suma de todos los gastos registrados. No puede ser negativo; si los gastos superan el ingreso, el sistema debe mostrar alerta de déficit.
-3. **Veredicto del simulador de vehículo**:
-   - **Seguro**: si la cuota mensual es menor o igual al 30% del dinero disponible mensual.
-   - **Ajustado**: si la cuota está entre 31% y 50% del disponible.
-   - **Riesgoso**: si la cuota está entre 51% y 70% del disponible.
-   - **No recomendable**: si la cuota supera el 70% del disponible o si el disponible es insuficiente para cubrir la cuota.
-4. **Cálculo de cuota**: Usar fórmula de amortización estándar (cuota fija) con capital = precio - entrada, tasa mensual = tasa anual / 12, número de pagos = plazo en años × 12.
-5. **Categorías obligatorias**: Todo presupuesto debe tener al menos una categoría de ingreso y una de gasto. No se permite un presupuesto vacío.
-6. **Edición de plantillas**: Cuando un usuario elige una plantilla, los montos sugeridos son calculados automáticamente como porcentaje del ingreso que ingrese, pero debe poder editarlos manualmente.
-7. **Una sola regla activa**: En el MVP, solo puede haber una regla financiera activa por presupuesto.
+1. **Rule percentages**: The sum of percentages assigned to the categories of a financial rule must be exactly 100%. The system must validate this.
+2. **Available money calculation**: Available = Total income - Sum of all expenses - Sum of active loan payments. Can be negative; the system must show a deficit alert in that case.
+3. **Simulator verdict** (based on capacity ratio = monthly payment / available money):
+   - **APPROVED** (SAFE): ratio ≤ 30% of available.
+   - **WARNING** (TIGHT): ratio 31-50%.
+   - **REJECTED** (RISKY): ratio > 50% or available is negative.
+4. **Payment calculation**: Use French amortization (fixed payment) with capital = price - down payment, monthly rate = annual rate / 12, number of payments = term in months. Effective annual rate via `(1 + monthly)^12 - 1`.
+5. **Required categories**: Every budget must have at least one income and one expense category. The system seeds 27 predefined categories; the user can add more.
+6. **Customizable templates**: When a user picks a template, the suggested `Budget.rule` percentages are stored, but the user can edit them on the Rule step.
+7. **One active rule per budget**: The MVP supports one rule per budget at a time.
+8. **Credit status detection**:
+   - `ACTIVE` by default.
+   - `DEFAULTED` if there is any overdue payment (moratory).
+   - `PAID_OFF` when `paidInstallments >= termMonths`.
+9. **Loan extra payments reduce principal** and adjust the projected payoff date.
+10. **AI cache TTL**:
+    - Sim/loan advisor: 24h. DB-backed for sims, in-memory for loans.
+    - Sim/loan insights: 1h. In-memory.
+    - Cache is invalidated on any mutation to the underlying data.
 
 ## 10. Content Requirements
 
-### Textos Fijos
-- Nombre del producto: **Walta** — tagline: "Tu dinero, más claro."
-- Pantalla de bienvenida: 3 frases de valor (ej. "Toma el control de tu dinero", "Visualiza tu salud financiera", "Simula decisiones importantes").
-- Etiquetas del Dashboard: "Ingreso total", "Gastos totales", "Dinero disponible", "Ahorro acumulado".
-- Nombres de categorías por defecto: "Necesidades", "Deseos", "Ahorro e Inversión", "Deudas".
-- Mensajes de veredicto del simulador: textos explicativos para cada nivel de riesgo.
-- Mensajes de alerta: "Estás excediendo el X% recomendado para [categoría]".
+### Fixed Text
 
-### Contenido Generado por el Sistema
-- Valores numéricos formateados en moneda local (asumimos pesos colombianos o moneda configurable en futuro; para MVP, formato estándar $).
-- Porcentajes de cumplimiento de reglas.
-- Fechas de gastos.
-- Resultados de simulaciones guardadas (título, fecha, veredicto).
+- Product name: **Walta** — tagline: "Tu dinero, más claro."
+- Welcome screen: 3 value phrases ("Toma el control de tu dinero", "Visualiza tu salud financiera", "Simula decisiones importantes").
+- Dashboard labels: "Ingreso total", "Gastos totales", "Dinero disponible", "Ahorro acumulado".
+- Default category names (27): Vivienda, Alimentación, Transporte, Salud, Servicios, Educación, Entretenimiento, Ropa, Restaurantes, etc.
+- Simulator verdict messages: explanation text per verdict level.
+- AI disclaimer: "Análisis generado por IA. No constituye asesoría financiera profesional."
 
-### Contenido de Simulación
-- Campos del formulario de vehículo: "Precio del vehículo", "Cuota inicial", "Plazo (años)", "Tasa de interés anual (%)", "Cuota mensual estimada", "Tu dinero disponible", "Veredicto".
-- Leyenda explicativa de cómo se calcula la cuota (texto corto).
+### System-Generated Content
+
+- Numeric values formatted in Colombian peso (COP) with `$ 1.234.567,89` format.
+- Rule compliance percentages.
+- Expense dates.
+- Saved simulation titles and dates.
+- Loan amortization tables.
+- Timeline event descriptions.
+
+### Simulation Fields
+
+- "Precio del vehículo/vivienda", "Cuota inicial", "Plazo (meses/años)", "Tasa de interés anual (%)", "Cuota mensual estimada", "Tu dinero disponible", "Veredicto".
+- Short legend explaining the calculation.
 
 ## 11. Success Criteria
 
-1. Un usuario nuevo puede crear su primer presupuesto y ver su dashboard en menos de 5 minutos sin tutorial externo.
-2. El 80% de los usuarios que completan el onboarding llegan al Dashboard (métrica de retención inicial).
-3. Los indicadores visuales de salud financiera permiten identificar de un vistazo si el presupuesto está equilibrado (test de usabilidad informal).
-4. El simulador de vehículo genera un veredicto coherente comparado con el presupuesto real del usuario (validación lógica).
-5. Los datos persisten tras cerrar y abrir el navegador.
-6. El producto se percibe como más útil y atractivo que una hoja de Excel para el mismo propósito (feedback cualitativo de 5-10 usuarios de prueba).
+1. A new user can create their first budget and see their dashboard in under 5 minutes without an external tutorial.
+2. 80% of users who start onboarding complete it (retention metric).
+3. Visual health indicators allow identifying at a glance if the budget is balanced (informal usability test).
+4. The simulator generates a verdict that is coherent with the user's real budget (logical validation).
+5. Data persists across browser sessions (Postgres).
+6. The product is perceived as more useful and attractive than an Excel sheet for the same purpose (qualitative feedback from 5-10 test users).
+7. The AI advisor produces advice that is consistent with the user's financial context (manual review of GROQ outputs in dev).
 
 ## 12. Assumptions
 
-1. El usuario principal tiene ingresos y gastos en una sola moneda (no requiere multi-moneda en MVP).
-2. Los usuarios prefieren no crear cuenta para probar el producto; la persistencia local es suficiente para el MVP.
-3. La fórmula de amortización estándar es adecuada para las simulaciones de crédito.
-4. Los usuarios entienden conceptos básicos de porcentajes y cuotas mensuales.
-5. El producto será usado principalmente en escritorio, aunque debe ser usable en móvil (responsive).
-6. La plantilla Excel de referencia representa una estructura estándar de presupuesto personal que es válida como base conceptual.
-7. El mercado objetivo valora más la claridad visual y la simulación que la contabilidad detallada.
+1. The primary user has income and expenses in a single currency (no multi-currency in MVP).
+2. The MVP requires a login (hardcoded demo user) to keep the codebase ready for multi-tenant auth. In the future, Google OAuth + email magic link will replace the demo user.
+3. French amortization (fixed payment) is adequate for the simulations and credit tracking.
+4. Users understand basic concepts of percentages and monthly payments.
+5. The product is used primarily on desktop, but must be usable on mobile (responsive).
+6. The market values visual clarity and simulation more than detailed accounting.
+7. AI-assisted advice is acceptable as a **complement** to the deterministic engine, not a replacement. The engine is always the source of truth for math; AI provides narrative interpretation.
 
 ## 13. Risks
 
-1. **Riesgo de percepción**: Los usuarios pueden seguir viendo a Excel como "suficiente" y no percibir el valor agregado de la visualización y simulación. *Mitigación*: enfocar el onboarding en mostrar inmediatamente el veredicto visual y una simulación, no solo tablas.
-2. **Riesgo de precisión financiera**: Si las tasas de interés usadas en simulaciones difieren mucho de la realidad del mercado local, el veredicto puede ser engañoso. *Mitigación*: usar tasas referenciales claras, indicar que son estimaciones, y permitir al usuario ajustar la tasa.
-3. **Riesgo de complejidad del simulador**: Incluir demasiados parámetros en la simulación puede hacerla tan compleja como una calculadora financiera. *Mitigación*: mantener el simulador del MVP con máximo 4 campos.
-4. **Riesgo de abandono temprano**: Si el onboarding es largo o confuso, el usuario puede abandonar antes de ver valor. *Mitigación*: permitir ingresar solo ingreso total y un gasto estimado para generar el primer dashboard en 2 pasos.
-5. **Riesgo técnico de persistencia local**: Si el usuario limpia su navegador, pierde los datos. *Mitigación*: aceptable para MVP, pero debe planificarse migración a backend/autenticación en futuro.
+1. **Perception risk**: Users may continue to see Excel as "good enough" and not perceive the value of visualization and simulation. *Mitigation*: the onboarding shows the visual verdict and a simulation immediately, not just tables.
+2. **Financial accuracy risk**: If the interest rates used in simulations differ from the local market, the verdict may be misleading. *Mitigation*: use clear reference rates, indicate they are estimates, and let the user adjust.
+3. **Simulator complexity risk**: Including too many parameters in the simulation can make it as complex as a financial calculator. *Mitigation*: keep the form to 5 fields (type, principal, down payment, term, rate).
+4. **Early abandonment risk**: If onboarding is long or confusing, the user may abandon before seeing value. *Mitigation*: keep the wizard to 4 steps, with sensible defaults and one-click templates.
+5. **AI hallucination risk**: GROQ may produce advice that is mathematically wrong or inconsistent with the user's real numbers. *Mitigation*: the engine computes the deterministic verdict; AI only adds narrative. The UI always shows both side by side. Zod validation catches malformed outputs.
+6. **Data loss risk**: Postgres is the source of truth, but the demo user has no password recovery. *Mitigation*: acceptable for the demo deployment. Real auth (with email verification) is in the backlog.
 
 ## 14. Open Questions
 
-1. ¿Cuál es la moneda principal del mercado objetivo? (pesos colombianos, dólares, etc.) Esto afecta formatos, simuladores y tasas de interés de referencia.
-2. ¿Se requiere que el simulador de vehículo sugiera marcas/modelos reales o solo rangos de precio genéricos? (implica investigación de datos o integraciones futuras).
-3. ¿Existe interés en compartir el presupuesto con una pareja o asesor financiero? (afecta prioridad de multiusuario).
-4. ¿Qué tan detallado debe ser el registro de gastos? ¿Diario, semanal, o solo montos mensuales agregados?
-5. ¿Debe el producto ofrecer consejos financieros personalizados o solo mostrar datos y alertas?
-6. ¿Cuál es el modelo de negocio objetivo? (gratuito, freemium, suscripción). Esto afecta qué poner en Should vs Could Have.
+1. ~~Which is the main currency?~~ **ANSWERED: COP (Colombian Peso)**. Future: currency switcher.
+2. ~~Should the vehicle simulator suggest real brands/models?~~ **ANSWERED: no**, just generic price ranges. Future: optional catalog.
+3. ~~Is there interest in sharing the budget with a partner or advisor?~~ **DEFERRED**: not in MVP scope. Future: opt-in sharing.
+4. How detailed should expense registration be? Daily, weekly, or just monthly aggregated amounts? *Current MVP*: per-expense with date + recurrence.
+5. ~~Should the product offer personalized financial advice or just data and alerts?~~ **ANSWERED**: both. The engine gives the deterministic verdict; the AI gives the narrative.
+6. What is the target business model? (Free, freemium, subscription) *Deferred*: not decided. The MVP is single-user demo.
 
-## 15. Handoff Notes for Frontend Architect
+## 15. Handoff Notes for Engineering
 
-### Lo que debe preservarse
-- **Experiencia visual primero**: El valor del producto está en que un no-experto entienda su situación financiera sin leer tablas. Cualquier arquitectura debe priorizar renderizado rápido de gráficos, indicadores de color y números grandes.
-- **Flujo de onboarding corto**: La primera interacción debe ser lo más corta posible. El arquitecto debe diseñar un flujo de 2-3 pasos para tener un presupuesto funcional.
-- **Simulador integrado**: El simulador no es una calculadora aislada; debe leer el "dinero disponible" del presupuesto activo. Esto implica que el estado del presupuesto debe ser accesible globalmente o por un servicio de estado compartido.
-- **Sin backend obligatorio para MVP**: La persistencia puede ser local. El arquitecto no debe asumir necesidad de API REST, autenticación o base de datos remota en la primera versión, aunque debe dejar la puerta abierta para migrar a backend más adelante.
+### What to preserve
 
-### Lo que debe clarificarse
-- **Formato de moneda y localización**: Definir si se usará una librería de internacionalización desde el inicio o un formato fijo para el MVP.
-- **Gráficos**: Se requieren gráficos de torta/dona y barras. El arquitecto debe evaluar opciones livianas que no comprometan el bundle inicial.
-- **Estado global**: El presupuesto, las reglas y las simulaciones deben compartirse entre vistas. El arquitecto debe proponer una estrategia de gestión de estado acorde al framework elegido.
-- **Validaciones en tiempo real**: Al editar porcentajes de reglas o ingresar gastos, los cálculos y gráficos deben actualizarse sin recarga. Esto requiere un modelo reactivo de datos.
+- **Visual-first experience**: The product's value is that a non-expert understands their financial situation without reading tables. The architecture must prioritize fast render of graphs, color indicators, and large numbers.
+- **Short onboarding flow**: The first interaction must be as short as possible. 4 steps max.
+- **Integrated simulator**: The simulator is not an isolated calculator; it reads the available money from the active budget. This implies that the budget state must be accessible globally (via Prisma query in the page's Server Component).
+- **Deterministic engine is the truth**: The engine's verdict is the source of truth. AI is a complement that adds narrative. The UI must always show both.
+- **No localStorage**: Persistence is server-side (Postgres). No offline-first behavior. (PWA is disabled because of Next 16 + Turbopack incompat.)
 
-### Restricciones técnicas a respetar
-- No elegir tecnología aún. El arquitecto debe decidir basado en estas necesidades.
-- No implementar autenticación ni backend para el MVP a menos que el arquitecto considere que una solución serverless simplifica el despliegue.
-- El producto debe funcionar offline después de la primera carga (es un buen diferenciador frente a soluciones web tradicionales).
+### What to clarify
 
-### Diferenciador clave a proteger
-La combinación de **presupuesto visual + veredicto de simulación** es el core. El arquitecto debe asegurar que la transición entre "ver mi dinero" y "probar una compra" sea fluida, con los números del presupuesto siempre visibles como contexto.
+- **Currency format and localization**: Currently hardcoded to `es-CO` with `Intl.NumberFormat`. `lib/currency.ts` uses Dinero.js for math and `formatCOP` for display.
+- **Charts**: Pie/donut and bar are the only types needed. Recharts is the chosen library.
+- **Global state**: No global client store. Server Component → Prisma → render. Mutations use Server Actions + `revalidatePath`.
+- **Real-time validation**: When editing rule percentages, the form validates sum = 100% live via `useState`. When adding an expense, the dashboard re-renders on action success.
+
+### Technical constraints to respect
+
+- Next.js 16 + Turbopack is the chosen framework. Do not introduce pnpm or yarn; npm is the package manager.
+- Do not introduce PWA libraries (next-pwa, serwist) until Next 16 + Turbopack compatibility is verified.
+- Do not introduce multi-tenant auth in this phase; the hardcoded demo user is intentional.
+- Do not introduce a global client state library (Zustand); use `useState` + `useTransition` + Server Actions.
+- Money must never be a raw `number` in business logic. Use `Decimal` in Prisma, `string` in JSON, Dinero.js in `lib/currency.ts`.
+
+### Key differentiator to protect
+
+The combination of **visual budget + simulation verdict + AI-assisted narrative** is the core. The architecture must ensure that the transition between "see my money" and "test a purchase" is fluid, with the budget numbers always visible as context. The history timeline is the layer that connects past decisions to present state.
