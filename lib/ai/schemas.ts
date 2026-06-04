@@ -31,3 +31,16 @@ export const InsightsResponseSchema = z.object({
 });
 
 export type InsightsResponse = z.infer<typeof InsightsResponseSchema>;
+
+/**
+ * Loan advisor uses the same shape as simulation advisor but with different prompts.
+ * Reusing AdvisorAnalysisSchema keeps the UI components interchangeable.
+ */
+export const LoanAdvisorSchema = AdvisorAnalysisSchema;
+export type LoanAdvisor = z.infer<typeof LoanAdvisorSchema>;
+
+/**
+ * Loan insights use the same shape as simulation insights.
+ */
+export const LoanInsightsSchema = InsightsResponseSchema;
+export type LoanInsights = z.infer<typeof LoanInsightsSchema>;

@@ -1,0 +1,1121 @@
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.5:3000
+- Environments: .env
+✓ Ready in 531ms
+
+prisma:query SELECT "public"."Loan"."id", "public"."Loan"."userId", "public"."Loan"."simulationId", "public"."Loan"."title", "public"."Loan"."type", "public"."Loan"."principal", "public"."Loan"."downPayment", "public"."Loan"."annualRate", "public"."Loan"."termMonths", "public"."Loan"."formula", "public"."Loan"."monthlyPayment", "public"."Loan"."startDate", "public"."Loan"."status", "public"."Loan"."paidInstallments", "public"."Loan"."totalInterest", "public"."Loan"."totalCost", "public"."Loan"."currency", "public"."Loan"."fees", "public"."Loan"."createdAt", "public"."Loan"."updatedAt" FROM "public"."Loan" WHERE ("public"."Loan"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LoanPayment"."id", "public"."LoanPayment"."loanId", "public"."LoanPayment"."amount", "public"."LoanPayment"."principalPaid", "public"."LoanPayment"."interestPaid", "public"."LoanPayment"."paidDate", "public"."LoanPayment"."createdAt" FROM "public"."LoanPayment" WHERE "public"."LoanPayment"."loanId" = $1 ORDER BY "public"."LoanPayment"."paidDate" DESC OFFSET $2
+prisma:query SELECT "public"."LoanExtraPayment"."id", "public"."LoanExtraPayment"."loanId", "public"."LoanExtraPayment"."amount", "public"."LoanExtraPayment"."date", "public"."LoanExtraPayment"."note", "public"."LoanExtraPayment"."createdAt" FROM "public"."LoanExtraPayment" WHERE "public"."LoanExtraPayment"."loanId" = $1 ORDER BY "public"."LoanExtraPayment"."date" DESC OFFSET $2
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /credits/cmpw5xda20001fcn5akigyg3c 200 in 4.2s (next.js: 894ms, proxy.ts: 258ms, application-code: 3.0s)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+prisma:query SELECT "public"."Loan"."id", "public"."Loan"."userId", "public"."Loan"."simulationId", "public"."Loan"."title", "public"."Loan"."type", "public"."Loan"."principal", "public"."Loan"."downPayment", "public"."Loan"."annualRate", "public"."Loan"."termMonths", "public"."Loan"."formula", "public"."Loan"."monthlyPayment", "public"."Loan"."startDate", "public"."Loan"."status", "public"."Loan"."paidInstallments", "public"."Loan"."totalInterest", "public"."Loan"."totalCost", "public"."Loan"."currency", "public"."Loan"."fees", "public"."Loan"."createdAt", "public"."Loan"."updatedAt" FROM "public"."Loan" WHERE ("public"."Loan"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."LoanPayment"."id", "public"."LoanPayment"."loanId", "public"."LoanPayment"."amount", "public"."LoanPayment"."principalPaid", "public"."LoanPayment"."interestPaid", "public"."LoanPayment"."paidDate", "public"."LoanPayment"."createdAt" FROM "public"."LoanPayment" WHERE "public"."LoanPayment"."loanId" = $1 ORDER BY "public"."LoanPayment"."paidDate" DESC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Budget"."id", "public"."Budget"."userId", "public"."Budget"."name", "public"."Budget"."income", "public"."Budget"."currency", "public"."Budget"."rule", "public"."Budget"."createdAt", "public"."Budget"."updatedAt" FROM "public"."Budget" WHERE "public"."Budget"."userId" = $1 ORDER BY "public"."Budget"."createdAt" DESC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Category"."id", "public"."Category"."budgetId", "public"."Category"."name", "public"."Category"."type", "public"."Category"."color" FROM "public"."Category" WHERE "public"."Category"."budgetId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Transaction"."id", "public"."Transaction"."categoryId", "public"."Transaction"."amount", "public"."Transaction"."description", "public"."Transaction"."date", "public"."Transaction"."recurrence", "public"."Transaction"."createdAt" FROM "public"."Transaction" WHERE "public"."Transaction"."categoryId" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) OFFSET $19
+prisma:query SELECT "public"."Loan"."id", "public"."Loan"."type", "public"."Loan"."monthlyPayment", "public"."Loan"."termMonths", "public"."Loan"."paidInstallments" FROM "public"."Loan" WHERE ("public"."Loan"."userId" = $1 AND "public"."Loan"."status" = $2) OFFSET $3
+ GET /api/auth/session 200 in 1172ms (next.js: 1100ms, proxy.ts: 14ms, application-code: 58ms)
+prisma:query SELECT "public"."Loan"."id", "public"."Loan"."type", "public"."Loan"."title", "public"."Loan"."monthlyPayment", "public"."Loan"."termMonths", "public"."Loan"."paidInstallments" FROM "public"."Loan" WHERE ("public"."Loan"."userId" = $1 AND "public"."Loan"."status" = $2 AND (NOT "public"."Loan"."id" = $3)) OFFSET $4
+ GET /api/auth/session 200 in 49ms (next.js: 22ms, proxy.ts: 12ms, application-code: 14ms)
+prisma:query SELECT SUM("amount") AS "_sum$amount", SUM("principalPaid") AS "_sum$principalPaid" FROM (SELECT "public"."LoanPayment"."amount", "public"."LoanPayment"."principalPaid" FROM "public"."LoanPayment" WHERE "public"."LoanPayment"."loanId" = $1 OFFSET $2) AS "sub"
+ POST /credits/cmpw5xda20001fcn5akigyg3c 200 in 3.0s (next.js: 43ms, proxy.ts: 16ms, application-code: 2.9s)
+  └─ ƒ generateLoanAdvice("cmpw5xda20001fcn5akigyg3c") in 2889ms server/actions/ai-actions.ts
+prisma:query SELECT "public"."Budget"."id", "public"."Budget"."userId", "public"."Budget"."name", "public"."Budget"."income", "public"."Budget"."currency", "public"."Budget"."rule", "public"."Budget"."createdAt", "public"."Budget"."updatedAt" FROM "public"."Budget" WHERE "public"."Budget"."userId" = $1 ORDER BY "public"."Budget"."createdAt" DESC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Category"."id", "public"."Category"."budgetId", "public"."Category"."name", "public"."Category"."type", "public"."Category"."color" FROM "public"."Category" WHERE "public"."Category"."budgetId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Transaction"."id", "public"."Transaction"."categoryId", "public"."Transaction"."amount", "public"."Transaction"."description", "public"."Transaction"."date", "public"."Transaction"."recurrence", "public"."Transaction"."createdAt" FROM "public"."Transaction" WHERE "public"."Transaction"."categoryId" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."Transaction"."date" DESC OFFSET $19
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /dashboard 200 in 865ms (next.js: 50ms, proxy.ts: 9ms, application-code: 805ms)
+ GET /api/auth/session 200 in 56ms (next.js: 22ms, proxy.ts: 16ms, application-code: 17ms)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /api/auth/session 200 in 33ms (next.js: 8ms, proxy.ts: 12ms, application-code: 13ms)
+prisma:query SELECT "public"."Budget"."id", "public"."Budget"."userId", "public"."Budget"."name", "public"."Budget"."income", "public"."Budget"."currency", "public"."Budget"."rule", "public"."Budget"."createdAt", "public"."Budget"."updatedAt" FROM "public"."Budget" WHERE "public"."Budget"."userId" = $1 ORDER BY "public"."Budget"."createdAt" DESC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."Category"."id", "public"."Category"."budgetId", "public"."Category"."name", "public"."Category"."type", "public"."Category"."color" FROM "public"."Category" WHERE "public"."Category"."budgetId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Transaction"."id", "public"."Transaction"."categoryId", "public"."Transaction"."amount", "public"."Transaction"."description", "public"."Transaction"."date", "public"."Transaction"."recurrence", "public"."Transaction"."createdAt" FROM "public"."Transaction" WHERE "public"."Transaction"."categoryId" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) ORDER BY "public"."Transaction"."date" DESC OFFSET $19
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /dashboard 200 in 803ms (next.js: 6ms, proxy.ts: 10ms, application-code: 787ms)
+ GET /api/auth/session 200 in 56ms (next.js: 29ms, proxy.ts: 14ms, application-code: 14ms)
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[browser] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET /api/auth/session 200 in 33ms (next.js: 6ms, proxy.ts: 10ms, application-code: 16ms)
+
+thread 'tokio-runtime-worker' (41668) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 100 tasks
+
+Caused by:
+    0: Looking up typed data for 100 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000148.meta
+    2: Unable to open static sorted file 00000143.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000143.sst
+    4: The system cannot find the path specified. (os error 3)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'tokio-runtime-worker' (41668) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 100 tasks
+
+Caused by:
+    0: Looking up typed data for 100 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000148.meta
+    2: Unable to open static sorted file 00000143.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000143.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 40 tasks
+
+Caused by:
+    0: Looking up typed data for 40 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000148.meta
+    2: Unable to open static sorted file 00000143.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000143.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (41668) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 8 tasks
+
+Caused by:
+    0: Looking up typed data for 8 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 40 tasks
+
+Caused by:
+    0: Looking up typed data for 40 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000148.meta
+    2: Unable to open static sorted file 00000143.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000143.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (31200) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 7 tasks
+
+Caused by:
+    0: Looking up typed data for 7 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36724) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 11 tasks
+
+Caused by:
+    0: Looking up typed data for 11 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 16 tasks
+
+Caused by:
+    0: Looking up typed data for 16 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000148.meta
+    2: Unable to open static sorted file 00000143.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000143.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (41668) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 8 tasks
+
+Caused by:
+    0: Looking up typed data for 8 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37084) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 15 tasks
+
+Caused by:
+    0: Looking up typed data for 15 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 12 tasks
+
+Caused by:
+    0: Looking up typed data for 12 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (31200) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 7 tasks
+
+Caused by:
+    0: Looking up typed data for 7 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 12 tasks
+
+Caused by:
+    0: Looking up typed data for 12 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (34016) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 4 tasks
+
+Caused by:
+    0: Looking up typed data for 4 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 16 tasks
+
+Caused by:
+    0: Looking up typed data for 16 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000148.meta
+    2: Unable to open static sorted file 00000143.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000143.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37084) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 15 tasks
+
+Caused by:
+    0: Looking up typed data for 15 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 19 tasks
+
+Caused by:
+    0: Looking up typed data for 19 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36724) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 11 tasks
+
+Caused by:
+    0: Looking up typed data for 11 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 19 tasks
+
+Caused by:
+    0: Looking up typed data for 19 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (31200) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (34016) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 4 tasks
+
+Caused by:
+    0: Looking up typed data for 4 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (31200) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36724) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (31200) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37084) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (34016) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 11309)
+
+Caused by:
+    0: Looking up task storage for TaskId 11309 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 11111)
+
+Caused by:
+    0: Looking up task storage for TaskId 11111 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36724) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 13419)
+
+Caused by:
+    0: Looking up task storage for TaskId 13419 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 18252)
+
+Caused by:
+    0: Looking up task storage for TaskId 18252 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (34016) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 18278)
+
+Caused by:
+    0: Looking up task storage for TaskId 18278 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (31200) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 17446)
+
+Caused by:
+    0: Looking up task storage for TaskId 17446 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37084) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 13248)
+
+Caused by:
+    0: Looking up task storage for TaskId 13248 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (36664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 14539)
+
+Caused by:
+    0: Looking up task storage for TaskId 14539 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 5 tasks
+
+Caused by:
+    0: Looking up typed data for 5 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 7567)
+
+Caused by:
+    0: Looking up task storage for TaskId 7567 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 14416)
+
+Caused by:
+    0: Looking up task storage for TaskId 14416 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 14530)
+
+Caused by:
+    0: Looking up task storage for TaskId 14530 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 15220)
+
+Caused by:
+    0: Looking up task storage for TaskId 15220 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 11460)
+
+Caused by:
+    0: Looking up task storage for TaskId 11460 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 15161)
+
+Caused by:
+    0: Looking up task storage for TaskId 15161 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 18262)
+
+Caused by:
+    0: Looking up task storage for TaskId 18262 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 15253)
+
+Caused by:
+    0: Looking up task storage for TaskId 15253 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (32816) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 18099)
+
+Caused by:
+    0: Looking up task storage for TaskId 18099 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 17477)
+
+Caused by:
+    0: Looking up task storage for TaskId 17477 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 17412)
+
+Caused by:
+    0: Looking up task storage for TaskId 17412 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 14708)
+
+Caused by:
+    0: Looking up task storage for TaskId 14708 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 15093)
+
+Caused by:
+    0: Looking up task storage for TaskId 15093 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 11449)
+
+Caused by:
+    0: Looking up task storage for TaskId 11449 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 15078)
+
+Caused by:
+    0: Looking up task storage for TaskId 15078 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 11367)
+
+Caused by:
+    0: Looking up task storage for TaskId 11367 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 17465)
+
+Caused by:
+    0: Looking up task storage for TaskId 17465 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 18334)
+
+Caused by:
+    0: Looking up task storage for TaskId 18334 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 17485)
+
+Caused by:
+    0: Looking up task storage for TaskId 17485 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 18448)
+
+Caused by:
+    0: Looking up task storage for TaskId 18448 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 11455)
+
+Caused by:
+    0: Looking up task storage for TaskId 11455 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 7593)
+
+Caused by:
+    0: Looking up task storage for TaskId 7593 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 18274)
+
+Caused by:
+    0: Looking up task storage for TaskId 18274 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 17873)
+
+Caused by:
+    0: Looking up task storage for TaskId 17873 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 14436)
+
+Caused by:
+    0: Looking up task storage for TaskId 14436 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 4635)
+
+Caused by:
+    0: Looking up task storage for TaskId 4635 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 11 tasks
+
+Caused by:
+    0: Looking up typed data for 11 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000148.meta
+    2: Unable to open static sorted file 00000143.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000143.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 11328)
+
+Caused by:
+    0: Looking up task storage for TaskId 11328 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (16664) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 5874)
+
+Caused by:
+    0: Looking up task storage for TaskId 5874 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 13401)
+
+Caused by:
+    0: Looking up task storage for TaskId 13401 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 13228)
+
+Caused by:
+    0: Looking up task storage for TaskId 13228 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000099.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000099.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 13251)
+
+Caused by:
+    0: Looking up task storage for TaskId 13251 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:225:17:
+Failed to restore task data (corrupted database or bug): Data for batch of 3 tasks
+
+Caused by:
+    0: Looking up typed data for 3 tasks from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+
+thread 'tokio-runtime-worker' (37604) panicked at turbopack\crates\turbo-tasks-backend\src\backend\operation\mod.rs:197:17:
+Failed to restore task data (corrupted database or bug): Data for TaskId 9573)
+
+Caused by:
+    0: Looking up task storage for TaskId 9573 from database failed
+    1: Unable to open static sorted file referenced from 00000100.meta
+    2: Unable to open static sorted file 00000098.sst
+    3: Failed to open SST file C:\Users\dajos\Desktop\presupuesto-app\.next\dev\cache/turbopack\ee6e79b1\00000098.sst
+    4: The system cannot find the path specified. (os error 3)
+Persisting failed: Unable to write SST file 00000169.sst
+
+Caused by:
+    The system cannot find the path specified. (os error 3)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)

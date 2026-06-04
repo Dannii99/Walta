@@ -14,7 +14,7 @@ Este documento es la guía de arranque. Siguiendo estos pasos, el proyecto queda
 - **ORM**: Prisma
 - **Auth**: Auth.js (NextAuth.js v5)
 - **Styling**: TailwindCSS
-- **UI Library**: shadcn/ui + Tremor
+- **UI Library**: shadcn/ui
 - **Charts**: Recharts
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
@@ -55,9 +55,6 @@ cd presupuesto-app
 ```bash
 # UI Components y estilos
 pnpm dlx shadcn-ui@latest init
-
-# Tremor (dashboard components)
-pnpm add @tremor/react
 
 # Charts
 pnpm add recharts
@@ -113,8 +110,8 @@ Asegurar que está configurado con:
 - `"baseUrl": "."`
 - `"paths": { "@/*": ["./*"] }`
 
-### 6.2 TailwindCSS (`tailwind.config.ts`)
-- Extender configuración con colores de Tremor (ver documentación de Tremor para `tailwind.config`).
+### 6.2 TailwindCSS (`app/globals.css`)
+- Tailwind v4: la configuración se hace en `app/globals.css` vía `@theme inline` (no se usa `tailwind.config.ts`).
 - Agregar `darkMode: "class"` para soporte futuro de modo oscuro.
 - Configurar `fontFamily` con Inter.
 
@@ -285,4 +282,4 @@ npx prisma studio      # para inspeccionar datos
 3. Una vez que `pnpm dev` y `next build` funcionen con el layout base, proceder a implementar las Fases del `architecture.md`.
 4. Prioridad absoluta: que el onboarding cree un presupuesto real en la base de datos y el dashboard lo muestre. Eso es el "momento mágico" del MVP.
 5. Si surge algún conflicto entre este plan y el `architecture.md`, el `architecture.md` tiene prioridad.
-6. Reportar inmediatamente si alguna librería (especialmente Tremor o next-pwa) tiene incompatibilidad con la versión de Next.js instalada.
+6. Reportar inmediatamente si alguna librería (especialmente next-pwa) tiene incompatibilidad con la versión de Next.js instalada.

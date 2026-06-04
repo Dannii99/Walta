@@ -13,7 +13,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Prisma 7.8.0** + **Neon Postgres** (`@neondatabase/serverless`)
 - **Auth.js v5** (NextAuth) with hardcoded CredentialsProvider (OAuth not wired yet)
 - **Vitest** (unit) + **Playwright** (E2E)
-- **shadcn/ui** (style: base-nova) + Tremor + Recharts + Framer Motion
+- **shadcn/ui** (style: base-nova) + Recharts + Framer Motion
 
 ## Developer Commands
 
@@ -35,7 +35,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - `app/(auth)/login/page.tsx` — Login page (public)
   - `app/(dashboard)/` — Protected routes (`page.tsx`, `transactions/`, `simulations/`, `history/`, `settings/`)
   - `app/api/auth/[...nextauth]/route.ts` — Auth.js API endpoint
-- **Middleware** (`middleware.ts`): redirects unauthenticated users from `/` and `/dashboard/*` to `/login`; redirects logged-in users away from `/login`.
+- **Proxy** (`proxy.ts`): renamed from `middleware.ts` per Next.js 16 deprecation. Redirects unauthenticated users from `/` and `/dashboard/*` to `/login`; redirects logged-in users away from `/login`.
 - **Prisma singleton** at `lib/prisma.ts` (prevents multiple instances in dev).
 - **Auth config** at `lib/auth.ts` — hardcoded demo user `demo@example.com` / `demo123`. JWT strategy.
 - **Providers** in `app/providers.tsx`: `SessionProvider` + `ThemeProvider` (next-themes, attribute="class", storageKey="walta-theme", disableTransitionOnChange) + `QueryClientProvider` (TanStack Query). `Toaster` (sonner) queda fuera intencionalmente.
@@ -69,6 +69,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Dark mode color tints** para badges/pills: `bg-{color}-100 dark:bg-{color}-950/40 text-{color}-800 dark:text-{color}-400 border-{color}-200 dark:border-{color}-900` (emerald/amber/blue/red/rose/purple). Slate usa `bg-slate-100 dark:bg-slate-800`.
 - **Dark mode row tints**: `bg-{color}-50/50 dark:bg-{color}-950/20` para status rows.
 - **Dark mode Recharts**: usar `useTheme()` de next-themes y `const isDark = resolvedTheme === "dark"`. Recharts no renderiza en SSR, así que no requiere `mounted` guard. `stroke={isDark ? "#0f172a" : "#ffffff"}` para separadores, `tick={{ fill: isDark ? "#f8fafc" : "#1c1917" }}`, `cursor={{ fill: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}`.
+- **Recharts `ResponsiveContainer` wrapper pattern**: SIEMPRE envolver el chart en un div con altura explícita (Tailwind `h-[Npx]` o inline `style={{ height: N }}`) y usar `width="100%" height="100%"`. NO usar `width="100%" height={N}` directamente sobre `ResponsiveContainer`. Esto reduce el warning `width(-1) and height(-1)` de Recharts (race condition con SSR + `motion.div` + `useTheme()` re-render). El warning puede aparecer UNA vez por chart en el primer mount, pero los charts renderizan correctamente. Verificado con Playwright que parents tienen dimensiones finales correctas (ej. 748×340).
+  - `components/credits/CreditCharts.tsx` — 2 charts, ambos envueltos en `<div className="h-[250px] w-full">`.
+  - `components/dashboard/CategoryDonutChart.tsx` — envuelto en `<div className="h-[340px] w-full">`.
+  - `components/dashboard/CategoryLimitsBarChart.tsx` — ya tenía `<div className="h-[320px] md:h-[360px]">`.
+  - `components/history/HistoryChart.tsx` — ya tenía `<div className="h-80">`.
 - **Dark mode `useSyncExternalStore` pattern** para evitar hydration mismatch sin `setState` en `useEffect` (prohibido por `react-hooks/set-state-in-effect`):
   ```ts
   const emptySubscribe = () => () => {};

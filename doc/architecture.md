@@ -16,14 +16,14 @@ No existe proyecto todavía. Esta arquitectura es una propuesta basada en el `pr
 
 **Razones principales:**
 1. **Full-stack integrado**: Next.js permite API Routes y Server Actions, eliminando la necesidad de un backend separado (Node/Express) para comunicarse con Prisma + Neon. El MVP crece dentro de un solo proyecto.
-2. **Ecosistema visual superior**: React tiene el ecosistema más maduro de librerías para dashboards financieros modernos (Tremor, shadcn/ui, Recharts, Framer Motion). Esto responde directamente al requerimiento de que la visual sea "muy original y moderna".
+2. **Ecosistema visual superior**: React tiene el ecosistema más maduro de librerías para dashboards financieros modernos (shadcn/ui, Recharts, Framer Motion). Esto responde directamente al requerimiento de que la visual sea "muy original y moderna".
 3. **PWA nativo**: `next-pwa` convierte la app en PWA con Service Worker de forma estándar.
 4. **Server Components**: Permiten cargar datos del presupuesto directamente desde Prisma sin exponer lógica al cliente, reduciendo JavaScript enviado al navegador.
 5. **Escalabilidad implícita**: Cuando el producto crezca a multiusuario, autenticación avanzada o features colaborativas, Next.js ya tiene la estructura para soportarlo.
 
 **Alternativas evaluadas:**
 - *React + Vite*: Requeriría crear un backend separado para Prisma/Neon. Aumenta la complejidad del MVP innecesariamente.
-- *Vue + Nuxt*: Buen DX, pero el ecosistema de librerías UI tipo "dashboard financiero" (Tremor, shadcn) es significativamente menor en Vue.
+- *Vue + Nuxt*: Buen DX, pero el ecosistema de librerías UI tipo "dashboard financiero" (shadcn) es significativamente menor en Vue.
 - *Angular*: Demasiado verboso para un MVP. Menor cantidad de librerías visuales modernas listas para usar.
 
 ## 3. Context
@@ -43,7 +43,7 @@ El MVP incluye historial mensual y persistencia en Neon Postgres. Debe funcionar
 | **Database** | Neon Postgres (serverless) | Persistencia de presupuestos, gastos, simulaciones, historial |
 | **ORM** | Prisma | Modelado de datos, migraciones, queries type-safe |
 | **Styling** | TailwindCSS | Utility-first CSS, rápido, consistente, personalizable |
-| **UI Components** | shadcn/ui + Tremor | Componentes base accesibles (shadcn) + componentes de dashboard financiero (Tremor) |
+| **UI Components** | shadcn/ui | Componentes base accesibles, copiables y personalizables, alineados con el sistema visual de Tailwind v4 |
 | **Charts** | Recharts | Gráficos de dona, barras y áreas. Liviano y declarativo |
 | **Animations** | Framer Motion | Transiciones de página, microinteracciones, animaciones de entrada para números y gráficos |
 | **Icons** | Lucide React | Iconografía consistente y moderna |
@@ -229,8 +229,8 @@ model Simulation {
 
 - **Base**: TailwindCSS con variables CSS para el tema (modo claro/oscuro preparado desde el inicio).
 - **Componentes base**: shadcn/ui proporciona inputs, botones, modales, dropdowns accesibles y sin estilos forzados.
-- **Componentes de dashboard**: Tremor aporta `Card`, `Metric`, `ProgressBar`, `AreaChart`, `DonutChart` estilizados para analytics. Esto acelera enormemente la construcción del dashboard financiero.
-- **Gráficos custom**: Recharts para casos específicos que Tremor no cubra (ej. gráfico de semáforo circular).
+- **Componentes de dashboard**: shadcn/ui aporta `Card`, `Button`, `Dialog`, `Tabs`, `Input`, `Select`, etc. estilizados con Tailwind v4 y totalmente personalizables. Combinado con primitivos accesibles de Radix UI, esto cubre los bloques base del dashboard financiero.
+- **Gráficos**: Recharts para todos los gráficos del dashboard (donut de distribución, barras de límites, líneas de evolución, comparación sin/con abono). Recharts es liviano, declarativo y compatible con React 19.
 
 ### Paleta y Semántica
 
@@ -337,11 +337,10 @@ interface UIState {
 | Riesgo | Impacto | Mitigación |
 |--------|---------|------------|
 | **Next.js App Router es relativamente nuevo** | Medium | Usar patrones establecidos (Server Actions, `loading.tsx`). Evitar experimental features. |
-| **Tremor + shadcn pueden chocar en estilos** | Low | Ambos usan Tailwind. Tremor es configurable. shadcn es copiar-pegar, así que se ajusta fácil. |
 | **Prisma + Neon en serverless** | Medium | Neon es serverless-friendly. Prisma requiere connection pooling (usar `@neondatabase/serverless` adapter). |
 | **PWA + Auth offline** | Medium | Auth.js requiere red para validar sesión. Para offline, cachear token JWT y degradar gracefulmente a modo solo-lectura. |
 | **Precisión decimal en JSON** | High | Prisma `Decimal` se serializa a string en JSON. Asegurar que el cliente siempre reciba strings y use Dinero.js antes de mostrar. |
-| **Bundle size con Tremor + Recharts + Framer Motion** | Medium | Usar `dynamic` imports para gráficos. Tremor tree-shakea bien. Framer Motion se puede importar solo donde se use. |
+| **Bundle size con Recharts + Framer Motion** | Medium | Usar `dynamic` imports para gráficos. Recharts tree-shakea bien. Framer Motion se puede importar solo donde se use. |
 
 ## 15. Implementation Plan
 
@@ -405,7 +404,7 @@ interface UIState {
 **Specialist agent:** `frontend-react-next`
 
 **Instructions for implementation:**
-1. **Stack**: Next.js 14+ (App Router), TypeScript, TailwindCSS, shadcn/ui, Tremor, Recharts, Framer Motion, TanStack Query, Zustand, React Hook Form + Zod, Auth.js, Prisma + Neon, Dinero.js.
+1. **Stack**: Next.js 14+ (App Router), TypeScript, TailwindCSS, shadcn/ui, Recharts, Framer Motion, TanStack Query, Zustand, React Hook Form + Zod, Auth.js, Prisma + Neon, Dinero.js.
 2. **Priority**: Fase 1 y Fase 2 primero (setup + modelo de datos). Sin DB funcional, no avanzar a UI.
 3. **Visual priority**: El dashboard debe sentirse "vivo". Usar Framer Motion para contadores y transiciones. Los semáforos deben ser inmediatamente legibles.
 4. **Business logic isolation**: Todo cálculo financiero (disponible, cuotas, veredictos) debe vivir en `lib/` puro, sin dependencias de React. Debe ser 100% testeable con Vitest.

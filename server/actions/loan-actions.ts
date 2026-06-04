@@ -4,6 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { invalidateLoanAdvisorCache } from "@/lib/ai/loan-advisor";
+import { clearLoanInsightsCache } from "@/lib/ai/loan-insights";
+
+function revalidateCreditPaths(loanId?: string) {
+  revalidatePath("/credits");
+  if (loanId) {
+    revalidatePath(`/credits/${loanId}`);
+    revalidatePath(`/credits/${loanId}/edit`);
+  }
+}
 
 const createLoanSchema = z.object({
   userId: z.string().min(1),
@@ -252,7 +262,12 @@ export async function createLoan(
     });
   }
 
-  revalidatePath("/credits");
+  revalidateCreditPaths(loan.id);
+
+  const sessionUserId = (await auth())?.user?.id;
+  if (sessionUserId) {
+    clearLoanInsightsCache(sessionUserId);
+  }
 
   return {
     ...loan,
@@ -358,8 +373,13 @@ export async function updateLoan(
     data: updateData,
   });
 
-  revalidatePath("/credits");
-  revalidatePath(`/credits/${id}`);
+  revalidateCreditPaths(id);
+
+  const sessionUserId = (await auth())?.user?.id;
+  if (sessionUserId) {
+    invalidateLoanAdvisorCache(sessionUserId, id);
+    clearLoanInsightsCache(sessionUserId);
+  }
 
   return {
     ...updated,
@@ -391,7 +411,13 @@ export async function deleteLoan(id: string) {
 
   await prisma.loan.delete({ where: { id } });
 
-  revalidatePath("/credits");
+  revalidateCreditPaths();
+
+  const sessionUserId = (await auth())?.user?.id;
+  if (sessionUserId) {
+    invalidateLoanAdvisorCache(sessionUserId, id);
+    clearLoanInsightsCache(sessionUserId);
+  }
 
   return { success: true };
 }
@@ -439,8 +465,11 @@ export async function recordPayment(
     },
   });
 
-  revalidatePath("/credits");
-  revalidatePath(`/credits/${loanId}`);
+  revalidateCreditPaths(loanId);
+
+  const sessionUserId = session.user.id;
+  invalidateLoanAdvisorCache(sessionUserId, loanId);
+  clearLoanInsightsCache(sessionUserId);
 
   return {
     ...payment,
@@ -490,8 +519,11 @@ export async function recordCapitalContribution(
     },
   });
 
-  revalidatePath("/credits");
-  revalidatePath(`/credits/${loanId}`);
+  revalidateCreditPaths(loanId);
+
+  const sessionUserId = session.user.id;
+  invalidateLoanAdvisorCache(sessionUserId, loanId);
+  clearLoanInsightsCache(sessionUserId);
 
   return {
     ...extra,
@@ -516,8 +548,13 @@ export async function deletePayment(id: string) {
 
   await prisma.loanPayment.delete({ where: { id } });
 
-  revalidatePath("/credits");
-  revalidatePath(`/credits/${existing.loanId}`);
+  revalidateCreditPaths(existing.loanId);
+
+  const sessionUserId = (await auth())?.user?.id;
+  if (sessionUserId) {
+    invalidateLoanAdvisorCache(sessionUserId, existing.loanId);
+    clearLoanInsightsCache(sessionUserId);
+  }
 
   return { success: true };
 }
@@ -539,8 +576,13 @@ export async function deleteExtraPayment(id: string) {
 
   await prisma.loanExtraPayment.delete({ where: { id } });
 
-  revalidatePath("/credits");
-  revalidatePath(`/credits/${existing.loanId}`);
+  revalidateCreditPaths(existing.loanId);
+
+  const sessionUserId = (await auth())?.user?.id;
+  if (sessionUserId) {
+    invalidateLoanAdvisorCache(sessionUserId, existing.loanId);
+    clearLoanInsightsCache(sessionUserId);
+  }
 
   return { success: true };
 }

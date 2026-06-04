@@ -1,0 +1,93 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Receipt, CheckCircle2 } from "lucide-react";
+import { formatCOP } from "@/lib/currency";
+import type { LoanPayment } from "@/types";
+
+interface CreditPaymentsListProps {
+  payments: LoanPayment[];
+}
+
+function formatDate(date: Date | string): string {
+  return new Date(date).toLocaleDateString("es-CO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+export function CreditPaymentsList({ payments }: CreditPaymentsListProps) {
+  if (payments.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-stone-300 dark:border-stone-700 p-12 text-center">
+        <div className="h-10 w-10 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center mx-auto mb-3">
+          <Receipt className="h-5 w-5 text-stone-400" />
+        </div>
+        <p className="text-sm font-semibold text-stone-900 dark:text-stone-50">
+          Sin pagos registrados
+        </p>
+        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+          Cuando registres un pago aparecerá aquí.
+        </p>
+      </div>
+    );
+  }
+
+  const totalAmount = payments.reduce(
+    (sum, p) => sum + parseFloat(p.amount),
+    0
+  );
+
+  return (
+    <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="p-5 md:p-6 border-b border-stone-200/80 dark:border-stone-800 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-md bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <Receipt className="h-3.5 w-3.5" strokeWidth={2.3} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-50">
+              Pagos realizados
+            </h2>
+            <p className="text-[11px] text-stone-500 dark:text-stone-400">
+              {payments.length} {payments.length === 1 ? "pago" : "pagos"} ·{" "}
+              <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                {formatCOP(totalAmount)}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="divide-y divide-stone-200/80 dark:divide-stone-800">
+        {payments.map((p, i) => (
+          <motion.div
+            key={p.id}
+            initial={{ opacity: 0, x: -4 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2, delay: i * 0.02 }}
+            className="p-4 md:px-6 flex items-center justify-between gap-3 hover:bg-stone-50/50 dark:hover:bg-stone-800/30 transition-colors"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-4 w-4" strokeWidth={2.2} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-50">
+                  {formatDate(p.paidDate)}
+                </p>
+                <p className="text-xs text-stone-500 dark:text-stone-400 tabular-nums">
+                  Capital {formatCOP(parseFloat(p.principalPaid))} · Interés{" "}
+                  {formatCOP(parseFloat(p.interestPaid))}
+                </p>
+              </div>
+            </div>
+            <span className="text-sm font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
+              {formatCOP(parseFloat(p.amount))}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}

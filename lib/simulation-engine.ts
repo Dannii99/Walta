@@ -59,25 +59,9 @@ export function calculateNominalMonthly(
   return Number(payment.toFixed(2));
 }
 
-/**
- * Retorna un resumen completo del préstamo según la fórmula elegida.
- */
-export function getLoanSummary(
-  principal: number,
-  rate: number,
-  termMonths: number,
-  formula: "french_ea" | "nominal_monthly"
-): { monthlyPayment: number; totalCost: number; totalInterest: number } {
-  const monthlyPayment =
-    formula === "nominal_monthly"
-      ? calculateNominalMonthly(principal, rate, termMonths)
-      : calculateFrenchEA(principal, rate, termMonths);
-
-  const totalCost = monthlyPayment * termMonths;
-  const totalInterest = totalCost - principal;
-
-  return { monthlyPayment, totalCost, totalInterest };
-}
+// getLoanSummary ahora vive en lib/credit-engine.ts.
+// Re-exportado aquí para mantener compatibilidad con imports existentes.
+export { getLoanSummary } from "@/lib/credit-engine";
 
 export type Verdict = "SAFE" | "TIGHT" | "RISKY" | "NOT_RECOMMENDED";
 

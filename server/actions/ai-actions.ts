@@ -275,3 +275,294 @@ export async function invalidateInsightsCache() {
   }
   clearInsightsCache(session.user.id);
 }
+
+// ─── Loan AI (Feature A: advisor, Feature B: insights) ────────────
+
+import { generateLoanAdvisorAnalysis, invalidateLoanAdvisorCache } from "@/lib/ai/loan-advisor";
+import { generateLoanInsights, clearLoanInsightsCache } from "@/lib/ai/loan-insights";
+import {
+  type LoanForAdvisor,
+  type OtherLoanSummary,
+  type LoanAdvisorContext,
+  type ActiveLoanSummary,
+  type LoanInsightsContext,
+} from "@/lib/ai/loan-prompts";
+import { getLoanHealthFromCapacity } from "@/lib/credit-engine";
+
+interface LoanWithRelations {
+  id: string;
+  userId: string;
+  title: string;
+  type: string;
+  principal: { toString(): string } | number | string;
+  downPayment: { toString(): string } | number | string;
+  annualRate: { toString(): string } | number | string;
+  termMonths: number;
+  formula: string;
+  monthlyPayment: { toString(): string } | number | string;
+  totalInterest: { toString(): string } | number | string;
+  totalCost: { toString(): string } | number | string;
+  startDate: Date | string;
+  status: string;
+  paidInstallments: number;
+  fees?: unknown;
+  payments?: Array<{
+    amount: { toString(): string } | number | string;
+    paidDate: Date | string;
+  }>;
+}
+
+function num(value: { toString(): string } | number | string): number {
+  if (typeof value === "number") return value;
+  return Number(value.toString());
+}
+
+function dateToISO(d: Date | string): string {
+  return typeof d === "string" ? d : d.toISOString();
+}
+
+async function loadAdvisorContextForLoan(
+  userId: string,
+  loanId: string
+): Promise<{ ctx: LoanAdvisorContext; loanStatus: string }> {
+  const loan = (await prisma.loan.findUnique({
+    where: { id: loanId },
+    include: {
+      payments: { orderBy: { paidDate: "desc" }, take: 50 },
+    },
+  })) as LoanWithRelations | null;
+
+  if (!loan || loan.userId !== userId) {
+    throw new Error("Loan not found or unauthorized");
+  }
+
+  const budgetCtx = await loadFinancialContext(userId);
+
+  const otherActiveLoans = await prisma.loan.findMany({
+    where: { userId, status: "ACTIVE", NOT: { id: loanId } },
+    select: {
+      type: true,
+      title: true,
+      monthlyPayment: true,
+      termMonths: true,
+      paidInstallments: true,
+    },
+  });
+
+  const otherLoans: OtherLoanSummary[] = otherActiveLoans.map((l) => ({
+    type: l.type,
+    title: l.title,
+    monthlyPayment: Number(l.monthlyPayment),
+    remainingMonths: Math.max(0, l.termMonths - l.paidInstallments),
+  }));
+
+  const otherActiveLoansTotal = otherLoans.reduce(
+    (sum, l) => sum + l.monthlyPayment,
+    0
+  );
+  const activeLoansTotal = otherActiveLoansTotal + num(loan.monthlyPayment);
+
+  const principal = num(loan.principal);
+  const monthlyPayment = num(loan.monthlyPayment);
+  const fees = Array.isArray(loan.fees)
+    ? (loan.fees as Array<{ amount: number; type: string }>)
+    : [];
+  const monthlyFees = fees
+    .filter((f) => f.type === "monthly")
+    .reduce((s, f) => s + (Number(f.amount) || 0), 0);
+
+  const totalPaidAgg = await prisma.loanPayment.aggregate({
+    where: { loanId },
+    _sum: { amount: true, principalPaid: true },
+  });
+  const totalPaid = Number(totalPaidAgg._sum.amount ?? 0);
+  const principalPaid = Number(totalPaidAgg._sum.principalPaid ?? 0);
+  const remainingBalance = Math.max(0, principal - principalPaid);
+  const percentPaid = principal > 0 ? (principalPaid / principal) * 100 : 0;
+
+  const { health } = getLoanHealthFromCapacity(
+    monthlyPayment + monthlyFees,
+    budgetCtx.available
+  );
+
+  const recentPayments = (loan.payments ?? []).slice(0, 3).map((p) => ({
+    month: 0,
+    amount: num(p.amount),
+    paidDate: dateToISO(p.paidDate),
+  }));
+
+  const upcomingMonths: { month: number; amount: number; projectedDate: string }[] = [];
+  const start = new Date(loan.startDate);
+  for (let i = 1; i <= 3; i++) {
+    const projected = new Date(start);
+    projected.setMonth(projected.getMonth() + loan.paidInstallments + i);
+    upcomingMonths.push({
+      month: loan.paidInstallments + i,
+      amount: monthlyPayment,
+      projectedDate: projected.toISOString(),
+    });
+  }
+
+  const loanForAdvisor: LoanForAdvisor = {
+    id: loan.id,
+    title: loan.title,
+    type: loan.type,
+    principal,
+    downPayment: num(loan.downPayment),
+    annualRate: num(loan.annualRate),
+    termMonths: loan.termMonths,
+    monthlyPayment,
+    totalInterest: num(loan.totalInterest),
+    totalCost: num(loan.totalCost),
+    startDate: dateToISO(loan.startDate),
+    status: loan.status,
+    paidInstallments: loan.paidInstallments,
+    totalPaid,
+    remainingBalance,
+    percentPaid,
+    health,
+    recentPayments,
+    upcomingPayments: upcomingMonths,
+    monthlyFees,
+    formula: loan.formula,
+  };
+
+  return {
+    ctx: {
+      income: budgetCtx.income,
+      available: budgetCtx.available,
+      recommendedMax: budgetCtx.recommendedMax,
+      activeLoansTotal,
+      otherLoans,
+      loan: loanForAdvisor,
+    },
+    loanStatus: loan.status,
+  };
+}
+
+export async function generateLoanAdvice(loanId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  const userId = session.user.id;
+
+  const { ctx } = await loadAdvisorContextForLoan(userId, loanId);
+
+  const result = await generateLoanAdvisorAnalysis(ctx, userId, loanId);
+  return result;
+}
+
+export async function generateLoanPortfolioInsights() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  const userId = session.user.id;
+
+  const loans = await prisma.loan.findMany({
+    where: { userId },
+    select: {
+      type: true,
+      title: true,
+      status: true,
+      monthlyPayment: true,
+      paidInstallments: true,
+      principal: true,
+      termMonths: true,
+      formula: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (loans.length === 0) {
+    return { insight: null as string | null, cached: false };
+  }
+
+  const budgetCtx = await loadFinancialContext(userId);
+
+  const paidAgg = await prisma.loanPayment.aggregate({
+    where: { loan: { userId } },
+    _sum: { amount: true },
+  });
+  const totalPaid = Number(paidAgg._sum.amount ?? 0);
+
+  const principalPaidAgg = await prisma.loanPayment.aggregate({
+    where: { loan: { userId } },
+    _sum: { principalPaid: true },
+  });
+  const totalPrincipalPaid = Number(principalPaidAgg._sum.principalPaid ?? 0);
+  const totalPrincipalAll = loans.reduce(
+    (s, l) => s + Number(l.principal),
+    0
+  );
+  const totalPrincipalRemaining = Math.max(
+    0,
+    totalPrincipalAll - totalPrincipalPaid
+  );
+
+  const activeLoans = loans.filter((l) => l.status === "ACTIVE");
+  const totalActiveMonthly = activeLoans.reduce(
+    (s, l) => s + Number(l.monthlyPayment),
+    0
+  );
+  const ratio =
+    budgetCtx.available > 0
+      ? (totalActiveMonthly / budgetCtx.available) * 100
+      : 0;
+
+  const moratoryCount = await prisma.loan.count({
+    where: { userId, status: "DEFAULTED" },
+  });
+  const hasMoratory = moratoryCount > 0;
+
+  const summaries: ActiveLoanSummary[] = loans.map((l) => {
+    const principal = Number(l.principal);
+    const paid = l.paidInstallments;
+    const pct = principal > 0 && l.termMonths > 0
+      ? Math.min(100, (paid / l.termMonths) * 100)
+      : 0;
+    return {
+      type: l.type,
+      title: l.title,
+      status: l.status,
+      monthlyPayment: Number(l.monthlyPayment),
+      remainingBalance: Math.max(0, principal - (paid * Number(l.monthlyPayment) * 0.4)),
+      percentPaid: pct,
+      monthlyFees: 0,
+    };
+  });
+
+  const insightsContext: LoanInsightsContext = {
+    loans: summaries,
+    activeCount: activeLoans.length,
+    paidOffCount: loans.filter((l) => l.status === "PAID_OFF").length,
+    defaultedCount: loans.filter((l) => l.status === "DEFAULTED").length,
+    totalActiveMonthly,
+    totalPrincipalRemaining,
+    totalPaid,
+    available: budgetCtx.available,
+    income: budgetCtx.income,
+    ratio,
+    hasMoratory,
+  };
+
+  const insight = await generateLoanInsights(insightsContext, userId);
+  return { insight, cached: false };
+}
+
+export async function invalidateLoanInsightsCache() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  clearLoanInsightsCache(session.user.id);
+}
+
+export async function invalidateLoanAdvisorCacheAction(loanId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  invalidateLoanAdvisorCache(session.user.id, loanId);
+}

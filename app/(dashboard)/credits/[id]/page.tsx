@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { getLoanById } from "@/server/queries/loan-queries";
-import { LoanDetailClient } from "@/components/credits/LoanDetailClient";
+import { CreditDetailClient } from "@/components/credits/CreditDetailClient";
 import { redirect, notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -19,20 +19,10 @@ export default async function CreditDetailPage({ params }: { params: Promise<{ i
 
   const { id } = await params;
 
-  let loan;
-  try {
-    loan = await getLoanById(id);
-  } catch {
+  const loan = await getLoanById(id);
+  if (!loan) {
     notFound();
   }
 
-    const typedLoan = {
-      ...loan,
-      type: loan.type as "VEHICLE" | "PERSONAL" | "HOUSING" | "OTHER",
-      formula: loan.formula as "french_ea" | "nominal_monthly",
-      status: loan.status as "ACTIVE" | "PAID_OFF" | "DEFAULTED",
-      paidInstallments: (loan as unknown as { paidInstallments?: number }).paidInstallments ?? 0,
-    };
-
-  return <LoanDetailClient loan={typedLoan} />;
+  return <CreditDetailClient loan={loan} />;
 }

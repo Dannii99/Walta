@@ -76,8 +76,9 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
         {hasData ? (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
             <div className="lg:col-span-3 relative">
-              <ResponsiveContainer width="100%" height={340}>
-                <PieChart>
+              <div className="h-[340px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
                   <Pie
                     data={chartData}
                     cx="50%"
@@ -119,8 +120,9 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
                       );
                     }}
                   />
-                </PieChart>
-              </ResponsiveContainer>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-[9px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                   Total mes
