@@ -52,7 +52,7 @@ Versions exactas en `package.json`:
 - **prisma@7.8.0** (cliente generado en `generated/prisma/`, NO `node_modules/.prisma/client`)
 - **@prisma/adapter-neon** + **@neondatabase/serverless@1.1.x** (Prisma 7 requiere adapter)
 - **tailwindcss@4.x** (CSS-based config en `app/globals.css` vía `@theme inline`. **No `tailwind.config.ts`**)
-- **shadcn/ui** style `base-nova` — 13 componentes en `components/ui/`
+- **shadcn/ui** style `base-nova` — 15 componentes en `components/ui/` (incluye `switch.tsx` para cuota inicial toggle)
 - **recharts@3.8.1**, **framer-motion@12.40.0**, **lucide-react**
 - **next-themes@0.4.6**, **sonner@2.0.7**
 - **react-hook-form@7.76.1** + **@hookform/resolvers@5.4.0** + **zod@4.4.3**
@@ -216,9 +216,9 @@ Versions exactas en `package.json`:
   - `components/credits/CreditsFilters.tsx` — Multi-select chips con `data-active` + `aria-pressed`.
   - `components/credits/EmptyCreditsState.tsx` — Empty state con CTA.
   - `components/credits/NewCreditButton.tsx` — **Custom dropdown** (NO Radix) con `useState` + `useRef` + click outside + ESC.
-  - `components/credits/LoanForm.tsx` — **3-step wizard** (Datos → Cuotas → Confirmar). 748 líneas. RHF + Zod.
+  - `components/credits/LoanForm.tsx` — **3-step wizard** (Datos → Condiciones → Confirmar). Step 1: nombre + tipo (Radix Select) + precio + cuota inicial (Switch toggle, default OFF). Step 2: plazo (Años/Meses) + tasa (Radix Select %EA default) + fórmula (Radix Select con `SelectGroup` "Recomendado" + Sparkles) + fecha + cargos. **Stack vertical** (`space-y-6`), NO 2-col grid. Botones nav responsive (`flex-col-reverse sm:flex-row`). RHF + Zod.
   - `components/credits/LoanPreviewCard.tsx` — Live preview del engine.
-  - `components/credits/FeeForm.tsx` + `FeeCard.tsx` + `FeesSection.tsx` — SaaS-style fee CRUD.
+  - `components/credits/FeeForm.tsx` + `FeeCard.tsx` + `FeesSection.tsx` — SaaS-style fee CRUD. **FeeForm**: 2 visual RadioCards (Cobro mensual con border-primary / Pago único con border-amber) + label dinámico "Valor anual" / "Valor único" + hint `÷ 12 → $X/mes` con `Info` icon. **FeeCard** monthly: `formatCOP(amount/12)/mes` + "Anual: $X" subtitle. **FeesSection** empty state: card con `Receipt` icon + "¿Tienes cargos extra en tu extracto?" + subtext + Button "Agregar cargo".
   - `components/credits/CreditDetailClient.tsx` — Detail orchestrator (8+ sub-componentes: header, summary, progress, payments list, extras list, amortization, charts, AI advisor).
   - `components/credits/CreditCharts.tsx` — 2 Recharts charts (capital over time + interest vs principal). Ambos envueltos en `<div className="h-[250px] w-full">`.
   - `components/credits/DeleteCreditDialog.tsx` — AlertDialog con cascade warning.
@@ -229,7 +229,7 @@ Versions exactas en `package.json`:
   - `lib/credit-engine.ts` — `getLoanSummary` (movido desde `simulation-engine.ts`), `LOAN_HEALTH_CONFIG`, `getLoanHealthFromCapacity`, `HEALTH_THRESHOLDS`.
   - `lib/credit-types.ts` — `LOAN_TYPES`, `LOAN_STATUSES`, `LOAN_FORMULA_LABELS`, `parseLoan`, parsers defensivos.
   - `lib/loan-engine.ts` — `generateAmortizationSchedule`, `calculateRemainingBalance`, `getProjectedPayoffDate`, `getDaysOverdue`.
-  - `lib/loan-fees.ts` — `calculateTotalMonthlyFees`, `calculateTotalUpfrontFees`, `getFeeIcon` (Lucide picker).
+  - `lib/loan-fees.ts` — `calculateTotalMonthlyFees`, `calculateTotalUpfrontFees`, `getFeeIcon` (Lucide picker). **Modelo annual: DB almacena valor ANUAL para `type="monthly"`; motor divide entre `ANNUAL_TO_MONTHLY=12` para obtener cuota mensual.** Análogo a `BIWEEKLY` en `/expenses`.
   - `lib/ai/loan-advisor.ts` — `generateLoanAdvisorAnalysis` con cache 24h in-memory + `invalidateLoanAdvisorCache(userId, loanId)`.
   - `lib/ai/loan-insights.ts` — `generateLoanInsights` con cache 1h in-memory + `clearLoanInsightsCache(userId)`.
   - `lib/ai/loan-prompts.ts` — `LOAN_ADVISOR_SYSTEM` + `LOAN_INSIGHTS_SYSTEM` + builders.
@@ -277,6 +277,7 @@ Versions exactas en `package.json`:
   - `scripts/seed-timeline-demo.ts` — Idempotente con `upsert` (IDs `seed-*`). Crea 2 sims (VEHICLE aprobado + HOUSING rechazado) + 1 loan con 8 payments (interés+capital computados) + 2 extras. Cargar con `npx tsx scripts/seed-timeline-demo.ts` (requiere `.env` con `DATABASE_URL`). **Usa `PrismaNeon` adapter** (igual que `lib/prisma.ts`).
   - `scripts/test-ai-prompt.ts` — Smoke test para sim AI. Genera `scripts/test-ai-output.md` (gitignored).
   - `scripts/test-loan-ai.ts` — Smoke test para loan AI. Genera `scripts/test-loan-ai-output.md` (gitignored).
+  - `scripts/migrate-fees-annual.ts` — Idempotente con backup JSON. Multiplica por 12 los cargos `type="monthly"` para migrar al modelo anual. Dry-run default + `--apply`. Backup en `scripts/migrate-fees-annual.backup.json` con shape `{ createdAt, fees: Record<loanId, Record<feeId, originalAmount>> }`. Heurística: `Math.abs(currentAmount - original) < 0.5` = needs migration. Group by loan (1 update per loan). **Usa `PrismaNeon` adapter**.
   - **Recharts `ResponsiveContainer` GOTCHA**: si el seed script importa Prisma, DEBE usar `PrismaNeon` adapter. Prisma 7 strict rechaza `new PrismaClient()` directo sin adapter.
 
 ## Validation Before Commit

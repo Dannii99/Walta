@@ -9,10 +9,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CurrencyInput } from "@/components/ui/currency-input";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RateInput } from "@/components/simulations/RateInput";
 import { LoanPreviewCard } from "./LoanPreviewCard";
 import { FeesSection } from "./FeesSection";
-import { ChevronRight, ChevronLeft, Check, Settings2, AlertCircle } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Settings2,
+  AlertCircle,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { FeeItem, PastPaymentSync } from "@/types";
 
@@ -91,13 +109,6 @@ const LOAN_TYPES = [
   { value: "microcredit", label: "Microcrédito" },
 ];
 
-const FORMULAS = [
-  { value: "french_ea", label: "Cuota Fija (Frances EA)" },
-  { value: "french_namv", label: "Cuota Fija (Frances NAMV)" },
-  { value: "constant_capital_ea", label: "Capital Constante (Alemán EA)" },
-  { value: "constant_capital_namv", label: "Capital Constante (Alemán NAMV)" },
-];
-
 interface LoanFormProps {
   mode: "new" | "ongoing" | "edit";
   defaultValues?: Record<string, unknown> | null;
@@ -117,9 +128,11 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     (defaultValues?.type as string) || "personal"
   );
   const [price, setPrice] = useState((defaultValues?.price as number) || 0);
-  const [downPayment, setDownPayment] = useState(
-    (defaultValues?.downPayment as number) || 0
+  const initialDownPayment = (defaultValues?.downPayment as number) || 0;
+  const [downPaymentEnabled, setDownPaymentEnabled] = useState(
+    initialDownPayment > 0
   );
+  const [downPayment, setDownPayment] = useState(initialDownPayment);
 
   // Step 2: Terms + preview
   const [termValue, setTermValue] = useState(
@@ -388,18 +401,18 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
             <div className="space-y-2">
               <Label htmlFor="type">Tipo de crédito</Label>
-              <select
-                id="type"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                {LOAN_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger id="type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOAN_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -412,14 +425,39 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="downPayment">Cuota inicial</Label>
-              <CurrencyInput
-                id="downPayment"
-                value={downPayment}
-                onValueChange={setDownPayment}
-                placeholder="0"
-              />
+            <div className="space-y-3 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <Label
+                    htmlFor="downPayment-switch"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    ¿Tienes cuota inicial?
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Activa para registrar un pago inicial al crédito.
+                  </p>
+                </div>
+                <Switch
+                  id="downPayment-switch"
+                  checked={downPaymentEnabled}
+                  onCheckedChange={(checked) => {
+                    setDownPaymentEnabled(checked);
+                    if (!checked) setDownPayment(0);
+                  }}
+                />
+              </div>
+              {downPaymentEnabled && (
+                <div className="space-y-2 pt-1">
+                  <Label htmlFor="downPayment">Cuota inicial</Label>
+                  <CurrencyInput
+                    id="downPayment"
+                    value={downPayment}
+                    onValueChange={setDownPayment}
+                    placeholder="0"
+                  />
+                </div>
+              )}
             </div>
 
             {price > 0 && downPayment > 0 && (
@@ -446,7 +484,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
       {/* Step 2: Terms & Preview */}
       {step === 2 && (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Condiciones del crédito</CardTitle>
@@ -513,7 +551,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Tasa de intereses anual</Label>
                   <RateInput
                     value={annualRate}
                     onRateChange={setAnnualRate}
@@ -522,18 +559,35 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
                 <div className="space-y-2">
                   <Label htmlFor="formula">Fórmula de amortización</Label>
-                  <select
-                    id="formula"
-                    value={formula}
-                    onChange={(e) => setFormula(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  >
-                    {FORMULAS.map((f) => (
-                      <option key={f.value} value={f.value}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={formula} onValueChange={setFormula}>
+                    <SelectTrigger id="formula">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                          <Sparkles className="h-3 w-3" />
+                          Recomendado
+                        </SelectLabel>
+                        <SelectItem value="french_ea">
+                          Cuota Fija (Francés EA)
+                        </SelectItem>
+                      </SelectGroup>
+                      <SelectSeparator />
+                      <SelectGroup>
+                        <SelectLabel>Otros métodos</SelectLabel>
+                        <SelectItem value="french_namv">
+                          Cuota Fija (Francés NAMV)
+                        </SelectItem>
+                        <SelectItem value="constant_capital_ea">
+                          Capital Constante (Alemán EA)
+                        </SelectItem>
+                        <SelectItem value="constant_capital_namv">
+                          Capital Constante (Alemán NAMV)
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -724,22 +778,23 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
       )}
 
       {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-4">
         <Button
           variant="outline"
           onClick={handleBack}
           disabled={step === 1 || isSubmitting}
+          className="w-full sm:w-auto"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Anterior
         </Button>
 
         {step === totalSteps ? (
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full sm:w-auto">
             {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar crédito" : "Crear crédito"}
           </Button>
         ) : (
-          <Button onClick={handleNext} disabled={isSubmitting}>
+          <Button onClick={handleNext} disabled={isSubmitting} className="w-full sm:w-auto">
             {step === 1 ? "Calcular" : "Continuar"}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>

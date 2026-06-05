@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { HelpCircle } from "lucide-react";
 
 export type RateMode = "decimal" | "percentage_ea" | "percentage_namv";
@@ -63,7 +70,7 @@ const modeHelp: Record<RateMode, string> = {
 };
 
 export function RateInput({ value = 0, onRateChange, className }: RateInputProps) {
-  const [mode, setMode] = useState<RateMode>("percentage_namv");
+  const [mode, setMode] = useState<RateMode>("percentage_ea");
   const [showTooltip, setShowTooltip] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingValue, setEditingValue] = useState("");
@@ -101,7 +108,7 @@ export function RateInput({ value = 0, onRateChange, className }: RateInputProps
   return (
     <div className={className}>
       <div className="flex items-center gap-2 mb-2">
-        <Label htmlFor="rate-input">Tasa de interés</Label>
+        <Label htmlFor="rate-input">Tasa de interés (anual)</Label>
         <div className="relative">
           <HelpCircle
             className="h-4 w-4 text-muted-foreground cursor-help"
@@ -127,15 +134,16 @@ export function RateInput({ value = 0, onRateChange, className }: RateInputProps
           onBlur={handleBlur}
           className="flex-1"
         />
-        <select
-          value={mode}
-          onChange={(e) => handleModeChange(e.target.value as RateMode)}
-          className="flex h-10 w-[160px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <option value="percentage_namv">{modeLabels.percentage_namv}</option>
-          <option value="percentage_ea">{modeLabels.percentage_ea}</option>
-          <option value="decimal">{modeLabels.decimal}</option>
-        </select>
+        <Select value={mode} onValueChange={(v) => handleModeChange(v as RateMode)}>
+          <SelectTrigger className="w-[160px] shrink-0">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="percentage_ea">{modeLabels.percentage_ea}</SelectItem>
+            <SelectItem value="percentage_namv">{modeLabels.percentage_namv}</SelectItem>
+            <SelectItem value="decimal">{modeLabels.decimal}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getFeeIcon } from "@/lib/loan-fees";
+import { ANNUAL_TO_MONTHLY, getFeeIcon } from "@/lib/loan-fees";
 import { formatCOP } from "@/lib/currency";
 import type { FeeItem } from "@/types";
 
@@ -23,6 +23,9 @@ function FeeIcon({ name }: { name: string }) {
 }
 
 export function FeeCard({ fee, onDelete }: FeeCardProps) {
+  const isMonthly = fee.type === "monthly";
+  const monthlyEquivalent = isMonthly ? fee.amount / ANNUAL_TO_MONTHLY : 0;
+
   return (
     <motion.div
       layout
@@ -49,16 +52,25 @@ export function FeeCard({ fee, onDelete }: FeeCardProps) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{fee.name}</p>
-          <p className="mt-0.5 text-lg font-semibold">{formatCOP(fee.amount)}</p>
+          <p className="mt-0.5 text-lg font-semibold tabular-nums">
+            {isMonthly
+              ? `${formatCOP(monthlyEquivalent)}/mes`
+              : formatCOP(fee.amount)}
+          </p>
+          {isMonthly && (
+            <p className="text-[10px] text-muted-foreground mt-0.5 tabular-nums">
+              Anual: {formatCOP(fee.amount)}
+            </p>
+          )}
           <Badge
             variant="outline"
             className={`mt-1.5 text-[10px] ${
-              fee.type === "monthly"
+              isMonthly
                 ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900"
                 : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900"
             }`}
           >
-            {fee.type === "monthly" ? "Mensual" : "Inicial"}
+            {isMonthly ? "Cobro mensual" : "Pago único"}
           </Badge>
         </div>
       </div>
