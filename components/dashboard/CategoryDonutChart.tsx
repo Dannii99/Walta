@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PieChart as PieIcon, Plus } from "lucide-react";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 
 interface DonutData {
   name: string;
@@ -16,6 +17,7 @@ interface DonutData {
 interface CategoryDonutChartProps {
   data: DonutData[];
   monthLabel?: string;
+  bare?: boolean;
 }
 
 const PALETTE = [
@@ -38,7 +40,7 @@ const formatCurrency = (value: number) =>
     minimumFractionDigits: 0,
   }).format(value);
 
-export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps) {
+export function CategoryDonutChart({ data, monthLabel, bare = false }: CategoryDonutChartProps) {
   const { setOpenAddModal } = useDashboard();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -51,14 +53,9 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
   const total = chartData.reduce((sum, d) => sum + d.value, 0);
   const hasData = chartData.length > 0 && total > 0;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] h-full"
-    >
-      <div className="p-5 md:p-6 space-y-5">
+  const body = (
+    <div className={cn("space-y-5", !bare && "p-5 md:p-6")}>
+        {!bare && (
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
             <PieIcon className="h-3.5 w-3.5" strokeWidth={2.3} />
@@ -72,6 +69,7 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
             </p>
           </div>
         </div>
+        )}
 
         {hasData ? (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
@@ -186,7 +184,19 @@ export function CategoryDonutChart({ data, monthLabel }: CategoryDonutChartProps
             </Button>
           </div>
         )}
-      </div>
+    </div>
+  );
+
+  if (bare) return body;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, delay: 0.1 }}
+      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] h-full"
+    >
+      {body}
     </motion.div>
   );
 }

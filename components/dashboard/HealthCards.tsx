@@ -11,10 +11,13 @@ import {
   CheckCircle2,
   AlertCircle,
   TrendingUp,
+  Trophy,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getRecommendation } from "@/lib/dashboard-helpers";
+import { computeSavingsHealth, type SavingsHealthStatus } from "@/lib/savings-health";
 
 interface HealthCardsProps {
   ruleName: string;
@@ -25,20 +28,35 @@ interface HealthCardsProps {
   needsLimit: number;
   wantsSpent: number;
   wantsLimit: number;
-  savingsSpent: number;
-  savingsLimit: number;
+  savingsRate: number;
+  income: number;
+  monthlyEquivalentExpenses: number;
 }
 
-type Status = "healthy" | "warning" | "critical";
+type StyleKey =
+  | "healthy"
+  | "warning"
+  | "critical"
+  | "aggressive"
+  | "extraordinary"
+  | "deficit";
 
-function getStatus(percentage: number): Status {
+function getSpendingStatus(percentage: number): StyleKey {
   if (percentage <= 85) return "healthy";
   if (percentage <= 100) return "warning";
   return "critical";
 }
 
-const STATUS: Record<
-  Status,
+function savingsStatusToStyleKey(s: SavingsHealthStatus): StyleKey {
+  if (s === "deficit" || s === "critical") return "deficit";
+  if (s === "warming") return "warning";
+  if (s === "healthy") return "healthy";
+  if (s === "aggressive") return "aggressive";
+  return "extraordinary";
+}
+
+const STYLE: Record<
+  StyleKey,
   {
     bar: string;
     text: string;
@@ -46,6 +64,9 @@ const STATUS: Record<
     pill: string;
     emoji: string;
     barTrack: string;
+    pillIcon: LucideIcon;
+    borderAccent: string;
+    ringClass: string;
   }
 > = {
   healthy: {
@@ -55,6 +76,9 @@ const STATUS: Record<
     pill: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
     emoji: "😊",
     barTrack: "bg-stone-100 dark:bg-stone-800",
+    pillIcon: CheckCircle2,
+    borderAccent: "bg-emerald-500",
+    ringClass: "ring-emerald-500/30",
   },
   warning: {
     bar: "[&>div]:bg-amber-500",
@@ -63,6 +87,9 @@ const STATUS: Record<
     pill: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900",
     emoji: "😐",
     barTrack: "bg-stone-100 dark:bg-stone-800",
+    pillIcon: AlertCircle,
+    borderAccent: "bg-amber-500",
+    ringClass: "ring-amber-500/30",
   },
   critical: {
     bar: "[&>div]:bg-rose-500",
@@ -71,20 +98,70 @@ const STATUS: Record<
     pill: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900",
     emoji: "😟",
     barTrack: "bg-stone-100 dark:bg-stone-800",
+    pillIcon: AlertTriangle,
+    borderAccent: "bg-rose-500",
+    ringClass: "ring-rose-500/30",
+  },
+  aggressive: {
+    bar: "[&>div]:bg-emerald-500",
+    text: "text-emerald-700 dark:text-emerald-400",
+    label: "Agresivo",
+    pill: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+    emoji: "💪",
+    barTrack: "bg-stone-100 dark:bg-stone-800",
+    pillIcon: Trophy,
+    borderAccent: "bg-emerald-500",
+    ringClass: "ring-emerald-500/30",
+  },
+  extraordinary: {
+    bar: "[&>div]:bg-blue-500",
+    text: "text-blue-700 dark:text-blue-400",
+    label: "Extraordinario",
+    pill: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+    emoji: "🌟",
+    barTrack: "bg-stone-100 dark:bg-stone-800",
+    pillIcon: Sparkles,
+    borderAccent: "bg-blue-500",
+    ringClass: "ring-blue-500/30",
+  },
+  deficit: {
+    bar: "[&>div]:bg-rose-500",
+    text: "text-rose-700 dark:text-rose-400",
+    label: "Déficit",
+    pill: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+    emoji: "😟",
+    barTrack: "bg-stone-100 dark:bg-stone-800",
+    pillIcon: AlertTriangle,
+    borderAccent: "bg-rose-500",
+    ringClass: "ring-rose-500/30",
   },
 };
 
-interface HealthCardData {
+interface HealthCardProps {
   label: string;
-  spent: number;
-  limit: number;
+  styleKey: StyleKey;
+  percentage: number;
   Icon: LucideIcon;
+  subline?: React.ReactNode;
+  showBarReference?: number;
+  showPlusBadge?: boolean;
 }
 
-function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
-  const percentage = limit > 0 ? (spent / limit) * 100 : 0;
-  const status = getStatus(percentage);
-  const styles = STATUS[status];
+function HealthCard({
+  label,
+  styleKey,
+  percentage,
+  Icon,
+  subline,
+  showBarReference,
+  showPlusBadge,
+}: HealthCardProps) {
+  const styles = STYLE[styleKey];
+  const PillIcon = styles.pillIcon;
+  const barFill = Math.max(0, Math.min(percentage, 100));
+  const reference = showBarReference != null
+    ? Math.max(0, Math.min(showBarReference, 100))
+    : null;
 
   return (
     <motion.div
@@ -96,9 +173,7 @@ function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
       <span
         className={cn(
           "absolute left-0 top-5 bottom-5 w-[3px] rounded-r-full",
-          status === "healthy" && "bg-emerald-500",
-          status === "warning" && "bg-amber-500",
-          status === "critical" && "bg-rose-500"
+          styles.borderAccent
         )}
       />
 
@@ -121,21 +196,43 @@ function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
           <span className="text-3xl md:text-4xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
             {percentage.toFixed(0)}%
           </span>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-            del límite
-          </span>
+          {showPlusBadge && (
+            <span className="text-2xl md:text-3xl font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
+              +
+            </span>
+          )}
         </div>
 
-        <Progress
-          value={Math.min(percentage, 100)}
-          className={cn("h-1.5", styles.barTrack, styles.bar)}
-        />
+        <div className="relative pt-1">
+          <Progress
+            value={barFill}
+            className={cn("h-1.5", styles.barTrack, styles.bar)}
+          />
+          {reference != null && (
+            <>
+              <span
+                className="absolute top-0 h-1.5 w-px bg-stone-400 dark:bg-stone-500"
+                style={{ left: `${reference}%` }}
+                aria-hidden
+              />
+              <span
+                className="absolute -top-3.5 text-[9px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 -translate-x-1/2 tabular-nums"
+                style={{ left: `${reference}%` }}
+              >
+                Meta {reference}%
+              </span>
+            </>
+          )}
+        </div>
 
         <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
-          <span className={cn("text-[11px] font-bold tabular-nums", styles.text)}>
-            {formatCOP(spent)}{" "}
-            <span className="text-stone-400 dark:text-stone-500 font-medium">de {formatCOP(limit)}</span>
-          </span>
+          {subline ? (
+            <span className={cn("text-[11px] font-medium", styles.text)}>
+              {subline}
+            </span>
+          ) : (
+            <span />
+          )}
           <span
             className={cn(
               "inline-flex items-center gap-1 rounded-full border px-2 py-0.5",
@@ -143,9 +240,7 @@ function HealthCard({ label, spent, limit, Icon }: HealthCardData) {
               styles.pill
             )}
           >
-            {status === "healthy" && <CheckCircle2 className="h-2.5 w-2.5" />}
-            {status === "warning" && <AlertCircle className="h-2.5 w-2.5" />}
-            {status === "critical" && <AlertTriangle className="h-2.5 w-2.5" />}
+            <PillIcon className="h-2.5 w-2.5" />
             {styles.label}
           </span>
         </div>
@@ -163,16 +258,48 @@ export function HealthCards({
   needsLimit,
   wantsSpent,
   wantsLimit,
-  savingsSpent,
-  savingsLimit,
+  savingsRate,
+  income,
+  monthlyEquivalentExpenses,
 }: HealthCardsProps) {
+  const savingsHealth = computeSavingsHealth(
+    income,
+    monthlyEquivalentExpenses,
+    savingsPct
+  );
+
   const recommendation = getRecommendation(
     needsPct,
     wantsPct,
     savingsPct,
     needsSpent,
     wantsSpent,
-    savingsSpent
+    savingsRate
+  );
+
+  const needsPercentage = needsLimit > 0 ? (needsSpent / needsLimit) * 100 : 0;
+  const wantsPercentage = wantsLimit > 0 ? (wantsSpent / wantsLimit) * 100 : 0;
+
+  const needsSubline = (
+    <>
+      {formatCOP(needsSpent)}{" "}
+      <span className="text-stone-400 dark:text-stone-500 font-medium">
+        de {formatCOP(needsLimit)}
+      </span>
+    </>
+  );
+  const wantsSubline = (
+    <>
+      {formatCOP(wantsSpent)}{" "}
+      <span className="text-stone-400 dark:text-stone-500 font-medium">
+        de {formatCOP(wantsLimit)}
+      </span>
+    </>
+  );
+  const savingsSubline = (
+    <span className="text-stone-600 dark:text-stone-300">
+      Tasa de ahorro real este mes
+    </span>
   );
 
   return (
@@ -184,7 +311,10 @@ export function HealthCards({
             Salud Financiera
           </h2>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
-            Regla aplicada: <span className="font-bold text-stone-700 dark:text-stone-300">{ruleName}</span>
+            Regla aplicada:{" "}
+            <span className="font-bold text-stone-700 dark:text-stone-300">
+              {ruleName}
+            </span>
           </p>
         </div>
       </div>
@@ -192,21 +322,26 @@ export function HealthCards({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
         <HealthCard
           label="Necesidades"
-          spent={needsSpent}
-          limit={needsLimit}
+          styleKey={getSpendingStatus(needsPercentage)}
+          percentage={needsPercentage}
           Icon={Home}
+          subline={needsSubline}
         />
         <HealthCard
           label="Deseos"
-          spent={wantsSpent}
-          limit={wantsLimit}
+          styleKey={getSpendingStatus(wantsPercentage)}
+          percentage={wantsPercentage}
           Icon={Heart}
+          subline={wantsSubline}
         />
         <HealthCard
-          label="Ahorro / Deuda"
-          spent={savingsSpent}
-          limit={savingsLimit}
+          label="Ahorro"
+          styleKey={savingsStatusToStyleKey(savingsHealth.status)}
+          percentage={savingsHealth.barFillPct}
           Icon={PiggyBank}
+          subline={savingsSubline}
+          showBarReference={savingsPct}
+          showPlusBadge={savingsHealth.rate > 100}
         />
       </div>
 

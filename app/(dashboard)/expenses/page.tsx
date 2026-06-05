@@ -92,7 +92,7 @@ export default async function ExpensesPage() {
 
   return (
     <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
-      <div className="max-w-5xl mx-auto space-y-6 md:space-y-8">
+      <div className="w-full space-y-6 md:space-y-8">
         <ExpensesClient
           transactions={allTransactions}
           categories={categoriesWithType}

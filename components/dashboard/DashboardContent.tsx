@@ -1,17 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
 import { SaasHeader } from "@/components/shared/SaasHeader";
 import { AvailableHero } from "@/components/dashboard/AvailableHero";
 import { SimulatorQuickAccess } from "@/components/dashboard/SimulatorQuickAccess";
-import { CategoryDonutChart } from "@/components/dashboard/CategoryDonutChart";
+import { CategoryChartsTabs } from "@/components/dashboard/CategoryChartsTabs";
 import { HealthCards } from "@/components/dashboard/HealthCards";
-import {
-  CategoryLimitsBarChart,
-  type BarChartItem,
-} from "@/components/dashboard/CategoryLimitsBarChart";
 import { AddExpenseModal } from "@/components/expenses/AddExpenseModal";
 import type { Category } from "@/types";
 import { getDynamicMessage, type HealthStatus } from "@/lib/dashboard-helpers";
@@ -26,6 +21,7 @@ interface DashboardContentProps {
   monthlyEquivalentExpenses: number;
   available: number;
   savingsCapacity: number;
+  savingsRate: number;
   healthStatus: HealthStatus;
   expensesPct: string;
   needsPct: number;
@@ -35,10 +31,8 @@ interface DashboardContentProps {
   needsLimit: number;
   wantsSpent: number;
   wantsLimit: number;
-  savingsSpent: number;
-  savingsLimit: number;
   donutData: { name: string; value: number; color?: string }[];
-  categoriesBreakdown: BarChartItem[];
+  categoriesBreakdown: import("@/components/dashboard/CategoryLimitsBarChart").BarChartItem[];
   categories: Category[];
 }
 
@@ -51,6 +45,7 @@ export function DashboardContent({
   monthlyEquivalentExpenses,
   available,
   savingsCapacity,
+  savingsRate,
   healthStatus,
   expensesPct,
   needsPct,
@@ -60,8 +55,6 @@ export function DashboardContent({
   needsLimit,
   wantsSpent,
   wantsLimit,
-  savingsSpent,
-  savingsLimit,
   donutData,
   categoriesBreakdown,
   categories,
@@ -102,21 +95,11 @@ export function DashboardContent({
         onAddExpense={() => setOpenAddModal(true)}
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.15 }}
-      >
-        <CategoryDonutChart data={donutData} monthLabel={monthLabel} />
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <CategoryLimitsBarChart items={categoriesBreakdown} />
-      </motion.div>
+      <CategoryChartsTabs
+        donutData={donutData}
+        barItems={categoriesBreakdown}
+        monthLabel={monthLabel}
+      />
 
       <HealthCards
         ruleName={ruleName}
@@ -127,8 +110,9 @@ export function DashboardContent({
         needsLimit={needsLimit}
         wantsSpent={wantsSpent}
         wantsLimit={wantsLimit}
-        savingsSpent={savingsSpent}
-        savingsLimit={savingsLimit}
+        savingsRate={savingsRate}
+        income={income}
+        monthlyEquivalentExpenses={monthlyEquivalentExpenses}
       />
 
       <SimulatorQuickAccess />

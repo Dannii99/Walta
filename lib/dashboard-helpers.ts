@@ -159,15 +159,11 @@ export function getRecommendation(
   savingsPct: number,
   needsSpent: number,
   wantsSpent: number,
-  savingsSpent: number
+  savingsRate: number
 ): string {
-  const needsLimit = needsPct;
-  const wantsLimit = wantsPct;
-  const savingsLimit = savingsPct;
-
-  const needsOver = needsSpent > needsLimit;
-  const wantsOver = wantsSpent > wantsLimit;
-  const savingsOver = savingsSpent > savingsLimit;
+  const needsOver = needsSpent > needsPct;
+  const wantsOver = wantsSpent > wantsPct;
+  const savingsOver = savingsRate < savingsPct;
 
   if (wantsOver && !needsOver) {
     return "Estás gastando más de lo recomendado en deseos. Podrías mover una parte a ahorro o necesidades.";
@@ -176,10 +172,16 @@ export function getRecommendation(
     return "Tus necesidades superan el límite. Revisa si hay gastos fijos que puedas renegociar.";
   }
   if (savingsOver) {
-    return "Tu ahorro está por debajo del objetivo. Intenta reservar un poco más este mes.";
+    if (savingsRate < 10) {
+      return "Tu capacidad de ahorro es muy baja. Prioriza reservar este mes.";
+    }
+    return "Casi llegas a tu meta de ahorro. Un pequeño ajuste y lo logras.";
   }
   if (needsOver && wantsOver) {
     return "Varios rubros están por encima de su límite. Haz una pausa y revisa prioridades.";
+  }
+  if (savingsRate >= 60) {
+    return "Eres un ahorrador agresivo. No descuides tu calidad de vida.";
   }
   return "Tu distribución está dentro de los rangos recomendados. Buen trabajo.";
 }

@@ -79,11 +79,9 @@ export default async function DashboardPage() {
 
   const needsLimit = income * (needsPct / 100);
   const wantsLimit = income * (wantsPct / 100);
-  const savingsLimit = income * (savingsPct / 100);
 
   let needsSpent = 0;
   let wantsSpent = 0;
-  let savingsSpent = 0;
   let totalExpenses = 0;
   let monthlyEquivalentExpenses = 0;
 
@@ -108,8 +106,6 @@ export default async function DashboardPage() {
       needsSpent += catEquivalent;
     } else if (catType === "WANTS") {
       wantsSpent += catEquivalent;
-    } else if (catType === "SAVINGS" || catType === "DEBT") {
-      savingsSpent += catEquivalent;
     }
 
     if (catEquivalent > 0) {
@@ -124,6 +120,10 @@ export default async function DashboardPage() {
 
   const available = income - monthlyEquivalentExpenses;
   const savingsCapacity = Math.max(available, 0);
+  const savingsRate =
+    income > 0
+      ? Math.max(((income - monthlyEquivalentExpenses) / income) * 100, -100)
+      : 0;
 
   const isEmpty = income <= 0 && allTransactions.length === 0;
   const healthStatus = computeHealthStatus(income, monthlyEquivalentExpenses, available);
@@ -188,6 +188,7 @@ export default async function DashboardPage() {
       monthlyEquivalentExpenses={monthlyEquivalentExpenses}
       available={available}
       savingsCapacity={savingsCapacity}
+      savingsRate={savingsRate}
       healthStatus={healthStatus}
       expensesPct={expensesPct}
       needsPct={needsPct}
@@ -197,8 +198,6 @@ export default async function DashboardPage() {
       needsLimit={needsLimit}
       wantsSpent={wantsSpent}
       wantsLimit={wantsLimit}
-      savingsSpent={savingsSpent}
-      savingsLimit={savingsLimit}
       donutData={donutData}
       categoriesBreakdown={categoriesBreakdown}
       categories={categories}
