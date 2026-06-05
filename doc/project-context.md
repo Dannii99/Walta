@@ -228,7 +228,7 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 
 ### System-Generated Content
 
-- Numeric values formatted in Colombian peso (COP) with `$ 1.234.567,89` format.
+- Numeric values formatted in Colombian peso (COP) with `$ 1.234.567` format (no decimals, since Colombia does not use centavos).
 - Rule compliance percentages.
 - Expense dates.
 - Saved simulation titles and dates.

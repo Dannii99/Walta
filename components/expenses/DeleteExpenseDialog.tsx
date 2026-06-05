@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCOP } from "@/lib/currency";
 import {
   RECURRENCE_DESCRIPTIONS,
-  getMonthlyEquivalent,
+  getPerPaymentAmount,
 } from "@/lib/recurrence";
 import type { Category, CategoryType, Transaction } from "@/types";
 
@@ -60,7 +60,9 @@ export function DeleteExpenseDialog({
   if (!transaction) return null;
 
   const amount = parseFloat(transaction.amount);
-  const equivalent = getMonthlyEquivalent(amount, transaction.recurrence);
+  const perPayment = getPerPaymentAmount(amount, transaction.recurrence);
+  const showPerPayment =
+    transaction.recurrence === "BIWEEKLY" && perPayment !== amount;
   const type = transaction.category?.type as CategoryType | undefined;
 
   return (
@@ -114,17 +116,16 @@ export function DeleteExpenseDialog({
                   {RECURRENCE_DESCRIPTIONS[transaction.recurrence]}
                 </p>
               </div>
-              {transaction.recurrence !== "MONTHLY" &&
-                equivalent !== amount && (
-                  <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-stone-200/80 dark:border-stone-800">
-                    <p className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
-                      Impacto mensual
-                    </p>
-                    <p className="text-[10px] tabular-nums text-stone-600 dark:text-stone-400">
-                      −{formatCOP(equivalent)}
-                    </p>
-                  </div>
-                )}
+              {showPerPayment && (
+                <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-stone-200/80 dark:border-stone-800">
+                  <p className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
+                    Por pago
+                  </p>
+                  <p className="text-[10px] tabular-nums text-stone-600 dark:text-stone-400">
+                    {formatCOP(perPayment)}
+                  </p>
+                </div>
+              )}
               {transaction.description && (
                 <div className="pt-1.5 border-t border-stone-200/80 dark:border-stone-800">
                   <p className="text-xs text-stone-600 dark:text-stone-400 line-clamp-2">

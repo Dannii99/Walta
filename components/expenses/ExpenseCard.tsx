@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatCOP } from "@/lib/currency";
 import {
   RECURRENCE_DESCRIPTIONS,
-  getMonthlyEquivalent,
+  getPerPaymentAmount,
   formatNextOccurrenceLabel,
 } from "@/lib/recurrence";
 import type { Category, CategoryType, Recurrence, Transaction } from "@/types";
@@ -55,9 +55,9 @@ export function ExpenseCard({
   const category = transaction.category;
   const type = category?.type as CategoryType | undefined;
   const amount = parseFloat(transaction.amount);
-  const equivalent = getMonthlyEquivalent(amount, transaction.recurrence);
-  const showEquivalent =
-    transaction.recurrence !== "MONTHLY" && equivalent !== amount;
+  const perPayment = getPerPaymentAmount(amount, transaction.recurrence);
+  const showPerPayment =
+    transaction.recurrence === "BIWEEKLY" && perPayment !== amount;
 
   return (
     <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4 space-y-3">
@@ -114,9 +114,9 @@ export function ExpenseCard({
           <p className="text-xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
             {formatCOP(amount)}
           </p>
-          {showEquivalent && (
+          {showPerPayment && (
             <p className="text-xs text-stone-500 dark:text-stone-400 tabular-nums">
-              Equiv. {formatCOP(equivalent)}
+              Por pago: {formatCOP(perPayment)}
             </p>
           )}
         </div>

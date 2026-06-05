@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { DashboardEmptyClient } from "@/components/dashboard/DashboardEmptyClient";
 import type { Transaction, Category, CategoryType } from "@/types";
-import { getMonthlyEquivalent } from "@/lib/recurrence";
 import {
   computeHealthStatus,
   formatMonthName,
@@ -95,8 +94,7 @@ export default async function DashboardPage() {
     totalExpenses += catSpent;
 
     const catEquivalent = cat.transactions.reduce(
-      (sum, tx) =>
-        sum + getMonthlyEquivalent(tx.amount.toNumber(), tx.recurrence),
+      (sum, tx) => sum + tx.amount.toNumber(),
       0
     );
     monthlyEquivalentExpenses += catEquivalent;
@@ -136,8 +134,7 @@ export default async function DashboardPage() {
   const categoriesBreakdown = budget.categories
     .map((cat, i) => {
       const catEquivalent = cat.transactions.reduce(
-        (sum, tx) =>
-          sum + getMonthlyEquivalent(tx.amount.toNumber(), tx.recurrence),
+        (sum, tx) => sum + tx.amount.toNumber(),
         0
       );
       const type = cat.type.toUpperCase() as CategoryType;

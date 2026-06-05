@@ -76,7 +76,7 @@ export default async function EditCreditPage({ params }: { params: Promise<{ id:
         </p>
       </div>
 
-      <div className="max-w-3xl">
+      <div className="max-w-[1400px]">
         <LoanForm
           key={id}
           mode="edit"

@@ -9,7 +9,6 @@ import type {
   BudgetRule,
 } from "@/types";
 import type { Metadata } from "next";
-import { getMonthlyEquivalent } from "@/lib/recurrence";
 
 export const metadata: Metadata = {
   title: "Gastos | Walta",
@@ -62,22 +61,18 @@ export default async function ExpensesPage() {
   };
 
   let totalEquivalent = 0;
-  let recurringTotal = 0;
   let oneTimeTotal = 0;
 
   for (const t of allTransactions) {
     const amount = parseFloat(t.amount);
-    const equiv = getMonthlyEquivalent(amount, t.recurrence);
     const visibleType: CategoryType =
       t.category?.type === "DEBT" ? "SAVINGS" : t.category?.type ?? "NEEDS";
 
-    totalsByType[visibleType] += equiv;
-    totalEquivalent += equiv;
+    totalsByType[visibleType] += amount;
+    totalEquivalent += amount;
 
     if (t.recurrence === "ONE_TIME") {
       oneTimeTotal += amount;
-    } else {
-      recurringTotal += equiv;
     }
   }
 
@@ -90,6 +85,11 @@ export default async function ExpensesPage() {
     type: cat.type as CategoryType,
   })) as Category[];
 
+  const savingsRate =
+    income > 0
+      ? Math.max(-100, Math.round(((income - totalEquivalent) / income) * 100))
+      : -100;
+
   return (
     <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
       <div className="w-full space-y-6 md:space-y-8">
@@ -100,8 +100,8 @@ export default async function ExpensesPage() {
           rule={rule}
           totalsByType={visibleTotals}
           totalEquivalent={totalEquivalent}
-          recurringTotal={recurringTotal}
           oneTimeTotal={oneTimeTotal}
+          savingsRate={savingsRate}
         />
       </div>
     </div>

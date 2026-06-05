@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Info } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -15,14 +16,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CurrencyInput } from "@/components/ui/currency-input";
+import { CategorySelect } from "@/components/expenses/CategorySelect";
 import { createTransaction } from "@/server/actions/transaction-actions";
 import { RECURRENCE_DESCRIPTIONS, formatDateForInput } from "@/lib/recurrence";
 import type { Category, Recurrence } from "@/types";
 
 const addExpenseSchema = z.object({
-  categoryId: z.string().min(1, "Selecciona una categoría"),
+  categoryId: z.string().min(1, "Selecciona una categorÃ­a"),
   amount: z.number().positive("El monto debe ser mayor a 0"),
   description: z.string().max(500).optional(),
   date: z.string().min(1, "Selecciona una fecha"),
@@ -39,6 +47,22 @@ interface AddExpenseModalProps {
 }
 
 const RECURRENCE_ORDER: Recurrence[] = ["MONTHLY", "BIWEEKLY", "ONE_TIME"];
+
+function amountLabel(recurrence: Recurrence): string {
+  if (recurrence === "BIWEEKLY") return "Monto (por pago)";
+  if (recurrence === "ONE_TIME") return "Monto total";
+  return "Monto mensual";
+}
+
+function amountHint(recurrence: Recurrence): string | null {
+  if (recurrence === "BIWEEKLY") {
+    return "Se multiplicarÃ¡ Ã—2 al guardar para reflejar el impacto mensual real.";
+  }
+  if (recurrence === "ONE_TIME") {
+    return "Cargo Ãºnico. No se prorratea a lo largo del mes.";
+  }
+  return null;
+}
 
 export function AddExpenseModal({
   open,
@@ -62,6 +86,9 @@ export function AddExpenseModal({
       recurrence: "MONTHLY",
     },
   });
+
+  const recurrence = useWatch({ control, name: "recurrence" }) ?? "MONTHLY";
+  const amountHintText = amountHint(recurrence as Recurrence);
 
   const onSubmit = async (data: AddExpenseForm) => {
     const dateObj = new Date(data.date + "T12:00:00");
@@ -96,21 +123,20 @@ export function AddExpenseModal({
           className="space-y-4"
         >
           <div className="space-y-2">
-            <Label htmlFor="add-category">Categoría</Label>
-            <Select
-              id="add-category"
-              {...register("categoryId")}
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Seleccionar...
-              </option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </Select>
+            <Label htmlFor="add-category">CategorÃ­a</Label>
+            <Controller
+              name="categoryId"
+              control={control}
+              render={({ field }) => (
+                <CategorySelect
+                  id="add-category"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  categories={categories}
+                  placeholder="Seleccionar..."
+                />
+              )}
+            />
             {errors.categoryId && (
               <p className="text-sm text-destructive">
                 {errors.categoryId.message}
@@ -119,7 +145,9 @@ export function AddExpenseModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="add-amount">Monto</Label>
+            <Label htmlFor="add-amount">
+              {amountLabel(recurrence as Recurrence)}
+            </Label>
             <Controller
               name="amount"
               control={control}
@@ -132,6 +160,12 @@ export function AddExpenseModal({
                 />
               )}
             />
+            {amountHintText && (
+              <p className="text-xs text-stone-500 dark:text-stone-400 flex items-start gap-1.5">
+                <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" aria-hidden="true" />
+                <span>{amountHintText}</span>
+              </p>
+            )}
             {errors.amount && (
               <p className="text-sm text-destructive">{errors.amount.message}</p>
             )}
@@ -140,17 +174,27 @@ export function AddExpenseModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="add-recurrence">Frecuencia</Label>
-              <Select
-                id="add-recurrence"
-                {...register("recurrence")}
-                defaultValue="MONTHLY"
-              >
-                {RECURRENCE_ORDER.map((r) => (
-                  <option key={r} value={r}>
-                    {RECURRENCE_DESCRIPTIONS[r]}
-                  </option>
-                ))}
-              </Select>
+              <Controller
+                name="recurrence"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger id="add-recurrence">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RECURRENCE_ORDER.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {RECURRENCE_DESCRIPTIONS[r]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.recurrence && (
                 <p className="text-sm text-destructive">
                   {errors.recurrence.message}
@@ -170,7 +214,7 @@ export function AddExpenseModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="add-description">Descripción (opcional)</Label>
+            <Label htmlFor="add-description">DescripciÃ³n (opcional)</Label>
             <Input
               id="add-description"
               placeholder="Ej. Netflix, Mercado del mes, Gasolina..."
@@ -200,3 +244,4 @@ export function AddExpenseModal({
     </Dialog>
   );
 }
+

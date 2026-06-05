@@ -73,7 +73,7 @@ Versions exactas en `package.json`:
 
 - **Never use raw `number` for money**. Use `Decimal` in Prisma DB, `string` in JSON/API, and **Dinero.js** on the client.
 - All currency helpers are in `lib/currency.ts`: `createMoney`, `formatMoney`, `addMoney`, `subtractMoney`, etc.
-- Default currency is **COP** (Colombian Peso) formatted as `$ 1.234.567,89`.
+- Default currency is **COP** (Colombian Peso) formatted as `$ 1.234.567` (no decimals, since Colombia does not use centavos). All currency helpers use `minimumFractionDigits: 0, maximumFractionDigits: 0`.
 - Business constants in `lib/constants.ts`: default budget rule 50/30/20, reference interest rates, health thresholds.
 
 ## Database & Prisma
@@ -253,10 +253,17 @@ Versions exactas en `package.json`:
   - **Disclaimer UI obligatorio** en cada card: "Análisis generado por IA. No constituye asesoría financiera profesional." + cache timestamp ("Cache · 4 jun, 19:42" o "Nuevo · 4 jun, 19:42").
   - **GOTCHA: en serverless, in-memory cache es per-instance**. Aceptable porque TTL es 1-24h. Para multi-instance, migrar a DB-backed.
 - **Recurrence helpers (`lib/recurrence.ts`):**
-  - `getMonthlyEquivalent(amount, recurrence)` — convierte BIWEEKLY (×2) y ONE_TIME (÷12) a base mensual.
+  - **Stored amount model**: `Transaction.amount` guarda el **equivalente mensual** (BIWEEKLY ×2, MONTHLY ×1, ONE_TIME ×1 raw). Para BIWEEKLY, el "monto por pago" = `amount / 2`. La migración in-place `scripts/migrate-biweekly.ts` (idempotente con backup JSON, dry-run default + `--apply`) multiplicó por 2 todas las BIWEEKLY existentes.
+  - `getPerPaymentAmount(storedAmount, recurrence)` — display: BIWEEKLY `÷2`, resto `×1`. Usado en cards/lists/dialogs para mostrar "Por pago: $X" cuando aplica.
+  - `toStoredAmount(displayAmount, recurrence)` — input form: BIWEEKLY `×2`, resto `×1`. Usado por `transaction-actions.ts` create/update.
   - `getNextOccurrence(date, recurrence)` — próxima fecha de ocurrencia.
   - `formatDateForInput(date)` — formato YYYY-MM-DD para `<input type="date">`.
-  - `RECURRENCE_LABELS` + `RECURRENCE_DESCRIPTIONS` + `RECURRENCE_MULTIPLIER`.
+  - `formatNextOccurrenceLabel(date, recurrence)` — etiqueta amigable para "Próxima fecha".
+  - `BIWEEKLY_FACTOR = 2` constante.
+  - `RECURRENCE_LABELS` + `RECURRENCE_DESCRIPTIONS`. Sin `RECURRENCE_MULTIPLIER` ni `getMonthlyEquivalent` (obsoleto).
+  - **AddExpenseModal/EditExpenseModal** muestran label dinámico: "Monto (por pago)" (BIWEEKLY), "Monto total" (ONE_TIME), "Monto mensual" (MONTHLY) + hint con `Info` icon explicando el factor.
+  - **EditExpenseModal** reconvierte on-the-fly: `useRef<Recurrence>` trackea last loaded; al cambiar recurrence, `toStoredAmount(current, last) → getPerPaymentAmount(stored, next) → setValue("amount", next, { shouldDirty: true })`.
+  - Display consumers (ExpenseList, ExpenseCard, DeleteExpenseDialog) muestran `amount` directo + "Por pago: $ X" solo si BIWEEKLY.
 - **Simulations engine** (`lib/simulation-engine.ts` + `lib/simulation-types.ts`):
   - `calculateFrenchEA(nominalMonthly)` — convierte nominal mensual a EA: `(1 + n)^12 - 1`.
   - `calculateNominalMonthly(ea)` — inverso.

@@ -89,7 +89,7 @@ export function FeesSection({ fees, onChange }: FeesSectionProps) {
             onClick={() => setIsAdding(true)}
             className="flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-input bg-muted/50 p-4 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <Plus className="h-5 w-5" />
+           {/*  <Plus className="h-5 w-5" /> */}
             <span className="text-sm font-medium">+ Nuevo</span>
           </motion.button>
         )}

@@ -148,7 +148,7 @@ export function CreditAmortizationTable({
                 Días
               </th>
               {onMarkPaid && (
-                <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 text-center">
+                <th className="sticky right-0 z-10 bg-white dark:bg-stone-900 px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 text-center border-l border-stone-200/80 dark:border-stone-800">
                   Acción
                 </th>
               )}
@@ -226,7 +226,7 @@ export function CreditAmortizationTable({
                     )}
                   </td>
                   {onMarkPaid && (
-                    <td className="px-4 py-3 text-center">
+                    <td className="sticky right-0 z-10 bg-stone-50 dark:bg-stone-800/50 border-l border-stone-200/80 dark:border-stone-800 px-4 py-3 text-center">
                       {canMarkPaid ? (
                         <motion.button
                           whileHover={{ scale: 1.1 }}

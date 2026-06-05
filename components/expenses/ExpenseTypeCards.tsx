@@ -1,11 +1,13 @@
 import { formatCOP } from "@/lib/currency";
-import { Badge } from "@/components/ui/badge";
+import { PiggyBank } from "lucide-react";
 import type { BudgetRule } from "@/types";
 
 interface ExpenseTypeCardsProps {
   totals: Record<"NEEDS" | "WANTS" | "SAVINGS", number>;
   income: number;
   rule: BudgetRule;
+  savingsRate: number;
+  totalEquivalent: number;
 }
 
 const TYPE_LABELS: Record<"NEEDS" | "WANTS" | "SAVINGS", string> = {
@@ -60,9 +62,11 @@ function TypeCard({
             {TYPE_LABELS[type]}
           </p>
         </div>
-        <Badge variant="outline" className={TYPE_PILL[type]}>
+        <span
+          className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border ${TYPE_PILL[type]}`}
+        >
           {pct}%
-        </Badge>
+        </span>
       </div>
       <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
         {formatCOP(total)}
@@ -89,27 +93,109 @@ function TypeCard({
   );
 }
 
+function SavingsCard({
+  savingsRate,
+  income,
+  totalExpenses,
+  rule,
+}: {
+  savingsRate: number;
+  income: number;
+  totalExpenses: number;
+  rule: BudgetRule;
+}) {
+  const sobrante = income - totalExpenses;
+  const deficit = savingsRate < 0;
+  const metaPct = rule.savings;
+
+  const rateColor =
+    savingsRate >= 60
+      ? "text-blue-600 dark:text-blue-400"
+      : savingsRate >= metaPct
+        ? "text-emerald-700 dark:text-emerald-400"
+        : deficit
+          ? "text-rose-700 dark:text-rose-400"
+          : "text-amber-700 dark:text-amber-400";
+
+  const barClass =
+    savingsRate >= 60
+      ? "bg-blue-500"
+      : savingsRate >= metaPct
+        ? "bg-emerald-500"
+        : deficit
+          ? "bg-rose-500"
+          : "bg-amber-500";
+
+  const barPct = Math.max(0, Math.min(100, savingsRate));
+  const rateLabel =
+    savingsRate >= 60
+      ? "Ahorro excepcional"
+      : savingsRate >= metaPct
+        ? "Vas en meta"
+        : deficit
+          ? "Gastando más de lo que ingresa"
+          : "Por debajo de la meta";
+
+  return (
+    <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" aria-hidden="true" />
+          <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            Ahorro real
+          </p>
+        </div>
+        <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center">
+          <PiggyBank className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        </div>
+      </div>
+      <p
+        className={`text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums ${rateColor}`}
+      >
+        {deficit ? "" : "+"}
+        {savingsRate}%
+      </p>
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800"
+        role="progressbar"
+        aria-valuenow={barPct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        title={`Meta: ${metaPct}%`}
+      >
+        <div
+          className={`h-full transition-all duration-300 ${barClass}`}
+          style={{ width: `${barPct}%` }}
+        />
+      </div>
+      <p className="text-xs text-stone-500 dark:text-stone-400">{rateLabel}</p>
+      <p className="text-xs text-stone-500 dark:text-stone-400">
+        Meta: {metaPct}% según regla {rule.needs}/{rule.wants}/{rule.savings}
+      </p>
+      <p className="text-xs text-stone-500 dark:text-stone-400 tabular-nums">
+        {deficit ? "Faltante" : "Sobrante"}: {formatCOP(Math.abs(sobrante))}
+      </p>
+    </div>
+  );
+}
+
 export function ExpenseTypeCards({
   totals,
   income,
   rule,
+  savingsRate,
+  totalEquivalent,
 }: ExpenseTypeCardsProps) {
-  const types: ("NEEDS" | "WANTS" | "SAVINGS")[] = ["NEEDS", "WANTS", "SAVINGS"];
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {types.map((type) => {
-        const ruleKey = type.toLowerCase() as keyof BudgetRule;
-        const limit = income * (rule[ruleKey] / 100);
-        return (
-          <TypeCard
-            key={type}
-            type={type}
-            total={totals[type]}
-            limit={limit}
-          />
-        );
-      })}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <TypeCard type="NEEDS" total={totals.NEEDS} limit={income * (rule.needs / 100)} />
+      <TypeCard type="WANTS" total={totals.WANTS} limit={income * (rule.wants / 100)} />
+      <SavingsCard
+        savingsRate={savingsRate}
+        income={income}
+        totalExpenses={totalEquivalent}
+        rule={rule}
+      />
     </div>
   );
 }

@@ -2,9 +2,16 @@
 
 import { Search, FilterX } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { CategorySelect } from "@/components/expenses/CategorySelect";
 import { RECURRENCE_DESCRIPTIONS } from "@/lib/recurrence";
 import type { Category, CategoryType, Recurrence } from "@/types";
 
@@ -31,6 +38,7 @@ const DEFAULT_FILTERS: ExpenseFiltersState = {
   recurrence: "",
 };
 
+const NONE_VALUE = "__none__";
 const RECURRENCE_ORDER: Recurrence[] = ["MONTHLY", "BIWEEKLY", "ONE_TIME"];
 
 export function ExpenseFilters({
@@ -73,52 +81,57 @@ export function ExpenseFilters({
 
         <div className="space-y-2">
           <Label htmlFor="category">Categoría</Label>
-          <Select
+          <CategorySelect
             id="category"
             value={filters.categoryId}
-            onChange={(e) => update({ categoryId: e.target.value })}
-          >
-            <option value="">Todas</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </Select>
+            onValueChange={(v) => update({ categoryId: v })}
+            categories={categories}
+            allowEmpty
+            emptyLabel="Todas"
+            placeholder="Todas"
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="type">Tipo</Label>
           <Select
-            id="type"
-            value={filters.type}
-            onChange={(e) =>
-              update({ type: e.target.value as CategoryType | "" })
+            value={filters.type === "" ? NONE_VALUE : filters.type}
+            onValueChange={(v) =>
+              update({ type: v === NONE_VALUE ? "" : (v as CategoryType) })
             }
           >
-            <option value="">Todos</option>
-            <option value="NEEDS">Necesidades</option>
-            <option value="WANTS">Deseos</option>
-            <option value="SAVINGS">Ahorros</option>
-            <option value="DEBT">Deudas</option>
+            <SelectTrigger id="type">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NONE_VALUE}>Todos</SelectItem>
+              <SelectItem value="NEEDS">Necesidades</SelectItem>
+              <SelectItem value="WANTS">Deseos</SelectItem>
+              <SelectItem value="SAVINGS">Ahorros</SelectItem>
+              <SelectItem value="DEBT">Deudas</SelectItem>
+            </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="recurrence">Frecuencia</Label>
           <Select
-            id="recurrence"
-            value={filters.recurrence}
-            onChange={(e) =>
-              update({ recurrence: e.target.value as Recurrence | "" })
+            value={filters.recurrence === "" ? NONE_VALUE : filters.recurrence}
+            onValueChange={(v) =>
+              update({ recurrence: v === NONE_VALUE ? "" : (v as Recurrence) })
             }
           >
-            <option value="">Todas</option>
-            {RECURRENCE_ORDER.map((r) => (
-              <option key={r} value={r}>
-                {RECURRENCE_DESCRIPTIONS[r]}
-              </option>
-            ))}
+            <SelectTrigger id="recurrence">
+              <SelectValue placeholder="Todas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NONE_VALUE}>Todas</SelectItem>
+              {RECURRENCE_ORDER.map((r) => (
+                <SelectItem key={r} value={r}>
+                  {RECURRENCE_DESCRIPTIONS[r]}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
         </div>
       </div>

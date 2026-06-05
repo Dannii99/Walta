@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calculator } from "lucide-react";
 import { getUserBudgets } from "@/server/queries/budget-queries";
-import { getMonthlyEquivalent } from "@/lib/recurrence";
 import { SimulatorForm } from "@/components/simulations/SimulatorForm";
 import { AvailableMoneyCard } from "@/components/simulations/AvailableMoneyCard";
 import { Button } from "@/components/ui/button";
@@ -55,7 +54,7 @@ export default async function NewSimulationPage() {
     return (
       sum +
       cat.transactions.reduce(
-        (s, t) => s + getMonthlyEquivalent(parseFloat(t.amount), t.recurrence),
+        (s, t) => s + parseFloat(t.amount),
         0
       )
     );

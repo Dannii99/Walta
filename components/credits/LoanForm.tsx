@@ -427,10 +427,12 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 <p>
                   Monto a financiar:{" "}
                   <span className="font-semibold">
-                    {new Intl.NumberFormat("es-CO", {
-                      style: "currency",
-                      currency: "COP",
-                    }).format(principal)}
+                  {new Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(principal)}
                   </span>
                 </p>
                 <p className="text-muted-foreground mt-1">

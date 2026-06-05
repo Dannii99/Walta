@@ -12,19 +12,28 @@ export const RECURRENCE_DESCRIPTIONS: Record<Recurrence, string> = {
   ONE_TIME: "Una vez",
 };
 
-export const RECURRENCE_MULTIPLIER: Record<Recurrence, number> = {
-  MONTHLY: 1,
-  BIWEEKLY: 2,
-  ONE_TIME: 1,
-};
+const BIWEEKLY_FACTOR = 2;
 
-export function getMonthlyEquivalent(
+export function getPerPaymentAmount(
   amount: number,
   recurrence: string | null | undefined
 ): number {
-  const multiplier = RECURRENCE_MULTIPLIER[recurrence as Recurrence] ?? 1;
-  if (!Number.isFinite(amount) || !Number.isFinite(multiplier)) return 0;
-  return amount * multiplier;
+  if (!Number.isFinite(amount)) return 0;
+  if (recurrence === "BIWEEKLY") {
+    return Math.round(amount / BIWEEKLY_FACTOR);
+  }
+  return amount;
+}
+
+export function toStoredAmount(
+  amount: number,
+  recurrence: string | null | undefined
+): number {
+  if (!Number.isFinite(amount)) return 0;
+  if (recurrence === "BIWEEKLY") {
+    return Math.round(amount * BIWEEKLY_FACTOR);
+  }
+  return amount;
 }
 
 export function getNextOccurrence(

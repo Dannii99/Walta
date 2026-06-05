@@ -8,7 +8,6 @@ import {
   generateInsights,
   clearInsightsCache,
 } from "@/lib/ai/simulation-insights";
-import { getMonthlyEquivalent } from "@/lib/recurrence";
 import {
   calculateFrenchEA,
   calculateNominalMonthly,
@@ -85,7 +84,7 @@ async function loadFinancialContext(userId: string) {
     return (
       sum +
       cat.transactions.reduce((s, t) => {
-        return s + getMonthlyEquivalent(Number(t.amount), t.recurrence);
+        return s + Number(t.amount);
       }, 0)
     );
   }, 0);

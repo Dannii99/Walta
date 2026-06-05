@@ -169,7 +169,7 @@ The "home" of the product. A single page that shows the user's financial health 
 - **Health thresholds** (`HEALTH_THRESHOLDS` in `lib/constants.ts`): spending ≤ 50% of bucket = good (😊), 50–80% = warn (😐), > 80% = bad (😟).
 - **Hero donut total in center** — `text-3xl font-bold tabular-nums` showing the total spent + the period.
 - **`DashboardProvider` for modal state** — avoids prop drilling `openAddModal` through 4 components.
-- **Recurring expenses counted at monthly equivalent** — `getMonthlyEquivalent(amount, recurrence)` from `lib/recurrence.ts` converts BIWEEKLY (×2) and ONE_TIME (÷12) to a monthly basis.
+- **Recurring expenses counted at monthly equivalent** — `Transaction.amount` stores the **monthly equivalent** (BIWEEKLY ×2, MONTHLY ×1, ONE_TIME ÷12). `lib/recurrence.ts` exports `toStoredAmount` (input → stored) and `getPerPaymentAmount` (stored → display). Forms apply `toStoredAmount` server-side; display shows `amount` directly + "Por pago: $X" subtitle when BIWEEKLY.
 
 ---
 
@@ -227,7 +227,7 @@ Full CRUD for expenses (the domain model is `Transaction`, but the UI/routes/com
 ### Key decisions
 
 - **Domain model is `Transaction`** (Prisma), UI is "Gastos" — kept the existing table name to avoid a migration but renamed the entire UI surface to the user-friendly Spanish term.
-- **`recurrence` field on `Transaction`** — defaults to `"MONTHLY"`. Values: `"MONTHLY"`, `"BIWEEKLY"`, `"ONE_TIME"`. The `getMonthlyEquivalent()` helper converts to a monthly basis for the dashboard.
+- **`recurrence` field on `Transaction`** — defaults to `"MONTHLY"`. Values: `"MONTHLY"`, `"BIWEEKLY"`, `"ONE_TIME"`. `Transaction.amount` stores the **monthly equivalent**; `server/actions/transaction-actions.ts` applies `toStoredAmount` (BIWEEKLY ×2, ONE_TIME ÷12) before persisting. `scripts/migrate-biweekly.ts` migró los registros existentes in-place.
 - **No date-range filter** — the date filter is implicit (current month). A `RECURRENCE` filter is more actionable for budgeting.
 - **Filter state in `useState`, not URL** — `useSearchParams` would survive page refresh but adds complexity. Filters reset on navigation, which is acceptable for a single-session workflow.
 
@@ -662,7 +662,7 @@ A consistent pattern is used across modules:
 
 ### 10.7 Money Display
 
-- `formatCOP(amount)` in `lib/currency.ts` uses `Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" })`. Output: `$ 1.234.567,89`.
+- `formatCOP(amount)` in `lib/currency.ts` uses `Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 })`. Output: `$ 1.234.567` (no decimals, since Colombia does not use centavos).
 - `tabular-nums` is added to all monetary values in tables and cards (prevents layout shift when values change).
 - **NO `number` for money in business logic** — `Decimal` in Prisma, `string` in JSON/API, Dinero.js in `lib/currency.ts`. The rule is enforced by code review, not lints.
 

@@ -43,17 +43,17 @@ describe("buildAdvisorUserPrompt", () => {
 
     expect(prompt).toContain("CONTEXTO FINANCIERO DEL USUARIO");
     expect(prompt).toContain("SIMULACIÓN A ANALIZAR");
-    expect(prompt).toMatch(/5\.000\.000,00/);
-    expect(prompt).toMatch(/2\.380\.000,00/);
-    expect(prompt).toMatch(/714\.000,00/);
-    expect(prompt).toMatch(/450\.000,00/);
+    expect(prompt).toMatch(/5\.000\.000/);
+    expect(prompt).toMatch(/2\.380\.000/);
+    expect(prompt).toMatch(/714\.000/);
+    expect(prompt).toMatch(/450\.000/);
     expect(prompt).toContain("Carro familiar");
-    expect(prompt).toMatch(/50\.000\.000,00/);
-    expect(prompt).toMatch(/40\.000\.000,00/);
+    expect(prompt).toMatch(/50\.000\.000/);
+    expect(prompt).toMatch(/40\.000\.000/);
     expect(prompt).toContain("60 meses (5 años)");
     expect(prompt).toContain("15.00% EA");
     expect(prompt).toContain("Francesa (EA)");
-    expect(prompt).toMatch(/950\.000,00/);
+    expect(prompt).toMatch(/950\.000/);
     expect(prompt).toContain("39.9%");
   });
 
@@ -65,7 +65,7 @@ describe("buildAdvisorUserPrompt", () => {
     };
     const prompt = buildAdvisorUserPrompt(ctx);
     expect(prompt).toContain("Créditos activos: ninguno");
-    expect(prompt).toMatch(/0,00/);
+    expect(prompt).toMatch(/\$[\s\u00A0]+0/);
   });
 
   it("uses correct type label for VEHICLE", () => {
@@ -133,8 +133,8 @@ describe("buildInsightsUserPrompt", () => {
     expect(prompt).toContain("Vehículo");
     expect(prompt).toContain("Personal / Libre inversión");
     expect(prompt).toContain("Vivienda");
-    expect(prompt).toMatch(/2\.450\.000,00/);
-    expect(prompt).toMatch(/2\.380\.000,00/);
+    expect(prompt).toMatch(/2\.450\.000/);
+    expect(prompt).toMatch(/2\.380\.000/);
     expect(prompt).toContain("103%");
     expect(prompt).toContain("EXCEDE EL DISPONIBLE");
   });

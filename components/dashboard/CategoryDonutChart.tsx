@@ -38,6 +38,7 @@ const formatCurrency = (value: number) =>
     style: "currency",
     currency: "COP",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(value);
 
 export function CategoryDonutChart({ data, monthLabel, bare = false }: CategoryDonutChartProps) {

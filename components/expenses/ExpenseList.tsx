@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatCOP } from "@/lib/currency";
 import {
   RECURRENCE_DESCRIPTIONS,
-  getMonthlyEquivalent,
+  getPerPaymentAmount,
   getNextOccurrence,
   formatNextOccurrenceLabel,
 } from "@/lib/recurrence";
@@ -294,7 +293,9 @@ export function ExpenseList({
                   Monto
                 </SortableHeader>
               </TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead className="text-right" sticky>
+                Acciones
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -302,9 +303,9 @@ export function ExpenseList({
               const category = transaction.category;
               const type = category?.type as CategoryType | undefined;
               const amount = parseFloat(transaction.amount);
-              const equivalent = getMonthlyEquivalent(amount, transaction.recurrence);
-              const showEquivalent =
-                transaction.recurrence !== "MONTHLY" && equivalent !== amount;
+              const perPayment = getPerPaymentAmount(amount, transaction.recurrence);
+              const showPerPayment =
+                transaction.recurrence === "BIWEEKLY" && perPayment !== amount;
 
               return (
                 <TableRow key={transaction.id}>
@@ -349,19 +350,26 @@ export function ExpenseList({
                   <TableCell className="text-sm text-stone-600 dark:text-stone-400 tabular-nums whitespace-nowrap">
                     {formatNextOccurrenceLabel(transaction.date, transaction.recurrence)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex flex-col items-end">
-                      <span className="text-sm font-bold tabular-nums text-stone-900 dark:text-stone-50">
-                        {formatCOP(amount)}
-                      </span>
-                      {showEquivalent && (
-                        <span className="text-[10px] text-stone-500 dark:text-stone-400 tabular-nums">
-                          Equiv. {formatCOP(equivalent)}
-                        </span>
-                      )}
+                  <TableCell className="text-right tabular-nums whitespace-nowrap">
+                    <div className="font-medium">
+                      {new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        maximumFractionDigits: 0,
+                      }).format(amount)}
                     </div>
+                    {showPerPayment && (
+                      <div className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
+                        Por pago:{" "}
+                        {new Intl.NumberFormat("es-CO", {
+                          style: "currency",
+                          currency: "COP",
+                          maximumFractionDigits: 0,
+                        }).format(perPayment)}
+                      </div>
+                    )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" sticky>
                     <div className="flex justify-end gap-1">
                       <Button
                         variant="ghost"

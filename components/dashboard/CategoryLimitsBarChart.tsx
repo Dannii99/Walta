@@ -41,6 +41,7 @@ const formatCurrency = (value: number) =>
     style: "currency",
     currency: "COP",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(value);
 
 type FilterKey = "all" | "exceeded" | "near";

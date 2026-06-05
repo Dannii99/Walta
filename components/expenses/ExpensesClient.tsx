@@ -27,8 +27,8 @@ interface ExpensesClientProps {
   rule: BudgetRule;
   totalsByType: Record<"NEEDS" | "WANTS" | "SAVINGS", number>;
   totalEquivalent: number;
-  recurringTotal: number;
   oneTimeTotal: number;
+  savingsRate: number;
 }
 
 export function ExpensesClient({
@@ -38,8 +38,8 @@ export function ExpensesClient({
   rule,
   totalsByType,
   totalEquivalent,
-  recurringTotal,
   oneTimeTotal,
+  savingsRate,
 }: ExpensesClientProps) {
   const router = useRouter();
   const [filters, setFilters] = useState<ExpenseFiltersState>(DEFAULT_FILTERS);
@@ -119,7 +119,6 @@ export function ExpensesClient({
 
       <ExpenseSummary
         totalEquivalent={totalEquivalent}
-        recurringTotal={recurringTotal}
         oneTimeTotal={oneTimeTotal}
         income={income}
       />
@@ -139,6 +138,8 @@ export function ExpensesClient({
           totals={totalsByType}
           income={income}
           rule={rule}
+          savingsRate={savingsRate}
+          totalEquivalent={totalEquivalent}
         />
       </section>
 

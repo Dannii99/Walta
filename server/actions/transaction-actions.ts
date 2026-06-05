@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { toStoredAmount } from "@/lib/recurrence";
 
 const createTransactionSchema = z.object({
   categoryId: z.string().min(1),
@@ -44,10 +45,12 @@ export async function createTransaction(
     recurrence,
   });
 
+  const storedAmount = toStoredAmount(parsed.amount, parsed.recurrence);
+
   const transaction = await prisma.transaction.create({
     data: {
       categoryId: parsed.categoryId,
-      amount: parsed.amount,
+      amount: storedAmount,
       description: parsed.description,
       date: parsed.date,
       recurrence: parsed.recurrence,
@@ -103,11 +106,17 @@ export async function updateTransaction(
 
   const parsed = updateTransactionSchema.parse(data);
 
+  const nextRecurrence = parsed.recurrence ?? existing.recurrence;
+  const nextAmount =
+    parsed.amount !== undefined
+      ? toStoredAmount(parsed.amount, nextRecurrence)
+      : undefined;
+
   const updated = await prisma.transaction.update({
     where: { id },
     data: {
       ...(parsed.categoryId && { categoryId: parsed.categoryId }),
-      ...(parsed.amount !== undefined && { amount: parsed.amount }),
+      ...(nextAmount !== undefined && { amount: nextAmount }),
       ...(parsed.description !== undefined && {
         description: parsed.description,
       }),

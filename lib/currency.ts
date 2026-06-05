@@ -22,8 +22,8 @@ export function createMoneyFromDecimal(amount: number): Dinero<number> {
 }
 
 /**
- * Formatea un Dinero a string en formato colombiano:
- * $ 1.234.567,89
+ * Formatea un Dinero a string en formato colombiano (sin decimales):
+ * $ 1.234.567
  */
 export function formatMoney(money: Dinero<number>): string {
   const decimal = toDecimal(money, ({ value }) => value);
@@ -31,20 +31,20 @@ export function formatMoney(money: Dinero<number>): string {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
     currency: "COP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(num);
 }
 
 /**
- * Formatea un número directamente a COP
+ * Formatea un número directamente a COP (sin decimales)
  */
 export function formatCOP(amount: number): string {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
     currency: "COP",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 

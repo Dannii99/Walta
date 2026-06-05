@@ -36,6 +36,7 @@ function MiniStat({ label, value, icon: Icon, borderLeft = false, tone = "defaul
     style: "currency",
     currency: "COP",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(display);
 
   return (
@@ -96,6 +97,7 @@ export function AvailableHero({
     style: "currency",
     currency: "COP",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(displayAvailable);
 
   const expensesTone = overBudget ? "warning" : "default";

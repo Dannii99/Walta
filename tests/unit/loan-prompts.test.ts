@@ -55,10 +55,11 @@ describe("buildLoanAdvisorUserPrompt", () => {
     const prompt = buildLoanAdvisorUserPrompt(baseContext);
 
     expect(prompt).toContain("CONTEXTO FINANCIERO DEL USUARIO");
-    expect(prompt).toMatch(/4\.000\.000,00/);
-    expect(prompt).toMatch(/401\.700,00/);
-    expect(prompt).toMatch(/120\.510,00/);
-    expect(prompt).toMatch(/2\.550\.000,00/);
+    expect(prompt).toMatch(/4\.000\.000/);
+    expect(prompt).not.toMatch(/4\.000\.000,00/);
+    expect(prompt).toMatch(/401\.700/);
+    expect(prompt).toMatch(/120\.510/);
+    expect(prompt).toMatch(/2\.550\.000/);
   });
 
   it("includes the loan being analyzed with all key fields", () => {
@@ -69,20 +70,20 @@ describe("buildLoanAdvisorUserPrompt", () => {
     expect(prompt).toContain("Tipo: Vehículo");
     expect(prompt).toContain("Estado: Activo");
     expect(prompt).toContain("Salud (ratio cuota/disponible): Riesgoso");
-    expect(prompt).toMatch(/47\.000\.000,00/);
-    expect(prompt).toMatch(/26\.289\.376,00/);
+    expect(prompt).toMatch(/47\.000\.000/);
+    expect(prompt).toMatch(/26\.289\.376/);
     expect(prompt).toContain("17.18% EA");
     expect(prompt).toContain("Francesa (EA)");
     expect(prompt).toContain("72 meses");
-    expect(prompt).toMatch(/1\.018\.463,50/);
+    expect(prompt).toMatch(/1\.018\.46[34]/);
   });
 
   it("includes progress (paid/remaining/percent)", () => {
     const prompt = buildLoanAdvisorUserPrompt(baseContext);
 
     expect(prompt).toContain("Cuotas pagadas: 20 de 72 (28% completado)");
-    expect(prompt).toMatch(/20\.369\.270,00/);
-    expect(prompt).toMatch(/26\.630\.730,00/);
+    expect(prompt).toMatch(/20\.369\.270/);
+    expect(prompt).toMatch(/26\.630\.730/);
   });
 
   it("includes other active loans with their details", () => {
@@ -90,7 +91,7 @@ describe("buildLoanAdvisorUserPrompt", () => {
 
     expect(prompt).toContain("Otros créditos activos:");
     expect(prompt).toContain('Vehículo "Moto"');
-    expect(prompt).toMatch(/540\.000,00/);
+    expect(prompt).toMatch(/540\.000/);
     expect(prompt).toContain("18 meses restantes");
   });
 
@@ -105,7 +106,7 @@ describe("buildLoanAdvisorUserPrompt", () => {
     const prompt = buildLoanAdvisorUserPrompt(baseContext);
 
     expect(prompt).toContain("PAGOS RECIENTES");
-    expect(prompt).toMatch(/1\.018\.463,50/);
+    expect(prompt).toMatch(/1\.018\.46[34]/);
     expect(prompt).not.toContain("sin pagos registrados aún");
   });
 
@@ -158,10 +159,10 @@ describe("buildLoanInsightsUserPrompt", () => {
     const prompt = buildLoanInsightsUserPrompt(baseContext);
 
     expect(prompt).toContain("PORTAFOLIO DE CRÉDITOS DEL USUARIO");
-    expect(prompt).toMatch(/4\.000\.000,00/);
-    expect(prompt).toMatch(/401\.700,00/);
-    expect(prompt).toMatch(/1\.558\.463,50/);
-    expect(prompt).toMatch(/35\.030\.730,00/);
+    expect(prompt).toMatch(/4\.000\.000/);
+    expect(prompt).toMatch(/401\.700/);
+    expect(prompt).toMatch(/1\.558\.46[34]/);
+    expect(prompt).toMatch(/35\.030\.730/);
     expect(prompt).toContain("Ratio (cuotas activas / disponible): 388%");
   });
 

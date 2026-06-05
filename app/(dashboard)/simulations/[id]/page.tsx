@@ -2,7 +2,6 @@ import { auth } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { getSimulationById } from "@/server/queries/simulation-queries";
 import { getUserBudgets } from "@/server/queries/budget-queries";
-import { getMonthlyEquivalent } from "@/lib/recurrence";
 import { SimulationDetailClient } from "@/components/simulations/SimulationDetailClient";
 import {
   parseSimulationInputs,
@@ -52,7 +51,7 @@ export default async function SimulationDetailPage({
     ? budget.categories.reduce((sum, cat) => {
         return sum +
           cat.transactions.reduce(
-            (s, t) => s + getMonthlyEquivalent(parseFloat(t.amount), t.recurrence),
+            (s, t) => s + parseFloat(t.amount),
             0
           );
       }, 0)

@@ -1,9 +1,8 @@
 import { formatCOP } from "@/lib/currency";
-import { TrendingUp, Repeat, Calendar, Percent } from "lucide-react";
+import { TrendingUp, Calendar, Percent } from "lucide-react";
 
 interface ExpenseSummaryProps {
   totalEquivalent: number;
-  recurringTotal: number;
   oneTimeTotal: number;
   income: number;
 }
@@ -22,7 +21,6 @@ function progressBarClass(pct: number): string {
 
 export function ExpenseSummary({
   totalEquivalent,
-  recurringTotal,
   oneTimeTotal,
   income,
 }: ExpenseSummaryProps) {
@@ -30,7 +28,7 @@ export function ExpenseSummary({
     income > 0 ? Math.round((totalEquivalent / income) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
@@ -45,23 +43,6 @@ export function ExpenseSummary({
         </p>
         <p className="text-xs text-stone-500 dark:text-stone-400">
           Suma de todos tus gastos del mes
-        </p>
-      </div>
-
-      <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-            Recurrentes
-          </p>
-          <div className="h-8 w-8 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
-            <Repeat className="h-4 w-4 text-stone-600 dark:text-stone-300" />
-          </div>
-        </div>
-        <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
-          {formatCOP(recurringTotal)}
-        </p>
-        <p className="text-xs text-stone-500 dark:text-stone-400">
-          Mensual + Quincenal (×2)
         </p>
       </div>
 

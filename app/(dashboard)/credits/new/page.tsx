@@ -4,7 +4,6 @@ import Link from "next/link";
 import { ArrowLeft, FileSignature } from "lucide-react";
 import { getUserBudgets } from "@/server/queries/budget-queries";
 import { getActiveLoanCapacity } from "@/server/queries/loan-queries";
-import { getMonthlyEquivalent } from "@/lib/recurrence";
 import { LoanForm } from "@/components/credits/LoanForm";
 import { AvailableCreditCard } from "@/components/credits/AvailableCreditCard";
 import { Button } from "@/components/ui/button";
@@ -106,7 +105,7 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
     return (
       sum +
       cat.transactions.reduce(
-        (s, t) => s + getMonthlyEquivalent(parseFloat(t.amount), t.recurrence),
+        (s, t) => s + parseFloat(t.amount),
         0
       )
     );

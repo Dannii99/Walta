@@ -36,26 +36,42 @@ describe("createMoneyFromDecimal", () => {
 });
 
 describe("formatMoney", () => {
-  it("formats COP with Colombian pattern", () => {
-    const money = createMoneyFromDecimal(1234567.89);
+  it("formats COP with Colombian pattern (no decimals)", () => {
+    const money = createMoneyFromDecimal(1234567);
     const formatted = formatMoney(money);
     expect(formatted).toContain("$");
-    expect(formatted).toContain("1.234.567,89");
+    expect(formatted).toContain("1.234.567");
+    expect(formatted).not.toContain(",");
+  });
+
+  it("rounds fractional values to whole pesos", () => {
+    const money = createMoneyFromDecimal(1234567.89);
+    const formatted = formatMoney(money);
+    expect(formatted).toContain("1.234.568");
+    expect(formatted).not.toContain(",");
   });
 
   it("formats zero correctly", () => {
     const money = createMoney(0);
     const formatted = formatMoney(money);
     expect(formatted).toContain("$");
-    expect(formatted).toContain("0,00");
+    expect(formatted).toContain("0");
+    expect(formatted).not.toContain(",");
   });
 });
 
 describe("formatCOP", () => {
-  it("formats number directly to COP", () => {
-    const formatted = formatCOP(1234567.89);
+  it("formats number directly to COP (no decimals)", () => {
+    const formatted = formatCOP(1234567);
     expect(formatted).toContain("$");
-    expect(formatted).toContain("1.234.567,89");
+    expect(formatted).toContain("1.234.567");
+    expect(formatted).not.toContain(",");
+  });
+
+  it("rounds fractional values to whole pesos", () => {
+    const formatted = formatCOP(1234567.89);
+    expect(formatted).toContain("1.234.568");
+    expect(formatted).not.toContain(",");
   });
 });
 
