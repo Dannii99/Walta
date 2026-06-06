@@ -137,6 +137,13 @@ export interface LoanForAdvisor {
   upcomingPayments: UpcomingPayment[];
   monthlyFees: number;
   formula: string;
+  /**
+   * Cuota efectiva del próximo mes (post-recalcs por abonos a capital). Si
+   * difiere de `monthlyPayment`, indica que hubo un REDUCE_PAYMENT y la cuota
+   * financiera se redujo. Es opcional: si no se provee, el prompt no
+   * menciona la distinción (no hay recalc).
+   */
+  currentEffectivePayment?: number;
 }
 
 export interface OtherLoanSummary {
@@ -252,6 +259,12 @@ export function buildLoanAdvisorUserPrompt(context: LoanAdvisorContext): string 
     )
     .join("; ");
 
+  const effectiveLine =
+    loan.currentEffectivePayment !== undefined &&
+    Math.abs(loan.currentEffectivePayment - loan.monthlyPayment) > 0.5
+      ? `- Cuota actual vigente (post-recalcs): ${formatCOP(loan.currentEffectivePayment)}`
+      : "";
+
   return `CONTEXTO FINANCIERO DEL USUARIO
 - Ingreso mensual: ${formatCOP(income)}
 - Disponible mensual (después de gastos recurrentes): ${formatCOP(available)}
@@ -270,7 +283,8 @@ CRÉDITO A ANALIZAR
 - Tasa: ${(loan.annualRate * 100).toFixed(2)}% EA
 - Fórmula: ${FORMULA_LABELS[loan.formula] ?? loan.formula}
 - Plazo: ${loan.termMonths} meses
-- Cuota mensual: ${formatCOP(loan.monthlyPayment)}
+- Cuota mensual (banco): ${formatCOP(loan.monthlyPayment)}
+${effectiveLine}
 - Cargos adicionales mensuales: ${formatCOP(loan.monthlyFees)}
 - Total intereses del crédito: ${formatCOP(loan.totalInterest)}
 - Costo total del crédito: ${formatCOP(loan.totalCost)}

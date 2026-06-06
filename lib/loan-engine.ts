@@ -1,5 +1,6 @@
 ﻿import type { Loan, LoanPayment, LoanExtraPayment, AmortizationRow } from "@/types";
 import { calculateTotalMonthlyFees } from "@/lib/loan-fees";
+import { calculateFrenchPayment, resolveMonthlyRate } from "@/lib/loan-formulas";
 
 function addMonths(date: Date, months: number): Date {
   const d = new Date(date.getTime());
@@ -16,23 +17,115 @@ function isSameMonth(a: Date, b: Date): boolean {
 }
 
 /**
+ * One "phase" of the amortization schedule. The loan may transition through
+ * multiple phases over its lifetime — one per recalc-triggering extra.
+ *
+ * - `monthlyPayment` is the financial cuota (capital + interest, NO fees) used
+ *   for every row in this phase.
+ * - `startMonth` is the 1-based month index where the phase starts.
+ * - `endMonth` is the inclusive last month of the phase (set by the caller
+ *   when the next phase starts; `Infinity` for the last phase).
+ */
+interface AmortizationPhase {
+  startMonth: number;
+  endMonth: number;
+  monthlyPayment: number;
+  /**
+   * `termMonths` budget for the phase. The generator only emits rows up to
+   * `endMonth`, so the `termMonths` value is informational (used for the
+   * "how many months did this phase plan for?" calculation if needed).
+   */
+  termMonths: number;
+  /** The extra that triggered this phase, if any. */
+  triggeredBy: string | null;
+}
+
+/**
+ * Computes the end (inclusive) month of the last row in the schedule.
+ *
+ * The schedule length is driven by the phase list (whose first phase
+ * defaults to `loan.termMonths` and subsequent phases use the user-specified
+ * `newTermMonths`). We use `max(maxPhaseEndMonth, paidInstallments)` so
+ * the schedule extends when a recalc lengthens the term and so the rows
+ * covered by `paidInstallments` always render (even if the natural
+ * amortization would have ended earlier).
+ */
+function computeUpperBound(
+  loan: Loan,
+  phases: AmortizationPhase[]
+): number {
+  const paidInstallments = loan.paidInstallments ?? 0;
+  let maxFromPhases = 0;
+  for (const p of phases) {
+    maxFromPhases = Math.max(maxFromPhases, p.endMonth);
+  }
+  return Math.max(maxFromPhases, paidInstallments);
+}
+
+/**
+ * Computes the outstanding balance of the loan AT the end of the given
+ * month index, after applying all scheduled payments for months 1..monthIndex
+ * + all extras up to that month. Used by the engine to derive the new cuota
+ * for phase transitions.
+ */
+function balanceAtEndOfMonth(
+  loan: Loan,
+  payments: LoanPayment[],
+  sortedExtras: LoanExtraPayment[],
+  monthIndex: number
+): number {
+  const principal = parseFloat(loan.principal);
+  const annualRate = parseFloat(loan.annualRate);
+  const basePayment = parseFloat(loan.monthlyPayment);
+  const startDate = new Date(loan.startDate);
+
+  const monthlyRate = resolveMonthlyRate(annualRate, loan.formula);
+
+  let balance = principal;
+  const upperBound = Math.min(monthIndex, loan.termMonths);
+
+  for (let m = 1; m <= upperBound; m++) {
+    const currentDate = addMonths(startDate, m - 1);
+    const interest = balance * monthlyRate;
+    let principalPortion = basePayment - interest;
+    if (principalPortion >= balance) principalPortion = balance;
+    if (principalPortion < 0) principalPortion = 0;
+    balance = Math.max(0, balance - principalPortion);
+
+    // Apply extras for this month (recompute at the loan level, NOT
+    // respecting phase transitions — we want the historical balance up to
+    // the recalc point).
+    const extrasThisMonth = sortedExtras.filter((ex) =>
+      isSameMonth(new Date(ex.date), currentDate)
+    );
+    for (const ex of extrasThisMonth) {
+      const extraAmt = parseFloat(ex.amount);
+      balance = Math.max(0, balance - extraAmt);
+    }
+  }
+
+  return balance;
+}
+
+/**
  * Generates the amortization schedule for a loan, respecting real payments,
  * extra payments, and the `paidInstallments` count synced from the bank
- * statement.
+ * statement. Supports **phase transitions** triggered by extras with
+ * `recalculationMode === "REDUCE_PAYMENT"`.
  *
- * **Length semantics** (Bug #6 fix):
- * The schedule length is the maximum of:
- * - `termMonths`            (the original term)
- * - `paidInstallments`      (what the bank statement says)
- * - rows needed to drain the balance
+ * **Phase semantics**:
+ * - Phase 1: months 1..termMonths (or until the first REDUCE_PAYMENT extra),
+ *   using `loan.monthlyPayment` as the financial cuota.
+ * - Phase N (N>1): starts the month after a REDUCE_PAYMENT extra, using a
+ *   new cuota recomputed via French formula over `ex.newTermMonths` against
+ *   the post-extra balance. Subsequent extras may trigger more phases.
+ * - The schedule length is the maximum of: original term, paidInstallments,
+ *   last phase's endMonth, and the rows needed to drain the balance.
  *
- * This prevents the schedule from collapsing when an extra payment zeroes
- * the balance early. Rows beyond the natural term (paidInstallments > termMonths)
- * are generated as a final row with status `PAID`.
- *
- * Rows covered by `paidInstallments` but lacking a real `LoanPayment` are
- * flagged with `paidFromExtract: true` so the UI can distinguish them from
- * manually-recorded payments.
+ * **Length semantics** (Bug #6 fix, still valid):
+ * Rows beyond the natural term (paidInstallments > termMonths) are generated
+ * as a final row with status `PAID`. Rows covered by `paidInstallments` but
+ * lacking a real `LoanPayment` are flagged with `paidFromExtract: true`.
  */
 export function generateAmortizationSchedule(
   loan: Loan,
@@ -43,21 +136,16 @@ export function generateAmortizationSchedule(
   const annualRate = parseFloat(loan.annualRate);
   const termMonths = loan.termMonths;
   const formula = loan.formula;
-  const monthlyPayment = parseFloat(loan.monthlyPayment);
+  const baseMonthlyPayment = parseFloat(loan.monthlyPayment);
   const startDate = new Date(loan.startDate);
   const today = new Date();
 
-  const monthlyRate =
-    formula === "french_ea"
-      ? Math.pow(1 + annualRate, 1 / 12) - 1
-      : annualRate / 12;
+  const monthlyRate = resolveMonthlyRate(annualRate, formula);
 
+  // Sort extras by date so we can build the phase list in chronological order.
   const sortedExtras = extraPayments
     .slice()
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-  const schedule: AmortizationRow[] = [];
-  let balance = principal;
 
   // Pre-compute the monthly fee contribution (constant across all rows of
   // this loan). Comes from `loan.fees` (relational LoanFee[] post-migration
@@ -83,16 +171,99 @@ export function generateAmortizationSchedule(
 
   const paidInstallments = loan.paidInstallments ?? 0;
 
-  // Determine how many rows we need. We go up to max(termMonths, paidInstallments)
-  // and break early if the balance is exhausted.
-  const upperBound = Math.max(termMonths, paidInstallments);
+  // Build the phase list. Phase 1 is the original. Each REDUCE_PAYMENT extra
+  // starts a new phase whose cuota is computed at generation time below.
+  const phases: AmortizationPhase[] = [
+    {
+      startMonth: 1,
+      endMonth: termMonths,
+      monthlyPayment: baseMonthlyPayment,
+      termMonths,
+      triggeredBy: null,
+    },
+  ];
+
+  for (const ex of sortedExtras) {
+    if (ex.recalculationMode !== "REDUCE_PAYMENT") continue;
+    if (ex.newTermMonths == null) continue;
+
+    const exDate = new Date(ex.date);
+    const monthOffset =
+      (exDate.getUTCFullYear() - startDate.getUTCFullYear()) * 12 +
+      (exDate.getUTCMonth() - startDate.getUTCMonth());
+    const extraMonth = monthOffset + 1;
+    if (extraMonth < 1) continue;
+
+    // End the previous phase AT the extra's month (the extra applies to
+    // the old cuota, then the new cuota starts next month).
+    const prev = phases[phases.length - 1];
+    if (extraMonth <= prev.endMonth) {
+      prev.endMonth = extraMonth;
+    } else if (extraMonth > prev.endMonth) {
+      // The extra falls after the previous phase's planned end. The phase
+      // is naturally truncated; we just start the new one after the extra.
+      // (Unlikely but defensive: extra scheduled in the future of a
+      // phase that's already exhausted.)
+    }
+
+    // Compute the post-extra balance. We replay the loan's history using
+    // the ORIGINAL cuota + the sortedExtras up to (and including) this
+    // extra, ignoring the phase transition. This gives the saldo
+    // pendiente that the new cuota will amortize.
+    const postExtraBalance = balanceAtEndOfMonth(
+      loan,
+      payments,
+      sortedExtras.filter((e) => {
+        const eDate = new Date(e.date);
+        const eMonth =
+          (eDate.getUTCFullYear() - startDate.getUTCFullYear()) * 12 +
+          (eDate.getUTCMonth() - startDate.getUTCMonth()) + 1;
+        return eMonth <= extraMonth;
+      }),
+      extraMonth
+    );
+
+    // Compute the new cuota for the post-extra balance over the user-specified
+    // new term.
+    const newCuota = calculateFrenchPayment(
+      postExtraBalance,
+      monthlyRate,
+      ex.newTermMonths
+    );
+
+    phases.push({
+      startMonth: extraMonth + 1,
+      endMonth: ex.newTermMonths,
+      monthlyPayment: newCuota,
+      termMonths: ex.newTermMonths,
+      triggeredBy: ex.id,
+    });
+  }
+
+  // Resolve the upper bound: max of (original term, paidInstallments, last
+  // phase's endMonth).
+  const upperBound = computeUpperBound(loan, phases);
+
+  const schedule: AmortizationRow[] = [];
+  let balance = principal;
+
+  // Helper: which phase does this month belong to?
+  function phaseFor(month: number): AmortizationPhase | null {
+    for (const p of phases) {
+      if (month >= p.startMonth && month <= p.endMonth) return p;
+    }
+    return null;
+  }
 
   for (let month = 1; month <= upperBound; month++) {
     const currentDate = addMonths(startDate, month - 1);
-    const interest = balance * monthlyRate;
-    let principalPortion = monthlyPayment - interest;
+    const phase = phaseFor(month);
+    const currentPhasePayment = phase?.monthlyPayment ?? baseMonthlyPayment;
 
-    // Final payment adjustment
+    const interest = balance * monthlyRate;
+    let principalPortion = currentPhasePayment - interest;
+
+    // Final payment adjustment within the phase: cap at remaining balance.
     if (principalPortion >= balance) {
       principalPortion = balance;
     }
@@ -117,17 +288,12 @@ export function generateAmortizationSchedule(
     );
     const hasRealPayment = actual !== undefined;
 
-    // Determine paidFromExtract: only rows within the paidInstallments range
-    // (set from the bank statement) and lacking a real LoanPayment backing.
-    // Rows beyond that range that show balance=0 are NOT extract-paid — they
-    // represent "credit paid off early via extras" (a different concept).
     const paidFromExtract = !hasRealPayment && month <= paidInstallments;
 
     // Determine status with priority:
     // 1. Real payment → PAID (actualPayment set)
     // 2. Within paidInstallments range, no real payment → PAID (extract-synthetic)
     // 3. Balance already exhausted beyond the extract range → PAID_OFF
-    //    (the credit is paid off; the row is informational, not a real installment)
     // 4. Current month already passed, not paid → PENDING or DEFAULTED
     // 5. Future month → UPCOMING
     let status: AmortizationRow["status"];
@@ -156,10 +322,24 @@ export function generateAmortizationSchedule(
       status,
       actualPayment: actual ?? null,
       paidFromExtract: paidFromExtract || undefined,
+      paymentPhase: phase ? phases.indexOf(phase) + 1 : undefined,
     });
   }
 
   return schedule;
+}
+
+/**
+ * Returns the date of the next unpaid installment. Backward-compatible: when
+ * called with a single `loan` argument, uses the historical formula
+ * `addMonths(startDate, paidCount + 1)` where `paidCount` is sourced from
+ * `loan.payments.length` (preserves pre-recalc behavior for callers that
+ * don't have explicit payments + extras handy).
+ */
+export function getNextPaymentDate(loan: Loan): Date {
+  const startDate = new Date(loan.startDate);
+  const paidCount = loan.payments?.length ?? 0;
+  return addMonths(startDate, paidCount + 1);
 }
 
 export function calculateRemainingBalance(
@@ -216,12 +396,6 @@ export function getProjectedPayoffDate(
   const lastRow = schedule[schedule.length - 1];
   if (lastRow.balance > 0.01) return null; // not projected to be paid off
   return lastRow.date;
-}
-
-export function getNextPaymentDate(loan: Loan): Date {
-  const startDate = new Date(loan.startDate);
-  const paidCount = loan.payments?.length ?? 0;
-  return addMonths(startDate, paidCount + 1);
 }
 
 export function getPaidInstallments(loan: Loan): number {

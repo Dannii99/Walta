@@ -11183,10 +11183,12 @@ export namespace Prisma {
 
   export type LoanExtraPaymentAvgAggregateOutputType = {
     amount: Decimal | null
+    newTermMonths: number | null
   }
 
   export type LoanExtraPaymentSumAggregateOutputType = {
     amount: Decimal | null
+    newTermMonths: number | null
   }
 
   export type LoanExtraPaymentMinAggregateOutputType = {
@@ -11195,6 +11197,8 @@ export namespace Prisma {
     amount: Decimal | null
     date: Date | null
     note: string | null
+    recalculationMode: string | null
+    newTermMonths: number | null
     createdAt: Date | null
   }
 
@@ -11204,6 +11208,8 @@ export namespace Prisma {
     amount: Decimal | null
     date: Date | null
     note: string | null
+    recalculationMode: string | null
+    newTermMonths: number | null
     createdAt: Date | null
   }
 
@@ -11213,6 +11219,8 @@ export namespace Prisma {
     amount: number
     date: number
     note: number
+    recalculationMode: number
+    newTermMonths: number
     createdAt: number
     _all: number
   }
@@ -11220,10 +11228,12 @@ export namespace Prisma {
 
   export type LoanExtraPaymentAvgAggregateInputType = {
     amount?: true
+    newTermMonths?: true
   }
 
   export type LoanExtraPaymentSumAggregateInputType = {
     amount?: true
+    newTermMonths?: true
   }
 
   export type LoanExtraPaymentMinAggregateInputType = {
@@ -11232,6 +11242,8 @@ export namespace Prisma {
     amount?: true
     date?: true
     note?: true
+    recalculationMode?: true
+    newTermMonths?: true
     createdAt?: true
   }
 
@@ -11241,6 +11253,8 @@ export namespace Prisma {
     amount?: true
     date?: true
     note?: true
+    recalculationMode?: true
+    newTermMonths?: true
     createdAt?: true
   }
 
@@ -11250,6 +11264,8 @@ export namespace Prisma {
     amount?: true
     date?: true
     note?: true
+    recalculationMode?: true
+    newTermMonths?: true
     createdAt?: true
     _all?: true
   }
@@ -11346,6 +11362,8 @@ export namespace Prisma {
     amount: Decimal
     date: Date
     note: string | null
+    recalculationMode: string | null
+    newTermMonths: number | null
     createdAt: Date
     _count: LoanExtraPaymentCountAggregateOutputType | null
     _avg: LoanExtraPaymentAvgAggregateOutputType | null
@@ -11374,6 +11392,8 @@ export namespace Prisma {
     amount?: boolean
     date?: boolean
     note?: boolean
+    recalculationMode?: boolean
+    newTermMonths?: boolean
     createdAt?: boolean
     loan?: boolean | LoanDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["loanExtraPayment"]>
@@ -11384,6 +11404,8 @@ export namespace Prisma {
     amount?: boolean
     date?: boolean
     note?: boolean
+    recalculationMode?: boolean
+    newTermMonths?: boolean
     createdAt?: boolean
     loan?: boolean | LoanDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["loanExtraPayment"]>
@@ -11394,6 +11416,8 @@ export namespace Prisma {
     amount?: boolean
     date?: boolean
     note?: boolean
+    recalculationMode?: boolean
+    newTermMonths?: boolean
     createdAt?: boolean
     loan?: boolean | LoanDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["loanExtraPayment"]>
@@ -11404,10 +11428,12 @@ export namespace Prisma {
     amount?: boolean
     date?: boolean
     note?: boolean
+    recalculationMode?: boolean
+    newTermMonths?: boolean
     createdAt?: boolean
   }
 
-  export type LoanExtraPaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "loanId" | "amount" | "date" | "note" | "createdAt", ExtArgs["result"]["loanExtraPayment"]>
+  export type LoanExtraPaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "loanId" | "amount" | "date" | "note" | "recalculationMode" | "newTermMonths" | "createdAt", ExtArgs["result"]["loanExtraPayment"]>
   export type LoanExtraPaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     loan?: boolean | LoanDefaultArgs<ExtArgs>
   }
@@ -11429,6 +11455,19 @@ export namespace Prisma {
       amount: Prisma.Decimal
       date: Date
       note: string | null
+      /**
+       * Cómo afecta el abono a la amortización:
+       * - null | "REDUCE_TERM"     → comportamiento histórico: misma cuota, menor plazo.
+       * - "REDUCE_PAYMENT"         → recalcula la cuota con la fórmula francesa sobre
+       * `newTermMonths` usando el saldo pendiente post-abono.
+       */
+      recalculationMode: string | null
+      /**
+       * Plazo TOTAL en meses del crédito después del recálculo. Solo aplica cuando
+       * `recalculationMode === "REDUCE_PAYMENT"`. Debe ser >= meses restantes al
+       * momento del abono.
+       */
+      newTermMonths: number | null
       createdAt: Date
     }, ExtArgs["result"]["loanExtraPayment"]>
     composites: {}
@@ -11859,6 +11898,8 @@ export namespace Prisma {
     readonly amount: FieldRef<"LoanExtraPayment", 'Decimal'>
     readonly date: FieldRef<"LoanExtraPayment", 'DateTime'>
     readonly note: FieldRef<"LoanExtraPayment", 'String'>
+    readonly recalculationMode: FieldRef<"LoanExtraPayment", 'String'>
+    readonly newTermMonths: FieldRef<"LoanExtraPayment", 'Int'>
     readonly createdAt: FieldRef<"LoanExtraPayment", 'DateTime'>
   }
     
@@ -13538,6 +13579,8 @@ export namespace Prisma {
     amount: 'amount',
     date: 'date',
     note: 'note',
+    recalculationMode: 'recalculationMode',
+    newTermMonths: 'newTermMonths',
     createdAt: 'createdAt'
   };
 
@@ -14313,6 +14356,8 @@ export namespace Prisma {
     amount?: DecimalFilter<"LoanExtraPayment"> | Decimal | DecimalJsLike | number | string
     date?: DateTimeFilter<"LoanExtraPayment"> | Date | string
     note?: StringNullableFilter<"LoanExtraPayment"> | string | null
+    recalculationMode?: StringNullableFilter<"LoanExtraPayment"> | string | null
+    newTermMonths?: IntNullableFilter<"LoanExtraPayment"> | number | null
     createdAt?: DateTimeFilter<"LoanExtraPayment"> | Date | string
     loan?: XOR<LoanScalarRelationFilter, LoanWhereInput>
   }
@@ -14323,6 +14368,8 @@ export namespace Prisma {
     amount?: SortOrder
     date?: SortOrder
     note?: SortOrderInput | SortOrder
+    recalculationMode?: SortOrderInput | SortOrder
+    newTermMonths?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     loan?: LoanOrderByWithRelationInput
   }
@@ -14336,6 +14383,8 @@ export namespace Prisma {
     amount?: DecimalFilter<"LoanExtraPayment"> | Decimal | DecimalJsLike | number | string
     date?: DateTimeFilter<"LoanExtraPayment"> | Date | string
     note?: StringNullableFilter<"LoanExtraPayment"> | string | null
+    recalculationMode?: StringNullableFilter<"LoanExtraPayment"> | string | null
+    newTermMonths?: IntNullableFilter<"LoanExtraPayment"> | number | null
     createdAt?: DateTimeFilter<"LoanExtraPayment"> | Date | string
     loan?: XOR<LoanScalarRelationFilter, LoanWhereInput>
   }, "id">
@@ -14346,6 +14395,8 @@ export namespace Prisma {
     amount?: SortOrder
     date?: SortOrder
     note?: SortOrderInput | SortOrder
+    recalculationMode?: SortOrderInput | SortOrder
+    newTermMonths?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: LoanExtraPaymentCountOrderByAggregateInput
     _avg?: LoanExtraPaymentAvgOrderByAggregateInput
@@ -14363,6 +14414,8 @@ export namespace Prisma {
     amount?: DecimalWithAggregatesFilter<"LoanExtraPayment"> | Decimal | DecimalJsLike | number | string
     date?: DateTimeWithAggregatesFilter<"LoanExtraPayment"> | Date | string
     note?: StringNullableWithAggregatesFilter<"LoanExtraPayment"> | string | null
+    recalculationMode?: StringNullableWithAggregatesFilter<"LoanExtraPayment"> | string | null
+    newTermMonths?: IntNullableWithAggregatesFilter<"LoanExtraPayment"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"LoanExtraPayment"> | Date | string
   }
 
@@ -15111,6 +15164,8 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     date: Date | string
     note?: string | null
+    recalculationMode?: string | null
+    newTermMonths?: number | null
     createdAt?: Date | string
     loan: LoanCreateNestedOneWithoutExtraPaymentsInput
   }
@@ -15121,6 +15176,8 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     date: Date | string
     note?: string | null
+    recalculationMode?: string | null
+    newTermMonths?: number | null
     createdAt?: Date | string
   }
 
@@ -15129,6 +15186,8 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    recalculationMode?: NullableStringFieldUpdateOperationsInput | string | null
+    newTermMonths?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     loan?: LoanUpdateOneRequiredWithoutExtraPaymentsNestedInput
   }
@@ -15139,6 +15198,8 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    recalculationMode?: NullableStringFieldUpdateOperationsInput | string | null
+    newTermMonths?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15148,6 +15209,8 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     date: Date | string
     note?: string | null
+    recalculationMode?: string | null
+    newTermMonths?: number | null
     createdAt?: Date | string
   }
 
@@ -15156,6 +15219,8 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    recalculationMode?: NullableStringFieldUpdateOperationsInput | string | null
+    newTermMonths?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15165,6 +15230,8 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    recalculationMode?: NullableStringFieldUpdateOperationsInput | string | null
+    newTermMonths?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15911,17 +15978,31 @@ export namespace Prisma {
     interestPaid?: SortOrder
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type LoanExtraPaymentCountOrderByAggregateInput = {
     id?: SortOrder
     loanId?: SortOrder
     amount?: SortOrder
     date?: SortOrder
     note?: SortOrder
+    recalculationMode?: SortOrder
+    newTermMonths?: SortOrder
     createdAt?: SortOrder
   }
 
   export type LoanExtraPaymentAvgOrderByAggregateInput = {
     amount?: SortOrder
+    newTermMonths?: SortOrder
   }
 
   export type LoanExtraPaymentMaxOrderByAggregateInput = {
@@ -15930,6 +16011,8 @@ export namespace Prisma {
     amount?: SortOrder
     date?: SortOrder
     note?: SortOrder
+    recalculationMode?: SortOrder
+    newTermMonths?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15939,11 +16022,30 @@ export namespace Prisma {
     amount?: SortOrder
     date?: SortOrder
     note?: SortOrder
+    recalculationMode?: SortOrder
+    newTermMonths?: SortOrder
     createdAt?: SortOrder
   }
 
   export type LoanExtraPaymentSumOrderByAggregateInput = {
     amount?: SortOrder
+    newTermMonths?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type LoanFeeCountOrderByAggregateInput = {
@@ -16498,6 +16600,14 @@ export namespace Prisma {
     connect?: LoanWhereUniqueInput
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type LoanUpdateOneRequiredWithoutExtraPaymentsNestedInput = {
     create?: XOR<LoanCreateWithoutExtraPaymentsInput, LoanUncheckedCreateWithoutExtraPaymentsInput>
     connectOrCreate?: LoanCreateOrConnectWithoutExtraPaymentsInput
@@ -16729,6 +16839,33 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type BudgetCreateWithoutUserInput = {
@@ -17494,6 +17631,8 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     date: Date | string
     note?: string | null
+    recalculationMode?: string | null
+    newTermMonths?: number | null
     createdAt?: Date | string
   }
 
@@ -17502,6 +17641,8 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     date: Date | string
     note?: string | null
+    recalculationMode?: string | null
+    newTermMonths?: number | null
     createdAt?: Date | string
   }
 
@@ -17627,6 +17768,8 @@ export namespace Prisma {
     amount?: DecimalFilter<"LoanExtraPayment"> | Decimal | DecimalJsLike | number | string
     date?: DateTimeFilter<"LoanExtraPayment"> | Date | string
     note?: StringNullableFilter<"LoanExtraPayment"> | string | null
+    recalculationMode?: StringNullableFilter<"LoanExtraPayment"> | string | null
+    newTermMonths?: IntNullableFilter<"LoanExtraPayment"> | number | null
     createdAt?: DateTimeFilter<"LoanExtraPayment"> | Date | string
   }
 
@@ -18277,6 +18420,8 @@ export namespace Prisma {
     amount: Decimal | DecimalJsLike | number | string
     date: Date | string
     note?: string | null
+    recalculationMode?: string | null
+    newTermMonths?: number | null
     createdAt?: Date | string
   }
 
@@ -18339,6 +18484,8 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    recalculationMode?: NullableStringFieldUpdateOperationsInput | string | null
+    newTermMonths?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18347,6 +18494,8 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    recalculationMode?: NullableStringFieldUpdateOperationsInput | string | null
+    newTermMonths?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18355,6 +18504,8 @@ export namespace Prisma {
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    recalculationMode?: NullableStringFieldUpdateOperationsInput | string | null
+    newTermMonths?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

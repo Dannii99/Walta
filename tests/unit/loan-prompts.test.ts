@@ -119,6 +119,46 @@ describe("buildLoanAdvisorUserPrompt", () => {
 
     expect(prompt).toContain("sin pagos registrados aún");
   });
+
+  it("includes 'Cuota actual vigente' when currentEffectivePayment differs from monthlyPayment", () => {
+    const ctx = {
+      ...baseContext,
+      loan: {
+        ...baseContext.loan,
+        monthlyPayment: 1_000_000,
+        currentEffectivePayment: 850_000,
+      },
+    };
+    const prompt = buildLoanAdvisorUserPrompt(ctx);
+    expect(prompt).toContain("Cuota actual vigente");
+    expect(prompt).toMatch(/850\.000/);
+  });
+
+  it("omits 'Cuota actual vigente' when currentEffectivePayment equals monthlyPayment", () => {
+    const ctx = {
+      ...baseContext,
+      loan: {
+        ...baseContext.loan,
+        monthlyPayment: 1_000_000,
+        currentEffectivePayment: 1_000_000,
+      },
+    };
+    const prompt = buildLoanAdvisorUserPrompt(ctx);
+    expect(prompt).not.toContain("Cuota actual vigente");
+  });
+
+  it("omits 'Cuota actual vigente' when currentEffectivePayment is undefined", () => {
+    const ctx = {
+      ...baseContext,
+      loan: {
+        ...baseContext.loan,
+        monthlyPayment: 1_000_000,
+        currentEffectivePayment: undefined,
+      },
+    };
+    const prompt = buildLoanAdvisorUserPrompt(ctx);
+    expect(prompt).not.toContain("Cuota actual vigente");
+  });
 });
 
 describe("buildLoanInsightsUserPrompt", () => {

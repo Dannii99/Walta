@@ -191,7 +191,16 @@ export function CreditAmortizationTable({
                   )}
                 >
                   <td className="px-4 py-3 font-bold text-stone-900 dark:text-stone-50 tabular-nums">
-                    {row.month}
+                    {row.paymentPhase !== undefined && row.paymentPhase > 1 ? (
+                      <span
+                        title={`Recálculo: nueva cuota ${formatCOP(row.payment)} · fase ${row.paymentPhase}`}
+                        className="cursor-help"
+                      >
+                        {row.month}
+                      </span>
+                    ) : (
+                      row.month
+                    )}
                   </td>
                   <td className="px-4 py-3 text-stone-700 dark:text-stone-300">
                     {row.date.toLocaleDateString("es-CO", {

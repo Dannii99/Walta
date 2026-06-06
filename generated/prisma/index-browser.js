@@ -218,6 +218,8 @@ exports.Prisma.LoanExtraPaymentScalarFieldEnum = {
   amount: 'amount',
   date: 'date',
   note: 'note',
+  recalculationMode: 'recalculationMode',
+  newTermMonths: 'newTermMonths',
   createdAt: 'createdAt'
 };
 

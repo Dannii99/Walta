@@ -16,7 +16,10 @@ import { ExtractTab } from "./ExtractTab";
 import { AILoanAdvisorCard } from "./AILoanAdvisorCard";
 import { EditExtraPaymentDialog } from "./EditExtraPaymentDialog";
 import { DeleteExtraPaymentDialog } from "./DeleteExtraPaymentDialog";
-import { CapitalImpactSimulator } from "./CapitalImpactSimulator";
+import {
+  CapitalImpactSimulator,
+  type CapitalImpactPrefill,
+} from "./CapitalImpactSimulator";
 import { CapitalContributionForm } from "./CapitalContributionForm";
 import {
   recordPayment,
@@ -30,6 +33,8 @@ import { toast } from "sonner";
 import type { Loan, LoanPayment, LoanExtraPayment } from "@/types";
 
 type TabKey = "amortization" | "payments" | "extras" | "extract";
+
+type RecalcMode = "REDUCE_TERM" | "REDUCE_PAYMENT";
 
 interface CreditDetailClientProps {
   loan: Loan & { payments: LoanPayment[]; extraPayments: LoanExtraPayment[] };
@@ -51,6 +56,9 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
   const [editingExtra, setEditingExtra] = useState<LoanExtraPayment | null>(null);
   const [deletingExtra, setDeletingExtra] = useState<LoanExtraPayment | null>(null);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [formPrefill, setFormPrefill] = useState<CapitalImpactPrefill | null>(
+    null
+  );
 
   const schedule = generateAmortizationSchedule(
     loan,
@@ -58,14 +66,31 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
     loan.extraPayments
   );
 
+  const remainingTermMonths = Math.max(
+    1,
+    loan.termMonths - (loan.paidInstallments ?? 0)
+  );
+
+  // Al cerrar el dialog limpiamos el prefill para que la próxima apertura
+  // manual (botón "Acciones") no herede valores stale del simulador.
+  const handleActionsOpenChange = (open: boolean) => {
+    setActionsOpen(open);
+    if (!open) setFormPrefill(null);
+  };
+
   const handleRecordExtra = async (data: {
     amount: string;
     date: Date;
     note?: string | null;
+    recalculationMode: RecalcMode;
+    newTermMonths?: number | null;
   }) => {
     await recordCapitalContribution(loan.id, data);
     setRefreshKey((k) => k + 1);
     router.refresh();
+    toast.success("Abono registrado", {
+      description: "El saldo y plazo se recalcularon.",
+    });
   };
 
   const handleMarkPaid = async (month: number) => {
@@ -102,11 +127,14 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
   const handleUpdateExtra = async (data: {
     amount: string;
     date: Date;
+    recalculationMode: RecalcMode;
+    newTermMonths: number | null;
   }) => {
     if (!editingExtra) return;
     await updateExtraPayment(editingExtra.id, data);
     setRefreshKey((k) => k + 1);
     router.refresh();
+    setEditingExtra(null);
     toast.success("Abono actualizado", {
       description: "Los cambios se reflejaron en la tabla de amortización.",
     });
@@ -121,6 +149,11 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
     toast.success("Abono eliminado", {
       description: "El saldo y plazo se recalcularon.",
     });
+  };
+
+  const handleApplyPrefill = (prefill: CapitalImpactPrefill) => {
+    setFormPrefill(prefill);
+    setActionsOpen(true);
   };
 
   return (
@@ -146,6 +179,7 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
       <CapitalImpactSimulator
         key={`simulator-${refreshKey}`}
         loan={loan}
+        onApplyPrefill={handleApplyPrefill}
       />
 
       <AnimatePresence mode="wait">
@@ -195,6 +229,7 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         extra={editingExtra}
         onOpenChange={(open) => !open && setEditingExtra(null)}
         onUpdate={handleUpdateExtra}
+        remainingTermMonths={remainingTermMonths}
       />
 
       <DeleteExtraPaymentDialog
@@ -207,9 +242,13 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         onRecord={handleRecordExtra}
         triggerRefresh={refreshKey}
         open={actionsOpen}
-        onOpenChange={setActionsOpen}
+        onOpenChange={handleActionsOpenChange}
         hideTrigger
         description="Registra un abono a capital para reducir el saldo y los intereses."
+        remainingTermMonths={remainingTermMonths}
+        initialAmount={formPrefill?.amount}
+        initialMode={formPrefill?.mode}
+        initialNewTerm={formPrefill?.newTerm}
       />
     </div>
   );

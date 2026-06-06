@@ -249,6 +249,20 @@ Versions exactas en `package.json`:
   - `server/queries/loan-queries.ts` — `getUserLoans`, `getLoanById`, `getLoanStats`, `getActiveLoansForAI`, `getActiveLoanCapacity`.
   - **Naming convention**: `Credit*` = UI components (Spanish) / `Loan*` = domain types + Prisma model (English). Cuando en duda, el nombre del archivo refleja la capa.
   - **Moratory detection** = `loan.status === "DEFAULTED"`, NO en `LoanPayment`.
+- **Feature "Reducir Cuota" (Abonos con recálculo de cuota)**:
+  - `LoanExtraPayment.recalculationMode: "REDUCE_TERM" | "REDUCE_PAYMENT" | null` + `LoanExtraPayment.newTermMonths: number | null`. Columnas nullable (zero-downtime). Legacy `null` = `REDUCE_TERM` (compat histórica).
+  - `lib/loan-formulas.ts` (NEW) — pure financial formulas importable desde server + client. `calculateFrenchPayment(principal, monthlyRate, termMonths)` con edge cases (rate=0, n<=0, principal<=0) + `resolveMonthlyRate(annualRate, formula)` (`french_ea → (1+r)^(1/12)-1`, `nominal_monthly → r/12`).
+  - `AmortizationRow.paymentPhase?: number` (1-based). Cada `REDUCE_PAYMENT` cierra la fase anterior en su mes y abre una nueva. El motor emite este campo en cada row para que la UI pueda mostrar el tooltip.
+  - `lib/loan-engine.ts` ahora soporta `AmortizationPhase[]`. Cada fase tiene `startMonth`/`endMonth`/`monthlyPayment`/`termMonths`/`triggeredBy`. El loop principal usa `phaseFor(month)` para resolver la cuota vigente. `balanceAtEndOfMonth` replay con cuota original + extras hasta el mes del recalc. `computeUpperBound = max(maxPhaseEndMonth, paidInstallments)` (sin `originalTerm` para que un `newTermMonths < termMonths` determine la longitud).
+  - **`Loan.monthlyPayment` (cuota banco) NUNCA se muta con recalcs**. El motor computa la cuota efectiva on-the-fly. Esto preserva la coherencia con extractos bancarios.
+  - **`createLoan`/`updateLoan` aceptaban `initialExtraPayment: { amount, date }`** (PREV_EXTRA_NOTE). **`recordCapitalContribution` y `updateExtraPayment`** ahora aceptan también `recalculationMode` + `newTermMonths`. Zod valida la pareja via `extraRecalcFieldsSchema` (REDUCE_PAYMENT requiere `newTermMonths >= 1`).
+  - **UI comparativa 3-way** en `CapitalImpactSimulator`: KPIs (meses ahorrados, intereses ahorrados, nuevo plazo estimado, nueva cuota) + tablas ANTES/DESPUÉS. El botón "Aplicar este abono" invoca `onApplyPrefill({ amount, mode, newTerm })` que el padre usa para abrir el `CapitalContributionForm` controlado pre-llenado via `initialAmount`/`initialMode`/`initialNewTerm` + `useEffect([open])`.
+  - **Sin `Dialog` anidado**: el simulador NO renderiza un `CapitalContributionForm` propio; delega al padre (lifting state). Esto respeta la regla "nunca anidar Radix Dialog".
+  - `CreditExtrasList` muestra badge `Reduce cuota · Nm` (blue tint) por cada extra con `recalculationMode === "REDUCE_PAYMENT"`.
+  - `CreditAmortizationTable` muestra tooltip nativo (`title=`) en la celda Mes cuando `row.paymentPhase > 1`: `Recálculo: nueva cuota $X · fase N`.
+  - `EditExtraPaymentDialog` también soporta RadioCards modo + input nuevo plazo con `remainingTermMonths` como default.
+  - **AI advisor** recibe `currentEffectivePayment` (opcional). Si difiere de `monthlyPayment`, el prompt incluye la línea `Cuota actual vigente (post-recalcs): $X` para que la IA distinga la cuota banco de la cuota financiera vigente.
+  - **Tests**: `tests/unit/loan-formulas.test.ts` (14 tests) + 6 tests nuevos en `tests/unit/loan-engine.test.ts` (chained recalcs, paymentPhase marker, newTermMonths shorter/longer, etc.) + 3 tests en `tests/unit/loan-prompts.test.ts` (verifica que el prompt incluye la línea condicional).
 - **Capa IA (`lib/ai/` + GROQ):**
   - **Model**: `llama-3.3-70b-versatile` vía fetch directo a GROQ. **NO SDK**.
   - **4 features** activas: sim advisor, sim insights, loan advisor, loan insights.

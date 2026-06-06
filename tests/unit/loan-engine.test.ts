@@ -321,4 +321,188 @@ describe("generateAmortizationSchedule (paidInstallments integration)", () => {
       expect(row.totalPayment).toBeCloseTo(row.payment + row.monthlyFee, 6);
     }
   });
+
+  // -----------------------------------------------------------------------
+  // Phase transitions via REDUCE_PAYMENT extras
+  // -----------------------------------------------------------------------
+
+  it("REDUCE_PAYMENT extra recalculates the cuota starting the next month", () => {
+    // Loan: $100M, 15% EA, 60 months → base cuota ~$2,378,456
+    // Extra of $20M at month 6 with REDUCE_PAYMENT, new term 60 months
+    // (same as original). The new cuota is for the smaller post-extra
+    // balance over the same term, so it MUST be lower than the base.
+    const loan = makeLoan();
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: loan.id,
+      amount: "20000000",
+      date: new Date("2024-06-15"),
+      recalculationMode: "REDUCE_PAYMENT",
+      newTermMonths: 60,
+      createdAt: new Date(),
+    };
+    const schedule = generateAmortizationSchedule(loan, [], [extra]);
+    // Row 6 (the extra month) still uses the base cuota.
+    expect(schedule[5].payment).toBeCloseTo(parseFloat(loan.monthlyPayment), 0);
+    // Row 7+ uses a recalculated cuota that is lower than the base.
+    const baseCuota = parseFloat(loan.monthlyPayment);
+    expect(schedule[6].payment).toBeLessThan(baseCuota);
+  });
+
+  it("REDUCE_PAYMENT extra changes the paymentPhase marker on subsequent rows", () => {
+    // Use a setup where the new term is bigger than the original remaining
+    // so the schedule grows past the original term and the new phase
+    // covers all remaining rows.
+    const loan = makeLoan({
+      termMonths: 24,
+      monthlyPayment: "4835200",
+    });
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: loan.id,
+      amount: "10000000",
+      date: new Date("2024-06-15"),
+      recalculationMode: "REDUCE_PAYMENT",
+      newTermMonths: 30, // longer than the original 24
+      createdAt: new Date(),
+    };
+    const schedule = generateAmortizationSchedule(loan, [], [extra]);
+    // Rows 1..6 are phase 1, rows 7..30 are phase 2.
+    for (let i = 0; i < 6; i++) {
+      expect(schedule[i].paymentPhase).toBe(1);
+    }
+    for (let i = 6; i < schedule.length; i++) {
+      expect(schedule[i].paymentPhase).toBe(2);
+    }
+  });
+
+  it("REDUCE_TERM extra (legacy) keeps the base cuota in rows BEFORE the extra", () => {
+    // Legacy behavior: extra reduces the balance, the cuota stays the same.
+    // The row.payment equals the base cuota in rows that are not past the
+    // extra's effect (i.e. where the balance still supports the full
+    // principal portion). This is the historical behavior.
+    const loan = makeLoan();
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: loan.id,
+      amount: "20000000",
+      date: new Date("2024-02-01"),
+      // No recalculationMode → defaults to REDUCE_TERM (legacy).
+      createdAt: new Date(),
+    };
+    const schedule = generateAmortizationSchedule(loan, [], [extra]);
+    // Row 1 (before the extra) uses the base cuota.
+    const baseCuota = parseFloat(loan.monthlyPayment);
+    expect(schedule[0].payment).toBeCloseTo(baseCuota, 0);
+    // All rows remain in phase 1.
+    for (const row of schedule) {
+      expect(row.paymentPhase).toBe(1);
+    }
+  });
+
+  it("supports multiple chained REDUCE_PAYMENT extras", () => {
+    // Two chained recalcs: first one lengthens the term, second one too.
+    // Original: 24 months, 15% EA.
+    // Extra 1: month 6, new term 30.
+    // Extra 2: month 18, new term 36.
+    // Phases: 1..6 (phase 1), 7..18 (phase 2), 19..36 (phase 3).
+    const loan = makeLoan({
+      termMonths: 24,
+      monthlyPayment: "4835200",
+    });
+    const extras: LoanExtraPayment[] = [
+      {
+        id: "e1",
+        loanId: loan.id,
+        amount: "10000000",
+        date: new Date("2024-06-15"),
+        recalculationMode: "REDUCE_PAYMENT",
+        newTermMonths: 30,
+        createdAt: new Date(),
+      },
+      {
+        id: "e2",
+        loanId: loan.id,
+        amount: "5000000",
+        date: new Date("2025-06-15"),
+        recalculationMode: "REDUCE_PAYMENT",
+        newTermMonths: 36,
+        createdAt: new Date(),
+      },
+    ];
+    const schedule = generateAmortizationSchedule(loan, [], extras);
+    // Schedule must extend to 36 rows (last phase endMonth).
+    expect(schedule.length).toBe(36);
+    // Phases: 1..6, 7..18, 19..end
+    for (let i = 0; i < 6; i++) {
+      expect(schedule[i].paymentPhase).toBe(1);
+    }
+    for (let i = 6; i < 18; i++) {
+      expect(schedule[i].paymentPhase).toBe(2);
+    }
+    for (let i = 18; i < 36; i++) {
+      expect(schedule[i].paymentPhase).toBe(3);
+    }
+  });
+
+  it("REDUCE_PAYMENT with newTermMonths shorter than remaining term still recalculates", () => {
+    // $50M, 15% EA, 24 months, then extra of $20M with newTermMonths = 18.
+    // The schedule should now end at 18 rows (new term < original term).
+    const loan = makeLoan({
+      principal: "50000000",
+      termMonths: 24,
+      monthlyPayment: "2415568",
+      totalInterest: "7973624",
+      totalCost: "57973624",
+    });
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: loan.id,
+      amount: "20000000",
+      date: new Date("2024-06-15"),
+      recalculationMode: "REDUCE_PAYMENT",
+      newTermMonths: 18,
+      createdAt: new Date(),
+    };
+    const schedule = generateAmortizationSchedule(loan, [], [extra]);
+    // Schedule should be 18 rows.
+    expect(schedule.length).toBe(18);
+    // Rows 1..6 = phase 1, rows 7..18 = phase 2.
+    for (let i = 0; i < 6; i++) {
+      expect(schedule[i].paymentPhase).toBe(1);
+    }
+    for (let i = 6; i < 18; i++) {
+      expect(schedule[i].paymentPhase).toBe(2);
+    }
+  });
+
+  it("REDUCE_PAYMENT with newTermMonths > original term extends the schedule", () => {
+    // Edge case: user wants to LENGTHEN the term by recalculating. The
+    // schedule should extend past the original termMonths.
+    const loan = makeLoan({
+      termMonths: 12,
+      monthlyPayment: "9000000",
+      totalInterest: "8000000",
+      totalCost: "108000000",
+    });
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: loan.id,
+      amount: "10000000",
+      date: new Date("2024-06-15"),
+      recalculationMode: "REDUCE_PAYMENT",
+      newTermMonths: 18, // longer than the original 12
+      createdAt: new Date(),
+    };
+    const schedule = generateAmortizationSchedule(loan, [], [extra]);
+    // The schedule must extend to 18 rows to drain the new balance.
+    expect(schedule.length).toBe(18);
+    // Rows 1..6 = phase 1, rows 7..18 = phase 2.
+    for (let i = 0; i < 6; i++) {
+      expect(schedule[i].paymentPhase).toBe(1);
+    }
+    for (let i = 6; i < 18; i++) {
+      expect(schedule[i].paymentPhase).toBe(2);
+    }
+  });
 });

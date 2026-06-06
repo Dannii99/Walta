@@ -88,3 +88,37 @@ export function computePaidInstallments(
 ): number {
   return pastPaymentsSync.filter((p) => p.status === "PAID").length;
 }
+
+/**
+ * Zod schema for the recalculation mode of a LoanExtraPayment.
+ *
+ * - `REDUCE_TERM` (default histórico): same cuota, lower plazo.
+ * - `REDUCE_PAYMENT`: recalcula la cuota con la fórmula francesa sobre
+ *   `newTermMonths` usando el saldo pendiente post-abono.
+ */
+export const recalculationModeSchema = z.enum([
+  "REDUCE_TERM",
+  "REDUCE_PAYMENT",
+] as const);
+
+/**
+ * Validates the `(recalculationMode, newTermMonths)` pair.
+ *
+ * Rules:
+ * - `REDUCE_TERM` does NOT require `newTermMonths`.
+ * - `REDUCE_PAYMENT` REQUIRES `newTermMonths >= 1`.
+ */
+export const extraRecalcFieldsSchema = z
+  .object({
+    recalculationMode: recalculationModeSchema.optional(),
+    newTermMonths: z.number().int().min(1).max(360).nullable().optional(),
+  })
+  .refine(
+    (d) =>
+      d.recalculationMode !== "REDUCE_PAYMENT" ||
+      (d.newTermMonths != null && d.newTermMonths >= 1),
+    {
+      message: "newTermMonths es requerido cuando el modo es REDUCE_PAYMENT",
+      path: ["newTermMonths"],
+    }
+  );

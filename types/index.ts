@@ -167,6 +167,18 @@ export interface LoanExtraPayment {
   amount: string;
   date: Date;
   note?: string | null;
+  /**
+   * Cómo afecta el abono a la amortización:
+   * - `null` o `"REDUCE_TERM"` (default histórico): misma cuota, menor plazo.
+   * - `"REDUCE_PAYMENT"`: recalcula la cuota con la fórmula francesa sobre
+   *   `newTermMonths` usando el saldo pendiente post-abono.
+   */
+  recalculationMode?: "REDUCE_TERM" | "REDUCE_PAYMENT" | null;
+  /**
+   * Plazo TOTAL en meses del crédito después del recálculo. Solo aplica
+   * cuando `recalculationMode === "REDUCE_PAYMENT"`.
+   */
+  newTermMonths?: number | null;
   createdAt: Date;
 }
 
@@ -209,6 +221,14 @@ export interface AmortizationRow {
    * Used to distinguish "paid by extract" from "paid by manual record".
    */
   paidFromExtract?: boolean;
+  /**
+   * 1-based index of the "payment phase" this row belongs to. A new phase
+   * starts whenever an extra with `recalculationMode === "REDUCE_PAYMENT"`
+   * triggers a recalc; subsequent rows get a higher phase number. Useful
+   * for the UI to show a tooltip indicating "this row uses the new cuota
+   * after the recalc at month N".
+   */
+  paymentPhase?: number;
 }
 
 export type {

@@ -9,6 +9,7 @@ import { clearLoanInsightsCache } from "@/lib/ai/loan-insights";
 import {
   createLoanSchema,
   computePaidInstallments,
+  extraRecalcFieldsSchema,
 } from "@/server/schemas/loan-schemas";
 
 function revalidateCreditPaths(loanId?: string) {
@@ -609,6 +610,13 @@ export async function recordCapitalContribution(
     amount: string;
     date: Date | string;
     note?: string | null;
+    /**
+     * "REDUCE_TERM" (default histórico) o "REDUCE_PAYMENT" (recalcula la
+     * cuota financiera usando el saldo pendiente post-abono + nuevo plazo).
+     */
+    recalculationMode?: "REDUCE_TERM" | "REDUCE_PAYMENT";
+    /** Plazo TOTAL del crédito después del recálculo (modo REDUCE_PAYMENT). */
+    newTermMonths?: number | null;
   }
 ) {
   const session = await auth();
@@ -625,14 +633,21 @@ export async function recordCapitalContribution(
     throw new Error("Unauthorized");
   }
 
-  const parsed = recordExtraSchema.parse({ loanId, ...data });
+  const parsedBase = recordExtraSchema.parse({ loanId, ...data });
+  // Validate the recalc pair separately so the error path is correct.
+  const recalc = extraRecalcFieldsSchema.parse({
+    recalculationMode: data.recalculationMode,
+    newTermMonths: data.newTermMonths,
+  });
 
   const extra = await prisma.loanExtraPayment.create({
     data: {
-      loanId: parsed.loanId,
-      amount: parsed.amount,
-      date: new Date(parsed.date),
-      note: parsed.note ?? null,
+      loanId: parsedBase.loanId,
+      amount: parsedBase.amount,
+      date: new Date(parsedBase.date),
+      note: parsedBase.note ?? null,
+      recalculationMode: recalc.recalculationMode ?? null,
+      newTermMonths: recalc.newTermMonths ?? null,
     },
   });
 
@@ -645,6 +660,8 @@ export async function recordCapitalContribution(
   return {
     ...extra,
     amount: extra.amount.toString(),
+    recalculationMode: extra.recalculationMode,
+    newTermMonths: extra.newTermMonths,
   };
 }
 
@@ -656,7 +673,12 @@ const updateExtraSchema = z.object({
 
 export async function updateExtraPayment(
   id: string,
-  data: { amount: string; date: Date | string }
+  data: {
+    amount: string;
+    date: Date | string;
+    recalculationMode?: "REDUCE_TERM" | "REDUCE_PAYMENT";
+    newTermMonths?: number | null;
+  }
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -673,12 +695,30 @@ export async function updateExtraPayment(
   }
 
   const parsed = updateExtraSchema.parse({ id, ...data });
+  // If recalculation fields were provided, validate them together.
+  if (
+    data.recalculationMode !== undefined ||
+    data.newTermMonths !== undefined
+  ) {
+    extraRecalcFieldsSchema.parse({
+      recalculationMode: data.recalculationMode,
+      newTermMonths: data.newTermMonths,
+    });
+  }
 
   const updated = await prisma.loanExtraPayment.update({
     where: { id: parsed.id },
     data: {
       amount: parsed.amount,
       date: new Date(parsed.date),
+      // Only overwrite recalc fields when the caller passed them; otherwise
+      // we preserve the previous values (e.g. when editing only amount/date).
+      ...(data.recalculationMode !== undefined
+        ? { recalculationMode: data.recalculationMode }
+        : {}),
+      ...(data.newTermMonths !== undefined
+        ? { newTermMonths: data.newTermMonths }
+        : {}),
     },
   });
 
@@ -691,6 +731,8 @@ export async function updateExtraPayment(
   return {
     ...updated,
     amount: updated.amount.toString(),
+    recalculationMode: updated.recalculationMode,
+    newTermMonths: updated.newTermMonths,
   };
 }
 

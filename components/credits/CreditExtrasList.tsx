@@ -85,6 +85,12 @@ export function CreditExtrasList({ extras, onEdit, onDelete }: CreditExtrasListP
                       {e.note}
                     </p>
                   )}
+                  {e.recalculationMode === "REDUCE_PAYMENT" && (
+                    <p className="text-[10px] font-semibold mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400">
+                      Reduce cuota
+                      {e.newTermMonths != null && ` · ${e.newTermMonths}m`}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">

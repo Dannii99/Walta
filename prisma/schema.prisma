@@ -120,13 +120,24 @@ model LoanPayment {
 }
 
 model LoanExtraPayment {
-  id        String   @id @default(cuid())
-  loanId    String
-  loan      Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
-  amount    Decimal  @db.Decimal(15, 2)
-  date      DateTime
-  note      String?
-  createdAt DateTime @default(now())
+  id                String   @id @default(cuid())
+  loanId            String
+  loan              Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  amount            Decimal  @db.Decimal(15, 2)
+  date              DateTime
+  note              String?
+  /// Cómo afecta el abono a la amortización:
+  /// - null | "REDUCE_TERM"     → comportamiento histórico: misma cuota, menor plazo.
+  /// - "REDUCE_PAYMENT"         → recalcula la cuota con la fórmula francesa sobre
+  ///                              `newTermMonths` usando el saldo pendiente post-abono.
+  recalculationMode String?
+  /// Plazo TOTAL en meses del crédito después del recálculo. Solo aplica cuando
+  /// `recalculationMode === "REDUCE_PAYMENT"`. Debe ser >= meses restantes al
+  /// momento del abono.
+  newTermMonths     Int?
+  createdAt         DateTime @default(now())
+
+  @@index([loanId])
 }
 
 model LoanFee {
