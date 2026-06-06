@@ -11,7 +11,8 @@
   Receipt,
   type LucideIcon,
 } from "lucide-react";
-import type { FeeItem } from "@/types";
+import { getCurrentEffectiveLoanPayment } from "@/lib/loan-engine";
+import type { FeeItem, Loan, LoanExtraPayment, LoanPayment } from "@/types";
 
 export const ANNUAL_TO_MONTHLY = 12;
 
@@ -108,4 +109,48 @@ export function getEffectiveMonthlyPayment(
     return sum + Number(f.amount) / ANNUAL_TO_MONTHLY;
   }, 0);
   return base + monthlyFeesContribution;
+}
+
+/**
+ * Permissive carrier for the current-effective helpers. Accepts a `Loan` with
+ * its relations (`payments`, `extraPayments`) eagerly loaded — the helpers
+ * will pull them off the object to compute the cuota vigente.
+ */
+export interface CurrentEffectivePaymentCarrier extends MonthlyPaymentCarrier {
+  payments?: ReadonlyArray<LoanPayment> | null;
+  extraPayments?: ReadonlyArray<LoanExtraPayment> | null;
+  paidInstallments?: number;
+}
+
+/**
+ * Returns the **current effective monthly payment** the user pays this month,
+ * respecting any `REDUCE_PAYMENT` extras that have triggered a recalc of the
+ * financial cuota.
+ *
+ * Difference vs `getEffectiveMonthlyPayment`:
+ *   - `getEffectiveMonthlyPayment(loan)` returns `loan.monthlyPayment + fees/12`
+ *     where `loan.monthlyPayment` is the **bank cuota** (never mutated by
+ *     recalcs to preserve extract coherence).
+ *   - `getCurrentEffectiveMonthlyPayment(loan)` returns the **vigente
+ *     cuota** (post-recalc) plus the same `fees/12` contribution.
+ *
+ * Falls back to `getEffectiveMonthlyPayment(loan)` when the schedule is empty
+ * (e.g. loan fully paid off).
+ */
+export function getCurrentEffectiveMonthlyPayment(
+  carrier: CurrentEffectivePaymentCarrier
+): number {
+  const loanLike = carrier as unknown as Loan;
+  const payments = (carrier.payments ?? []) as LoanPayment[];
+  const extras = (carrier.extraPayments ?? []) as LoanExtraPayment[];
+  const currentCuota = getCurrentEffectiveLoanPayment(
+    loanLike,
+    payments,
+    extras
+  );
+  const monthlyFeesContribution = (carrier.fees ?? []).reduce((sum, f) => {
+    if (f.type !== "monthly") return sum;
+    return sum + Number(f.amount) / ANNUAL_TO_MONTHLY;
+  }, 0);
+  return currentCuota + monthlyFeesContribution;
 }

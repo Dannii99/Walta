@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Pencil, Trash2, ArrowLeft, Car, Wallet, Home, CreditCard as CreditCardIcon, Receipt, Zap } from "lucide-react";
 import { loanTypeLabel, loanTypeIconBg, loanStatusLabel, loanStatusConfig, loanFormulaLabel } from "@/lib/credit-types";
 import { formatCOP } from "@/lib/currency";
-import { getEffectiveMonthlyPayment } from "@/lib/loan-fees";
+import { getCurrentEffectiveMonthlyPayment } from "@/lib/loan-fees";
+import { getCurrentEffectiveLoanPayment } from "@/lib/loan-engine";
 import { cn } from "@/lib/utils";
 import type { Loan, LoanPayment, LoanExtraPayment } from "@/types";
 
@@ -37,8 +38,9 @@ export function CreditDetailHeader({
   const statusConfig = loanStatusConfig(loan.status);
   const TypeIcon = TYPE_ICON[loan.type] ?? CreditCardIcon;
   const bankMonthly = parseFloat(loan.monthlyPayment);
-  const totalMonthly = getEffectiveMonthlyPayment(loan);
-  const cargosMonthly = totalMonthly - bankMonthly;
+  const currentCuota = getCurrentEffectiveLoanPayment(loan);
+  const totalMonthly = getCurrentEffectiveMonthlyPayment(loan);
+  const cargosMonthly = totalMonthly - currentCuota;
 
   return (
     <div className="space-y-4">

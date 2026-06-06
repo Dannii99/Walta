@@ -6,8 +6,9 @@ import {
   getProjectedPayoffDate,
   getNextPaymentDate,
   getPaidInstallments,
+  getCurrentEffectiveLoanPayment,
 } from "@/lib/loan-engine";
-import { getEffectiveMonthlyPayment } from "@/lib/loan-fees";
+import { getCurrentEffectiveMonthlyPayment } from "@/lib/loan-fees";
 import { formatCOP } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import type { Loan } from "@/types";
@@ -18,9 +19,9 @@ interface CreditSummaryProps {
 
 export function CreditSummary({ loan }: CreditSummaryProps) {
   const principal = parseFloat(loan.principal);
-  const monthlyPayment = parseFloat(loan.monthlyPayment);
-  const totalMonthlyPayment = getEffectiveMonthlyPayment(loan);
-  const monthlyFees = totalMonthlyPayment - monthlyPayment;
+  const currentCuota = getCurrentEffectiveLoanPayment(loan);
+  const totalMonthlyPayment = getCurrentEffectiveMonthlyPayment(loan);
+  const monthlyFees = totalMonthlyPayment - currentCuota;
   const remaining = calculateRemainingBalance(
     loan,
     loan.payments ?? [],

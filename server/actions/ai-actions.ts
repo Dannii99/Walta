@@ -289,7 +289,7 @@ import {
   type LoanInsightsContext,
 } from "@/lib/ai/loan-prompts";
 import { getLoanHealthFromCapacity } from "@/lib/credit-engine";
-import { generateAmortizationSchedule } from "@/lib/loan-engine";
+import { getCurrentEffectiveLoanPayment } from "@/lib/loan-engine";
 
 interface LoanWithRelations {
   id: string;
@@ -378,15 +378,11 @@ async function loadAdvisorContextForLoan(
 
   // Cuota efectiva del próximo mes, post-recalcs. Si difiere de la cuota
   // banco, el motor recalculó la cuota financiera tras un REDUCE_PAYMENT.
-  const schedule = generateAmortizationSchedule(
-    loan as unknown as Parameters<typeof generateAmortizationSchedule>[0],
-    (loan.payments ?? []) as unknown as Parameters<typeof generateAmortizationSchedule>[1],
-    ((loan as unknown as { extraPayments?: unknown[] }).extraPayments ?? []) as unknown as Parameters<typeof generateAmortizationSchedule>[2]
+  const currentEffectivePayment = getCurrentEffectiveLoanPayment(
+    loan as unknown as Parameters<typeof getCurrentEffectiveLoanPayment>[0],
+    (loan.payments ?? []) as unknown as Parameters<typeof getCurrentEffectiveLoanPayment>[1],
+    ((loan as unknown as { extraPayments?: unknown[] }).extraPayments ?? []) as unknown as Parameters<typeof getCurrentEffectiveLoanPayment>[2]
   );
-  const nextRow = schedule.find(
-    (r) => r.month === (loan.paidInstallments ?? 0) + 1
-  );
-  const currentEffectivePayment = nextRow?.payment ?? bankMonthlyPayment;
 
   const totalPaidAgg = await prisma.loanPayment.aggregate({
     where: { loanId },

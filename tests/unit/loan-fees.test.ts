@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
   getEffectiveMonthlyPayment,
+  getCurrentEffectiveMonthlyPayment,
   calculateTotalMonthlyFees,
   calculateTotalUpfrontFees,
   ANNUAL_TO_MONTHLY,
 } from "@/lib/loan-fees";
-import type { FeeItem } from "@/types";
+import type { FeeItem, Loan, LoanExtraPayment } from "@/types";
 
 describe("calculateTotalMonthlyFees", () => {
   it("returns 0 for an empty array", () => {
@@ -160,5 +161,57 @@ describe("getEffectiveMonthlyPayment", () => {
     };
     // 1_000_000 + 100_000 + 50_000 = 1_150_000
     expect(getEffectiveMonthlyPayment(loan)).toBe(1_150_000);
+  });
+});
+
+describe("getCurrentEffectiveMonthlyPayment", () => {
+  const baseLoan: Loan = {
+    id: "loan-1",
+    userId: "user-1",
+    title: "Test",
+    type: "VEHICLE",
+    status: "ACTIVE",
+    principal: "50000000",
+    downPayment: "0",
+    annualRate: "0.15",
+    formula: "french_ea",
+    termMonths: 72,
+    monthlyPayment: "1010000",
+    totalInterest: "22720000",
+    totalCost: "72720000",
+    startDate: new Date("2024-01-15"),
+    paidInstallments: 12,
+    extraPayments: [],
+    payments: [],
+    fees: [
+      { id: "f1", name: "Seguro", amount: 1_200_000, type: "monthly" },
+    ],
+  } as unknown as Loan;
+
+  it("matches getEffectiveMonthlyPayment when no REDUCE_PAYMENT extras are present", () => {
+    const current = getCurrentEffectiveMonthlyPayment(baseLoan);
+    const legacy = getEffectiveMonthlyPayment(baseLoan);
+    expect(current).toBeCloseTo(legacy, 6);
+  });
+
+  it("returns the vigente cuota (post-recalc) + fees after a REDUCE_PAYMENT extra", () => {
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: baseLoan.id,
+      amount: "30000000",
+      date: new Date("2024-12-26"),
+      recalculationMode: "REDUCE_PAYMENT",
+      newTermMonths: 72,
+      createdAt: new Date(),
+    };
+    const loanWithExtra: Loan = {
+      ...baseLoan,
+      extraPayments: [extra],
+    } as unknown as Loan;
+    const current = getCurrentEffectiveMonthlyPayment(loanWithExtra);
+    const legacy = getEffectiveMonthlyPayment(loanWithExtra);
+    // The vigente cuota + fees/12 must be LOWER than the legacy
+    // (banco cuota + fees/12) because the recalc reduced the financial cuota.
+    expect(current).toBeLessThan(legacy);
   });
 });

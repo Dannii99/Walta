@@ -265,7 +265,7 @@ export function CapitalContributionForm({
 
             {mode === "REDUCE_PAYMENT" && (
               <div className="space-y-2">
-                <Label htmlFor="extra-new-term">Nuevo plazo total (meses)</Label>
+                <Label htmlFor="extra-new-term">Nuevo plazo restante (meses)</Label>
                 <Input
                   id="extra-new-term"
                   type="number"

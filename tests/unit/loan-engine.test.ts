@@ -5,6 +5,7 @@ import {
   getProjectedPayoffDate,
   getNextPaymentDate,
   getPaidInstallments,
+  getCurrentEffectiveLoanPayment,
 } from "@/lib/loan-engine";
 import type { Loan, LoanPayment, LoanExtraPayment } from "@/types";
 
@@ -401,11 +402,11 @@ describe("generateAmortizationSchedule (paidInstallments integration)", () => {
   });
 
   it("supports multiple chained REDUCE_PAYMENT extras", () => {
-    // Two chained recalcs: first one lengthens the term, second one too.
-    // Original: 24 months, 15% EA.
-    // Extra 1: month 6, new term 30.
-    // Extra 2: month 18, new term 36.
-    // Phases: 1..6 (phase 1), 7..18 (phase 2), 19..36 (phase 3).
+    // Two chained recalcs. Original: 24 months, 15% EA.
+    // Extra 1: month 6, new term 30 (duración). Initial phase 2 would cover
+    //   months 7..36, but gets TRUNCATED at month 18 by extra 2.
+    // Extra 2: month 18, new term 36 (duración). Phase 3 covers months 19..54.
+    // Total schedule length: 54 rows (max phase endMonth).
     const loan = makeLoan({
       termMonths: 24,
       monthlyPayment: "4835200",
@@ -431,23 +432,25 @@ describe("generateAmortizationSchedule (paidInstallments integration)", () => {
       },
     ];
     const schedule = generateAmortizationSchedule(loan, [], extras);
-    // Schedule must extend to 36 rows (last phase endMonth).
-    expect(schedule.length).toBe(36);
-    // Phases: 1..6, 7..18, 19..end
+    // Schedule extends to 54 rows (phase 3 endMonth = 18 + 36).
+    expect(schedule.length).toBe(54);
+    // Phases: 1..6 (phase 1), 7..18 (phase 2, TRUNCATED by extra 2),
+    // 19..54 (phase 3).
     for (let i = 0; i < 6; i++) {
       expect(schedule[i].paymentPhase).toBe(1);
     }
     for (let i = 6; i < 18; i++) {
       expect(schedule[i].paymentPhase).toBe(2);
     }
-    for (let i = 18; i < 36; i++) {
+    for (let i = 18; i < 54; i++) {
       expect(schedule[i].paymentPhase).toBe(3);
     }
   });
 
   it("REDUCE_PAYMENT with newTermMonths shorter than remaining term still recalculates", () => {
     // $50M, 15% EA, 24 months, then extra of $20M with newTermMonths = 18.
-    // The schedule should now end at 18 rows (new term < original term).
+    // The schedule now ends at 24 rows (endMonth = 6 + 18 = 24, draining
+    // the post-extra balance over 18 cuotas).
     const loan = makeLoan({
       principal: "50000000",
       termMonths: 24,
@@ -465,20 +468,20 @@ describe("generateAmortizationSchedule (paidInstallments integration)", () => {
       createdAt: new Date(),
     };
     const schedule = generateAmortizationSchedule(loan, [], [extra]);
-    // Schedule should be 18 rows.
-    expect(schedule.length).toBe(18);
-    // Rows 1..6 = phase 1, rows 7..18 = phase 2.
+    // Schedule should be 24 rows (phase 2 endMonth = 6 + 18).
+    expect(schedule.length).toBe(24);
+    // Rows 1..6 = phase 1, rows 7..24 = phase 2.
     for (let i = 0; i < 6; i++) {
       expect(schedule[i].paymentPhase).toBe(1);
     }
-    for (let i = 6; i < 18; i++) {
+    for (let i = 6; i < 24; i++) {
       expect(schedule[i].paymentPhase).toBe(2);
     }
   });
 
   it("REDUCE_PAYMENT with newTermMonths > original term extends the schedule", () => {
     // Edge case: user wants to LENGTHEN the term by recalculating. The
-    // schedule should extend past the original termMonths.
+    // schedule extends past the original termMonths.
     const loan = makeLoan({
       termMonths: 12,
       monthlyPayment: "9000000",
@@ -495,14 +498,82 @@ describe("generateAmortizationSchedule (paidInstallments integration)", () => {
       createdAt: new Date(),
     };
     const schedule = generateAmortizationSchedule(loan, [], [extra]);
-    // The schedule must extend to 18 rows to drain the new balance.
-    expect(schedule.length).toBe(18);
-    // Rows 1..6 = phase 1, rows 7..18 = phase 2.
+    // Schedule must extend to 24 rows (phase 2 endMonth = 6 + 18).
+    expect(schedule.length).toBe(24);
+    // Rows 1..6 = phase 1, rows 7..24 = phase 2.
     for (let i = 0; i < 6; i++) {
       expect(schedule[i].paymentPhase).toBe(1);
     }
-    for (let i = 6; i < 18; i++) {
+    for (let i = 6; i < 24; i++) {
       expect(schedule[i].paymentPhase).toBe(2);
     }
+  });
+
+  // -----------------------------------------------------------------------
+  // getCurrentEffectiveLoanPayment — cuota vigente post-recalcs
+  // -----------------------------------------------------------------------
+
+  it("getCurrentEffectiveLoanPayment falls back to loan.monthlyPayment with no extras", () => {
+    const loan = makeLoan();
+    const current = getCurrentEffectiveLoanPayment(loan, [], []);
+    expect(current).toBeCloseTo(parseFloat(loan.monthlyPayment), 6);
+  });
+
+  it("getCurrentEffectiveLoanPayment returns the post-recalc cuota after a REDUCE_PAYMENT", () => {
+    // Realistic scenario: ~$50M loan at 15% EA, 72m. Big extra at month 12
+    // with REDUCE_PAYMENT, new term 72 (same plazo restante). The new
+    // cuota must be LOWER than the base cuota.
+    // paidInstallments = 12 → next row is month 13 (phase 2, post-recalc).
+    const loan = makeLoan({
+      principal: "50000000",
+      termMonths: 72,
+      monthlyPayment: "1010000",
+      paidInstallments: 12,
+    });
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: loan.id,
+      amount: "30000000",
+      date: new Date("2024-12-26"),
+      recalculationMode: "REDUCE_PAYMENT",
+      newTermMonths: 72,
+      createdAt: new Date(),
+    };
+    const baseCuota = parseFloat(loan.monthlyPayment);
+    const current = getCurrentEffectiveLoanPayment(loan, [], [extra]);
+    expect(current).toBeGreaterThan(0);
+    expect(current).toBeLessThan(baseCuota);
+  });
+
+  it("getCurrentEffectiveLoanPayment uses paidInstallments to find the next-month row", () => {
+    // With paidInstallments = 0, next row is month 1 (phase 1 → base cuota).
+    // With paidInstallments = 7 (past the extra at month 6), next row is
+    // month 8 (phase 2 → new cuota).
+    const loan = makeLoan({
+      termMonths: 24,
+      monthlyPayment: "4835200",
+    });
+    const extra: LoanExtraPayment = {
+      id: "e1",
+      loanId: loan.id,
+      amount: "10000000",
+      date: new Date("2024-06-15"),
+      recalculationMode: "REDUCE_PAYMENT",
+      newTermMonths: 30,
+      createdAt: new Date(),
+    };
+    const beforeExtra = getCurrentEffectiveLoanPayment(
+      { ...loan, paidInstallments: 0 },
+      [],
+      [extra]
+    );
+    const afterExtra = getCurrentEffectiveLoanPayment(
+      { ...loan, paidInstallments: 7 },
+      [],
+      [extra]
+    );
+    const baseCuota = parseFloat(loan.monthlyPayment);
+    expect(beforeExtra).toBeCloseTo(baseCuota, 0);
+    expect(afterExtra).toBeLessThan(baseCuota);
   });
 });

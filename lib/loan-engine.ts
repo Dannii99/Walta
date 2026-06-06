@@ -233,7 +233,7 @@ export function generateAmortizationSchedule(
 
     phases.push({
       startMonth: extraMonth + 1,
-      endMonth: ex.newTermMonths,
+      endMonth: extraMonth + ex.newTermMonths,
       monthlyPayment: newCuota,
       termMonths: ex.newTermMonths,
       triggeredBy: ex.id,
@@ -327,6 +327,31 @@ export function generateAmortizationSchedule(
   }
 
   return schedule;
+}
+
+/**
+ * Returns the financial cuota (capital + interest, NO fees) for the next
+ * unpaid month. This is the cuota that the UI should display as "Cuota
+ * mensual" / "Cuota vigente" AFTER any `REDUCE_PAYMENT` extras have
+ * triggered a recalc.
+ *
+ * Falls back to `loan.monthlyPayment` (the bank cuota, which is **never**
+ * mutated by recalcs to preserve extract coherence) when no schedule row
+ * matches the next month — e.g. when the loan is fully paid off, when no
+ * payments/extras are passed, or when `paidInstallments` is past the
+ * schedule's upper bound.
+ */
+export function getCurrentEffectiveLoanPayment(
+  loan: Loan,
+  payments: LoanPayment[] = [],
+  extras: LoanExtraPayment[] = []
+): number {
+  const schedule = generateAmortizationSchedule(loan, payments, extras);
+  if (schedule.length === 0) return parseFloat(loan.monthlyPayment);
+
+  const nextMonth = (loan.paidInstallments ?? 0) + 1;
+  const nextRow = schedule.find((r) => r.month === nextMonth);
+  return nextRow?.payment ?? parseFloat(loan.monthlyPayment);
 }
 
 /**

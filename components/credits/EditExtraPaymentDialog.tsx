@@ -216,7 +216,7 @@ export function EditExtraPaymentDialog({
 
           {mode === "REDUCE_PAYMENT" && (
             <div className="space-y-2">
-              <Label htmlFor="edit-extra-new-term">Nuevo plazo total (meses)</Label>
+              <Label htmlFor="edit-extra-new-term">Nuevo plazo restante (meses)</Label>
               <Input
                 id="edit-extra-new-term"
                 type="number"
