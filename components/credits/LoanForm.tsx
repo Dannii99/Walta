@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createLoan, updateLoan } from "@/server/actions/loan-actions";
 import { getLoanSummary } from "@/lib/simulation-engine";
+import { generateAmortizationSchedule } from "@/lib/loan-engine";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,9 +33,10 @@ import {
   Sparkles,
   Calendar,
   FileText,
+  TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { FeeItem, PastPaymentSync } from "@/types";
+import type { FeeItem, PastPaymentSync, Loan, LoanExtraPayment } from "@/types";
 
 function getMonthlyRate(annualRate: number, formula: string): number {
   return formula === "french_ea" || formula === "constant_capital_ea"
@@ -136,6 +138,29 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   );
   const [downPayment, setDownPayment] = useState(initialDownPayment);
 
+  // Step 1: Previous capital contribution (abono a capital previo al registro)
+  // Pre-populated from `defaultValues.initialExtraPayment` (amount) + date
+  const initialPrevAmount =
+    (defaultValues?.initialExtraPayment as number) || 0;
+  const [initialExtraPaymentEnabled, setInitialExtraPaymentEnabled] =
+    useState(initialPrevAmount > 0);
+  const [initialExtraPayment, setInitialExtraPayment] = useState(
+    initialPrevAmount
+  );
+  const [initialExtraPaymentDate, setInitialExtraPaymentDate] = useState(
+    () => {
+      const raw = defaultValues?.initialExtraPaymentDate as string | undefined;
+      if (raw) {
+        const d = new Date(raw);
+        if (!Number.isNaN(d.getTime())) {
+          return d.toISOString().split("T")[0];
+        }
+      }
+      const now = new Date();
+      return now.toISOString().split("T")[0];
+    }
+  );
+
   // Step 2: Terms + preview
   const [termValue, setTermValue] = useState(
     defaultValues?.termMonths
@@ -173,9 +198,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   );
   const [exactTotalInterest, setExactTotalInterest] = useState(
     (defaultValues?.exactTotalInterest as number) || 0
-  );
-  const [initialExtraPayment, setInitialExtraPayment] = useState(
-    (defaultValues?.initialExtraPayment as number) || 0
   );
 
   // Calculate past months between startDate and today for sync.
@@ -276,6 +298,101 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     return principal + totalInterest;
   }, [principal, totalInterest]);
 
+  // Derived: the previous extra payment object (or null). Used in Tab 2 to
+  // feed the preview card and the engine-backed recompute.
+  const previousExtraPayment = useMemo(() => {
+    if (
+      !initialExtraPaymentEnabled ||
+      initialExtraPayment <= 0 ||
+      !initialExtraPaymentDate
+    ) {
+      return null;
+    }
+    return {
+      amount: initialExtraPayment,
+      date: new Date(initialExtraPaymentDate),
+    };
+  }, [
+    initialExtraPaymentEnabled,
+    initialExtraPayment,
+    initialExtraPaymentDate,
+  ]);
+
+  // Derived: amortization schedule with the previous extra applied at its
+  // date. Used to recompute totalInterestAdjusted so the preview reflects
+  // the lower interest the user will actually pay. monthlyPayment itself
+  // doesn't change (the user is committed to a fixed installment) — the
+  // extra just reduces the balance and shortens the lifetime interest.
+  const previewSchedule = useMemo(() => {
+    if (
+      principal <= 0 ||
+      termMonths <= 0 ||
+      annualRate < 0 ||
+      monthlyPayment <= 0
+    ) {
+      return null;
+    }
+    if (!previousExtraPayment) return null;
+    const fakeLoan = {
+      id: "preview",
+      userId: "preview",
+      simulationId: null,
+      title: "preview",
+      type: "OTHER" as const,
+      principal: String(principal),
+      downPayment: "0",
+      annualRate: String(annualRate),
+      termMonths,
+      formula:
+        formula === "french_ea" || formula === "constant_capital_ea"
+          ? ("french_ea" as const)
+          : ("nominal_monthly" as const),
+      monthlyPayment: String(monthlyPayment),
+      startDate: new Date(startDate),
+      totalInterest: String(totalInterest),
+      totalCost: String(totalCost),
+      paidInstallments: 0,
+      status: "ACTIVE" as const,
+      fees: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as unknown as Loan;
+    const fakeExtras: LoanExtraPayment[] = [
+      {
+        id: "preview-extra",
+        loanId: "preview",
+        amount: String(previousExtraPayment.amount),
+        date: previousExtraPayment.date,
+        note: null,
+        createdAt: new Date(),
+      },
+    ];
+    try {
+      return generateAmortizationSchedule(fakeLoan, [], fakeExtras);
+    } catch {
+      return null;
+    }
+  }, [
+    principal,
+    termMonths,
+    annualRate,
+    monthlyPayment,
+    startDate,
+    formula,
+    previousExtraPayment,
+    totalInterest,
+    totalCost,
+  ]);
+
+  const totalInterestAdjusted = useMemo(() => {
+    if (!previewSchedule) return totalInterest;
+    return previewSchedule.reduce((sum, r) => sum + r.interest, 0);
+  }, [previewSchedule, totalInterest]);
+
+  const totalCostAdjusted = useMemo(() => {
+    return principal + totalInterestAdjusted;
+  }, [principal, totalInterestAdjusted]);
+
   // Derived: months elapsed since startDate (capped at termMonths for display).
   // Always visible in Tab 2 as a read-only informational card.
   const mesesTranscurridos = useMemo(() => pastMonths.length, [pastMonths]);
@@ -292,8 +409,30 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     if (price <= 0) return "El precio total debe ser mayor a cero.";
     if (downPayment < 0) return "La cuota inicial no puede ser negativa.";
     if (downPayment >= price) return "La cuota inicial no puede ser igual o mayor al precio.";
+    if (initialExtraPaymentEnabled) {
+      if (initialExtraPayment < 0)
+        return "El abono a capital previo no puede ser negativo.";
+      if (initialExtraPayment > 0) {
+        if (!initialExtraPaymentDate)
+          return "Debes seleccionar la fecha del abono a capital previo.";
+        const d = new Date(initialExtraPaymentDate);
+        if (Number.isNaN(d.getTime()))
+          return "La fecha del abono a capital previo no es válida.";
+        const tomorrow = new Date();
+        tomorrow.setHours(23, 59, 59, 999);
+        if (d.getTime() > tomorrow.getTime())
+          return "La fecha del abono a capital previo no puede ser futura.";
+      }
+    }
     return null;
-  }, [title, price, downPayment]);
+  }, [
+    title,
+    price,
+    downPayment,
+    initialExtraPaymentEnabled,
+    initialExtraPayment,
+    initialExtraPaymentDate,
+  ]);
 
   const validateStep2 = useCallback(() => {
     if (termValue < 1) return "El plazo debe ser de al menos 1.";
@@ -331,6 +470,21 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
+    // Build the initial-extra payload. For create: only send if enabled and > 0.
+    // For edit: ALWAYS send so the action can upsert/delete the corresponding
+    // LoanExtraPayment row. Sending `{ amount: 0, date }` is the signal to
+    // delete; `null` would mean "user didn't touch the field" — but in our
+    // form every state always has a value, so we always send the shape.
+    const buildExtraPayload = () => {
+      if (!initialExtraPaymentEnabled) {
+        return { amount: 0, date: new Date(initialExtraPaymentDate) };
+      }
+      return {
+        amount: initialExtraPayment,
+        date: new Date(initialExtraPaymentDate),
+      };
+    };
+
     try {
       if (mode === "edit" && loanId) {
         await updateLoan(loanId, {
@@ -346,6 +500,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           totalInterest,
           totalCost,
           fees,
+          initialExtraPayment: buildExtraPayload(),
           pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
         });
         toast.success("Crédito actualizado");
@@ -365,7 +520,13 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           totalInterest,
           totalCost,
           fees,
-          initialExtraPayment: mode === "ongoing" && initialExtraPayment > 0 ? initialExtraPayment : undefined,
+          initialExtraPayment:
+            initialExtraPaymentEnabled && initialExtraPayment > 0
+              ? {
+                  amount: initialExtraPayment,
+                  date: new Date(initialExtraPaymentDate),
+                }
+              : undefined,
           pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
         });
         toast.success(mode === "ongoing" ? "Crédito en curso agregado" : "Crédito creado");
@@ -502,6 +663,55 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
               )}
             </div>
 
+            <div className="space-y-3 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <Label
+                    htmlFor="initialExtraPayment-switch"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    ¿Ya hiciste un abono a capital?
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Registra un pago extra a capital previo a este crédito.
+                  </p>
+                </div>
+                <Switch
+                  id="initialExtraPayment-switch"
+                  checked={initialExtraPaymentEnabled}
+                  onCheckedChange={(checked) => {
+                    setInitialExtraPaymentEnabled(checked);
+                    if (!checked) setInitialExtraPayment(0);
+                  }}
+                />
+              </div>
+              {initialExtraPaymentEnabled && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                  <div className="space-y-2">
+                    <Label htmlFor="initialExtraPayment">Monto del abono</Label>
+                    <CurrencyInput
+                      id="initialExtraPayment"
+                      value={initialExtraPayment}
+                      onValueChange={setInitialExtraPayment}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="initialExtraPaymentDate">
+                      Fecha del abono
+                    </Label>
+                    <Input
+                      id="initialExtraPaymentDate"
+                      type="date"
+                      value={initialExtraPaymentDate}
+                      max={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => setInitialExtraPaymentDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             {price > 0 && downPayment > 0 && (
               <div className="rounded-lg bg-muted p-3 text-sm">
                 <p>
@@ -517,6 +727,29 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </p>
                 <p className="text-muted-foreground mt-1">
                   Esto es lo que realmente vas a pedir prestado.
+                </p>
+              </div>
+            )}
+
+            {initialExtraPaymentEnabled && initialExtraPayment > 0 && (
+              <div className="rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900 p-3 text-sm flex items-start gap-2">
+                <TrendingUp
+                  className="h-4 w-4 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0"
+                  strokeWidth={2.2}
+                />
+                <p className="text-stone-700 dark:text-stone-200">
+                  Saldo inicial reducido:{" "}
+                  <span className="font-semibold tabular-nums">
+                    {new Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(principal - initialExtraPayment)}
+                  </span>
+                  <span className="text-stone-500 dark:text-stone-400 block text-xs mt-0.5">
+                    Verás el impacto completo en el siguiente paso.
+                  </span>
                 </p>
               </div>
             )}
@@ -680,10 +913,11 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
             <LoanPreviewCard
               principal={principal}
               monthlyPayment={monthlyPayment}
-              totalInterest={totalInterest}
-              totalCost={totalCost}
+              totalInterest={totalInterestAdjusted}
+              totalCost={totalCostAdjusted}
               availableMoney={availableMoney}
               fees={fees}
+              previousExtraPayment={previousExtraPayment}
             />
           </div>
         </div>
@@ -776,21 +1010,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </div>
               </div>
             )}
-
-            <div className="space-y-2 pt-2">
-              <Label htmlFor="initialExtraPayment">
-                Abono a capital ya realizado (opcional)
-              </Label>
-              <CurrencyInput
-                id="initialExtraPayment"
-                value={initialExtraPayment}
-                onValueChange={setInitialExtraPayment}
-                placeholder="0"
-              />
-              <p className="text-xs text-muted-foreground">
-                Si ya hiciste un abono extra a capital antes de registrar el crédito, ingrésalo aquí. Se reflejará en tu tabla de amortización.
-              </p>
-            </div>
 
             <div className="pt-2">
               <button

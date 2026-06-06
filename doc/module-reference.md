@@ -397,11 +397,11 @@ Track active and historical loans. Each loan has: type (VEHICLE/HOUSING/PERSONAL
 - `components/credits/CreditsFilters.tsx` — multi-select chips (status, type) with `data-active` + `aria-pressed`.
 - `components/credits/EmptyCreditsState.tsx` — empty state with CTA to `/credits/new`.
 - `components/credits/NewCreditButton.tsx` — **custom dropdown** (not Radix) with `useState` + `useRef` + click outside + ESC. Avoids the Radix menu layout cost.
-- `components/credits/LoanForm.tsx` — **3-step wizard** (Datos → Cuotas → Confirmar). 748 lines. RHF + Zod. Steps:
-  1. **Datos**: type, principal, term, rate, formula, down payment.
-  2. **Cuotas**: fees (add/remove — admin/insurance/other).
-  3. **Confirmar**: review + submit.
-- `components/credits/LoanPreviewCard.tsx` — live preview using the same engine.
+- `components/credits/LoanForm.tsx` — **3-step wizard** (Datos → Condiciones → En curso). ~1100 lines. RHF + Zod. Steps:
+  1. **Datos** (Tab 1): name, type (Radix Select), price, **two symmetric switches** — ¿Tienes cuota inicial? (amount) and ¿Ya hiciste un abono a capital? (amount + date with `max={today}`). Both default OFF. The "abono a capital previo" lives here, NOT in Tab 3.
+  2. **Condiciones** (Tab 2): term (years/months), rate (RateInput), formula (Radix Select with "Recomendado" group + Sparkles), startDate, fees (SaaS-style CRUD). When a previous capital contribution exists, Tab 2 uses `generateAmortizationSchedule` in a `useMemo` with a fake loan + fake extras to recompute `totalInterestAdjusted` for the preview (the user-committed `monthlyPayment` does NOT change — the bank doesn't recalculate the installment). Shows a real-time impact in the preview card.
+  3. **En curso** (Tab 3, only `ongoing` or `edit` with elapsed months): past-payments sync toggles (PAID/PENDING/DEFAULTED) + advanced options (exact monthly payment / exact total interest from the bank statement). The old "abono a capital ya realizado" field has been **removed** — it lives in Tab 1.
+- `components/credits/LoanPreviewCard.tsx` — live preview using the same engine. Optional `previousExtraPayment?: { amount: number; date: Date } | null` prop. When provided with `amount > 0`, renders an emerald-tinted block "Abono a capital previo" with: short date, amount, "Saldo después de abonos" (principal - amount), and "Total restante a pagar" (totalCostAdjusted - amount). `monthlyPayment` / `totalInterest` / `totalCost` are already adjusted by the parent.
 - `components/credits/FeeForm.tsx`, `FeeCard.tsx`, `FeesSection.tsx` — SaaS-style fee CRUD.
 - `components/credits/CreditDetailClient.tsx` — detail orchestrator. **Layout v5 (reordenado)**: Header + Tabs → Summary 4 KPIs full-width → ProgressBar full-width → tab content full-width → CreditCharts full-width (h-[200px] c/u) → AILoanAdvisorCard full-width. En el tab Amortización el contenido usa `AmortizationTab` que internamente es `xl:grid-cols-4` con tabla en col-span-3 + side panel (Acciones+Simulador) en col-span-1. Otros tabs (Pagos/Abonos/Extracto) renderizan su lista full-width.
 - `components/credits/AmortizationTab.tsx` — Wrapper de grid `xl:grid-cols-4` que combina `CreditAmortizationTable` (col-span-3, con `min-w-0` para evitar overflow) + `AccionesCard` + `CapitalImpactSimulator` (col-span-1, apilados verticalmente).
@@ -428,6 +428,7 @@ Track active and historical loans. Each loan has: type (VEHICLE/HOUSING/PERSONAL
 - `lib/ai/loan-insights.ts` — `generateLoanInsights` (1h memory cache + `clearLoanInsightsCache(userId)`).
 - `lib/ai/loan-prompts.ts` — `LOAN_ADVISOR_SYSTEM` + `LOAN_INSIGHTS_SYSTEM` + builders.
 - `server/actions/loan-actions.ts` — 7 functions: `createLoanAction`, `updateLoanAction`, `deleteLoanAction`, `recordPaymentAction`, `deletePaymentAction`, `recordExtraPaymentAction`, `updateExtraPaymentAction` (edits `amount` + `date`), `deleteExtraPaymentAction`. **All invalidate AI cache** + `revalidateCreditPaths(loanId?)`. Extra edit/delete operates only in the Abonos tab (`CreditExtrasList`); the amortization table is not affected.
+- **`initialExtraPayment`** in `createLoan`/`updateLoan` takes shape `{ amount: number, date: Date | string }` (not a bare `number`). The server action creates a `LoanExtraPayment` with `note = "Abono a capital previo al registro"` (constant `PREV_EXTRA_NOTE`). `updateLoan` delegates to the helper `syncInitialExtraPayment(loanId, input)`: `undefined` = no touch, `amount <= 0` = delete by note, `amount > 0` = upsert (update existing or create new). Server validates `date <= today` via Zod `.refine()`. The edit page pre-populates the form by looking up the existing `LoanExtraPayment` with the reserved note.
 
 ### Data flow
 

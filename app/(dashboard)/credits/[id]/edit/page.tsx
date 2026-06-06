@@ -88,6 +88,15 @@ export default async function EditCreditPage({ params }: { params: Promise<{ id:
     loan.status
   );
 
+  // Pre-populate the "abono a capital previo al registro" from the matching
+  // LoanExtraPayment (identified by its reserved note). The form's Tab 1
+  // reads `initialExtraPayment` + `initialExtraPaymentDate` to render the
+  // switch + fields; if none exists, the form will show the switch off.
+  const PREV_EXTRA_NOTE = "Abono a capital previo al registro";
+  const prevExtra = (loan.extraPayments ?? []).find(
+    (e) => e.note === PREV_EXTRA_NOTE
+  );
+
   const defaultValues = {
     title: loan.title,
     type: loan.type.toLowerCase(),
@@ -102,6 +111,10 @@ export default async function EditCreditPage({ params }: { params: Promise<{ id:
     startDate: loan.startDate.toISOString().split("T")[0],
     pastPaymentsSync,
     fees: loan.fees ?? [],
+    initialExtraPayment: prevExtra ? parseFloat(prevExtra.amount) : 0,
+    initialExtraPaymentDate: prevExtra
+      ? prevExtra.date.toISOString().split("T")[0]
+      : undefined,
   };
 
   return (

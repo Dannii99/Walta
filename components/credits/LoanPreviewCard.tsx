@@ -11,6 +11,8 @@ import {
   Coins,
   AlertTriangle,
   CheckCircle2,
+  TrendingUp,
+  Calendar,
 } from "lucide-react";
 import type { FeeItem } from "@/types";
 import { calculateTotalMonthlyFees, getFeeIcon } from "@/lib/loan-fees";
@@ -22,6 +24,15 @@ interface LoanPreviewCardProps {
   totalCost: number;
   availableMoney?: number;
   fees?: FeeItem[];
+  previousExtraPayment?: { amount: number; date: Date } | null;
+}
+
+function formatShortDate(date: Date | string): string {
+  return new Date(date).toLocaleDateString("es-CO", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function LoanPreviewCard({
@@ -31,6 +42,7 @@ export function LoanPreviewCard({
   totalCost,
   availableMoney,
   fees = [],
+  previousExtraPayment = null,
 }: LoanPreviewCardProps) {
   const monthlyFees = calculateTotalMonthlyFees(fees);
   const totalMonthlyPayment = monthlyPayment + monthlyFees;
@@ -58,6 +70,14 @@ export function LoanPreviewCard({
         : "Riesgoso";
 
   const monthlyFeeItems = fees.filter((f) => f.type === "monthly");
+  const hasPrevExtra =
+    previousExtraPayment && previousExtraPayment.amount > 0;
+  const remainingBalance = hasPrevExtra
+    ? Math.max(0, principal - previousExtraPayment.amount)
+    : principal;
+  const outstandingTotal = hasPrevExtra
+    ? Math.max(0, totalCost - previousExtraPayment.amount)
+    : totalCost;
 
   return (
     <Card className="border-primary/20 shadow-sm">
@@ -135,6 +155,46 @@ export function LoanPreviewCard({
             </div>
             <span className="font-medium">{formatCOP(principal)}</span>
           </div>
+
+          {hasPrevExtra && (
+            <div className="rounded-xl border border-emerald-200/80 dark:border-emerald-900 bg-emerald-50/50 dark:bg-emerald-950/20 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-md bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center">
+                  <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.2} />
+                </div>
+                <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400">
+                  Abono a capital previo
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-400">
+                  <Calendar className="h-3 w-3" />
+                  <span>{formatShortDate(previousExtraPayment.date)}</span>
+                </div>
+                <p className="text-sm font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
+                  +{formatCOP(previousExtraPayment.amount)}
+                </p>
+              </div>
+              <div className="pt-1.5 border-t border-emerald-200/60 dark:border-emerald-900/60 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-600 dark:text-stone-400">
+                    Saldo después de abonos
+                  </span>
+                  <span className="font-semibold tabular-nums text-stone-900 dark:text-stone-100">
+                    {formatCOP(remainingBalance)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-600 dark:text-stone-400">
+                    Total restante a pagar
+                  </span>
+                  <span className="font-semibold tabular-nums text-stone-900 dark:text-stone-100">
+                    {formatCOP(outstandingTotal)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -49,7 +49,18 @@ export const createLoanSchema = z.object({
       })
     )
     .default([]),
-  initialExtraPayment: z.number().nonnegative().optional(),
+  initialExtraPayment: z
+    .object({
+      amount: z.number().nonnegative(),
+      date: z
+        .union([z.date(), z.string()])
+        .transform((d) => new Date(d))
+        .refine(
+          (d) => !isNaN(d.getTime()) && d.getTime() <= Date.now() + 24 * 60 * 60 * 1000,
+          { message: "La fecha del abono no puede ser futura." }
+        ),
+    })
+    .optional(),
   pastPaymentsSync: z
     .array(
       z.object({

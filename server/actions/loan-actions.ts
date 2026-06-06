@@ -84,6 +84,49 @@ function generateSyncedPayments(
   return payments;
 }
 
+const PREV_EXTRA_NOTE = "Abono a capital previo al registro";
+
+async function syncInitialExtraPayment(
+  loanId: string,
+  input: { amount: number; date: Date | string } | null | undefined
+): Promise<{ changed: boolean }> {
+  if (input === undefined) return { changed: false };
+
+  const existing = await prisma.loanExtraPayment.findFirst({
+    where: { loanId, note: PREV_EXTRA_NOTE },
+    select: { id: true },
+  });
+
+  if (!input || input.amount <= 0) {
+    if (existing) {
+      await prisma.loanExtraPayment.delete({ where: { id: existing.id } });
+      return { changed: true };
+    }
+    return { changed: false };
+  }
+
+  if (existing) {
+    await prisma.loanExtraPayment.update({
+      where: { id: existing.id },
+      data: {
+        amount: String(input.amount.toFixed(2)),
+        date: new Date(input.date),
+      },
+    });
+    return { changed: true };
+  }
+
+  await prisma.loanExtraPayment.create({
+    data: {
+      loanId,
+      amount: String(input.amount.toFixed(2)),
+      date: new Date(input.date),
+      note: PREV_EXTRA_NOTE,
+    },
+  });
+  return { changed: true };
+}
+
 export async function createLoan(
   data: {
     simulationId?: string;
@@ -99,7 +142,7 @@ export async function createLoan(
     totalInterest: number;
     totalCost: number;
     fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
-    initialExtraPayment?: number;
+    initialExtraPayment?: { amount: number; date: Date | string };
     pastPaymentsSync?: { month: number; year: number; status: "PAID" | "PENDING" | "DEFAULTED" }[];
   }
 ) {
@@ -168,13 +211,13 @@ export async function createLoan(
   }
 
   // Create initial extra payment if provided
-  if (parsed.initialExtraPayment && parsed.initialExtraPayment > 0) {
+  if (parsed.initialExtraPayment && parsed.initialExtraPayment.amount > 0) {
     await prisma.loanExtraPayment.create({
       data: {
         loanId: loan.id,
-        amount: String(parsed.initialExtraPayment.toFixed(2)),
-        date: startDate,
-        note: "Abono a capital previo al registro",
+        amount: String(parsed.initialExtraPayment.amount.toFixed(2)),
+        date: new Date(parsed.initialExtraPayment.date),
+        note: PREV_EXTRA_NOTE,
       },
     });
   }
@@ -215,6 +258,7 @@ export async function updateLoan(
     totalInterest?: number;
     totalCost?: number;
     fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
+    initialExtraPayment?: { amount: number; date: Date | string } | null;
     pastPaymentsSync?: { month: number; year: number; status: "PAID" | "PENDING" | "DEFAULTED" }[];
   }
 ) {
@@ -289,6 +333,11 @@ export async function updateLoan(
     data: updateData,
   });
 
+  // Sync "abono a capital previo al registro" extra. `undefined` = user didn't
+  // touch the field, leave existing row alone. `null` or amount<=0 = delete.
+  // { amount>0 } = upsert (update if existing, create if not).
+  const extraSync = await syncInitialExtraPayment(id, data.initialExtraPayment);
+
   revalidateCreditPaths(id);
 
   const sessionUserId = (await auth())?.user?.id;
@@ -307,6 +356,7 @@ export async function updateLoan(
     totalCost: updated.totalCost.toString(),
     paidInstallments: (updated as unknown as { paidInstallments?: number }).paidInstallments ?? 0,
     fees: (updated as unknown as { fees?: unknown }).fees ?? [],
+    initialExtraPaymentChanged: extraSync.changed,
   };
 }
 
