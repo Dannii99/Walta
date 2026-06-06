@@ -1,6 +1,7 @@
 ﻿import "server-only";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { getEffectiveMonthlyPayment } from "@/lib/loan-fees";
 import type { Loan, LoanPayment, LoanExtraPayment, FeeItem } from "@/types";
 
 export interface LoanListItem
@@ -56,6 +57,14 @@ export interface ActiveLoanContext {
 }
 
 function serializeLoan(loan: Record<string, unknown>) {
+  const rawFees = (loan as unknown as {
+    fees?: Array<{
+      id: string;
+      name: string;
+      amount: { toString(): string } | number | string;
+      type: string;
+    }>;
+  }).fees ?? [];
   return {
     ...loan,
     principal: (loan.principal as { toString(): string }).toString(),
@@ -64,7 +73,12 @@ function serializeLoan(loan: Record<string, unknown>) {
     monthlyPayment: (loan.monthlyPayment as { toString(): string }).toString(),
     totalInterest: (loan.totalInterest as { toString(): string }).toString(),
     totalCost: (loan.totalCost as { toString(): string }).toString(),
-    fees: (loan as unknown as { fees?: FeeItem[] }).fees ?? [],
+    fees: rawFees.map((f) => ({
+      id: f.id,
+      name: f.name,
+      amount: Number(f.amount),
+      type: f.type,
+    })) as FeeItem[],
   };
 }
 
@@ -81,6 +95,7 @@ export async function getUserLoans(userId: string): Promise<LoanListItem[]> {
       _count: {
         select: { payments: true, extraPayments: true },
       },
+      fees: { where: { type: "monthly" } },
     },
   });
 
@@ -105,6 +120,7 @@ export async function getLoanById(id: string): Promise<LoanDetail | null> {
     include: {
       payments: { orderBy: { paidDate: "desc" } },
       extraPayments: { orderBy: { date: "desc" } },
+      fees: { where: { type: "monthly" } },
     },
   });
 
@@ -146,6 +162,9 @@ export async function getLoanStats(userId: string): Promise<LoanStats> {
 
   const loans = await prisma.loan.findMany({
     where: { userId },
+    include: {
+      fees: { where: { type: "monthly" } },
+    },
   });
 
   let totalPrincipal = 0;
@@ -158,7 +177,6 @@ export async function getLoanStats(userId: string): Promise<LoanStats> {
 
   for (const loan of loans) {
     const principal = Number(loan.principal);
-    const monthlyPayment = Number(loan.monthlyPayment);
 
     const paidAgg = await prisma.loanPayment.aggregate({
       where: { loanId: loan.id },
@@ -169,7 +187,7 @@ export async function getLoanStats(userId: string): Promise<LoanStats> {
 
     totalPrincipal += principal;
     totalRemaining += remaining;
-    totalMonthlyPayment += monthlyPayment;
+    totalMonthlyPayment += getEffectiveMonthlyPayment(loan);
     totalPaid += paid;
     if (loan.status === "ACTIVE") active++;
     else if (loan.status === "PAID_OFF") paidOff++;
@@ -203,13 +221,15 @@ export async function getActiveLoanCapacity(
 
   const loans = await prisma.loan.findMany({
     where: { userId, status: "ACTIVE" },
-    select: { monthlyPayment: true },
+    include: {
+      fees: { where: { type: "monthly" } },
+    },
   });
 
   return {
     count: loans.length,
     totalMonthly: loans.reduce(
-      (sum, loan) => sum + Number(loan.monthlyPayment),
+      (sum, loan) => sum + getEffectiveMonthlyPayment(loan),
       0
     ),
   };
@@ -225,6 +245,7 @@ export async function getActiveLoansForAI(userId: string): Promise<ActiveLoanCon
     where: { userId, status: "ACTIVE" },
     include: {
       _count: { select: { payments: true } },
+      fees: { where: { type: "monthly" } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -232,7 +253,7 @@ export async function getActiveLoansForAI(userId: string): Promise<ActiveLoanCon
   return loans.map((loan) => {
     const principal = Number(loan.principal);
     const paidCount = loan._count.payments;
-    const monthlyPayment = Number(loan.monthlyPayment);
+    const monthlyPayment = getEffectiveMonthlyPayment(loan);
     const estimatedPaid = paidCount * monthlyPayment;
     const remainingBalance = Math.max(0, principal - estimatedPaid);
     return {

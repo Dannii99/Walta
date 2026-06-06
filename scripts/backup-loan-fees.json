@@ -1,0 +1,19 @@
+{
+  "createdAt": "2026-06-06T18:07:33.918Z",
+  "fees": {
+    "cmq1a7pwj0001kcn5tos5n7u4": [
+      {
+        "id": "0b7018d5-a80c-45b9-88e6-2eb7d3f0c32b",
+        "name": "Seguro todo riesgo",
+        "type": "monthly",
+        "amount": 3772116
+      },
+      {
+        "id": "60cb29eb-12e9-4ee5-977e-49b9f7de09a7",
+        "name": "Seguro de vida",
+        "type": "upfront",
+        "amount": 150000
+      }
+    ]
+  }
+}

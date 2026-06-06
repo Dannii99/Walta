@@ -100,7 +100,7 @@ model Loan {
   totalInterest    Decimal  @db.Decimal(15, 2)
   totalCost        Decimal  @db.Decimal(15, 2)
   currency         String   @default("COP")
-  fees             Json     @default("[]") // [{ id, name, amount, type: "monthly" | "upfront" }]
+  fees             LoanFee[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -127,4 +127,17 @@ model LoanExtraPayment {
   date      DateTime
   note      String?
   createdAt DateTime @default(now())
+}
+
+model LoanFee {
+  id        String   @id @default(cuid())
+  loanId    String
+  loan      Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Decimal  @db.Decimal(15, 2) // ANUAL si type="monthly", RAW si type="upfront"
+  type      String   // "monthly" | "upfront"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([loanId])
 }

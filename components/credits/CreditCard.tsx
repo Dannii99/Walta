@@ -6,6 +6,7 @@ import { ChevronRight, Car, Wallet, Home, CreditCard as CreditCardIcon, CircleDo
 import { formatCOP } from "@/lib/currency";
 import { loanTypeLabel, loanStatusConfig, loanTypeIconBg } from "@/lib/credit-types";
 import type { LoanType, LoanStatus } from "@/lib/credit-types";
+import { getEffectiveMonthlyPayment } from "@/lib/loan-fees";
 import { cn } from "@/lib/utils";
 
 interface CreditCardProps {
@@ -20,6 +21,10 @@ interface CreditCardProps {
     annualRate: string;
     startDate: Date;
     paymentsCount: number;
+    fees?: ReadonlyArray<{
+      amount: number | string | { toString(): string };
+      type: string;
+    }>;
   };
   index: number;
 }
@@ -75,6 +80,9 @@ export function CreditCard({ loan, index }: CreditCardProps) {
   const statusConfig = loanStatusConfig(loan.status as LoanStatus);
   const typeLabel = loanTypeLabel(loan.type as LoanType);
   const typeBg = loanTypeIconBg(loan.type as LoanType);
+  const bankMonthly = parseFloat(loan.monthlyPayment);
+  const totalMonthly = getEffectiveMonthlyPayment(loan);
+  const cargosMonthly = totalMonthly - bankMonthly;
 
   return (
     <motion.div
@@ -122,7 +130,12 @@ export function CreditCard({ loan, index }: CreditCardProps) {
                 Cuota mensual
               </p>
               <p className="text-sm font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
-                {formatCOP(parseFloat(loan.monthlyPayment))}
+                {formatCOP(totalMonthly)}
+                {cargosMonthly > 0 && (
+                  <span className="block text-[10px] font-normal text-stone-500 dark:text-stone-400 mt-0.5">
+                    Banco {formatCOP(bankMonthly)} + Cargos {formatCOP(cargosMonthly)}
+                  </span>
+                )}
               </p>
             </div>
             <div>

@@ -65,3 +65,47 @@ export function calculateTotalUpfrontFees(fees: FeeItem[]): number {
     .filter((f) => f.type === "upfront")
     .reduce((sum, f) => sum + f.amount, 0);
 }
+
+/**
+ * Lightweight structural type for anything that carries a monthlyPayment + an
+ * array of fees. Matches the shape of:
+ *   - Loan (with `fees: LoanFee[]`)
+ *   - Partial<Loan> (in tests, queries, etc.)
+ *   - Theorethical cases where `fees` is a Json object.
+ *
+ * Each fee only needs `amount` (Decimal-like) and `type` to be computed.
+ */
+export interface MonthlyPaymentCarrier {
+  monthlyPayment: { toString(): string } | number | string;
+  fees?: ReadonlyArray<{
+    amount: { toString(): string } | number | string;
+    type: string;
+  }> | null;
+}
+
+/**
+ * Returns the **effective monthly payment** the user actually pays each month:
+ *   parseFloat(loan.monthlyPayment) + sum(monthly fees) / 12
+ *
+ * This is the source of truth for "cuota real" everywhere the UI displays a
+ * monthly quota that should include deferred monthly fees (e.g. insurance,
+ * administration). It does NOT mutate anything; pure function.
+ *
+ * Edge cases:
+ *   - No `fees` array (or empty) → returns the bank cuota unchanged.
+ *   - `type` !== "monthly" → ignored (only "monthly" fees contribute).
+ *   - Decimal/number/string `amount` accepted; coerced via Number() and divided
+ *     by ANNUAL_TO_MONTHLY (12) so a stored annual value of $3,600,000 →
+ *     $300,000/mes.
+ */
+export function getEffectiveMonthlyPayment(
+  carrier: MonthlyPaymentCarrier
+): number {
+  const base = Number(carrier.monthlyPayment);
+  const fees = carrier.fees ?? [];
+  const monthlyFeesContribution = fees.reduce((sum, f) => {
+    if (f.type !== "monthly") return sum;
+    return sum + Number(f.amount) / ANNUAL_TO_MONTHLY;
+  }, 0);
+  return base + monthlyFeesContribution;
+}

@@ -70,6 +70,11 @@ export function CreditAmortizationTable({
     });
   }, [schedule, activeFilter]);
 
+  const hasFees = useMemo(
+    () => schedule.some((row) => row.monthlyFee > 0),
+    [schedule]
+  );
+
   if (schedule.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-stone-300 dark:border-stone-700 p-12 text-center">
@@ -121,7 +126,7 @@ export function CreditAmortizationTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[1100px] text-sm">
           <thead className="bg-stone-50 dark:bg-stone-800/50">
             <tr className="text-left">
               <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400">
@@ -133,6 +138,14 @@ export function CreditAmortizationTable({
               <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 text-right">
                 Cuota
               </th>
+              {hasFees && (
+                <th
+                  title="Cargos mensuales diferidos (seguros, administración, etc.)"
+                  className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 text-right"
+                >
+                  Cargos
+                </th>
+              )}
               <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-wider text-stone-500 dark:text-stone-400 text-right">
                 Interés
               </th>
@@ -187,8 +200,25 @@ export function CreditAmortizationTable({
                     })}
                   </td>
                   <td className="px-4 py-3 text-right font-medium tabular-nums">
-                    {formatCOP(row.payment)}
+                    <span className="font-bold text-stone-900 dark:text-stone-50">
+                      {formatCOP(row.totalPayment)}
+                    </span>
+                    {row.monthlyFee > 0 && (
+                      <span className="block text-[10px] font-normal text-stone-500 dark:text-stone-400 mt-0.5">
+                        Banco {formatCOP(row.payment)} · Cargos{" "}
+                        {formatCOP(row.monthlyFee)}
+                      </span>
+                    )}
                   </td>
+                  {hasFees && (
+                    <td className="px-4 py-3 text-right text-amber-600 dark:text-amber-400 font-medium tabular-nums">
+                      {row.monthlyFee > 0 ? (
+                        formatCOP(row.monthlyFee)
+                      ) : (
+                        <span className="text-stone-400">—</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-3 text-right text-stone-500 dark:text-stone-400 tabular-nums">
                     {formatCOP(row.interest)}
                   </td>

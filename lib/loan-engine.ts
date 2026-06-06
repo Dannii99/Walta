@@ -1,4 +1,5 @@
 ﻿import type { Loan, LoanPayment, LoanExtraPayment, AmortizationRow } from "@/types";
+import { calculateTotalMonthlyFees } from "@/lib/loan-fees";
 
 function addMonths(date: Date, months: number): Date {
   const d = new Date(date.getTime());
@@ -57,6 +58,14 @@ export function generateAmortizationSchedule(
 
   const schedule: AmortizationRow[] = [];
   let balance = principal;
+
+  // Pre-compute the monthly fee contribution (constant across all rows of
+  // this loan). Comes from `loan.fees` (relational LoanFee[] post-migration
+  // or FeeItem[] from older tests/queries). Same annual÷12 model as
+  // `calculateTotalMonthlyFees`.
+  const monthlyFee = calculateTotalMonthlyFees(
+    (loan.fees ?? []) as Parameters<typeof calculateTotalMonthlyFees>[0]
+  );
 
   // Find the latest month that any real LoanPayment covers, so we know which
   // months are "real" vs synthetic-from-extract.
@@ -138,6 +147,8 @@ export function generateAmortizationSchedule(
       month,
       date: currentDate,
       payment: principalPortion + interest,
+      monthlyFee,
+      totalPayment: principalPortion + interest + monthlyFee,
       interest,
       principal: principalPortion,
       extraPayment: extraTotal,

@@ -58,6 +58,11 @@ export type LoanPayment = $Result.DefaultSelection<Prisma.$LoanPaymentPayload>
  * 
  */
 export type LoanExtraPayment = $Result.DefaultSelection<Prisma.$LoanExtraPaymentPayload>
+/**
+ * Model LoanFee
+ * 
+ */
+export type LoanFee = $Result.DefaultSelection<Prisma.$LoanFeePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -269,6 +274,16 @@ export class PrismaClient<
     * ```
     */
   get loanExtraPayment(): Prisma.LoanExtraPaymentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.loanFee`: Exposes CRUD operations for the **LoanFee** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LoanFees
+    * const loanFees = await prisma.loanFee.findMany()
+    * ```
+    */
+  get loanFee(): Prisma.LoanFeeDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -711,7 +726,8 @@ export namespace Prisma {
     MonthlySnapshot: 'MonthlySnapshot',
     Loan: 'Loan',
     LoanPayment: 'LoanPayment',
-    LoanExtraPayment: 'LoanExtraPayment'
+    LoanExtraPayment: 'LoanExtraPayment',
+    LoanFee: 'LoanFee'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -727,7 +743,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "budget" | "category" | "transaction" | "simulation" | "monthlySnapshot" | "loan" | "loanPayment" | "loanExtraPayment"
+      modelProps: "user" | "budget" | "category" | "transaction" | "simulation" | "monthlySnapshot" | "loan" | "loanPayment" | "loanExtraPayment" | "loanFee"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1397,6 +1413,80 @@ export namespace Prisma {
           }
         }
       }
+      LoanFee: {
+        payload: Prisma.$LoanFeePayload<ExtArgs>
+        fields: Prisma.LoanFeeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LoanFeeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LoanFeeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>
+          }
+          findFirst: {
+            args: Prisma.LoanFeeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LoanFeeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>
+          }
+          findMany: {
+            args: Prisma.LoanFeeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>[]
+          }
+          create: {
+            args: Prisma.LoanFeeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>
+          }
+          createMany: {
+            args: Prisma.LoanFeeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LoanFeeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>[]
+          }
+          delete: {
+            args: Prisma.LoanFeeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>
+          }
+          update: {
+            args: Prisma.LoanFeeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>
+          }
+          deleteMany: {
+            args: Prisma.LoanFeeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LoanFeeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LoanFeeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>[]
+          }
+          upsert: {
+            args: Prisma.LoanFeeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoanFeePayload>
+          }
+          aggregate: {
+            args: Prisma.LoanFeeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLoanFee>
+          }
+          groupBy: {
+            args: Prisma.LoanFeeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LoanFeeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LoanFeeCountArgs<ExtArgs>
+            result: $Utils.Optional<LoanFeeCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1514,6 +1604,7 @@ export namespace Prisma {
     loan?: LoanOmit
     loanPayment?: LoanPaymentOmit
     loanExtraPayment?: LoanExtraPaymentOmit
+    loanFee?: LoanFeeOmit
   }
 
   /* Types for Logging */
@@ -1714,11 +1805,13 @@ export namespace Prisma {
    */
 
   export type LoanCountOutputType = {
+    fees: number
     payments: number
     extraPayments: number
   }
 
   export type LoanCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    fees?: boolean | LoanCountOutputTypeCountFeesArgs
     payments?: boolean | LoanCountOutputTypeCountPaymentsArgs
     extraPayments?: boolean | LoanCountOutputTypeCountExtraPaymentsArgs
   }
@@ -1732,6 +1825,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the LoanCountOutputType
      */
     select?: LoanCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LoanCountOutputType without action
+   */
+  export type LoanCountOutputTypeCountFeesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LoanFeeWhereInput
   }
 
   /**
@@ -8641,7 +8741,6 @@ export namespace Prisma {
     totalInterest: number
     totalCost: number
     currency: number
-    fees: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -8732,7 +8831,6 @@ export namespace Prisma {
     totalInterest?: true
     totalCost?: true
     currency?: true
-    fees?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -8842,7 +8940,6 @@ export namespace Prisma {
     totalInterest: Decimal
     totalCost: Decimal
     currency: string
-    fees: JsonValue
     createdAt: Date
     updatedAt: Date
     _count: LoanCountAggregateOutputType | null
@@ -8884,10 +8981,10 @@ export namespace Prisma {
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
-    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
+    fees?: boolean | Loan$feesArgs<ExtArgs>
     payments?: boolean | Loan$paymentsArgs<ExtArgs>
     extraPayments?: boolean | Loan$extraPaymentsArgs<ExtArgs>
     _count?: boolean | LoanCountOutputTypeDefaultArgs<ExtArgs>
@@ -8911,7 +9008,6 @@ export namespace Prisma {
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
-    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -8935,7 +9031,6 @@ export namespace Prisma {
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
-    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -8959,14 +9054,14 @@ export namespace Prisma {
     totalInterest?: boolean
     totalCost?: boolean
     currency?: boolean
-    fees?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type LoanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "simulationId" | "title" | "type" | "principal" | "downPayment" | "annualRate" | "termMonths" | "formula" | "monthlyPayment" | "startDate" | "status" | "paidInstallments" | "totalInterest" | "totalCost" | "currency" | "fees" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
+  export type LoanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "simulationId" | "title" | "type" | "principal" | "downPayment" | "annualRate" | "termMonths" | "formula" | "monthlyPayment" | "startDate" | "status" | "paidInstallments" | "totalInterest" | "totalCost" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
   export type LoanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
+    fees?: boolean | Loan$feesArgs<ExtArgs>
     payments?: boolean | Loan$paymentsArgs<ExtArgs>
     extraPayments?: boolean | Loan$extraPaymentsArgs<ExtArgs>
     _count?: boolean | LoanCountOutputTypeDefaultArgs<ExtArgs>
@@ -8982,6 +9077,7 @@ export namespace Prisma {
     name: "Loan"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
+      fees: Prisma.$LoanFeePayload<ExtArgs>[]
       payments: Prisma.$LoanPaymentPayload<ExtArgs>[]
       extraPayments: Prisma.$LoanExtraPaymentPayload<ExtArgs>[]
     }
@@ -9003,7 +9099,6 @@ export namespace Prisma {
       totalInterest: Prisma.Decimal
       totalCost: Prisma.Decimal
       currency: string
-      fees: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["loan"]>
@@ -9401,6 +9496,7 @@ export namespace Prisma {
   export interface Prisma__LoanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    fees<T extends Loan$feesArgs<ExtArgs> = {}>(args?: Subset<T, Loan$feesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payments<T extends Loan$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Loan$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoanPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     extraPayments<T extends Loan$extraPaymentsArgs<ExtArgs> = {}>(args?: Subset<T, Loan$extraPaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoanExtraPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -9449,7 +9545,6 @@ export namespace Prisma {
     readonly totalInterest: FieldRef<"Loan", 'Decimal'>
     readonly totalCost: FieldRef<"Loan", 'Decimal'>
     readonly currency: FieldRef<"Loan", 'String'>
-    readonly fees: FieldRef<"Loan", 'Json'>
     readonly createdAt: FieldRef<"Loan", 'DateTime'>
     readonly updatedAt: FieldRef<"Loan", 'DateTime'>
   }
@@ -9850,6 +9945,30 @@ export namespace Prisma {
      * Limit how many Loans to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Loan.fees
+   */
+  export type Loan$feesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    where?: LoanFeeWhereInput
+    orderBy?: LoanFeeOrderByWithRelationInput | LoanFeeOrderByWithRelationInput[]
+    cursor?: LoanFeeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LoanFeeScalarFieldEnum | LoanFeeScalarFieldEnum[]
   }
 
   /**
@@ -12161,6 +12280,1129 @@ export namespace Prisma {
 
 
   /**
+   * Model LoanFee
+   */
+
+  export type AggregateLoanFee = {
+    _count: LoanFeeCountAggregateOutputType | null
+    _avg: LoanFeeAvgAggregateOutputType | null
+    _sum: LoanFeeSumAggregateOutputType | null
+    _min: LoanFeeMinAggregateOutputType | null
+    _max: LoanFeeMaxAggregateOutputType | null
+  }
+
+  export type LoanFeeAvgAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type LoanFeeSumAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type LoanFeeMinAggregateOutputType = {
+    id: string | null
+    loanId: string | null
+    name: string | null
+    amount: Decimal | null
+    type: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LoanFeeMaxAggregateOutputType = {
+    id: string | null
+    loanId: string | null
+    name: string | null
+    amount: Decimal | null
+    type: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LoanFeeCountAggregateOutputType = {
+    id: number
+    loanId: number
+    name: number
+    amount: number
+    type: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LoanFeeAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type LoanFeeSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type LoanFeeMinAggregateInputType = {
+    id?: true
+    loanId?: true
+    name?: true
+    amount?: true
+    type?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LoanFeeMaxAggregateInputType = {
+    id?: true
+    loanId?: true
+    name?: true
+    amount?: true
+    type?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LoanFeeCountAggregateInputType = {
+    id?: true
+    loanId?: true
+    name?: true
+    amount?: true
+    type?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LoanFeeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LoanFee to aggregate.
+     */
+    where?: LoanFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoanFees to fetch.
+     */
+    orderBy?: LoanFeeOrderByWithRelationInput | LoanFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LoanFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoanFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoanFees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LoanFees
+    **/
+    _count?: true | LoanFeeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LoanFeeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LoanFeeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LoanFeeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LoanFeeMaxAggregateInputType
+  }
+
+  export type GetLoanFeeAggregateType<T extends LoanFeeAggregateArgs> = {
+        [P in keyof T & keyof AggregateLoanFee]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLoanFee[P]>
+      : GetScalarType<T[P], AggregateLoanFee[P]>
+  }
+
+
+
+
+  export type LoanFeeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LoanFeeWhereInput
+    orderBy?: LoanFeeOrderByWithAggregationInput | LoanFeeOrderByWithAggregationInput[]
+    by: LoanFeeScalarFieldEnum[] | LoanFeeScalarFieldEnum
+    having?: LoanFeeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LoanFeeCountAggregateInputType | true
+    _avg?: LoanFeeAvgAggregateInputType
+    _sum?: LoanFeeSumAggregateInputType
+    _min?: LoanFeeMinAggregateInputType
+    _max?: LoanFeeMaxAggregateInputType
+  }
+
+  export type LoanFeeGroupByOutputType = {
+    id: string
+    loanId: string
+    name: string
+    amount: Decimal
+    type: string
+    createdAt: Date
+    updatedAt: Date
+    _count: LoanFeeCountAggregateOutputType | null
+    _avg: LoanFeeAvgAggregateOutputType | null
+    _sum: LoanFeeSumAggregateOutputType | null
+    _min: LoanFeeMinAggregateOutputType | null
+    _max: LoanFeeMaxAggregateOutputType | null
+  }
+
+  type GetLoanFeeGroupByPayload<T extends LoanFeeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LoanFeeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LoanFeeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LoanFeeGroupByOutputType[P]>
+            : GetScalarType<T[P], LoanFeeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LoanFeeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    loanId?: boolean
+    name?: boolean
+    amount?: boolean
+    type?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    loan?: boolean | LoanDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["loanFee"]>
+
+  export type LoanFeeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    loanId?: boolean
+    name?: boolean
+    amount?: boolean
+    type?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    loan?: boolean | LoanDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["loanFee"]>
+
+  export type LoanFeeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    loanId?: boolean
+    name?: boolean
+    amount?: boolean
+    type?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    loan?: boolean | LoanDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["loanFee"]>
+
+  export type LoanFeeSelectScalar = {
+    id?: boolean
+    loanId?: boolean
+    name?: boolean
+    amount?: boolean
+    type?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LoanFeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "loanId" | "name" | "amount" | "type" | "createdAt" | "updatedAt", ExtArgs["result"]["loanFee"]>
+  export type LoanFeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    loan?: boolean | LoanDefaultArgs<ExtArgs>
+  }
+  export type LoanFeeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    loan?: boolean | LoanDefaultArgs<ExtArgs>
+  }
+  export type LoanFeeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    loan?: boolean | LoanDefaultArgs<ExtArgs>
+  }
+
+  export type $LoanFeePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LoanFee"
+    objects: {
+      loan: Prisma.$LoanPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      loanId: string
+      name: string
+      amount: Prisma.Decimal
+      type: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["loanFee"]>
+    composites: {}
+  }
+
+  type LoanFeeGetPayload<S extends boolean | null | undefined | LoanFeeDefaultArgs> = $Result.GetResult<Prisma.$LoanFeePayload, S>
+
+  type LoanFeeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LoanFeeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LoanFeeCountAggregateInputType | true
+    }
+
+  export interface LoanFeeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LoanFee'], meta: { name: 'LoanFee' } }
+    /**
+     * Find zero or one LoanFee that matches the filter.
+     * @param {LoanFeeFindUniqueArgs} args - Arguments to find a LoanFee
+     * @example
+     * // Get one LoanFee
+     * const loanFee = await prisma.loanFee.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LoanFeeFindUniqueArgs>(args: SelectSubset<T, LoanFeeFindUniqueArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LoanFee that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LoanFeeFindUniqueOrThrowArgs} args - Arguments to find a LoanFee
+     * @example
+     * // Get one LoanFee
+     * const loanFee = await prisma.loanFee.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LoanFeeFindUniqueOrThrowArgs>(args: SelectSubset<T, LoanFeeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LoanFee that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoanFeeFindFirstArgs} args - Arguments to find a LoanFee
+     * @example
+     * // Get one LoanFee
+     * const loanFee = await prisma.loanFee.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LoanFeeFindFirstArgs>(args?: SelectSubset<T, LoanFeeFindFirstArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LoanFee that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoanFeeFindFirstOrThrowArgs} args - Arguments to find a LoanFee
+     * @example
+     * // Get one LoanFee
+     * const loanFee = await prisma.loanFee.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LoanFeeFindFirstOrThrowArgs>(args?: SelectSubset<T, LoanFeeFindFirstOrThrowArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LoanFees that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoanFeeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LoanFees
+     * const loanFees = await prisma.loanFee.findMany()
+     * 
+     * // Get first 10 LoanFees
+     * const loanFees = await prisma.loanFee.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const loanFeeWithIdOnly = await prisma.loanFee.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LoanFeeFindManyArgs>(args?: SelectSubset<T, LoanFeeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LoanFee.
+     * @param {LoanFeeCreateArgs} args - Arguments to create a LoanFee.
+     * @example
+     * // Create one LoanFee
+     * const LoanFee = await prisma.loanFee.create({
+     *   data: {
+     *     // ... data to create a LoanFee
+     *   }
+     * })
+     * 
+     */
+    create<T extends LoanFeeCreateArgs>(args: SelectSubset<T, LoanFeeCreateArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LoanFees.
+     * @param {LoanFeeCreateManyArgs} args - Arguments to create many LoanFees.
+     * @example
+     * // Create many LoanFees
+     * const loanFee = await prisma.loanFee.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LoanFeeCreateManyArgs>(args?: SelectSubset<T, LoanFeeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LoanFees and returns the data saved in the database.
+     * @param {LoanFeeCreateManyAndReturnArgs} args - Arguments to create many LoanFees.
+     * @example
+     * // Create many LoanFees
+     * const loanFee = await prisma.loanFee.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LoanFees and only return the `id`
+     * const loanFeeWithIdOnly = await prisma.loanFee.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LoanFeeCreateManyAndReturnArgs>(args?: SelectSubset<T, LoanFeeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LoanFee.
+     * @param {LoanFeeDeleteArgs} args - Arguments to delete one LoanFee.
+     * @example
+     * // Delete one LoanFee
+     * const LoanFee = await prisma.loanFee.delete({
+     *   where: {
+     *     // ... filter to delete one LoanFee
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LoanFeeDeleteArgs>(args: SelectSubset<T, LoanFeeDeleteArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LoanFee.
+     * @param {LoanFeeUpdateArgs} args - Arguments to update one LoanFee.
+     * @example
+     * // Update one LoanFee
+     * const loanFee = await prisma.loanFee.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LoanFeeUpdateArgs>(args: SelectSubset<T, LoanFeeUpdateArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LoanFees.
+     * @param {LoanFeeDeleteManyArgs} args - Arguments to filter LoanFees to delete.
+     * @example
+     * // Delete a few LoanFees
+     * const { count } = await prisma.loanFee.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LoanFeeDeleteManyArgs>(args?: SelectSubset<T, LoanFeeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LoanFees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoanFeeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LoanFees
+     * const loanFee = await prisma.loanFee.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LoanFeeUpdateManyArgs>(args: SelectSubset<T, LoanFeeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LoanFees and returns the data updated in the database.
+     * @param {LoanFeeUpdateManyAndReturnArgs} args - Arguments to update many LoanFees.
+     * @example
+     * // Update many LoanFees
+     * const loanFee = await prisma.loanFee.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LoanFees and only return the `id`
+     * const loanFeeWithIdOnly = await prisma.loanFee.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LoanFeeUpdateManyAndReturnArgs>(args: SelectSubset<T, LoanFeeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LoanFee.
+     * @param {LoanFeeUpsertArgs} args - Arguments to update or create a LoanFee.
+     * @example
+     * // Update or create a LoanFee
+     * const loanFee = await prisma.loanFee.upsert({
+     *   create: {
+     *     // ... data to create a LoanFee
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LoanFee we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LoanFeeUpsertArgs>(args: SelectSubset<T, LoanFeeUpsertArgs<ExtArgs>>): Prisma__LoanFeeClient<$Result.GetResult<Prisma.$LoanFeePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LoanFees.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoanFeeCountArgs} args - Arguments to filter LoanFees to count.
+     * @example
+     * // Count the number of LoanFees
+     * const count = await prisma.loanFee.count({
+     *   where: {
+     *     // ... the filter for the LoanFees we want to count
+     *   }
+     * })
+    **/
+    count<T extends LoanFeeCountArgs>(
+      args?: Subset<T, LoanFeeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LoanFeeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LoanFee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoanFeeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LoanFeeAggregateArgs>(args: Subset<T, LoanFeeAggregateArgs>): Prisma.PrismaPromise<GetLoanFeeAggregateType<T>>
+
+    /**
+     * Group by LoanFee.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoanFeeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LoanFeeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LoanFeeGroupByArgs['orderBy'] }
+        : { orderBy?: LoanFeeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LoanFeeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLoanFeeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LoanFee model
+   */
+  readonly fields: LoanFeeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LoanFee.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LoanFeeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    loan<T extends LoanDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LoanDefaultArgs<ExtArgs>>): Prisma__LoanClient<$Result.GetResult<Prisma.$LoanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LoanFee model
+   */
+  interface LoanFeeFieldRefs {
+    readonly id: FieldRef<"LoanFee", 'String'>
+    readonly loanId: FieldRef<"LoanFee", 'String'>
+    readonly name: FieldRef<"LoanFee", 'String'>
+    readonly amount: FieldRef<"LoanFee", 'Decimal'>
+    readonly type: FieldRef<"LoanFee", 'String'>
+    readonly createdAt: FieldRef<"LoanFee", 'DateTime'>
+    readonly updatedAt: FieldRef<"LoanFee", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LoanFee findUnique
+   */
+  export type LoanFeeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which LoanFee to fetch.
+     */
+    where: LoanFeeWhereUniqueInput
+  }
+
+  /**
+   * LoanFee findUniqueOrThrow
+   */
+  export type LoanFeeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which LoanFee to fetch.
+     */
+    where: LoanFeeWhereUniqueInput
+  }
+
+  /**
+   * LoanFee findFirst
+   */
+  export type LoanFeeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which LoanFee to fetch.
+     */
+    where?: LoanFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoanFees to fetch.
+     */
+    orderBy?: LoanFeeOrderByWithRelationInput | LoanFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LoanFees.
+     */
+    cursor?: LoanFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoanFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoanFees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoanFees.
+     */
+    distinct?: LoanFeeScalarFieldEnum | LoanFeeScalarFieldEnum[]
+  }
+
+  /**
+   * LoanFee findFirstOrThrow
+   */
+  export type LoanFeeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which LoanFee to fetch.
+     */
+    where?: LoanFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoanFees to fetch.
+     */
+    orderBy?: LoanFeeOrderByWithRelationInput | LoanFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LoanFees.
+     */
+    cursor?: LoanFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoanFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoanFees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoanFees.
+     */
+    distinct?: LoanFeeScalarFieldEnum | LoanFeeScalarFieldEnum[]
+  }
+
+  /**
+   * LoanFee findMany
+   */
+  export type LoanFeeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * Filter, which LoanFees to fetch.
+     */
+    where?: LoanFeeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoanFees to fetch.
+     */
+    orderBy?: LoanFeeOrderByWithRelationInput | LoanFeeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LoanFees.
+     */
+    cursor?: LoanFeeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoanFees from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoanFees.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoanFees.
+     */
+    distinct?: LoanFeeScalarFieldEnum | LoanFeeScalarFieldEnum[]
+  }
+
+  /**
+   * LoanFee create
+   */
+  export type LoanFeeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LoanFee.
+     */
+    data: XOR<LoanFeeCreateInput, LoanFeeUncheckedCreateInput>
+  }
+
+  /**
+   * LoanFee createMany
+   */
+  export type LoanFeeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LoanFees.
+     */
+    data: LoanFeeCreateManyInput | LoanFeeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LoanFee createManyAndReturn
+   */
+  export type LoanFeeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * The data used to create many LoanFees.
+     */
+    data: LoanFeeCreateManyInput | LoanFeeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LoanFee update
+   */
+  export type LoanFeeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LoanFee.
+     */
+    data: XOR<LoanFeeUpdateInput, LoanFeeUncheckedUpdateInput>
+    /**
+     * Choose, which LoanFee to update.
+     */
+    where: LoanFeeWhereUniqueInput
+  }
+
+  /**
+   * LoanFee updateMany
+   */
+  export type LoanFeeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LoanFees.
+     */
+    data: XOR<LoanFeeUpdateManyMutationInput, LoanFeeUncheckedUpdateManyInput>
+    /**
+     * Filter which LoanFees to update
+     */
+    where?: LoanFeeWhereInput
+    /**
+     * Limit how many LoanFees to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LoanFee updateManyAndReturn
+   */
+  export type LoanFeeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * The data used to update LoanFees.
+     */
+    data: XOR<LoanFeeUpdateManyMutationInput, LoanFeeUncheckedUpdateManyInput>
+    /**
+     * Filter which LoanFees to update
+     */
+    where?: LoanFeeWhereInput
+    /**
+     * Limit how many LoanFees to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LoanFee upsert
+   */
+  export type LoanFeeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LoanFee to update in case it exists.
+     */
+    where: LoanFeeWhereUniqueInput
+    /**
+     * In case the LoanFee found by the `where` argument doesn't exist, create a new LoanFee with this data.
+     */
+    create: XOR<LoanFeeCreateInput, LoanFeeUncheckedCreateInput>
+    /**
+     * In case the LoanFee was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LoanFeeUpdateInput, LoanFeeUncheckedUpdateInput>
+  }
+
+  /**
+   * LoanFee delete
+   */
+  export type LoanFeeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+    /**
+     * Filter which LoanFee to delete.
+     */
+    where: LoanFeeWhereUniqueInput
+  }
+
+  /**
+   * LoanFee deleteMany
+   */
+  export type LoanFeeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LoanFees to delete
+     */
+    where?: LoanFeeWhereInput
+    /**
+     * Limit how many LoanFees to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LoanFee without action
+   */
+  export type LoanFeeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoanFee
+     */
+    select?: LoanFeeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoanFee
+     */
+    omit?: LoanFeeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoanFeeInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -12270,7 +13512,6 @@ export namespace Prisma {
     totalInterest: 'totalInterest',
     totalCost: 'totalCost',
     currency: 'currency',
-    fees: 'fees',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12301,6 +13542,19 @@ export namespace Prisma {
   };
 
   export type LoanExtraPaymentScalarFieldEnum = (typeof LoanExtraPaymentScalarFieldEnum)[keyof typeof LoanExtraPaymentScalarFieldEnum]
+
+
+  export const LoanFeeScalarFieldEnum: {
+    id: 'id',
+    loanId: 'loanId',
+    name: 'name',
+    amount: 'amount',
+    type: 'type',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LoanFeeScalarFieldEnum = (typeof LoanFeeScalarFieldEnum)[keyof typeof LoanFeeScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -12868,10 +14122,10 @@ export namespace Prisma {
     totalInterest?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Loan"> | string
-    fees?: JsonFilter<"Loan">
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    fees?: LoanFeeListRelationFilter
     payments?: LoanPaymentListRelationFilter
     extraPayments?: LoanExtraPaymentListRelationFilter
   }
@@ -12894,10 +14148,10 @@ export namespace Prisma {
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
-    fees?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
+    fees?: LoanFeeOrderByRelationAggregateInput
     payments?: LoanPaymentOrderByRelationAggregateInput
     extraPayments?: LoanExtraPaymentOrderByRelationAggregateInput
   }
@@ -12923,10 +14177,10 @@ export namespace Prisma {
     totalInterest?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Loan"> | string
-    fees?: JsonFilter<"Loan">
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    fees?: LoanFeeListRelationFilter
     payments?: LoanPaymentListRelationFilter
     extraPayments?: LoanExtraPaymentListRelationFilter
   }, "id">
@@ -12949,7 +14203,6 @@ export namespace Prisma {
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
-    fees?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: LoanCountOrderByAggregateInput
@@ -12980,7 +14233,6 @@ export namespace Prisma {
     totalInterest?: DecimalWithAggregatesFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalWithAggregatesFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringWithAggregatesFilter<"Loan"> | string
-    fees?: JsonWithAggregatesFilter<"Loan">
     createdAt?: DateTimeWithAggregatesFilter<"Loan"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Loan"> | Date | string
   }
@@ -13112,6 +14364,73 @@ export namespace Prisma {
     date?: DateTimeWithAggregatesFilter<"LoanExtraPayment"> | Date | string
     note?: StringNullableWithAggregatesFilter<"LoanExtraPayment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"LoanExtraPayment"> | Date | string
+  }
+
+  export type LoanFeeWhereInput = {
+    AND?: LoanFeeWhereInput | LoanFeeWhereInput[]
+    OR?: LoanFeeWhereInput[]
+    NOT?: LoanFeeWhereInput | LoanFeeWhereInput[]
+    id?: StringFilter<"LoanFee"> | string
+    loanId?: StringFilter<"LoanFee"> | string
+    name?: StringFilter<"LoanFee"> | string
+    amount?: DecimalFilter<"LoanFee"> | Decimal | DecimalJsLike | number | string
+    type?: StringFilter<"LoanFee"> | string
+    createdAt?: DateTimeFilter<"LoanFee"> | Date | string
+    updatedAt?: DateTimeFilter<"LoanFee"> | Date | string
+    loan?: XOR<LoanScalarRelationFilter, LoanWhereInput>
+  }
+
+  export type LoanFeeOrderByWithRelationInput = {
+    id?: SortOrder
+    loanId?: SortOrder
+    name?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    loan?: LoanOrderByWithRelationInput
+  }
+
+  export type LoanFeeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LoanFeeWhereInput | LoanFeeWhereInput[]
+    OR?: LoanFeeWhereInput[]
+    NOT?: LoanFeeWhereInput | LoanFeeWhereInput[]
+    loanId?: StringFilter<"LoanFee"> | string
+    name?: StringFilter<"LoanFee"> | string
+    amount?: DecimalFilter<"LoanFee"> | Decimal | DecimalJsLike | number | string
+    type?: StringFilter<"LoanFee"> | string
+    createdAt?: DateTimeFilter<"LoanFee"> | Date | string
+    updatedAt?: DateTimeFilter<"LoanFee"> | Date | string
+    loan?: XOR<LoanScalarRelationFilter, LoanWhereInput>
+  }, "id">
+
+  export type LoanFeeOrderByWithAggregationInput = {
+    id?: SortOrder
+    loanId?: SortOrder
+    name?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LoanFeeCountOrderByAggregateInput
+    _avg?: LoanFeeAvgOrderByAggregateInput
+    _max?: LoanFeeMaxOrderByAggregateInput
+    _min?: LoanFeeMinOrderByAggregateInput
+    _sum?: LoanFeeSumOrderByAggregateInput
+  }
+
+  export type LoanFeeScalarWhereWithAggregatesInput = {
+    AND?: LoanFeeScalarWhereWithAggregatesInput | LoanFeeScalarWhereWithAggregatesInput[]
+    OR?: LoanFeeScalarWhereWithAggregatesInput[]
+    NOT?: LoanFeeScalarWhereWithAggregatesInput | LoanFeeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LoanFee"> | string
+    loanId?: StringWithAggregatesFilter<"LoanFee"> | string
+    name?: StringWithAggregatesFilter<"LoanFee"> | string
+    amount?: DecimalWithAggregatesFilter<"LoanFee"> | Decimal | DecimalJsLike | number | string
+    type?: StringWithAggregatesFilter<"LoanFee"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"LoanFee"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LoanFee"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -13570,10 +14889,10 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutLoansInput
+    fees?: LoanFeeCreateNestedManyWithoutLoanInput
     payments?: LoanPaymentCreateNestedManyWithoutLoanInput
     extraPayments?: LoanExtraPaymentCreateNestedManyWithoutLoanInput
   }
@@ -13596,9 +14915,9 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    fees?: LoanFeeUncheckedCreateNestedManyWithoutLoanInput
     payments?: LoanPaymentUncheckedCreateNestedManyWithoutLoanInput
     extraPayments?: LoanExtraPaymentUncheckedCreateNestedManyWithoutLoanInput
   }
@@ -13620,10 +14939,10 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutLoansNestedInput
+    fees?: LoanFeeUpdateManyWithoutLoanNestedInput
     payments?: LoanPaymentUpdateManyWithoutLoanNestedInput
     extraPayments?: LoanExtraPaymentUpdateManyWithoutLoanNestedInput
   }
@@ -13646,9 +14965,9 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fees?: LoanFeeUncheckedUpdateManyWithoutLoanNestedInput
     payments?: LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput
     extraPayments?: LoanExtraPaymentUncheckedUpdateManyWithoutLoanNestedInput
   }
@@ -13671,7 +14990,6 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13693,7 +15011,6 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13716,7 +15033,6 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13850,6 +15166,75 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoanFeeCreateInput = {
+    id?: string
+    name: string
+    amount: Decimal | DecimalJsLike | number | string
+    type: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    loan: LoanCreateNestedOneWithoutFeesInput
+  }
+
+  export type LoanFeeUncheckedCreateInput = {
+    id?: string
+    loanId: string
+    name: string
+    amount: Decimal | DecimalJsLike | number | string
+    type: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LoanFeeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    loan?: LoanUpdateOneRequiredWithoutFeesNestedInput
+  }
+
+  export type LoanFeeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    loanId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoanFeeCreateManyInput = {
+    id?: string
+    loanId: string
+    name: string
+    amount: Decimal | DecimalJsLike | number | string
+    type: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LoanFeeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoanFeeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    loanId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -14361,6 +15746,12 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type LoanFeeListRelationFilter = {
+    every?: LoanFeeWhereInput
+    some?: LoanFeeWhereInput
+    none?: LoanFeeWhereInput
+  }
+
   export type LoanPaymentListRelationFilter = {
     every?: LoanPaymentWhereInput
     some?: LoanPaymentWhereInput
@@ -14371,6 +15762,10 @@ export namespace Prisma {
     every?: LoanExtraPaymentWhereInput
     some?: LoanExtraPaymentWhereInput
     none?: LoanExtraPaymentWhereInput
+  }
+
+  export type LoanFeeOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type LoanPaymentOrderByRelationAggregateInput = {
@@ -14399,7 +15794,6 @@ export namespace Prisma {
     totalInterest?: SortOrder
     totalCost?: SortOrder
     currency?: SortOrder
-    fees?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14549,6 +15943,44 @@ export namespace Prisma {
   }
 
   export type LoanExtraPaymentSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type LoanFeeCountOrderByAggregateInput = {
+    id?: SortOrder
+    loanId?: SortOrder
+    name?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LoanFeeAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type LoanFeeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    loanId?: SortOrder
+    name?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LoanFeeMinOrderByAggregateInput = {
+    id?: SortOrder
+    loanId?: SortOrder
+    name?: SortOrder
+    amount?: SortOrder
+    type?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LoanFeeSumOrderByAggregateInput = {
     amount?: SortOrder
   }
 
@@ -14912,6 +16344,13 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type LoanFeeCreateNestedManyWithoutLoanInput = {
+    create?: XOR<LoanFeeCreateWithoutLoanInput, LoanFeeUncheckedCreateWithoutLoanInput> | LoanFeeCreateWithoutLoanInput[] | LoanFeeUncheckedCreateWithoutLoanInput[]
+    connectOrCreate?: LoanFeeCreateOrConnectWithoutLoanInput | LoanFeeCreateOrConnectWithoutLoanInput[]
+    createMany?: LoanFeeCreateManyLoanInputEnvelope
+    connect?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+  }
+
   export type LoanPaymentCreateNestedManyWithoutLoanInput = {
     create?: XOR<LoanPaymentCreateWithoutLoanInput, LoanPaymentUncheckedCreateWithoutLoanInput> | LoanPaymentCreateWithoutLoanInput[] | LoanPaymentUncheckedCreateWithoutLoanInput[]
     connectOrCreate?: LoanPaymentCreateOrConnectWithoutLoanInput | LoanPaymentCreateOrConnectWithoutLoanInput[]
@@ -14924,6 +16363,13 @@ export namespace Prisma {
     connectOrCreate?: LoanExtraPaymentCreateOrConnectWithoutLoanInput | LoanExtraPaymentCreateOrConnectWithoutLoanInput[]
     createMany?: LoanExtraPaymentCreateManyLoanInputEnvelope
     connect?: LoanExtraPaymentWhereUniqueInput | LoanExtraPaymentWhereUniqueInput[]
+  }
+
+  export type LoanFeeUncheckedCreateNestedManyWithoutLoanInput = {
+    create?: XOR<LoanFeeCreateWithoutLoanInput, LoanFeeUncheckedCreateWithoutLoanInput> | LoanFeeCreateWithoutLoanInput[] | LoanFeeUncheckedCreateWithoutLoanInput[]
+    connectOrCreate?: LoanFeeCreateOrConnectWithoutLoanInput | LoanFeeCreateOrConnectWithoutLoanInput[]
+    createMany?: LoanFeeCreateManyLoanInputEnvelope
+    connect?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
   }
 
   export type LoanPaymentUncheckedCreateNestedManyWithoutLoanInput = {
@@ -14946,6 +16392,20 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutLoansInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLoansInput, UserUpdateWithoutLoansInput>, UserUncheckedUpdateWithoutLoansInput>
+  }
+
+  export type LoanFeeUpdateManyWithoutLoanNestedInput = {
+    create?: XOR<LoanFeeCreateWithoutLoanInput, LoanFeeUncheckedCreateWithoutLoanInput> | LoanFeeCreateWithoutLoanInput[] | LoanFeeUncheckedCreateWithoutLoanInput[]
+    connectOrCreate?: LoanFeeCreateOrConnectWithoutLoanInput | LoanFeeCreateOrConnectWithoutLoanInput[]
+    upsert?: LoanFeeUpsertWithWhereUniqueWithoutLoanInput | LoanFeeUpsertWithWhereUniqueWithoutLoanInput[]
+    createMany?: LoanFeeCreateManyLoanInputEnvelope
+    set?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    disconnect?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    delete?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    connect?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    update?: LoanFeeUpdateWithWhereUniqueWithoutLoanInput | LoanFeeUpdateWithWhereUniqueWithoutLoanInput[]
+    updateMany?: LoanFeeUpdateManyWithWhereWithoutLoanInput | LoanFeeUpdateManyWithWhereWithoutLoanInput[]
+    deleteMany?: LoanFeeScalarWhereInput | LoanFeeScalarWhereInput[]
   }
 
   export type LoanPaymentUpdateManyWithoutLoanNestedInput = {
@@ -14974,6 +16434,20 @@ export namespace Prisma {
     update?: LoanExtraPaymentUpdateWithWhereUniqueWithoutLoanInput | LoanExtraPaymentUpdateWithWhereUniqueWithoutLoanInput[]
     updateMany?: LoanExtraPaymentUpdateManyWithWhereWithoutLoanInput | LoanExtraPaymentUpdateManyWithWhereWithoutLoanInput[]
     deleteMany?: LoanExtraPaymentScalarWhereInput | LoanExtraPaymentScalarWhereInput[]
+  }
+
+  export type LoanFeeUncheckedUpdateManyWithoutLoanNestedInput = {
+    create?: XOR<LoanFeeCreateWithoutLoanInput, LoanFeeUncheckedCreateWithoutLoanInput> | LoanFeeCreateWithoutLoanInput[] | LoanFeeUncheckedCreateWithoutLoanInput[]
+    connectOrCreate?: LoanFeeCreateOrConnectWithoutLoanInput | LoanFeeCreateOrConnectWithoutLoanInput[]
+    upsert?: LoanFeeUpsertWithWhereUniqueWithoutLoanInput | LoanFeeUpsertWithWhereUniqueWithoutLoanInput[]
+    createMany?: LoanFeeCreateManyLoanInputEnvelope
+    set?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    disconnect?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    delete?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    connect?: LoanFeeWhereUniqueInput | LoanFeeWhereUniqueInput[]
+    update?: LoanFeeUpdateWithWhereUniqueWithoutLoanInput | LoanFeeUpdateWithWhereUniqueWithoutLoanInput[]
+    updateMany?: LoanFeeUpdateManyWithWhereWithoutLoanInput | LoanFeeUpdateManyWithWhereWithoutLoanInput[]
+    deleteMany?: LoanFeeScalarWhereInput | LoanFeeScalarWhereInput[]
   }
 
   export type LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput = {
@@ -15030,6 +16504,20 @@ export namespace Prisma {
     upsert?: LoanUpsertWithoutExtraPaymentsInput
     connect?: LoanWhereUniqueInput
     update?: XOR<XOR<LoanUpdateToOneWithWhereWithoutExtraPaymentsInput, LoanUpdateWithoutExtraPaymentsInput>, LoanUncheckedUpdateWithoutExtraPaymentsInput>
+  }
+
+  export type LoanCreateNestedOneWithoutFeesInput = {
+    create?: XOR<LoanCreateWithoutFeesInput, LoanUncheckedCreateWithoutFeesInput>
+    connectOrCreate?: LoanCreateOrConnectWithoutFeesInput
+    connect?: LoanWhereUniqueInput
+  }
+
+  export type LoanUpdateOneRequiredWithoutFeesNestedInput = {
+    create?: XOR<LoanCreateWithoutFeesInput, LoanUncheckedCreateWithoutFeesInput>
+    connectOrCreate?: LoanCreateOrConnectWithoutFeesInput
+    upsert?: LoanUpsertWithoutFeesInput
+    connect?: LoanWhereUniqueInput
+    update?: XOR<XOR<LoanUpdateToOneWithWhereWithoutFeesInput, LoanUpdateWithoutFeesInput>, LoanUncheckedUpdateWithoutFeesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -15326,9 +16814,9 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    fees?: LoanFeeCreateNestedManyWithoutLoanInput
     payments?: LoanPaymentCreateNestedManyWithoutLoanInput
     extraPayments?: LoanExtraPaymentCreateNestedManyWithoutLoanInput
   }
@@ -15350,9 +16838,9 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    fees?: LoanFeeUncheckedCreateNestedManyWithoutLoanInput
     payments?: LoanPaymentUncheckedCreateNestedManyWithoutLoanInput
     extraPayments?: LoanExtraPaymentUncheckedCreateNestedManyWithoutLoanInput
   }
@@ -15465,7 +16953,6 @@ export namespace Prisma {
     totalInterest?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFilter<"Loan"> | Decimal | DecimalJsLike | number | string
     currency?: StringFilter<"Loan"> | string
-    fees?: JsonFilter<"Loan">
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
   }
@@ -15946,6 +17433,34 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutLoansInput, UserUncheckedCreateWithoutLoansInput>
   }
 
+  export type LoanFeeCreateWithoutLoanInput = {
+    id?: string
+    name: string
+    amount: Decimal | DecimalJsLike | number | string
+    type: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LoanFeeUncheckedCreateWithoutLoanInput = {
+    id?: string
+    name: string
+    amount: Decimal | DecimalJsLike | number | string
+    type: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LoanFeeCreateOrConnectWithoutLoanInput = {
+    where: LoanFeeWhereUniqueInput
+    create: XOR<LoanFeeCreateWithoutLoanInput, LoanFeeUncheckedCreateWithoutLoanInput>
+  }
+
+  export type LoanFeeCreateManyLoanInputEnvelope = {
+    data: LoanFeeCreateManyLoanInput | LoanFeeCreateManyLoanInput[]
+    skipDuplicates?: boolean
+  }
+
   export type LoanPaymentCreateWithoutLoanInput = {
     id?: string
     amount: Decimal | DecimalJsLike | number | string
@@ -16029,6 +17544,35 @@ export namespace Prisma {
     simulations?: SimulationUncheckedUpdateManyWithoutUserNestedInput
   }
 
+  export type LoanFeeUpsertWithWhereUniqueWithoutLoanInput = {
+    where: LoanFeeWhereUniqueInput
+    update: XOR<LoanFeeUpdateWithoutLoanInput, LoanFeeUncheckedUpdateWithoutLoanInput>
+    create: XOR<LoanFeeCreateWithoutLoanInput, LoanFeeUncheckedCreateWithoutLoanInput>
+  }
+
+  export type LoanFeeUpdateWithWhereUniqueWithoutLoanInput = {
+    where: LoanFeeWhereUniqueInput
+    data: XOR<LoanFeeUpdateWithoutLoanInput, LoanFeeUncheckedUpdateWithoutLoanInput>
+  }
+
+  export type LoanFeeUpdateManyWithWhereWithoutLoanInput = {
+    where: LoanFeeScalarWhereInput
+    data: XOR<LoanFeeUpdateManyMutationInput, LoanFeeUncheckedUpdateManyWithoutLoanInput>
+  }
+
+  export type LoanFeeScalarWhereInput = {
+    AND?: LoanFeeScalarWhereInput | LoanFeeScalarWhereInput[]
+    OR?: LoanFeeScalarWhereInput[]
+    NOT?: LoanFeeScalarWhereInput | LoanFeeScalarWhereInput[]
+    id?: StringFilter<"LoanFee"> | string
+    loanId?: StringFilter<"LoanFee"> | string
+    name?: StringFilter<"LoanFee"> | string
+    amount?: DecimalFilter<"LoanFee"> | Decimal | DecimalJsLike | number | string
+    type?: StringFilter<"LoanFee"> | string
+    createdAt?: DateTimeFilter<"LoanFee"> | Date | string
+    updatedAt?: DateTimeFilter<"LoanFee"> | Date | string
+  }
+
   export type LoanPaymentUpsertWithWhereUniqueWithoutLoanInput = {
     where: LoanPaymentWhereUniqueInput
     update: XOR<LoanPaymentUpdateWithoutLoanInput, LoanPaymentUncheckedUpdateWithoutLoanInput>
@@ -16103,10 +17647,10 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutLoansInput
+    fees?: LoanFeeCreateNestedManyWithoutLoanInput
     extraPayments?: LoanExtraPaymentCreateNestedManyWithoutLoanInput
   }
 
@@ -16128,9 +17672,9 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    fees?: LoanFeeUncheckedCreateNestedManyWithoutLoanInput
     extraPayments?: LoanExtraPaymentUncheckedCreateNestedManyWithoutLoanInput
   }
 
@@ -16167,10 +17711,10 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutLoansNestedInput
+    fees?: LoanFeeUpdateManyWithoutLoanNestedInput
     extraPayments?: LoanExtraPaymentUpdateManyWithoutLoanNestedInput
   }
 
@@ -16192,9 +17736,9 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fees?: LoanFeeUncheckedUpdateManyWithoutLoanNestedInput
     extraPayments?: LoanExtraPaymentUncheckedUpdateManyWithoutLoanNestedInput
   }
 
@@ -16215,10 +17759,10 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutLoansInput
+    fees?: LoanFeeCreateNestedManyWithoutLoanInput
     payments?: LoanPaymentCreateNestedManyWithoutLoanInput
   }
 
@@ -16240,9 +17784,9 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    fees?: LoanFeeUncheckedCreateNestedManyWithoutLoanInput
     payments?: LoanPaymentUncheckedCreateNestedManyWithoutLoanInput
   }
 
@@ -16279,10 +17823,10 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutLoansNestedInput
+    fees?: LoanFeeUpdateManyWithoutLoanNestedInput
     payments?: LoanPaymentUpdateManyWithoutLoanNestedInput
   }
 
@@ -16304,10 +17848,122 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fees?: LoanFeeUncheckedUpdateManyWithoutLoanNestedInput
+    payments?: LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput
+  }
+
+  export type LoanCreateWithoutFeesInput = {
+    id?: string
+    simulationId?: string | null
+    title: string
+    type: string
+    principal: Decimal | DecimalJsLike | number | string
+    downPayment?: Decimal | DecimalJsLike | number | string
+    annualRate: Decimal | DecimalJsLike | number | string
+    termMonths: number
+    formula: string
+    monthlyPayment: Decimal | DecimalJsLike | number | string
+    startDate?: Date | string
+    status?: string
+    paidInstallments?: number
+    totalInterest: Decimal | DecimalJsLike | number | string
+    totalCost: Decimal | DecimalJsLike | number | string
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutLoansInput
+    payments?: LoanPaymentCreateNestedManyWithoutLoanInput
+    extraPayments?: LoanExtraPaymentCreateNestedManyWithoutLoanInput
+  }
+
+  export type LoanUncheckedCreateWithoutFeesInput = {
+    id?: string
+    userId: string
+    simulationId?: string | null
+    title: string
+    type: string
+    principal: Decimal | DecimalJsLike | number | string
+    downPayment?: Decimal | DecimalJsLike | number | string
+    annualRate: Decimal | DecimalJsLike | number | string
+    termMonths: number
+    formula: string
+    monthlyPayment: Decimal | DecimalJsLike | number | string
+    startDate?: Date | string
+    status?: string
+    paidInstallments?: number
+    totalInterest: Decimal | DecimalJsLike | number | string
+    totalCost: Decimal | DecimalJsLike | number | string
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    payments?: LoanPaymentUncheckedCreateNestedManyWithoutLoanInput
+    extraPayments?: LoanExtraPaymentUncheckedCreateNestedManyWithoutLoanInput
+  }
+
+  export type LoanCreateOrConnectWithoutFeesInput = {
+    where: LoanWhereUniqueInput
+    create: XOR<LoanCreateWithoutFeesInput, LoanUncheckedCreateWithoutFeesInput>
+  }
+
+  export type LoanUpsertWithoutFeesInput = {
+    update: XOR<LoanUpdateWithoutFeesInput, LoanUncheckedUpdateWithoutFeesInput>
+    create: XOR<LoanCreateWithoutFeesInput, LoanUncheckedCreateWithoutFeesInput>
+    where?: LoanWhereInput
+  }
+
+  export type LoanUpdateToOneWithWhereWithoutFeesInput = {
+    where?: LoanWhereInput
+    data: XOR<LoanUpdateWithoutFeesInput, LoanUncheckedUpdateWithoutFeesInput>
+  }
+
+  export type LoanUpdateWithoutFeesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    simulationId?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    principal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    downPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    annualRate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    termMonths?: IntFieldUpdateOperationsInput | number
+    formula?: StringFieldUpdateOperationsInput | string
+    monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
+    totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutLoansNestedInput
+    payments?: LoanPaymentUpdateManyWithoutLoanNestedInput
+    extraPayments?: LoanExtraPaymentUpdateManyWithoutLoanNestedInput
+  }
+
+  export type LoanUncheckedUpdateWithoutFeesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    simulationId?: NullableStringFieldUpdateOperationsInput | string | null
+    title?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    principal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    downPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    annualRate?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    termMonths?: IntFieldUpdateOperationsInput | number
+    formula?: StringFieldUpdateOperationsInput | string
+    monthlyPayment?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    paidInstallments?: IntFieldUpdateOperationsInput | number
+    totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput
+    extraPayments?: LoanExtraPaymentUncheckedUpdateManyWithoutLoanNestedInput
   }
 
   export type BudgetCreateManyUserInput = {
@@ -16348,7 +18004,6 @@ export namespace Prisma {
     totalInterest: Decimal | DecimalJsLike | number | string
     totalCost: Decimal | DecimalJsLike | number | string
     currency?: string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16437,9 +18092,9 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fees?: LoanFeeUpdateManyWithoutLoanNestedInput
     payments?: LoanPaymentUpdateManyWithoutLoanNestedInput
     extraPayments?: LoanExtraPaymentUpdateManyWithoutLoanNestedInput
   }
@@ -16461,9 +18116,9 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fees?: LoanFeeUncheckedUpdateManyWithoutLoanNestedInput
     payments?: LoanPaymentUncheckedUpdateManyWithoutLoanNestedInput
     extraPayments?: LoanExtraPaymentUncheckedUpdateManyWithoutLoanNestedInput
   }
@@ -16485,7 +18140,6 @@ export namespace Prisma {
     totalInterest?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     totalCost?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     currency?: StringFieldUpdateOperationsInput | string
-    fees?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16600,6 +18254,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type LoanFeeCreateManyLoanInput = {
+    id?: string
+    name: string
+    amount: Decimal | DecimalJsLike | number | string
+    type: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type LoanPaymentCreateManyLoanInput = {
     id?: string
     amount: Decimal | DecimalJsLike | number | string
@@ -16615,6 +18278,33 @@ export namespace Prisma {
     date: Date | string
     note?: string | null
     createdAt?: Date | string
+  }
+
+  export type LoanFeeUpdateWithoutLoanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoanFeeUncheckedUpdateWithoutLoanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoanFeeUncheckedUpdateManyWithoutLoanInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    type?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LoanPaymentUpdateWithoutLoanInput = {

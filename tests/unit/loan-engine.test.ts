@@ -283,4 +283,42 @@ describe("generateAmortizationSchedule (paidInstallments integration)", () => {
     expect(schedule[2].status).toBe("PAID");
     expect(schedule[2].paidFromExtract).toBe(true);
   });
+
+  it("sets monthlyFee to 0 on every row when loan has no fees", () => {
+    const loan = makeLoan();
+    const schedule = generateAmortizationSchedule(loan, [], []);
+    expect(schedule.length).toBeGreaterThan(0);
+    for (const row of schedule) {
+      expect(row.monthlyFee).toBe(0);
+    }
+  });
+
+  it("sets monthlyFee to the same constant value on every row when loan has fees", () => {
+    // Annual insurance = $3,600,000 stored as monthly fee → $300,000/mes
+    const loan = makeLoan({
+      fees: [
+        { id: "f1", name: "Seguro anual", amount: 3_600_000, type: "monthly" },
+      ],
+    });
+    const schedule = generateAmortizationSchedule(loan, [], []);
+    expect(schedule.length).toBeGreaterThan(0);
+    const first = schedule[0].monthlyFee;
+    expect(first).toBe(300_000);
+    for (const row of schedule) {
+      expect(row.monthlyFee).toBe(first);
+    }
+  });
+
+  it("makes totalPayment equal payment + monthlyFee on every row", () => {
+    const loan = makeLoan({
+      fees: [
+        { id: "f1", name: "Seguro anual", amount: 1_200_000, type: "monthly" },
+        { id: "f2", name: "Administración", amount: 600_000, type: "monthly" },
+      ],
+    });
+    const schedule = generateAmortizationSchedule(loan, [], []);
+    for (const row of schedule) {
+      expect(row.totalPayment).toBeCloseTo(row.payment + row.monthlyFee, 6);
+    }
+  });
 });

@@ -10,6 +10,9 @@
  *    consumidores (`calculateTotalMonthlyFees`, `LoanPreviewCard`, AI prompts)
  *    ya muestran el valor mensual correcto gracias a la división por 12.
  *
+ * **Actualización 2026-06-06**: los fees ahora viven en la tabla relacional
+ * `LoanFee` (no en `Loan.fees Json`). El script opera sobre esa tabla.
+ *
  * Este script migra los registros existentes en producción.
  *
  * Uso:
@@ -30,7 +33,6 @@ import { config } from "dotenv";
 import { writeFileSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { Prisma } from "../generated/prisma/client";
 import { PrismaClient } from "../generated/prisma/client";
 
 config({ path: ".env" });
@@ -41,6 +43,8 @@ const APPLY = process.argv.includes("--apply");
 
 interface FeeEntry {
   id: string;
+  loanId: string;
+  loanTitle: string;
   name: string;
   amount: number;
   type: "monthly" | "upfront";
@@ -76,36 +80,30 @@ const adapter = new PrismaNeon({
 });
 const prisma = new PrismaClient({ adapter });
 
-interface LoanRow {
-  id: string;
-  title: string;
-  fees: unknown;
-}
-
 async function main() {
   console.log(
     `\n🔄 Migración FEES ANUAL — modo: ${APPLY ? "APPLY" : "DRY-RUN"}\n`
   );
 
-  const loans = (await prisma.loan.findMany({
-    where: {
-      fees: { not: { equals: [] } },
-    },
-    select: { id: true, title: true, fees: true },
-  })) as unknown as LoanRow[];
+  // Fetch all LoanFee rows (including their parent loan's title for display).
+  const fees = await prisma.loanFee.findMany({
+    where: { type: "monthly" },
+    include: { loan: { select: { id: true, title: true } } },
+  });
 
-  // Filter loans that actually have at least one monthly fee
-  const candidates: LoanRow[] = [];
-  for (const loan of loans) {
-    if (!Array.isArray(loan.fees)) continue;
-    const hasMonthly = (loan.fees as FeeEntry[]).some(
-      (f) => f.type === "monthly"
-    );
-    if (hasMonthly) candidates.push(loan);
-  }
+  const candidates: FeeEntry[] = fees
+    .filter((f) => !!f.loan)
+    .map((f) => ({
+      id: f.id,
+      loanId: f.loanId,
+      loanTitle: f.loan.title,
+      name: f.name,
+      amount: Number(f.amount),
+      type: "monthly" as const,
+    }));
 
   console.log(
-    `📊 Encontrados: ${loans.length} loans con fees, ${candidates.length} con al menos un cargo mensual\n`
+    `📊 Encontrados: ${candidates.length} cargos mensuales en tabla LoanFee\n`
   );
 
   if (candidates.length === 0) {
@@ -115,9 +113,10 @@ async function main() {
 
   const backup = loadBackup();
   interface Migration {
+    feeId: string;
     loanId: string;
     loanTitle: string;
-    fee: FeeEntry;
+    feeName: string;
     oldAmount: number;
     newAmount: number;
   }
@@ -125,56 +124,42 @@ async function main() {
   const toMigrate: Migration[] = [];
   let alreadyMigrated = 0;
   let newSinceBackup = 0;
-  let skippedNonMonthly = 0;
 
   if (!backup) {
     console.log("⚠ No hay backup previo. Asumiendo migración completa.");
     console.log(
       "  Si estás seguro de que es la primera ejecución, continúa con --apply."
     );
-    for (const loan of candidates) {
-      const fees = loan.fees as FeeEntry[];
-      for (const fee of fees) {
-        if (fee.type !== "monthly") {
-          skippedNonMonthly++;
-          continue;
-        }
-        const oldAmount = Number(fee.amount);
-        toMigrate.push({
-          loanId: loan.id,
-          loanTitle: loan.title,
-          fee,
-          oldAmount,
-          newAmount: Math.round(oldAmount * ANNUAL_FACTOR),
-        });
-      }
+    for (const fee of candidates) {
+      toMigrate.push({
+        feeId: fee.id,
+        loanId: fee.loanId,
+        loanTitle: fee.loanTitle,
+        feeName: fee.name,
+        oldAmount: fee.amount,
+        newAmount: Math.round(fee.amount * ANNUAL_FACTOR),
+      });
     }
   } else {
-    for (const loan of candidates) {
-      const fees = loan.fees as FeeEntry[];
-      const loanBackup = backup.fees[loan.id];
-      for (const fee of fees) {
-        if (fee.type !== "monthly") {
-          skippedNonMonthly++;
-          continue;
-        }
-        if (!loanBackup || loanBackup[fee.id] === undefined) {
-          newSinceBackup++;
-          continue;
-        }
-        const currentAmount = Number(fee.amount);
-        const original = loanBackup[fee.id];
-        if (Math.abs(currentAmount - original) < 0.5) {
-          toMigrate.push({
-            loanId: loan.id,
-            loanTitle: loan.title,
-            fee,
-            oldAmount: original,
-            newAmount: Math.round(currentAmount * ANNUAL_FACTOR),
-          });
-        } else {
-          alreadyMigrated++;
-        }
+    for (const fee of candidates) {
+      const loanBackup = backup.fees[fee.loanId];
+      if (!loanBackup || loanBackup[fee.id] === undefined) {
+        newSinceBackup++;
+        continue;
+      }
+      const currentAmount = fee.amount;
+      const original = loanBackup[fee.id];
+      if (Math.abs(currentAmount - original) < 0.5) {
+        toMigrate.push({
+          feeId: fee.id,
+          loanId: fee.loanId,
+          loanTitle: fee.loanTitle,
+          feeName: fee.name,
+          oldAmount: original,
+          newAmount: Math.round(currentAmount * ANNUAL_FACTOR),
+        });
+      } else {
+        alreadyMigrated++;
       }
     }
   }
@@ -182,11 +167,6 @@ async function main() {
   if (newSinceBackup > 0) {
     console.log(
       `ℹ ${newSinceBackup} cargos mensuales creados después del backup (omitidos)`
-    );
-  }
-  if (skippedNonMonthly > 0) {
-    console.log(
-      `ℹ ${skippedNonMonthly} cargos únicos omitidos (no se migran)`
     );
   }
 
@@ -201,7 +181,7 @@ async function main() {
 
   console.log("─".repeat(96));
   console.log(
-    "LoanID".padEnd(28) +
+    "FeeID".padEnd(28) +
       "Cargo".padEnd(28) +
       "old (mensual)".padStart(14) +
       "→".padStart(4) +
@@ -210,8 +190,8 @@ async function main() {
   console.log("─".repeat(96));
   for (const m of toMigrate) {
     console.log(
-      m.loanId.padEnd(28) +
-        m.fee.name.padEnd(28) +
+      m.feeId.padEnd(28) +
+        m.feeName.padEnd(28) +
         m.oldAmount.toLocaleString("es-CO").padStart(14) +
         " →".padStart(4) +
         m.newAmount.toLocaleString("es-CO").padStart(14)
@@ -228,7 +208,7 @@ async function main() {
     const entries: Record<string, Record<string, number>> = {};
     for (const m of toMigrate) {
       if (!entries[m.loanId]) entries[m.loanId] = {};
-      entries[m.loanId][m.fee.id] = m.oldAmount;
+      entries[m.loanId][m.feeId] = m.oldAmount;
     }
     writeBackup(entries);
   }
@@ -236,31 +216,16 @@ async function main() {
   let success = 0;
   let failed = 0;
 
-  // Group by loan to do a single update per loan
-  const byLoan = new Map<string, Migration[]>();
   for (const m of toMigrate) {
-    const arr = byLoan.get(m.loanId) ?? [];
-    arr.push(m);
-    byLoan.set(m.loanId, arr);
-  }
-
-  for (const [loanId, migrations] of byLoan) {
     try {
-      const loan = candidates.find((l) => l.id === loanId);
-      if (!loan) continue;
-      const fees = (loan.fees as FeeEntry[]).map((f) => {
-        const m = migrations.find((x) => x.fee.id === f.id);
-        if (!m) return f;
-        return { ...f, amount: m.newAmount };
+      await prisma.loanFee.update({
+        where: { id: m.feeId },
+        data: { amount: m.newAmount },
       });
-      await prisma.loan.update({
-        where: { id: loanId },
-        data: { fees: fees as unknown as Prisma.InputJsonArray },
-      });
-      success += migrations.length;
+      success++;
     } catch (err) {
-      failed += migrations.length;
-      console.error(`✗ Error migrando loan ${loanId}:`, err);
+      failed++;
+      console.error(`✗ Error migrando fee ${m.feeId}:`, err);
     }
   }
 

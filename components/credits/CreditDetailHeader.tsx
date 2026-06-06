@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Pencil, Trash2, ArrowLeft, Car, Wallet, Home, CreditCard as CreditCardIcon, Receipt, Zap } from "lucide-react";
 import { loanTypeLabel, loanTypeIconBg, loanStatusLabel, loanStatusConfig, loanFormulaLabel } from "@/lib/credit-types";
 import { formatCOP } from "@/lib/currency";
+import { getEffectiveMonthlyPayment } from "@/lib/loan-fees";
 import { cn } from "@/lib/utils";
 import type { Loan, LoanPayment, LoanExtraPayment } from "@/types";
 
@@ -35,6 +36,9 @@ export function CreditDetailHeader({
 }: CreditDetailHeaderProps) {
   const statusConfig = loanStatusConfig(loan.status);
   const TypeIcon = TYPE_ICON[loan.type] ?? CreditCardIcon;
+  const bankMonthly = parseFloat(loan.monthlyPayment);
+  const totalMonthly = getEffectiveMonthlyPayment(loan);
+  const cargosMonthly = totalMonthly - bankMonthly;
 
   return (
     <div className="space-y-4">
@@ -76,7 +80,12 @@ export function CreditDetailHeader({
                 {loanStatusLabel(loan.status)}
               </span>
               <span className="text-xs text-stone-500 dark:text-stone-400 tabular-nums">
-                Cuota {formatCOP(parseFloat(loan.monthlyPayment))} · {loan.termMonths} meses
+                Cuota {formatCOP(totalMonthly)} · {loan.termMonths} meses
+                {cargosMonthly > 0 && (
+                  <span className="block text-[10px] font-normal text-stone-500 dark:text-stone-400 mt-0.5">
+                    Banco {formatCOP(bankMonthly)} + Cargos {formatCOP(cargosMonthly)}
+                  </span>
+                )}
               </span>
             </div>
           </div>

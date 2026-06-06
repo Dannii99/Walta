@@ -125,7 +125,26 @@ export interface Loan {
   totalInterest: string;
   totalCost: string;
   currency: string;
-  fees?: FeeItem[];
+  /**
+   * Loan fees (insurance, administration, etc). The source of truth is the
+   * `LoanFee` relational table. The type here is a permissive union to
+   * match both the Prisma model (decimal-string amounts) and the old
+   * `FeeItem` shape (number amounts) used in some tests/queries.
+   *
+   * Each entry must have:
+   *   - `name: string`
+   *   - `amount: number | string | { toString(): string }` (Decimal)
+   *   - `type: "monthly" | "upfront"`
+   *
+   * Use `getEffectiveMonthlyPayment(loan)` to get the cuota real (bank +
+   * deferred monthly fees). Do NOT sum fees manually in the UI/queries.
+   */
+  fees?: Array<{
+    id?: string;
+    name: string;
+    amount: number | string | { toString(): string };
+    type: "monthly" | "upfront";
+  }>;
   createdAt: Date;
   updatedAt: Date;
   payments?: LoanPayment[];
@@ -160,7 +179,24 @@ export interface PastPaymentSync {
 export interface AmortizationRow {
   month: number;
   date: Date;
+  /**
+   * Bank cuota = capital + interest (the cuota the bank actually charges for
+   * the loan itself, not including deferred monthly fees).
+   */
   payment: number;
+  /**
+   * Deferred monthly fee contribution for this row. Same value across all
+   * rows of a loan (constant for the lifetime of the loan). Sum of
+   * `fees[i].amount / 12` for all fees with `type === "monthly"`.
+   */
+  monthlyFee: number;
+  /**
+   * The real cuota the user pays each month = `payment + monthlyFee`.
+   * This is what gets debited from the account. It is the value shown in
+   * the "Cuota" column of the amortization table (with `payment` and
+   * `monthlyFee` broken out as a sub-line).
+   */
+  totalPayment: number;
   interest: number;
   principal: number;
   extraPayment: number;

@@ -121,16 +121,35 @@ async function main() {
       totalInterest: 26_289_376,
       totalCost: 73_289_376,
       paidInstallments: 8,
-      fees: [
-        { id: "seed-fee-1", name: "Administración mensual", amount: 35_000, type: "monthly" },
-        { id: "seed-fee-2", name: "Seguro anual", amount: 1_200_000, type: "upfront" },
-      ],
       createdAt: monthsAgo(5),
       startDate: monthsAgo(5),
     },
     update: {},
   });
   console.log(`  Loan: ${loan.title} (${loan.id})`);
+
+  const seedFees = [
+    { id: `${EXTRA_PREFIX}fee-1`, name: "Administración mensual", amount: 35_000, type: "monthly" as const },
+    { id: `${EXTRA_PREFIX}fee-2`, name: "Seguro anual", amount: 1_200_000, type: "upfront" as const },
+  ];
+  for (const fee of seedFees) {
+    await prisma.loanFee.upsert({
+      where: { id: fee.id },
+      create: {
+        id: fee.id,
+        loanId: LOAN_ID,
+        name: fee.name,
+        amount: fee.amount.toFixed(2),
+        type: fee.type,
+      },
+      update: {
+        name: fee.name,
+        amount: fee.amount.toFixed(2),
+        type: fee.type,
+      },
+    });
+  }
+  console.log(`  Fees: ${seedFees.length} cargos registrados`);
 
   const monthlyRate = Math.pow(1 + 0.1718, 1 / 12) - 1;
   let balance = 47_000_000;

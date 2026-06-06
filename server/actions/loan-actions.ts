@@ -127,6 +127,52 @@ async function syncInitialExtraPayment(
   return { changed: true };
 }
 
+/**
+ * Synchronizes the relational `LoanFee` table with the form's `fees` array
+ * on `updateLoan`. Performs a 3-way diff:
+ *   - Incoming with matching `id` → `update`
+ *   - Incoming without `id`     → `create`
+ *   - Existing in DB but not in incoming → `delete`
+ *
+ * Operates inside a best-effort loop (no transaction; we accept the small
+ * risk of partial failure since the parent function does not depend on the
+ * exact final state to revalidate paths).
+ */
+async function syncLoanFees(
+  loanId: string,
+  fees: Array<{ id?: string; name: string; amount: number; type: "monthly" | "upfront" }>
+) {
+  const existing = await prisma.loanFee.findMany({
+    where: { loanId },
+    select: { id: true },
+  });
+  const existingIds = new Set(existing.map((f) => f.id));
+  const incomingIds = new Set(
+    fees.filter((f) => f.id).map((f) => f.id as string)
+  );
+
+  // Delete removed
+  for (const f of existing) {
+    if (!incomingIds.has(f.id)) {
+      await prisma.loanFee.delete({ where: { id: f.id } });
+    }
+  }
+
+  // Update or create
+  for (const f of fees) {
+    const data = {
+      name: f.name,
+      amount: String(f.amount.toFixed(2)),
+      type: f.type,
+    };
+    if (f.id && existingIds.has(f.id)) {
+      await prisma.loanFee.update({ where: { id: f.id }, data });
+    } else {
+      await prisma.loanFee.create({ data: { loanId, ...data } });
+    }
+  }
+}
+
 export async function createLoan(
   data: {
     simulationId?: string;
@@ -179,10 +225,22 @@ export async function createLoan(
       totalInterest: parsed.totalInterest,
       totalCost: parsed.totalCost,
       paidInstallments,
-      fees: parsed.fees,
       status: hasDefaulted ? "DEFAULTED" : "ACTIVE",
-    } as Parameters<typeof prisma.loan.create>[0]["data"],
+    },
   });
+
+  // Fees live in the relational LoanFee table (post-migration). We create
+  // them after the loan exists so we can attach the FK.
+  if (parsed.fees && parsed.fees.length > 0) {
+    await prisma.loanFee.createMany({
+      data: parsed.fees.map((f) => ({
+        loanId: loan.id,
+        name: f.name,
+        amount: String(f.amount.toFixed(2)),
+        type: f.type,
+      })),
+    });
+  }
 
   // Generate payments from pastPaymentsSync for ongoing loans
   if (parsed.pastPaymentsSync.length > 0) {
@@ -229,6 +287,8 @@ export async function createLoan(
     clearLoanInsightsCache(sessionUserId);
   }
 
+  const createdFees = await prisma.loanFee.findMany({ where: { loanId: loan.id } });
+
   return {
     ...loan,
     principal: loan.principal.toString(),
@@ -238,7 +298,12 @@ export async function createLoan(
     totalInterest: loan.totalInterest.toString(),
     totalCost: loan.totalCost.toString(),
     paidInstallments: (loan as unknown as { paidInstallments?: number }).paidInstallments ?? 0,
-    fees: (loan as unknown as { fees?: unknown }).fees ?? [],
+    fees: createdFees.map((f) => ({
+      id: f.id,
+      name: f.name,
+      amount: Number(f.amount),
+      type: f.type,
+    })),
   };
 }
 
@@ -289,7 +354,9 @@ export async function updateLoan(
   if (data.status !== undefined) updateData.status = data.status;
   if (data.totalInterest !== undefined) updateData.totalInterest = data.totalInterest;
   if (data.totalCost !== undefined) updateData.totalCost = data.totalCost;
-  if (data.fees !== undefined) updateData.fees = data.fees;
+  // Note: `data.fees` is intentionally not assigned to `updateData` here.
+  // The relational `LoanFee` table is the source of truth, so we diff-sync
+  // it via `syncLoanFees` after the parent `prisma.loan.update`.
 
   // Handle pastPaymentsSync for update
   if (data.pastPaymentsSync && data.pastPaymentsSync.length > 0) {
@@ -333,6 +400,11 @@ export async function updateLoan(
     data: updateData,
   });
 
+  // Diff-sync the relational LoanFee table with the form's fees array.
+  if (data.fees !== undefined) {
+    await syncLoanFees(id, data.fees);
+  }
+
   // Sync "abono a capital previo al registro" extra. `undefined` = user didn't
   // touch the field, leave existing row alone. `null` or amount<=0 = delete.
   // { amount>0 } = upsert (update if existing, create if not).
@@ -346,6 +418,8 @@ export async function updateLoan(
     clearLoanInsightsCache(sessionUserId);
   }
 
+  const updatedFees = await prisma.loanFee.findMany({ where: { loanId: id } });
+
   return {
     ...updated,
     principal: updated.principal.toString(),
@@ -355,7 +429,12 @@ export async function updateLoan(
     totalInterest: updated.totalInterest.toString(),
     totalCost: updated.totalCost.toString(),
     paidInstallments: (updated as unknown as { paidInstallments?: number }).paidInstallments ?? 0,
-    fees: (updated as unknown as { fees?: unknown }).fees ?? [],
+    fees: updatedFees.map((f) => ({
+      id: f.id,
+      name: f.name,
+      amount: Number(f.amount),
+      type: f.type,
+    })),
     initialExtraPaymentChanged: extraSync.changed,
   };
 }

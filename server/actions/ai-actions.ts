@@ -15,6 +15,7 @@ import {
   type Verdict,
 } from "@/lib/simulation-engine";
 import { AdvisorAnalysisSchema } from "@/lib/ai/schemas";
+import { getEffectiveMonthlyPayment } from "@/lib/loan-fees";
 import type { InsightsContext } from "@/lib/ai/prompts";
 
 const ADVISOR_CACHE_HOURS = 24;
@@ -99,12 +100,13 @@ async function loadFinancialContext(userId: string) {
       monthlyPayment: true,
       termMonths: true,
       paidInstallments: true,
+      fees: { where: { type: "monthly" } },
     },
   });
 
   const activeLoansList = activeLoans.map((l) => ({
     type: l.type,
-    monthlyPayment: Number(l.monthlyPayment),
+    monthlyPayment: getEffectiveMonthlyPayment(l),
     remainingMonths: Math.max(0, l.termMonths - l.paidInstallments),
   }));
 
@@ -304,7 +306,12 @@ interface LoanWithRelations {
   startDate: Date | string;
   status: string;
   paidInstallments: number;
-  fees?: unknown;
+  fees?: Array<{
+    id: string;
+    name: string;
+    amount: { toString(): string } | number | string;
+    type: string;
+  }>;
   payments?: Array<{
     amount: { toString(): string } | number | string;
     paidDate: Date | string;
@@ -328,6 +335,7 @@ async function loadAdvisorContextForLoan(
     where: { id: loanId },
     include: {
       payments: { orderBy: { paidDate: "desc" }, take: 50 },
+      fees: { where: { type: "monthly" } },
     },
   })) as LoanWithRelations | null;
 
@@ -345,13 +353,14 @@ async function loadAdvisorContextForLoan(
       monthlyPayment: true,
       termMonths: true,
       paidInstallments: true,
+      fees: { where: { type: "monthly" } },
     },
   });
 
   const otherLoans: OtherLoanSummary[] = otherActiveLoans.map((l) => ({
     type: l.type,
     title: l.title,
-    monthlyPayment: Number(l.monthlyPayment),
+    monthlyPayment: getEffectiveMonthlyPayment(l),
     remainingMonths: Math.max(0, l.termMonths - l.paidInstallments),
   }));
 
@@ -359,16 +368,12 @@ async function loadAdvisorContextForLoan(
     (sum, l) => sum + l.monthlyPayment,
     0
   );
-  const activeLoansTotal = otherActiveLoansTotal + num(loan.monthlyPayment);
+  const activeLoansTotal = otherActiveLoansTotal + getEffectiveMonthlyPayment(loan);
 
   const principal = num(loan.principal);
-  const monthlyPayment = num(loan.monthlyPayment);
-  const fees = Array.isArray(loan.fees)
-    ? (loan.fees as Array<{ amount: number; type: string }>)
-    : [];
-  const monthlyFees = fees
-    .filter((f) => f.type === "monthly")
-    .reduce((s, f) => s + (Number(f.amount) || 0), 0);
+  const bankMonthlyPayment = num(loan.monthlyPayment);
+  const monthlyPayment = getEffectiveMonthlyPayment(loan);
+  const monthlyFees = monthlyPayment - bankMonthlyPayment;
 
   const totalPaidAgg = await prisma.loanPayment.aggregate({
     where: { loanId },
@@ -380,7 +385,7 @@ async function loadAdvisorContextForLoan(
   const percentPaid = principal > 0 ? (principalPaid / principal) * 100 : 0;
 
   const { health } = getLoanHealthFromCapacity(
-    monthlyPayment + monthlyFees,
+    monthlyPayment,
     budgetCtx.available
   );
 
@@ -397,7 +402,7 @@ async function loadAdvisorContextForLoan(
     projected.setMonth(projected.getMonth() + loan.paidInstallments + i);
     upcomingMonths.push({
       month: loan.paidInstallments + i,
-      amount: monthlyPayment,
+      amount: bankMonthlyPayment,
       projectedDate: projected.toISOString(),
     });
   }
@@ -410,7 +415,7 @@ async function loadAdvisorContextForLoan(
     downPayment: num(loan.downPayment),
     annualRate: num(loan.annualRate),
     termMonths: loan.termMonths,
-    monthlyPayment,
+    monthlyPayment: bankMonthlyPayment,
     totalInterest: num(loan.totalInterest),
     totalCost: num(loan.totalCost),
     startDate: dateToISO(loan.startDate),
@@ -470,6 +475,7 @@ export async function generateLoanPortfolioInsights() {
       principal: true,
       termMonths: true,
       formula: true,
+      fees: { where: { type: "monthly" } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -502,7 +508,7 @@ export async function generateLoanPortfolioInsights() {
 
   const activeLoans = loans.filter((l) => l.status === "ACTIVE");
   const totalActiveMonthly = activeLoans.reduce(
-    (s, l) => s + Number(l.monthlyPayment),
+    (s, l) => s + getEffectiveMonthlyPayment(l),
     0
   );
   const ratio =
@@ -518,6 +524,9 @@ export async function generateLoanPortfolioInsights() {
   const summaries: ActiveLoanSummary[] = loans.map((l) => {
     const principal = Number(l.principal);
     const paid = l.paidInstallments;
+    const bankMonthly = Number(l.monthlyPayment);
+    const totalMonthly = getEffectiveMonthlyPayment(l);
+    const monthlyFees = totalMonthly - bankMonthly;
     const pct = principal > 0 && l.termMonths > 0
       ? Math.min(100, (paid / l.termMonths) * 100)
       : 0;
@@ -525,10 +534,10 @@ export async function generateLoanPortfolioInsights() {
       type: l.type,
       title: l.title,
       status: l.status,
-      monthlyPayment: Number(l.monthlyPayment),
-      remainingBalance: Math.max(0, principal - (paid * Number(l.monthlyPayment) * 0.4)),
+      monthlyPayment: totalMonthly,
+      remainingBalance: Math.max(0, principal - (paid * bankMonthly * 0.4)),
       percentPaid: pct,
-      monthlyFees: 0,
+      monthlyFees,
     };
   });
 

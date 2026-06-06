@@ -110,7 +110,12 @@ export default async function EditCreditPage({ params }: { params: Promise<{ id:
     totalCost: parseFloat(loan.totalCost),
     startDate: loan.startDate.toISOString().split("T")[0],
     pastPaymentsSync,
-    fees: loan.fees ?? [],
+    fees: (loan.fees ?? []).map((f) => ({
+      id: f.id,
+      name: f.name,
+      amount: Number(f.amount),
+      type: f.type as "monthly" | "upfront",
+    })),
     initialExtraPayment: prevExtra ? parseFloat(prevExtra.amount) : 0,
     initialExtraPaymentDate: prevExtra
       ? prevExtra.date.toISOString().split("T")[0]

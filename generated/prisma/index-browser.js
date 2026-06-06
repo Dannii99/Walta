@@ -198,7 +198,6 @@ exports.Prisma.LoanScalarFieldEnum = {
   totalInterest: 'totalInterest',
   totalCost: 'totalCost',
   currency: 'currency',
-  fees: 'fees',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -220,6 +219,16 @@ exports.Prisma.LoanExtraPaymentScalarFieldEnum = {
   date: 'date',
   note: 'note',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.LoanFeeScalarFieldEnum = {
+  id: 'id',
+  loanId: 'loanId',
+  name: 'name',
+  amount: 'amount',
+  type: 'type',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -257,7 +266,8 @@ exports.Prisma.ModelName = {
   MonthlySnapshot: 'MonthlySnapshot',
   Loan: 'Loan',
   LoanPayment: 'LoanPayment',
-  LoanExtraPayment: 'LoanExtraPayment'
+  LoanExtraPayment: 'LoanExtraPayment',
+  LoanFee: 'LoanFee'
 };
 
 /**
