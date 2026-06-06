@@ -24,6 +24,11 @@ export function CreditSummary({ loan }: CreditSummaryProps) {
     loan.extraPayments ?? []
   );
   const totalPaid = principal - remaining;
+  const realPaidCount = loan.payments?.length ?? 0;
+  const paidFromExtract = Math.max(
+    0,
+    (loan.paidInstallments ?? 0) - realPaidCount
+  );
   const paidCount = getPaidInstallments(loan);
   const nextPayment = getNextPaymentDate(loan);
   const payoffDate = getProjectedPayoffDate(
@@ -36,7 +41,7 @@ export function CreditSummary({ loan }: CreditSummaryProps) {
     loan.status === "DEFAULTED" ||
     (loan.paidInstallments !== undefined &&
       loan.paidInstallments > 0 &&
-      paidCount < loan.paidInstallments);
+      realPaidCount < loan.paidInstallments);
 
   const stats = [
     {
@@ -58,7 +63,10 @@ export function CreditSummary({ loan }: CreditSummaryProps) {
     {
       label: "Cuota mensual",
       value: formatCOP(monthlyPayment),
-      sub: `${paidCount} / ${loan.termMonths} cuotas`,
+      sub:
+        paidFromExtract > 0
+          ? `${paidCount} / ${loan.termMonths} cuotas (${realPaidCount} reales + ${paidFromExtract} de extracto)`
+          : `${paidCount} / ${loan.termMonths} cuotas`,
       icon: CalendarClock,
       color: "text-violet-600 dark:text-violet-400",
       bg: "bg-violet-100 dark:bg-violet-950/40",

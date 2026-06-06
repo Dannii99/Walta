@@ -81,3 +81,110 @@ export function getLoanHealthFromCapacity(
   }
   return { health: "DEFAULTED", percentage };
 }
+
+/**
+ * Calibration status comparing the loan's calculated monthly payment
+ * (capital+interest only) plus its monthly fees against the actual monthly
+ * payment observed on the bank statement.
+ */
+export type CalibrationStatus = "MATCH" | "MINOR" | "MAJOR" | "UNKNOWN";
+
+export interface LoanCalibration {
+  calculatedMonthly: number;
+  feesMonthly: number;
+  expectedMonthly: number;
+  actualMonthlyPayment: number | null;
+  diff: number | null;
+  diffPct: number | null;
+  status: CalibrationStatus;
+  reason: string | null;
+}
+
+const MINOR_DIFF_THRESHOLD = 1000;
+const MAJOR_DIFF_THRESHOLD = 5000;
+
+export function getLoanCalibration(
+  calculatedMonthly: number,
+  feesMonthly: number,
+  actualMonthlyPayment: number | null
+): LoanCalibration {
+  const expectedMonthly = calculatedMonthly + feesMonthly;
+
+  if (actualMonthlyPayment === null || actualMonthlyPayment <= 0) {
+    return {
+      calculatedMonthly,
+      feesMonthly,
+      expectedMonthly,
+      actualMonthlyPayment: null,
+      diff: null,
+      diffPct: null,
+      status: "UNKNOWN",
+      reason: null,
+    };
+  }
+
+  const diff = actualMonthlyPayment - expectedMonthly;
+  const diffPct = expectedMonthly > 0 ? (diff / expectedMonthly) * 100 : 0;
+  const absDiff = Math.abs(diff);
+
+  let status: CalibrationStatus;
+  let reason: string | null = null;
+
+  if (absDiff <= MINOR_DIFF_THRESHOLD) {
+    status = "MATCH";
+    reason = null;
+  } else if (absDiff <= MAJOR_DIFF_THRESHOLD) {
+    status = "MINOR";
+    reason =
+      "La diferencia puede deberse a redondeos del banco, seguros incluidos en la cuota fija, o ajustes menores del extracto.";
+  } else {
+    status = "MAJOR";
+    reason =
+      "La diferencia es significativa. Verifica la tasa de interés, los cargos fijos o si el banco incluye conceptos adicionales no contemplados.";
+  }
+
+  return {
+    calculatedMonthly,
+    feesMonthly,
+    expectedMonthly,
+    actualMonthlyPayment,
+    diff,
+    diffPct,
+    status,
+    reason,
+  };
+}
+
+export const CALIBRATION_CONFIG: Record<
+  CalibrationStatus,
+  { label: string; badge: string; description: string; icon: "check" | "warn" | "alert" | "info" }
+> = {
+  MATCH: {
+    label: "Coincide",
+    badge:
+      "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+    description: "Tu cuota calculada coincide con la del extracto.",
+    icon: "check",
+  },
+  MINOR: {
+    label: "Diferencia menor",
+    badge:
+      "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+    description: "Hay una pequeña diferencia. Probablemente seguros o redondeos.",
+    icon: "warn",
+  },
+  MAJOR: {
+    label: "Diferencia significativa",
+    badge:
+      "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+    description: "Revisa la tasa, los cargos o conceptos extra del banco.",
+    icon: "alert",
+  },
+  UNKNOWN: {
+    label: "Sin datos del extracto",
+    badge:
+      "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700",
+    description: "Ingresa la cuota que ves en tu extracto para verificar.",
+    icon: "info",
+  },
+};

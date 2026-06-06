@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Receipt, PiggyBank, CalendarDays } from "lucide-react";
+import { Receipt, PiggyBank, CalendarDays, FileText } from "lucide-react";
 import { CreditDetailHeader } from "./CreditDetailHeader";
 import { CreditSummary } from "./CreditSummary";
 import { CreditProgressBar } from "./CreditProgressBar";
@@ -16,6 +16,7 @@ import { PaymentRecorder } from "./PaymentRecorder";
 import { CapitalContributionForm } from "./CapitalContributionForm";
 import { CapitalImpactSimulator } from "./CapitalImpactSimulator";
 import { AILoanAdvisorCard } from "./AILoanAdvisorCard";
+import { ExtractTab } from "./ExtractTab";
 import {
   recordPayment,
   recordCapitalContribution,
@@ -25,7 +26,7 @@ import { generateAmortizationSchedule } from "@/lib/loan-engine";
 import { toast } from "sonner";
 import type { Loan, LoanPayment, LoanExtraPayment } from "@/types";
 
-type TabKey = "amortization" | "payments" | "extras";
+type TabKey = "amortization" | "payments" | "extras" | "extract";
 
 interface CreditDetailClientProps {
   loan: Loan & { payments: LoanPayment[]; extraPayments: LoanExtraPayment[] };
@@ -35,6 +36,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Receipt }[] = [
   { key: "amortization", label: "Amortización", icon: CalendarDays },
   { key: "payments", label: "Pagos", icon: Receipt },
   { key: "extras", label: "Abonos", icon: PiggyBank },
+  { key: "extract", label: "Extracto", icon: FileText },
 ];
 
 export function CreditDetailClient({ loan }: CreditDetailClientProps) {
@@ -141,6 +143,7 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
               {activeTab === "extras" && (
                 <CreditExtrasList extras={loan.extraPayments} />
               )}
+              {activeTab === "extract" && <ExtractTab loan={loan} />}
             </motion.div>
           </AnimatePresence>
         </div>

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createLoan, updateLoan } from "@/server/actions/loan-actions";
 import { getLoanSummary } from "@/lib/simulation-engine";
@@ -30,6 +30,8 @@ import {
   Settings2,
   AlertCircle,
   Sparkles,
+  Calendar,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { FeeItem, PastPaymentSync } from "@/types";
@@ -149,6 +151,12 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     (defaultValues?.formula as string) || "french_ea"
   );
   const [startDate, setStartDate] = useState(() => {
+    if (defaultValues?.startDate) {
+      const d = new Date(defaultValues.startDate as string | Date);
+      if (!Number.isNaN(d.getTime())) {
+        return d.toISOString().split("T")[0];
+      }
+    }
     const now = new Date();
     return now.toISOString().split("T")[0];
   });
@@ -159,9 +167,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   );
 
   // Step 3: Advanced (ongoing only)
-  const [paidInstallments, setPaidInstallments] = useState(
-    (defaultValues?.paidInstallments as number) || 0
-  );
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [exactMonthlyPayment, setExactMonthlyPayment] = useState(
     (defaultValues?.exactMonthlyPayment as number) || 0
@@ -172,8 +177,73 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   const [initialExtraPayment, setInitialExtraPayment] = useState(
     (defaultValues?.initialExtraPayment as number) || 0
   );
-  const [pastPaymentsSync, setPastPaymentsSync] = useState<PastPaymentSync[]>(
-    (defaultValues?.pastPaymentsSync as PastPaymentSync[]) || []
+
+  // Calculate past months between startDate and today for sync.
+  // Declared before the derived `pastPaymentsSync` so its dependencies
+  // resolve in source order (required by react-hooks/immutability).
+  const pastMonths = useMemo(() => {
+    if (!startDate) return [];
+    const start = new Date(startDate);
+    const today = new Date();
+    const months: { month: number; year: number; label: string }[] = [];
+
+    const current = new Date(start.getFullYear(), start.getMonth(), 1);
+    const end = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    while (current < end) {
+      months.push({
+        month: current.getMonth(),
+        year: current.getFullYear(),
+        label: current.toLocaleDateString("es-CO", { month: "long", year: "numeric" }),
+      });
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    return months;
+  }, [startDate]);
+
+  // Source of truth for past-payments toggles, keyed by `${year}-${month}`.
+  // - For new/ongoing: starts empty, the user toggles each month.
+  // - For edit: starts pre-populated from real `LoanPayment` records.
+  //   The derived `pastPaymentsSync` below only renders entries for months in
+  //   the current `pastMonths` range, so changing startDate re-projects the
+  //   toggles onto the new range automatically.
+  const [paymentStatuses, setPaymentStatuses] = useState<
+    Record<string, "PAID" | "PENDING" | "DEFAULTED">
+  >(() => {
+    const initial: Record<string, "PAID" | "PENDING" | "DEFAULTED"> = {};
+    const initialSync =
+      (defaultValues?.pastPaymentsSync as PastPaymentSync[]) || [];
+    for (const p of initialSync) {
+      initial[`${p.year}-${p.month}`] = p.status;
+    }
+    return initial;
+  });
+
+  // Derived: the pastPaymentsSync array for the current `pastMonths` range.
+  // Months without an entry in `paymentStatuses` default to "PENDING".
+  const pastPaymentsSync = useMemo<PastPaymentSync[]>(
+    () =>
+      pastMonths.map((m) => ({
+        month: m.month,
+        year: m.year,
+        status: paymentStatuses[`${m.year}-${m.month}`] ?? "PENDING",
+      })),
+    [pastMonths, paymentStatuses]
+  );
+
+  const updatePaymentStatus = useCallback(
+    (
+      year: number,
+      month: number,
+      status: "PAID" | "PENDING" | "DEFAULTED"
+    ) => {
+      setPaymentStatuses((current) => ({
+        ...current,
+        [`${year}-${month}`]: status,
+      }));
+    },
+    []
   );
 
   const termMonths = useMemo(
@@ -206,42 +276,16 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     return principal + totalInterest;
   }, [principal, totalInterest]);
 
-  // Calculate past months between startDate and today for sync
-  const pastMonths = useMemo(() => {
-    if (!startDate || mode !== "ongoing") return [];
-    const start = new Date(startDate);
-    const today = new Date();
-    const months: { month: number; year: number; label: string }[] = [];
+  // Derived: months elapsed since startDate (capped at termMonths for display).
+  // Always visible in Tab 2 as a read-only informational card.
+  const mesesTranscurridos = useMemo(() => pastMonths.length, [pastMonths]);
 
-    const current = new Date(start.getFullYear(), start.getMonth(), 1);
-    const end = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    while (current < end) {
-      months.push({
-        month: current.getMonth(),
-        year: current.getFullYear(),
-        label: current.toLocaleDateString("es-CO", { month: "long", year: "numeric" }),
-      });
-      current.setMonth(current.getMonth() + 1);
-    }
-
-    return months;
-  }, [startDate, mode]);
-
-  // Initialize pastPaymentsSync when pastMonths first becomes available
-  const hasInitializedSync = useRef(false);
-  useEffect(() => {
-    if (pastMonths.length > 0 && !hasInitializedSync.current) {
-      hasInitializedSync.current = true;
-      setPastPaymentsSync(
-        pastMonths.map((m) => ({
-          month: m.month,
-          year: m.year,
-          status: "PENDING" as const,
-        }))
-      );
-    }
-  }, [pastMonths]);
+  // Derived: count of toggles marked as PAID in pastPaymentsSync.
+  // This is what gets persisted to `Loan.paidInstallments` server-side.
+  const paidCount = useMemo(
+    () => pastPaymentsSync.filter((p) => p.status === "PAID").length,
+    [pastPaymentsSync]
+  );
 
   const validateStep1 = useCallback(() => {
     if (!title.trim()) return "Debes ingresar un nombre para el crédito.";
@@ -272,7 +316,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
         toast.error(error);
         return;
       }
-      if (mode === "ongoing" || (mode === "edit" && paidInstallments > 0)) {
+      if (mode === "ongoing" || (mode === "edit" && mesesTranscurridos > 0)) {
         setStep(3);
       } else {
         handleSubmit();
@@ -301,7 +345,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           monthlyPayment,
           totalInterest,
           totalCost,
-          paidInstallments: paidInstallments > 0 ? paidInstallments : undefined,
           fees,
           pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
         });
@@ -321,7 +364,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           monthlyPayment,
           totalInterest,
           totalCost,
-          paidInstallments: mode === "ongoing" ? paidInstallments : undefined,
           fees,
           initialExtraPayment: mode === "ongoing" && initialExtraPayment > 0 ? initialExtraPayment : undefined,
           pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
@@ -338,7 +380,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     }
   };
 
-  const totalSteps = mode === "ongoing" || (mode === "edit" && paidInstallments > 0) ? 3 : 2;
+  const totalSteps = mode === "ongoing" || (mode === "edit" && mesesTranscurridos > 0) ? 3 : 2;
 
   return (
     <div className="space-y-6">
@@ -601,6 +643,35 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 </div>
               </div>
 
+              {/* Read-only: meses transcurridos (always visible) */}
+              <div
+                className="flex items-start gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/40 p-3"
+                data-testid="meses-transcurridos"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950/40 shrink-0">
+                  <Calendar
+                    className="h-4 w-4 text-blue-700 dark:text-blue-400"
+                    strokeWidth={2.2}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-stone-900 dark:text-stone-100">
+                    {mesesTranscurridos === 0
+                      ? "Aún no hay meses por sincronizar."
+                      : mesesTranscurridos === 1
+                        ? "Ha transcurrido 1 mes desde la fecha de inicio."
+                        : `Han transcurrido ${mesesTranscurridos} meses desde la fecha de inicio.`}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {mesesTranscurridos === 0
+                      ? "Esta fecha determina las cuotas que puedes sincronizar en el siguiente paso (si eliges crédito en curso)."
+                      : mesesTranscurridos >= termMonths
+                        ? "Esto cubre todo el plazo del crédito."
+                        : "Podrás sincronizar estas cuotas en el siguiente paso (si eliges crédito en curso)."}
+                  </p>
+                </div>
+              </div>
+
               <FeesSection fees={fees} onChange={setFees} />
             </CardContent>
           </Card>
@@ -619,27 +690,39 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
       )}
 
       {/* Step 3: Ongoing Details */}
-      {step === 3 && mode === "ongoing" && (
+      {step === 3 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Crédito en curso</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="paidInstallments">Cuotas ya pagadas</Label>
-              <Input
-                id="paidInstallments"
-                type="number"
-                min={0}
-                max={termMonths - 1}
-                value={paidInstallments}
-                onChange={(e) => setPaidInstallments(Number(e.target.value))}
-                placeholder="0"
-              />
-              <p className="text-xs text-muted-foreground">
-                Ingresa cuíntas cuotas ya has pagado. Esto generarí los pagos
-                ficticios automíticamente.
-              </p>
+            {/* Read-only: cuotas pagadas según tu extracto (derived from toggles) */}
+            <div
+              className="flex items-start gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/40 p-3"
+              data-testid="cuotas-pagadas-readonly"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/40 shrink-0">
+                <FileText
+                  className="h-4 w-4 text-emerald-700 dark:text-emerald-400"
+                  strokeWidth={2.2}
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  Cuotas pagadas según tu extracto:{" "}
+                  <span className="tabular-nums font-semibold">
+                    {paidCount}
+                  </span>{" "}
+                  de{" "}
+                  <span className="tabular-nums font-semibold">
+                    {mesesTranscurridos}
+                  </span>{" "}
+                  posibles
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Marca abajo cuáles cuotas están pagadas, pendientes o en mora.
+                </p>
+              </div>
             </div>
 
             {/* Past Payments Sync */}
@@ -670,26 +753,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                             <button
                               key={status}
                               type="button"
-                              onClick={() => {
-                                const updated = [...pastPaymentsSync];
-                                const existingIndex = updated.findIndex(
-                                  (p) => p.month === m.month && p.year === m.year
-                                );
-                                if (existingIndex >= 0) {
-                                  updated[existingIndex] = {
-                                    month: m.month,
-                                    year: m.year,
-                                    status,
-                                  };
-                                } else {
-                                  updated.push({
-                                    month: m.month,
-                                    year: m.year,
-                                    status,
-                                  });
-                                }
-                                setPastPaymentsSync(updated);
-                              }}
+                              onClick={() => updatePaymentStatus(m.year, m.month, status)}
                               className={`px-2 py-1 text-xs rounded-md transition-colors ${
                                 sync.status === status
                                   ? status === "PAID"

@@ -17,6 +17,7 @@ type FilterTab = "all" | "paid" | "pending" | "defaulted";
 
 const STATUS_BADGE: Record<string, string> = {
   PAID: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+  PAID_OFF: "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700",
   PENDING: "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
   DEFAULTED: "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-900",
   UPCOMING: "bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border-stone-200 dark:border-stone-700",
@@ -24,6 +25,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 const STATUS_ROW: Record<string, string> = {
   PAID: "bg-emerald-50/50 dark:bg-emerald-950/20",
+  PAID_OFF: "bg-stone-50/50 dark:bg-stone-800/20",
   PENDING: "bg-amber-50/50 dark:bg-amber-950/20",
   DEFAULTED: "bg-rose-50/50 dark:bg-rose-950/20",
   UPCOMING: "",
@@ -31,6 +33,7 @@ const STATUS_ROW: Record<string, string> = {
 
 const STATUS_LABEL: Record<string, string> = {
   PAID: "Pagado",
+  PAID_OFF: "Liquidado",
   PENDING: "Pendiente",
   DEFAULTED: "En mora",
   UPCOMING: "Próximo",
@@ -46,12 +49,13 @@ export function CreditAmortizationTable({
     return schedule.reduce(
       (acc, row) => {
         if (row.status === "PAID") acc.paid++;
+        else if (row.status === "PAID_OFF") acc.paidOff++;
         else if (row.status === "PENDING") acc.pending++;
         else if (row.status === "DEFAULTED") acc.defaulted++;
         else if (row.status === "UPCOMING") acc.upcoming++;
         return acc;
       },
-      { paid: 0, pending: 0, defaulted: 0, upcoming: 0 }
+      { paid: 0, paidOff: 0, pending: 0, defaulted: 0, upcoming: 0 }
     );
   }, [schedule]);
 
@@ -204,14 +208,24 @@ export function CreditAmortizationTable({
                     {formatCOP(row.balance)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span
-                      className={cn(
-                        "inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border",
-                        STATUS_BADGE[row.status]
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span
+                        className={cn(
+                          "inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border",
+                          STATUS_BADGE[row.status]
+                        )}
+                      >
+                        {STATUS_LABEL[row.status]}
+                      </span>
+                      {row.paidFromExtract && (
+                        <span
+                          title="Cuota marcada como pagada desde el extracto bancario (no es un pago real registrado)"
+                          className="text-[9px] font-medium text-amber-600 dark:text-amber-400"
+                        >
+                          Extracto
+                        </span>
                       )}
-                    >
-                      {STATUS_LABEL[row.status]}
-                    </span>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center">
                     {row.status === "PENDING" || row.status === "DEFAULTED" ? (

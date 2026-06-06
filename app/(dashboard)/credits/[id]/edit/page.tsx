@@ -6,12 +6,60 @@ import Link from "next/link";
 import { ArrowLeft, PencilLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
+import type { PastPaymentSync } from "@/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   await params;
   return {
     title: "Editar Crédito | Walta",
   };
+}
+
+/**
+ * Builds a `pastPaymentsSync` array from the loan's startDate and real
+ * payments. Each entry corresponds to one month in the range
+ * [startDate, today). Months that have a real LoanPayment are flagged as
+ * "PAID". Months in a DEFAULTED loan that lack a payment are flagged as
+ * "DEFAULTED". All other months are "PENDING".
+ *
+ * This is the single source of truth for the edit form's past-payments
+ * toggles — the form just renders this list and lets the user adjust.
+ */
+function buildPastPaymentsSync(
+  startDate: Date,
+  payments: { paidDate: Date }[],
+  loanStatus: string
+): PastPaymentSync[] {
+  const today = new Date();
+  const result: PastPaymentSync[] = [];
+
+  const start = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const current = new Date(start);
+  while (current < end) {
+    const month = current.getMonth();
+    const year = current.getFullYear();
+
+    const hasPayment = payments.some((p) => {
+      const d = new Date(p.paidDate);
+      return d.getMonth() === month && d.getFullYear() === year;
+    });
+
+    let status: PastPaymentSync["status"];
+    if (hasPayment) {
+      status = "PAID";
+    } else if (loanStatus === "DEFAULTED") {
+      status = "DEFAULTED";
+    } else {
+      status = "PENDING";
+    }
+
+    result.push({ month, year, status });
+    current.setMonth(current.getMonth() + 1);
+  }
+
+  return result;
 }
 
 export default async function EditCreditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -31,6 +79,15 @@ export default async function EditCreditPage({ params }: { params: Promise<{ id:
   const downPaymentNum = parseFloat(loan.downPayment);
   const price = principalNum + downPaymentNum;
 
+  // Pre-populate pastPaymentsSync from the loan's real payments. The form's
+  // startDate useState reads from `defaultValues.startDate` so the toggles
+  // align with the actual credit start.
+  const pastPaymentsSync = buildPastPaymentsSync(
+    loan.startDate,
+    loan.payments ?? [],
+    loan.status
+  );
+
   const defaultValues = {
     title: loan.title,
     type: loan.type.toLowerCase(),
@@ -42,8 +99,8 @@ export default async function EditCreditPage({ params }: { params: Promise<{ id:
     monthlyPayment: parseFloat(loan.monthlyPayment),
     totalInterest: parseFloat(loan.totalInterest),
     totalCost: parseFloat(loan.totalCost),
-    startDate: loan.startDate,
-    paidInstallments: loan.paidInstallments ?? 0,
+    startDate: loan.startDate.toISOString().split("T")[0],
+    pastPaymentsSync,
     fees: loan.fees ?? [],
   };
 
@@ -70,9 +127,8 @@ export default async function EditCreditPage({ params }: { params: Promise<{ id:
           </div>
         </div>
         <p className="text-sm text-stone-600 dark:text-stone-400 font-medium max-w-2xl">
-          Modifica los datos del crédito. Los pagos ya registrados no se
-          modificarán, pero el plan de amortización se recalcula con los nuevos
-          valores.
+          Modifica los datos del crédito. La cuota inicial, las cuotas pagadas
+          y el plan de amortización se recalculan con los nuevos valores.
         </p>
       </div>
 

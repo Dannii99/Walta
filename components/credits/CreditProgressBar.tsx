@@ -16,12 +16,13 @@ export function CreditProgressBar({ loan, schedule }: CreditProgressBarProps) {
   const total = schedule.length || 1;
 
   const paidPct = (counts.paid / total) * 100;
+  const paidOffPct = (counts.paidOff / total) * 100;
   const pendingPct = (counts.pending / total) * 100;
   const defaultedPct = (counts.defaulted / total) * 100;
   const upcomingPct = (counts.upcoming / total) * 100;
 
   const totalPaid = schedule.reduce((sum, row) => {
-    if (row.status === "PAID") {
+    if (row.status === "PAID" || row.status === "PAID_OFF") {
       return sum + row.principal + row.extraPayment;
     }
     return sum;
@@ -51,11 +52,20 @@ export function CreditProgressBar({ loan, schedule }: CreditProgressBarProps) {
                 title={`${counts.paid} pagadas`}
               />
             )}
+            {counts.paidOff > 0 && (
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${paidOffPct}%` }}
+                transition={{ duration: 0.6, delay: 0.05, ease: "easeOut" }}
+                className="bg-slate-300 dark:bg-slate-600 h-full"
+                title={`${counts.paidOff} liquidadas (saldo agotado por abonos)`}
+              />
+            )}
             {counts.pending > 0 && (
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${pendingPct}%` }}
-                transition={{ duration: 0.6, delay: 0.05, ease: "easeOut" }}
+                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
                 className="bg-amber-500 h-full"
                 title={`${counts.pending} pendientes`}
               />
@@ -64,7 +74,7 @@ export function CreditProgressBar({ loan, schedule }: CreditProgressBarProps) {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${defaultedPct}%` }}
-                transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+                transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
                 className="bg-rose-500 h-full"
                 title={`${counts.defaulted} en mora`}
               />
@@ -94,6 +104,11 @@ export function CreditProgressBar({ loan, schedule }: CreditProgressBarProps) {
             <span className="text-stone-500 dark:text-stone-400 font-medium tabular-nums">
               {counts.upcoming} futuras
             </span>
+            {counts.paidOff > 0 && (
+              <span className="text-slate-500 dark:text-slate-400 font-medium tabular-nums">
+                {counts.paidOff} liquidadas
+              </span>
+            )}
           </div>
         </div>
 

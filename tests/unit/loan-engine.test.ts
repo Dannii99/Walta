@@ -82,7 +82,13 @@ describe("generateAmortizationSchedule", () => {
     expect(upcomingRows.length).toBeLessThanOrEqual(60);
   });
 
-  it("shortens term when extra payments are applied", () => {
+  it("keeps full term length but marks rows after balance exhaustion as PAID_OFF", () => {
+    // Bug #6 fix: the schedule length must remain equal to the original term
+    // even when extras zero the balance early. Rows after the balance is
+    // exhausted (and beyond paidInstallments) are flagged PAID_OFF with
+    // balance=0, distinct from "paid from extract" (which requires a real
+    // paidInstallments value). The UI shows the full original term accurately
+    // and the count of "pagadas" excludes PAID_OFF.
     const loan = makeLoan();
     const extra: LoanExtraPayment = {
       id: "e1",
@@ -93,7 +99,14 @@ describe("generateAmortizationSchedule", () => {
     };
     const scheduleWithExtra = generateAmortizationSchedule(loan, [], [extra]);
     const scheduleWithoutExtra = generateAmortizationSchedule(loan, [], []);
-    expect(scheduleWithExtra.length).toBeLessThan(scheduleWithoutExtra.length);
+    // Both schedules have the same length (full term).
+    expect(scheduleWithExtra.length).toBe(scheduleWithoutExtra.length);
+    // After the extra zeroes the balance, the remaining rows are PAID_OFF
+    // (not PAID via paidFromExtract, which requires paidInstallments > 0).
+    const zeroedRows = scheduleWithExtra.filter(
+      (r) => r.balance <= 0.01 && r.status === "PAID_OFF"
+    );
+    expect(zeroedRows.length).toBeGreaterThan(0);
   });
 
   it("uses NAMV formula correctly (higher monthly rate)", () => {
@@ -184,12 +197,90 @@ describe("getPaidInstallments", () => {
     expect(getPaidInstallments(loan)).toBe(0);
   });
 
-  it("returns payment count", () => {
+  it("returns paidInstallments when set (sourced from bank extract)", () => {
+    const loan = makeLoan({ paidInstallments: 7 });
+    expect(getPaidInstallments(loan)).toBe(7);
+  });
+
+  it("falls back to payments count when paidInstallments is undefined", () => {
     const payments: LoanPayment[] = [
       { id: "p1", loanId: "l1", amount: "100", principalPaid: "80", interestPaid: "20", paidDate: new Date(), createdAt: new Date() },
       { id: "p2", loanId: "l1", amount: "100", principalPaid: "80", interestPaid: "20", paidDate: new Date(), createdAt: new Date() },
     ];
-    const loan = makeLoan({ payments });
+    const base = makeLoan({ payments });
+    // strip paidInstallments to simulate a legacy record
+    const { paidInstallments: _ignore, ...rest } = base;
+    void _ignore;
+    const loan = { ...rest, payments } as Loan;
     expect(getPaidInstallments(loan)).toBe(2);
+  });
+});
+
+describe("generateAmortizationSchedule (paidInstallments integration)", () => {
+  it("keeps full term length even when balance is exhausted early by extras", () => {
+    // Term = 11 months, large extra payment at month 2 zeroes the balance.
+    // Schedule MUST still have 11 rows (the full original term).
+    const loan = makeLoan({
+      termMonths: 11,
+      monthlyPayment: "900000",
+      startDate: new Date("2024-01-01"),
+    });
+    const extraPayments: LoanExtraPayment[] = [
+      {
+        id: "ex1",
+        loanId: "loan-1",
+        amount: "99000000",
+        date: new Date("2024-02-15"),
+        createdAt: new Date(),
+      },
+    ];
+    const schedule = generateAmortizationSchedule(loan, [], extraPayments);
+    expect(schedule.length).toBe(11);
+  });
+
+  it("marks first N rows as PAID with paidFromExtract when paidInstallments > real payments", () => {
+    const loan = makeLoan({
+      termMonths: 12,
+      paidInstallments: 5,
+      startDate: new Date("2024-01-01"),
+    });
+    const schedule = generateAmortizationSchedule(loan, [], []);
+    expect(schedule.length).toBe(12);
+    // First 5 rows are paid-from-extract
+    for (let i = 0; i < 5; i++) {
+      expect(schedule[i].status).toBe("PAID");
+      expect(schedule[i].paidFromExtract).toBe(true);
+    }
+    // Rows 6-12 are pending/upcoming
+    for (let i = 5; i < 12; i++) {
+      expect(schedule[i].status).not.toBe("PAID");
+      expect(schedule[i].paidFromExtract).toBeFalsy();
+    }
+  });
+
+  it("prefers real LoanPayment over paidFromExtract when both cover the same month", () => {
+    const loan = makeLoan({
+      termMonths: 12,
+      paidInstallments: 3,
+      startDate: new Date("2024-01-01"),
+    });
+    const realPayment: LoanPayment = {
+      id: "real1",
+      loanId: "loan-1",
+      amount: "2378456",
+      principalPaid: "2000000",
+      interestPaid: "378456",
+      paidDate: new Date("2024-01-15"),
+      createdAt: new Date(),
+    };
+    const schedule = generateAmortizationSchedule(loan, [realPayment], []);
+    // Row 1 has a real payment → NOT paidFromExtract
+    expect(schedule[0].status).toBe("PAID");
+    expect(schedule[0].paidFromExtract).toBeFalsy();
+    // Rows 2-3 are paidFromExtract
+    expect(schedule[1].status).toBe("PAID");
+    expect(schedule[1].paidFromExtract).toBe(true);
+    expect(schedule[2].status).toBe("PAID");
+    expect(schedule[2].paidFromExtract).toBe(true);
   });
 });

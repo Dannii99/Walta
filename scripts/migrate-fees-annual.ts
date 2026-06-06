@@ -30,6 +30,7 @@ import { config } from "dotenv";
 import { writeFileSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaNeon } from "@prisma/adapter-neon";
+import { Prisma } from "../generated/prisma/client";
 import { PrismaClient } from "../generated/prisma/client";
 
 config({ path: ".env" });
@@ -254,7 +255,7 @@ async function main() {
       });
       await prisma.loan.update({
         where: { id: loanId },
-        data: { fees: fees as unknown as object },
+        data: { fees: fees as unknown as Prisma.InputJsonArray },
       });
       success += migrations.length;
     } catch (err) {

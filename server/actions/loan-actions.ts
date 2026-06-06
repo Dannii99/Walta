@@ -6,6 +6,10 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { invalidateLoanAdvisorCache } from "@/lib/ai/loan-advisor";
 import { clearLoanInsightsCache } from "@/lib/ai/loan-insights";
+import {
+  createLoanSchema,
+  computePaidInstallments,
+} from "@/server/schemas/loan-schemas";
 
 function revalidateCreditPaths(loanId?: string) {
   revalidatePath("/credits");
@@ -15,82 +19,12 @@ function revalidateCreditPaths(loanId?: string) {
   }
 }
 
-const createLoanSchema = z.object({
-  userId: z.string().min(1),
-  simulationId: z.string().optional(),
-  title: z.string().min(1).max(200),
-  type: z.enum(["VEHICLE", "PERSONAL", "HOUSING", "OTHER"] as const),
-  principal: z.number().positive(),
-  downPayment: z.number().nonnegative().default(0),
-  annualRate: z.number().min(0).max(2),
-  termMonths: z.number().int().min(1).max(120),
-  formula: z.enum(["french_ea", "nominal_monthly"] as const),
-  monthlyPayment: z.number().positive(),
-  startDate: z.union([z.date(), z.string().datetime()]).optional(),
-  totalInterest: z.number().nonnegative(),
-  totalCost: z.number().positive(),
-  paidInstallments: z.number().int().min(0).max(120).default(0),
-  fees: z.array(z.object({
-    id: z.string(),
-    name: z.string(),
-    amount: z.number().nonnegative(),
-    type: z.enum(["monthly", "upfront"]),
-  })).default([]),
-  initialExtraPayment: z.number().nonnegative().optional(),
-  pastPaymentsSync: z.array(z.object({
-    month: z.number().int().min(0).max(11),
-    year: z.number().int(),
-    status: z.enum(["PAID", "PENDING", "DEFAULTED"] as const),
-  })).default([]),
-});
-
 function addMonths(date: Date, months: number): Date {
   const d = new Date(date.getTime());
   const year = d.getUTCFullYear();
   const month = d.getUTCMonth();
   const day = d.getUTCDate();
   return new Date(Date.UTC(year, month + months, day));
-}
-
-function generateFictitiousPayments(
-  loan: {
-    principal: number;
-    annualRate: number;
-    formula: string;
-    monthlyPayment: number;
-    startDate: Date;
-    paidInstallments: number;
-  }
-) {
-  const monthlyRate =
-    loan.formula === "french_ea"
-      ? Math.pow(1 + loan.annualRate, 1 / 12) - 1
-      : loan.annualRate / 12;
-
-  let balance = loan.principal;
-  const payments = [];
-
-  for (let i = 0; i < loan.paidInstallments; i++) {
-    const interest = balance * monthlyRate;
-    let principalPaid = loan.monthlyPayment - interest;
-
-    if (principalPaid >= balance) {
-      principalPaid = balance;
-    }
-
-    balance = Math.max(0, balance - principalPaid);
-
-    payments.push({
-      amount: String(loan.monthlyPayment.toFixed(2)),
-      principalPaid: String(principalPaid.toFixed(2)),
-      interestPaid: String(interest.toFixed(2)),
-      paidDate: addMonths(loan.startDate, i),
-    });
-
-    if (balance <= 0.01) break;
-  }
-
-  return payments;
 }
 
 function generateSyncedPayments(
@@ -164,7 +98,6 @@ export async function createLoan(
     startDate?: Date | string;
     totalInterest: number;
     totalCost: number;
-    paidInstallments?: number;
     fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
     initialExtraPayment?: number;
     pastPaymentsSync?: { month: number; year: number; status: "PAID" | "PENDING" | "DEFAULTED" }[];
@@ -179,6 +112,10 @@ export async function createLoan(
   const parsed = createLoanSchema.parse({ userId, ...data });
 
   const startDate = parsed.startDate ? new Date(parsed.startDate) : new Date();
+
+  // paidInstallments is always derived from the per-month toggles in
+  // pastPaymentsSync. There is no way for the client to type a number.
+  const paidInstallments = computePaidInstallments(parsed.pastPaymentsSync);
 
   // Determine if any past payment is marked as DEFAULTED
   const hasDefaulted = parsed.pastPaymentsSync.some((p) => p.status === "DEFAULTED");
@@ -198,7 +135,7 @@ export async function createLoan(
       startDate,
       totalInterest: parsed.totalInterest,
       totalCost: parsed.totalCost,
-      paidInstallments: parsed.paidInstallments,
+      paidInstallments,
       fees: parsed.fees,
       status: hasDefaulted ? "DEFAULTED" : "ACTIVE",
     } as Parameters<typeof prisma.loan.create>[0]["data"],
@@ -228,26 +165,6 @@ export async function createLoan(
         })),
       });
     }
-  } else if (parsed.paidInstallments > 0) {
-    // Fallback to old behavior if no sync data provided
-    const fictitiousPayments = generateFictitiousPayments({
-      principal: parsed.principal,
-      annualRate: parsed.annualRate,
-      formula: parsed.formula,
-      monthlyPayment: parsed.monthlyPayment,
-      startDate,
-      paidInstallments: parsed.paidInstallments,
-    });
-
-    await prisma.loanPayment.createMany({
-      data: fictitiousPayments.map((p) => ({
-        loanId: loan.id,
-        amount: p.amount,
-        principalPaid: p.principalPaid,
-        interestPaid: p.interestPaid,
-        paidDate: p.paidDate,
-      })),
-    });
   }
 
   // Create initial extra payment if provided
@@ -295,7 +212,6 @@ export async function updateLoan(
     monthlyPayment?: number;
     startDate?: Date | string;
     status?: "ACTIVE" | "PAID_OFF" | "DEFAULTED";
-    paidInstallments?: number;
     totalInterest?: number;
     totalCost?: number;
     fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
@@ -327,7 +243,6 @@ export async function updateLoan(
   if (data.monthlyPayment !== undefined) updateData.monthlyPayment = data.monthlyPayment;
   if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
   if (data.status !== undefined) updateData.status = data.status;
-  if (data.paidInstallments !== undefined) updateData.paidInstallments = data.paidInstallments;
   if (data.totalInterest !== undefined) updateData.totalInterest = data.totalInterest;
   if (data.totalCost !== undefined) updateData.totalCost = data.totalCost;
   if (data.fees !== undefined) updateData.fees = data.fees;
@@ -365,7 +280,8 @@ export async function updateLoan(
       });
     }
 
-    updateData.paidInstallments = data.pastPaymentsSync.filter((p) => p.status === "PAID").length;
+    // paidInstallments is always derived from the per-month toggles.
+    updateData.paidInstallments = computePaidInstallments(data.pastPaymentsSync);
   }
 
   const updated = await prisma.loan.update({
@@ -465,6 +381,29 @@ export async function recordPayment(
     },
   });
 
+  // Sync paidInstallments: take the max(real count, current paidInstallments)
+  // so manual syncing from the extract isn't overwritten when real payments
+  // are below the extract total.
+  const realPaymentCount = await prisma.loanPayment.count({
+    where: { loanId: parsed.loanId },
+  });
+  const currentLoan = await prisma.loan.findUnique({
+    where: { id: parsed.loanId },
+    select: { paidInstallments: true, termMonths: true },
+  });
+  if (currentLoan) {
+    const newPaid = Math.min(
+      Math.max(currentLoan.paidInstallments, realPaymentCount),
+      currentLoan.termMonths
+    );
+    if (newPaid !== currentLoan.paidInstallments) {
+      await prisma.loan.update({
+        where: { id: parsed.loanId },
+        data: { paidInstallments: newPaid },
+      });
+    }
+  }
+
   revalidateCreditPaths(loanId);
 
   const sessionUserId = session.user.id;
@@ -477,6 +416,55 @@ export async function recordPayment(
     principalPaid: payment.principalPaid.toString(),
     interestPaid: payment.interestPaid.toString(),
   };
+}
+
+const syncPaidInstallmentsSchema = z.object({
+  loanId: z.string().min(1),
+  paidInstallments: z.number().int().nonnegative(),
+});
+
+export async function syncPaidInstallmentsAction(
+  loanId: string,
+  paidInstallments: number
+): Promise<{ paidInstallments: number; termMonths: number }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const loan = await prisma.loan.findUnique({
+    where: { id: loanId },
+    select: { userId: true, termMonths: true, paidInstallments: true },
+  });
+
+  if (!loan || loan.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const parsed = syncPaidInstallmentsSchema.parse({ loanId, paidInstallments });
+
+  if (parsed.paidInstallments > loan.termMonths) {
+    throw new Error(
+      `El número de cuotas pagadas (${parsed.paidInstallments}) no puede superar el plazo (${loan.termMonths}).`
+    );
+  }
+
+  if (parsed.paidInstallments === loan.paidInstallments) {
+    return { paidInstallments: loan.paidInstallments, termMonths: loan.termMonths };
+  }
+
+  await prisma.loan.update({
+    where: { id: loanId },
+    data: { paidInstallments: parsed.paidInstallments },
+  });
+
+  revalidateCreditPaths(loanId);
+
+  const sessionUserId = session.user.id;
+  invalidateLoanAdvisorCache(sessionUserId, loanId);
+  clearLoanInsightsCache(sessionUserId);
+
+  return { paidInstallments: parsed.paidInstallments, termMonths: loan.termMonths };
 }
 
 const recordExtraSchema = z.object({
@@ -547,6 +535,28 @@ export async function deletePayment(id: string) {
   }
 
   await prisma.loanPayment.delete({ where: { id } });
+
+  // Resync paidInstallments: max(real count, current paidInstallments).
+  // Deleting a real payment should not drop the count below what the extract says.
+  const realPaymentCount = await prisma.loanPayment.count({
+    where: { loanId: existing.loanId },
+  });
+  const loanAfterDelete = await prisma.loan.findUnique({
+    where: { id: existing.loanId },
+    select: { paidInstallments: true, termMonths: true },
+  });
+  if (loanAfterDelete) {
+    const newPaid = Math.min(
+      Math.max(loanAfterDelete.paidInstallments, realPaymentCount),
+      loanAfterDelete.termMonths
+    );
+    if (newPaid !== loanAfterDelete.paidInstallments) {
+      await prisma.loan.update({
+        where: { id: existing.loanId },
+        data: { paidInstallments: newPaid },
+      });
+    }
+  }
 
   revalidateCreditPaths(existing.loanId);
 

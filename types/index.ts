@@ -165,8 +165,14 @@ export interface AmortizationRow {
   principal: number;
   extraPayment: number;
   balance: number;
-  status: "PAID" | "PENDING" | "DEFAULTED" | "UPCOMING";
+  status: "PAID" | "PAID_OFF" | "PENDING" | "DEFAULTED" | "UPCOMING";
   actualPayment?: LoanPayment | null;
+  /**
+   * True if this row is marked as paid because of `paidInstallments` set from
+   * the bank statement (synthetic, not backed by a real LoanPayment record).
+   * Used to distinguish "paid by extract" from "paid by manual record".
+   */
+  paidFromExtract?: boolean;
 }
 
 export type {

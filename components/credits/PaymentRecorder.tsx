@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -15,12 +15,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import type { Loan } from "@/types";
 
 const paymentSchema = z.object({
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invílido"),
-  principalPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invílido"),
-  interestPaid: z.string().regex(/^\d+(\.\d{1,2})?$/, "Monto invílido"),
+  amount: z.number().positive("El monto debe ser mayor a 0"),
+  principalPaid: z.number().nonnegative("El capital no puede ser negativo"),
+  interestPaid: z.number().nonnegative("El interés no puede ser negativo"),
   paidDate: z.string().min(1, "Fecha requerida"),
 });
 
@@ -41,17 +42,20 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const initialAmount = parseFloat(loan.monthlyPayment) || 0;
+
   const {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<PaymentForm>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      amount: loan.monthlyPayment,
-      principalPaid: "",
-      interestPaid: "",
+      amount: initialAmount,
+      principalPaid: 0,
+      interestPaid: 0,
       paidDate: new Date().toISOString().split("T")[0],
     },
   });
@@ -60,12 +64,17 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
     setIsSubmitting(true);
     try {
       await onRecord({
-        amount: data.amount,
-        principalPaid: data.principalPaid,
-        interestPaid: data.interestPaid,
+        amount: String(data.amount),
+        principalPaid: String(data.principalPaid),
+        interestPaid: String(data.interestPaid),
         paidDate: new Date(data.paidDate),
       });
-      reset();
+      reset({
+        amount: initialAmount,
+        principalPaid: 0,
+        interestPaid: 0,
+        paidDate: new Date().toISOString().split("T")[0],
+      });
       setOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -87,10 +96,17 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
           <form id="payment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="payment-amount">Monto total pagado</Label>
-              <Input
-                id="payment-amount"
-                type="text"
-                {...register("amount")}
+              <Controller
+                name="amount"
+                control={control}
+                render={({ field }) => (
+                  <CurrencyInput
+                    id="payment-amount"
+                    value={field.value}
+                    onValueChange={(v) => field.onChange(v)}
+                    placeholder="Ej: $ 500.000"
+                  />
+                )}
               />
               {errors.amount && (
                 <p className="text-sm text-destructive">{errors.amount.message}</p>
@@ -99,10 +115,17 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="principal-paid">Capital pagado</Label>
-                <Input
-                  id="principal-paid"
-                  type="text"
-                  {...register("principalPaid")}
+                <Controller
+                  name="principalPaid"
+                  control={control}
+                  render={({ field }) => (
+                    <CurrencyInput
+                      id="principal-paid"
+                      value={field.value}
+                      onValueChange={(v) => field.onChange(v)}
+                      placeholder="$ 0"
+                    />
+                  )}
                 />
                 {errors.principalPaid && (
                   <p className="text-sm text-destructive">{errors.principalPaid.message}</p>
@@ -110,10 +133,17 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="interest-paid">Intereses pagados</Label>
-                <Input
-                  id="interest-paid"
-                  type="text"
-                  {...register("interestPaid")}
+                <Controller
+                  name="interestPaid"
+                  control={control}
+                  render={({ field }) => (
+                    <CurrencyInput
+                      id="interest-paid"
+                      value={field.value}
+                      onValueChange={(v) => field.onChange(v)}
+                      placeholder="$ 0"
+                    />
+                  )}
                 />
                 {errors.interestPaid && (
                   <p className="text-sm text-destructive">{errors.interestPaid.message}</p>
