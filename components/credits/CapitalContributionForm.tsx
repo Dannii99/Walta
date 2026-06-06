@@ -29,10 +29,32 @@ type ExtraForm = z.infer<typeof extraSchema>;
 interface CapitalContributionFormProps {
   onRecord: (data: { amount: string; date: Date; note?: string | null }) => Promise<void>;
   triggerRefresh: number;
+  /** Modo controlado: el padre maneja el estado del Dialog. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Oculta el botón trigger (cuando se usa dentro de un Dialog externo). */
+  hideTrigger?: boolean;
+  /** Descripción opcional que se renderiza dentro del DialogContent. */
+  description?: React.ReactNode;
 }
 
-export function CapitalContributionForm({ onRecord }: CapitalContributionFormProps) {
-  const [open, setOpen] = useState(false);
+export function CapitalContributionForm({
+  onRecord,
+  open: openProp,
+  onOpenChange,
+  hideTrigger = false,
+  description,
+}: CapitalContributionFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : internalOpen;
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -67,9 +89,11 @@ export function CapitalContributionForm({ onRecord }: CapitalContributionFormPro
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)}>
-        Abono a capital
-      </Button>
+      {!hideTrigger && (
+        <Button variant="outline" onClick={() => setOpen(true)}>
+          Abono a capital
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogHeader>
@@ -77,6 +101,9 @@ export function CapitalContributionForm({ onRecord }: CapitalContributionFormPro
           <DialogClose onClick={() => setOpen(false)} />
         </DialogHeader>
         <DialogContent>
+          {description && (
+            <p className="text-sm text-muted-foreground mb-4">{description}</p>
+          )}
           <form id="extra-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="extra-amount">Monto del abono</Label>

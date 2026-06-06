@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, Trash2, ArrowLeft, Car, Wallet, Home, CreditCard as CreditCardIcon, Receipt } from "lucide-react";
+import { Pencil, Trash2, ArrowLeft, Car, Wallet, Home, CreditCard as CreditCardIcon, Receipt, Zap } from "lucide-react";
 import { loanTypeLabel, loanTypeIconBg, loanStatusLabel, loanStatusConfig, loanFormulaLabel } from "@/lib/credit-types";
 import { formatCOP } from "@/lib/currency";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ interface CreditDetailHeaderProps {
   tabs: { key: string; label: string; icon: typeof Receipt }[];
   activeTab: string;
   onTabChange: (key: string) => void;
+  onOpenActions?: () => void;
 }
 
 export function CreditDetailHeader({
@@ -30,6 +31,7 @@ export function CreditDetailHeader({
   tabs,
   activeTab,
   onTabChange,
+  onOpenActions,
 }: CreditDetailHeaderProps) {
   const statusConfig = loanStatusConfig(loan.status);
   const TypeIcon = TYPE_ICON[loan.type] ?? CreditCardIcon;
@@ -80,6 +82,17 @@ export function CreditDetailHeader({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {onOpenActions && (
+            <button
+              type="button"
+              onClick={onOpenActions}
+              className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+              aria-label="Abrir acciones rápidas"
+            >
+              <Zap className="h-3.5 w-3.5" />
+              Acciones
+            </button>
+          )}
           <Link
             href={`/credits/${loan.id}/edit`}
             className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"

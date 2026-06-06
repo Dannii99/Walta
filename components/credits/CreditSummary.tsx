@@ -7,6 +7,7 @@ import {
   getNextPaymentDate,
   getPaidInstallments,
 } from "@/lib/loan-engine";
+import { calculateTotalMonthlyFees } from "@/lib/loan-fees";
 import { formatCOP } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import type { Loan } from "@/types";
@@ -18,6 +19,8 @@ interface CreditSummaryProps {
 export function CreditSummary({ loan }: CreditSummaryProps) {
   const principal = parseFloat(loan.principal);
   const monthlyPayment = parseFloat(loan.monthlyPayment);
+  const monthlyFees = calculateTotalMonthlyFees(loan.fees ?? []);
+  const totalMonthlyPayment = monthlyPayment + monthlyFees;
   const remaining = calculateRemainingBalance(
     loan,
     loan.payments ?? [],
@@ -62,11 +65,16 @@ export function CreditSummary({ loan }: CreditSummaryProps) {
     },
     {
       label: "Cuota mensual",
-      value: formatCOP(monthlyPayment),
-      sub:
-        paidFromExtract > 0
-          ? `${paidCount} / ${loan.termMonths} cuotas (${realPaidCount} reales + ${paidFromExtract} de extracto)`
-          : `${paidCount} / ${loan.termMonths} cuotas`,
+      value: formatCOP(totalMonthlyPayment),
+      sub: (() => {
+        const cuotaInfo =
+          paidFromExtract > 0
+            ? `${paidCount} / ${loan.termMonths} cuotas (${realPaidCount} reales + ${paidFromExtract} extracto)`
+            : `${paidCount} / ${loan.termMonths} cuotas`;
+        return monthlyFees > 0
+          ? `+ ${formatCOP(monthlyFees)} cargos · ${cuotaInfo}`
+          : cuotaInfo;
+      })(),
       icon: CalendarClock,
       color: "text-violet-600 dark:text-violet-400",
       bg: "bg-violet-100 dark:bg-violet-950/40",

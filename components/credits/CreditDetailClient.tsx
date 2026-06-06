@@ -16,6 +16,8 @@ import { ExtractTab } from "./ExtractTab";
 import { AILoanAdvisorCard } from "./AILoanAdvisorCard";
 import { EditExtraPaymentDialog } from "./EditExtraPaymentDialog";
 import { DeleteExtraPaymentDialog } from "./DeleteExtraPaymentDialog";
+import { CapitalImpactSimulator } from "./CapitalImpactSimulator";
+import { CapitalContributionForm } from "./CapitalContributionForm";
 import {
   recordPayment,
   recordCapitalContribution,
@@ -48,23 +50,13 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [editingExtra, setEditingExtra] = useState<LoanExtraPayment | null>(null);
   const [deletingExtra, setDeletingExtra] = useState<LoanExtraPayment | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
 
   const schedule = generateAmortizationSchedule(
     loan,
     loan.payments,
     loan.extraPayments
   );
-
-  const handleRecordPayment = async (data: {
-    amount: string;
-    principalPaid: string;
-    interestPaid: string;
-    paidDate: Date;
-  }) => {
-    await recordPayment(loan.id, data);
-    setRefreshKey((k) => k + 1);
-    router.refresh();
-  };
 
   const handleRecordExtra = async (data: {
     amount: string;
@@ -140,6 +132,7 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         tabs={TABS}
         activeTab={activeTab}
         onTabChange={(k) => setActiveTab(k as TabKey)}
+        onOpenActions={() => setActionsOpen(true)}
       />
 
       <CreditSummary key={`summary-${refreshKey}`} loan={loan} />
@@ -148,6 +141,11 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         key={`progress-${refreshKey}`}
         loan={loan}
         schedule={schedule}
+      />
+
+      <CapitalImpactSimulator
+        key={`simulator-${refreshKey}`}
+        loan={loan}
       />
 
       <AnimatePresence mode="wait">
@@ -163,9 +161,6 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
               loan={loan}
               schedule={schedule}
               onMarkPaid={handleMarkPaid}
-              onRecordPayment={handleRecordPayment}
-              onRecordExtra={handleRecordExtra}
-              refreshKey={refreshKey}
             />
           )}
           {activeTab === "payments" && (
@@ -206,6 +201,15 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         extra={deletingExtra}
         onOpenChange={(open) => !open && setDeletingExtra(null)}
         onConfirm={handleDeleteExtra}
+      />
+
+      <CapitalContributionForm
+        onRecord={handleRecordExtra}
+        triggerRefresh={refreshKey}
+        open={actionsOpen}
+        onOpenChange={setActionsOpen}
+        hideTrigger
+        description="Registra un abono a capital para reducir el saldo y los intereses."
       />
     </div>
   );
