@@ -1,12 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { PiggyBank, TrendingDown, StickyNote } from "lucide-react";
+import { PiggyBank, TrendingDown, StickyNote, Pencil, Trash2 } from "lucide-react";
 import { formatCOP } from "@/lib/currency";
 import type { LoanExtraPayment } from "@/types";
 
 interface CreditExtrasListProps {
   extras: LoanExtraPayment[];
+  onEdit?: (extra: LoanExtraPayment) => void;
+  onDelete?: (extra: LoanExtraPayment) => void;
 }
 
 function formatDate(date: Date | string): string {
@@ -17,7 +19,7 @@ function formatDate(date: Date | string): string {
   });
 }
 
-export function CreditExtrasList({ extras }: CreditExtrasListProps) {
+export function CreditExtrasList({ extras, onEdit, onDelete }: CreditExtrasListProps) {
   if (extras.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-stone-300 dark:border-stone-700 p-12 text-center">
@@ -85,9 +87,35 @@ export function CreditExtrasList({ extras }: CreditExtrasListProps) {
                   )}
                 </div>
               </div>
-              <span className="text-sm font-extrabold tabular-nums text-emerald-700 dark:text-emerald-400">
-                +{formatCOP(parseFloat(e.amount))}
-              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-sm font-extrabold tabular-nums text-emerald-700 dark:text-emerald-400">
+                  +{formatCOP(parseFloat(e.amount))}
+                </span>
+                {(onEdit || onDelete) && (
+                  <div className="flex items-center gap-1 ml-1">
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(e)}
+                        aria-label={`Editar abono de ${formatCOP(parseFloat(e.amount))}`}
+                        className="h-7 w-7 rounded-md flex items-center justify-center text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-stone-50 transition-colors"
+                      >
+                        <Pencil className="h-3.5 w-3.5" strokeWidth={2.2} />
+                      </button>
+                    )}
+                    {onDelete && (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(e)}
+                        aria-label={`Eliminar abono de ${formatCOP(parseFloat(e.amount))}`}
+                        className="h-7 w-7 rounded-md flex items-center justify-center text-stone-500 dark:text-stone-400 hover:bg-rose-100 dark:hover:bg-rose-950/40 hover:text-rose-700 dark:hover:text-rose-400 transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" strokeWidth={2.2} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         ))}

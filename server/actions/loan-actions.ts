@@ -519,6 +519,52 @@ export async function recordCapitalContribution(
   };
 }
 
+const updateExtraSchema = z.object({
+  id: z.string().min(1),
+  amount: z.string().regex(/^\d+(\.\d{1,2})?$/),
+  date: z.union([z.date(), z.string().datetime()]),
+});
+
+export async function updateExtraPayment(
+  id: string,
+  data: { amount: string; date: Date | string }
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const existing = await prisma.loanExtraPayment.findUnique({
+    where: { id },
+    include: { loan: { select: { userId: true } } },
+  });
+
+  if (!existing || existing.loan.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const parsed = updateExtraSchema.parse({ id, ...data });
+
+  const updated = await prisma.loanExtraPayment.update({
+    where: { id: parsed.id },
+    data: {
+      amount: parsed.amount,
+      date: new Date(parsed.date),
+    },
+  });
+
+  revalidateCreditPaths(existing.loanId);
+
+  const sessionUserId = session.user.id;
+  invalidateLoanAdvisorCache(sessionUserId, existing.loanId);
+  clearLoanInsightsCache(sessionUserId);
+
+  return {
+    ...updated,
+    amount: updated.amount.toString(),
+  };
+}
+
 export async function deletePayment(id: string) {
   const session = await auth();
   if (!session?.user?.id) {

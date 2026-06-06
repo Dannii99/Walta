@@ -94,7 +94,7 @@ export function CreditCharts({ loan, simulatedExtraAmount = 0 }: CreditChartsPro
           </h2>
         </div>
         <div className="p-5 md:p-6">
-          <div className="h-[250px] w-full">
+          <div className="h-[200px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={balanceData}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
@@ -155,7 +155,7 @@ export function CreditCharts({ loan, simulatedExtraAmount = 0 }: CreditChartsPro
             </h2>
           </div>
           <div className="p-5 md:p-6">
-            <div className="h-[250px] w-full">
+            <div className="h-[200px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonData} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />

@@ -7,20 +7,21 @@ import { Receipt, PiggyBank, CalendarDays, FileText } from "lucide-react";
 import { CreditDetailHeader } from "./CreditDetailHeader";
 import { CreditSummary } from "./CreditSummary";
 import { CreditProgressBar } from "./CreditProgressBar";
-import { CreditAmortizationTable } from "./CreditAmortizationTable";
 import { CreditPaymentsList } from "./CreditPaymentsList";
 import { CreditExtrasList } from "./CreditExtrasList";
 import { CreditCharts } from "./CreditCharts";
 import { DeleteCreditDialog } from "./DeleteCreditDialog";
-import { PaymentRecorder } from "./PaymentRecorder";
-import { CapitalContributionForm } from "./CapitalContributionForm";
-import { CapitalImpactSimulator } from "./CapitalImpactSimulator";
-import { AILoanAdvisorCard } from "./AILoanAdvisorCard";
+import { AmortizationTab } from "./AmortizationTab";
 import { ExtractTab } from "./ExtractTab";
+import { AILoanAdvisorCard } from "./AILoanAdvisorCard";
+import { EditExtraPaymentDialog } from "./EditExtraPaymentDialog";
+import { DeleteExtraPaymentDialog } from "./DeleteExtraPaymentDialog";
 import {
   recordPayment,
   recordCapitalContribution,
   deleteLoan,
+  updateExtraPayment,
+  deleteExtraPayment,
 } from "@/server/actions/loan-actions";
 import { generateAmortizationSchedule } from "@/lib/loan-engine";
 import { toast } from "sonner";
@@ -45,6 +46,8 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editingExtra, setEditingExtra] = useState<LoanExtraPayment | null>(null);
+  const [deletingExtra, setDeletingExtra] = useState<LoanExtraPayment | null>(null);
 
   const schedule = generateAmortizationSchedule(
     loan,
@@ -104,6 +107,30 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
     }
   };
 
+  const handleUpdateExtra = async (data: {
+    amount: string;
+    date: Date;
+  }) => {
+    if (!editingExtra) return;
+    await updateExtraPayment(editingExtra.id, data);
+    setRefreshKey((k) => k + 1);
+    router.refresh();
+    toast.success("Abono actualizado", {
+      description: "Los cambios se reflejaron en la tabla de amortización.",
+    });
+  };
+
+  const handleDeleteExtra = async () => {
+    if (!deletingExtra) return;
+    await deleteExtraPayment(deletingExtra.id);
+    setRefreshKey((k) => k + 1);
+    setDeletingExtra(null);
+    router.refresh();
+    toast.success("Abono eliminado", {
+      description: "El saldo y plazo se recalcularon.",
+    });
+  };
+
   return (
     <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto space-y-6">
       <CreditDetailHeader
@@ -115,65 +142,45 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         onTabChange={(k) => setActiveTab(k as TabKey)}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <div className="xl:col-span-2 space-y-6">
-          <CreditSummary key={`summary-${refreshKey}`} loan={loan} />
-          <CreditProgressBar
-            key={`progress-${refreshKey}`}
-            loan={loan}
-            schedule={schedule}
-          />
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab + refreshKey}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
-              {activeTab === "amortization" && (
-                <CreditAmortizationTable
-                  schedule={schedule}
-                  onMarkPaid={handleMarkPaid}
-                />
-              )}
-              {activeTab === "payments" && (
-                <CreditPaymentsList payments={loan.payments} />
-              )}
-              {activeTab === "extras" && (
-                <CreditExtrasList extras={loan.extraPayments} />
-              )}
-              {activeTab === "extract" && <ExtractTab loan={loan} />}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 space-y-3">
-            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
-              Acciones rápidas
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Registra pagos o abonos para mantener tu crédito al día.
-            </p>
-            <div className="flex flex-col gap-2">
-              <PaymentRecorder
-                loan={loan}
-                onRecord={handleRecordPayment}
-                triggerRefresh={refreshKey}
-              />
-              <CapitalContributionForm
-                onRecord={handleRecordExtra}
-                triggerRefresh={refreshKey}
-              />
-            </div>
-          </div>
+      <CreditSummary key={`summary-${refreshKey}`} loan={loan} />
 
-          <CapitalImpactSimulator
-            key={`simulator-${refreshKey}`}
-            loan={loan}
-          />
-        </div>
-      </div>
+      <CreditProgressBar
+        key={`progress-${refreshKey}`}
+        loan={loan}
+        schedule={schedule}
+      />
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab + refreshKey}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+        >
+          {activeTab === "amortization" && (
+            <AmortizationTab
+              loan={loan}
+              schedule={schedule}
+              onMarkPaid={handleMarkPaid}
+              onRecordPayment={handleRecordPayment}
+              onRecordExtra={handleRecordExtra}
+              refreshKey={refreshKey}
+            />
+          )}
+          {activeTab === "payments" && (
+            <CreditPaymentsList payments={loan.payments} />
+          )}
+          {activeTab === "extras" && (
+            <CreditExtrasList
+              extras={loan.extraPayments}
+              onEdit={setEditingExtra}
+              onDelete={setDeletingExtra}
+            />
+          )}
+          {activeTab === "extract" && <ExtractTab loan={loan} />}
+        </motion.div>
+      </AnimatePresence>
 
       <CreditCharts key={`charts-${refreshKey}`} loan={loan} />
 
@@ -187,6 +194,18 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         extrasCount={loan.extraPayments.length}
         onConfirm={handleDelete}
         isDeleting={isDeleting}
+      />
+
+      <EditExtraPaymentDialog
+        extra={editingExtra}
+        onOpenChange={(open) => !open && setEditingExtra(null)}
+        onUpdate={handleUpdateExtra}
+      />
+
+      <DeleteExtraPaymentDialog
+        extra={deletingExtra}
+        onOpenChange={(open) => !open && setDeletingExtra(null)}
+        onConfirm={handleDeleteExtra}
       />
     </div>
   );

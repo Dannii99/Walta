@@ -403,14 +403,18 @@ Track active and historical loans. Each loan has: type (VEHICLE/HOUSING/PERSONAL
   3. **Confirmar**: review + submit.
 - `components/credits/LoanPreviewCard.tsx` — live preview using the same engine.
 - `components/credits/FeeForm.tsx`, `FeeCard.tsx`, `FeesSection.tsx` — SaaS-style fee CRUD.
-- `components/credits/CreditDetailClient.tsx` — detail orchestrator.
+- `components/credits/CreditDetailClient.tsx` — detail orchestrator. **Layout v5 (reordenado)**: Header + Tabs → Summary 4 KPIs full-width → ProgressBar full-width → tab content full-width → CreditCharts full-width (h-[200px] c/u) → AILoanAdvisorCard full-width. En el tab Amortización el contenido usa `AmortizationTab` que internamente es `xl:grid-cols-4` con tabla en col-span-3 + side panel (Acciones+Simulador) en col-span-1. Otros tabs (Pagos/Abonos/Extracto) renderizan su lista full-width.
+- `components/credits/AmortizationTab.tsx` — Wrapper de grid `xl:grid-cols-4` que combina `CreditAmortizationTable` (col-span-3, con `min-w-0` para evitar overflow) + `AccionesCard` + `CapitalImpactSimulator` (col-span-1, apilados verticalmente).
+- `components/credits/AccionesCard.tsx` — Card extraída de `CreditDetailClient` que combina `PaymentRecorder` + `CapitalContributionForm` con título "Acciones rápidas" y descripción. Reusada dentro de `AmortizationTab`.
 - `components/credits/CreditDetailHeader.tsx` — title + status badge + actions (Edit, Delete, Record Payment).
 - `components/credits/CreditSummary.tsx` — 4 KPI cards (principal, paid, remaining, next payment).
 - `components/credits/CreditProgressBar.tsx` — paid/remaining visual.
 - `components/credits/CreditPaymentsList.tsx` — list of `LoanPayment` with sort + badges.
-- `components/credits/CreditExtrasList.tsx` — list of `LoanExtraPayment` (capital contributions).
+- `components/credits/CreditExtrasList.tsx` — list of `LoanExtraPayment` (capital contributions). Each item exposes `Pencil` (edit) + `Trash2` (delete) icon buttons when `onEdit` + `onDelete` props are provided. Dynamic `aria-label` with the extra amount.
+- `components/credits/EditExtraPaymentDialog.tsx` — Dialog form (RHF + Zod) for editing a `LoanExtraPayment`. Editable: `amount` (CurrencyInput) + `date` (Input type=date). `note` is preserved as immutable historical metadata. Pre-fills with current values via `formatDateForInput`.
+- `components/credits/DeleteExtraPaymentDialog.tsx` — AlertDialog confirm with extra summary (date, amount, note) + "Esta acción no se puede deshacer" warning.
 - `components/credits/CreditAmortizationTable.tsx` — full amortization with paid/pending highlighting.
-- `components/credits/CreditCharts.tsx` — 2 Recharts charts (capital over time, interest vs principal). Each wrapped in `<div className="h-[250px] w-full">`.
+- `components/credits/CreditCharts.tsx` — 2 Recharts charts (capital over time, interest vs principal). Each wrapped in `<div className="h-[200px] w-full">`.
 - `components/credits/DeleteCreditDialog.tsx` — `AlertDialog` confirm with cascade warning (deletes payments + extras).
 - `components/credits/AvailableCreditCard.tsx` — 3 states (good/medium/over) based on `getActiveLoanCapacity`. Ratio tiers: < 30% emerald, 30-50% amber, > 50% rose.
 - `components/credits/AILoanAdvisorCard.tsx` — per-loan AI analysis (24h memory cache).
@@ -423,7 +427,7 @@ Track active and historical loans. Each loan has: type (VEHICLE/HOUSING/PERSONAL
 - `lib/ai/loan-advisor.ts` — `generateLoanAdvisorAnalysis` (24h memory cache + `invalidateLoanAdvisorCache(userId, loanId)`).
 - `lib/ai/loan-insights.ts` — `generateLoanInsights` (1h memory cache + `clearLoanInsightsCache(userId)`).
 - `lib/ai/loan-prompts.ts` — `LOAN_ADVISOR_SYSTEM` + `LOAN_INSIGHTS_SYSTEM` + builders.
-- `server/actions/loan-actions.ts` — 6 functions: `createLoanAction`, `updateLoanAction`, `deleteLoanAction`, `recordPaymentAction`, `deletePaymentAction`, `recordExtraPaymentAction`, `deleteExtraPaymentAction`. **All invalidate AI cache** + `revalidateCreditPaths(loanId?)`.
+- `server/actions/loan-actions.ts` — 7 functions: `createLoanAction`, `updateLoanAction`, `deleteLoanAction`, `recordPaymentAction`, `deletePaymentAction`, `recordExtraPaymentAction`, `updateExtraPaymentAction` (edits `amount` + `date`), `deleteExtraPaymentAction`. **All invalidate AI cache** + `revalidateCreditPaths(loanId?)`. Extra edit/delete operates only in the Abonos tab (`CreditExtrasList`); the amortization table is not affected.
 
 ### Data flow
 
@@ -467,7 +471,7 @@ Track active and historical loans. Each loan has: type (VEHICLE/HOUSING/PERSONAL
 - **AI cache invalidation on EVERY mutation** — even a payment recording affects the advisor's "next payment" analysis, so we invalidate.
 - **Moratory detection** = `loan.status === "DEFAULTED"`, NOT on `LoanPayment`. A loan becomes DEFAULTED when it has overdue payments.
 - **`getActiveLoanCapacity` vs `getLoanStats`** — `getLoanStats` includes all loans (active + paid off + defaulted). `getActiveLoanCapacity` only includes ACTIVE loans. The Available Credit Card uses the latter.
-- **Recharts in `CreditCharts.tsx`** — 2 charts, both wrapped in `<div className="h-[250px] w-full">`. Pattern is enforced in `architecture.md §10`.
+- **Recharts in `CreditCharts.tsx`** — 2 charts, both wrapped in `<div className="h-[200px] w-full">`. Pattern is enforced in `architecture.md §10`.
 
 ---
 
