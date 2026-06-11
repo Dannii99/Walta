@@ -36,9 +36,9 @@ import {
 import type { Category, Recurrence, Transaction } from "@/types";
 
 const editExpenseSchema = z.object({
-  categoryId: z.string().min(1, "Selecciona una categorÃ­a"),
+  categoryId: z.string().min(1, "Selecciona una categoría"),
   amount: z.number().positive("El monto debe ser mayor a 0"),
-  description: z.string().max(500).optional(),
+  description: z.string().max(120).optional(),
   date: z.string().min(1, "Selecciona una fecha"),
   recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]),
 });
@@ -63,10 +63,10 @@ function amountLabel(recurrence: Recurrence): string {
 
 function amountHint(recurrence: Recurrence): string | null {
   if (recurrence === "BIWEEKLY") {
-    return "Se multiplicarÃ¡ Ã—2 al guardar para reflejar el impacto mensual real.";
+    return "Se multiplicará ×2 al guardar para reflejar el impacto mensual real.";
   }
   if (recurrence === "ONE_TIME") {
-    return "Cargo Ãºnico. No se prorratea a lo largo del mes.";
+    return "Cargo único. No se prorratea a lo largo del mes.";
   }
   return null;
 }
@@ -166,7 +166,7 @@ function FormBody({
       className="space-y-4"
     >
       <div className="space-y-2">
-        <Label htmlFor="edit-category">CategorÃ­a</Label>
+        <Label htmlFor="edit-category">Categoría</Label>
         <Controller
           name="categoryId"
           control={control}
@@ -199,6 +199,7 @@ function FormBody({
               value={field.value || 0}
               onValueChange={(v) => field.onChange(v)}
               placeholder="0"
+              maxLength={15}
             />
           )}
         />
@@ -256,10 +257,11 @@ function FormBody({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="edit-description">DescripciÃ³n (opcional)</Label>
+        <Label htmlFor="edit-description">Descripción (opcional)</Label>
         <Input
           id="edit-description"
           placeholder="Ej. Netflix, Mercado del mes, Gasolina..."
+          maxLength={120}
           {...register("description")}
         />
         {errors.description && (
@@ -309,7 +311,7 @@ export function EditExpenseModal({
           type="submit"
           form="edit-expense-form"
           disabled={isSubmitting}
-          className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
+          className="bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
         >
           {isSubmitting ? "Guardando..." : "Guardar"}
         </Button>

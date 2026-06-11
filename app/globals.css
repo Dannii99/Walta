@@ -126,3 +126,10 @@ body {
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Evita que el teclado redimensione el viewport en iOS */
+/* @supports (height: 100dvh) {
+  .drawer-container {
+    height: 100dvh;
+  }
+} */

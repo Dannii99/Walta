@@ -27,10 +27,11 @@ export interface CurrencyInputProps {
   className?: string;
   placeholder?: string;
   disabled?: boolean;
+  maxLength?: number;
 }
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ id, value = 0, onValueChange, className, placeholder, disabled }, ref) => {
+  ({ id, value = 0, onValueChange, className, placeholder, disabled, maxLength }, ref) => {
     const [displayValue, setDisplayValue] = useState(formatCurrency(String(value)));
     const [isFocused, setIsFocused] = useState(false);
 
@@ -71,6 +72,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         onBlur={handleBlur}
         disabled={disabled}
         placeholder={placeholder}
+        maxLength={maxLength}
         className={cn(
           "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           className
