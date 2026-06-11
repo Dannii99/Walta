@@ -113,16 +113,17 @@ export function EditExtraPaymentDialog({
 
   return (
     <Dialog open={!!extra} onOpenChange={onOpenChange}>
-      <DialogHeader>
-        <DialogTitle>Editar abono a capital</DialogTitle>
-        <DialogClose onClick={() => onOpenChange(false)} />
-      </DialogHeader>
-      <DialogContent>
-        <form
-          id="edit-extra-form"
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
+      <div className="relative bg-white dark:bg-[#17181c] rounded-2xl shadow-xl p-6 md:p-8">
+        <DialogHeader>
+          <DialogTitle>Editar abono a capital</DialogTitle>
+          <DialogClose onClick={() => onOpenChange(false)} />
+        </DialogHeader>
+        <DialogContent>
+          <form
+            id="edit-extra-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
           <div className="space-y-2">
             <Label htmlFor="edit-extra-amount">Monto del abono</Label>
             <Controller
@@ -242,14 +243,15 @@ export function EditExtraPaymentDialog({
           )}
         </form>
       </DialogContent>
-      <DialogFooter>
-        <Button variant="outline" onClick={() => onOpenChange(false)}>
-          Cancelar
-        </Button>
-        <Button type="submit" form="edit-extra-form" disabled={isSubmitting}>
-          {isSubmitting ? "Guardando..." : "Guardar cambios"}
-        </Button>
-      </DialogFooter>
-    </Dialog>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button type="submit" form="edit-extra-form" disabled={isSubmitting}>
+            {isSubmitting ? "Guardando..." : "Guardar"}
+          </Button>
+        </DialogFooter>
+      </div>
+      </Dialog>
   );
 }

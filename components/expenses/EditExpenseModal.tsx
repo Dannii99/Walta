@@ -289,33 +289,35 @@ export function EditExpenseModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogHeader>
-        <DialogTitle>Editar Gasto</DialogTitle>
-        <DialogClose onClick={() => onOpenChange(false)} />
-      </DialogHeader>
-      <DialogContent>
-        <FormBody
-          key={transaction?.id ?? "new"}
-          transaction={transaction}
-          categories={categories}
-          onSuccess={onSuccess}
-          onOpenChange={onOpenChange}
-          onSubmittingChange={handleSubmittingChange}
-        />
-      </DialogContent>
-      <DialogFooter>
-        <Button variant="outline" onClick={() => onOpenChange(false)}>
-          Cancelar
-        </Button>
-        <Button
-          type="submit"
-          form="edit-expense-form"
-          disabled={isSubmitting}
-          className="bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
-        >
-          {isSubmitting ? "Guardando..." : "Guardar"}
-        </Button>
-      </DialogFooter>
-    </Dialog>
+      <div className="relative bg-white dark:bg-[#17181c] rounded-2xl shadow-xl p-6 md:p-8">
+        <DialogHeader>
+          <DialogTitle>Editar Gasto</DialogTitle>
+          <DialogClose onClick={() => onOpenChange(false)} />
+        </DialogHeader>
+        <DialogContent>
+          <FormBody
+            key={transaction?.id ?? "new"}
+            transaction={transaction}
+            categories={categories}
+            onSuccess={onSuccess}
+            onOpenChange={onOpenChange}
+            onSubmittingChange={handleSubmittingChange}
+          />
+        </DialogContent>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="edit-expense-form"
+            disabled={isSubmitting}
+            className="bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
+          >
+            {isSubmitting ? "Guardando..." : "Guardar"}
+          </Button>
+        </DialogFooter>
+      </div>
+      </Dialog>
   );
 }

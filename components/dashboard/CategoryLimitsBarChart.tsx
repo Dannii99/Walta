@@ -179,7 +179,7 @@ export function CategoryLimitsBarChart({ items, bare = false, reducedMotion }: C
           <div className="space-y-4">
             {/* Mobile: horizontal scroll */}
             <div className="lg:hidden overflow-x-auto scrollbar-none -mx-2 px-2">
-              <div className="flex gap-4 min-w-max">
+              <div className="flex gap-0 md:gap-4 min-w-max">
                 {barData.map((d) => {
                   const over = d.spent > d.limit && d.limit > 0;
                   const pct = d.limit > 0 ? (d.spent / d.limit) * 100 : 0;

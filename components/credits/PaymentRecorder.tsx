@@ -88,12 +88,13 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogHeader>
-          <DialogTitle>Registrar Pago Mensual</DialogTitle>
-          <DialogClose onClick={() => setOpen(false)} />
-        </DialogHeader>
-        <DialogContent>
-          <form id="payment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="relative bg-white dark:bg-[#17181c] rounded-2xl shadow-xl p-6 md:p-8">
+          <DialogHeader>
+            <DialogTitle>Registrar Pago Mensual</DialogTitle>
+            <DialogClose onClick={() => setOpen(false)} />
+          </DialogHeader>
+          <DialogContent>
+            <form id="payment-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="payment-amount">Monto total pagado</Label>
               <Controller
@@ -171,6 +172,7 @@ export function PaymentRecorder({ loan, onRecord }: PaymentRecorderProps) {
             {isSubmitting ? "Guardando..." : "Guardar Pago"}
           </Button>
         </DialogFooter>
+      </div>
       </Dialog>
     </>
   );

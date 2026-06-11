@@ -158,19 +158,20 @@ export function CapitalContributionForm({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogHeader>
-          <DialogTitle>Abono a Capital</DialogTitle>
-          <DialogClose onClick={() => setOpen(false)} />
-        </DialogHeader>
-        <DialogContent>
-          {description && (
-            <p className="text-sm text-muted-foreground mb-4">{description}</p>
-          )}
-          <form
-            id="extra-form"
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
+        <div className="relative bg-white dark:bg-[#17181c] rounded-2xl shadow-xl p-6 md:p-8">
+          <DialogHeader>
+            <DialogTitle>Abono a Capital</DialogTitle>
+            <DialogClose onClick={() => setOpen(false)} />
+          </DialogHeader>
+          <DialogContent>
+            {description && (
+              <p className="text-sm text-muted-foreground mb-4">{description}</p>
+            )}
+            <form
+              id="extra-form"
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
             <div className="space-y-2">
               <Label htmlFor="extra-amount">Monto del abono</Label>
               <Controller
@@ -308,6 +309,7 @@ export function CapitalContributionForm({
             {isSubmitting ? "Guardando..." : "Registrar Abono"}
           </Button>
         </DialogFooter>
+        </div>
       </Dialog>
     </>
   );

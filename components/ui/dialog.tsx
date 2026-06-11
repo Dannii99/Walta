@@ -32,7 +32,7 @@ export function Dialog({
         className="absolute inset-0 bg-black/50"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative bg-card text-card-foreground rounded-lg shadow-lg max-w-lg w-full mx-4 mt-20 sm:mt-0 p-6 border">
+      <div className="relative max-w-lg w-full mx-4 mt-20 sm:mt-0">
         {children}
       </div>
     </div>
