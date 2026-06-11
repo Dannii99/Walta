@@ -52,26 +52,30 @@ const TYPE_LABELS: Record<CategoryType, string> = {
 };
 
 const TYPE_DOT: Record<CategoryType, string> = {
-  NEEDS: "bg-emerald-500",
-  WANTS: "bg-amber-500",
-  SAVINGS: "bg-blue-500",
-  DEBT: "bg-rose-500",
+  NEEDS: "bg-[#23ad1b]",
+  WANTS: "bg-[#e7964d]",
+  SAVINGS: "bg-[#617dd5]",
+  DEBT: "bg-[#e54d4d]",
 };
 
 const TYPE_PILL: Record<CategoryType, string> = {
-  NEEDS: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
-  WANTS: "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
-  SAVINGS: "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900",
-  DEBT: "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+  NEEDS:
+    "bg-[#23ad1b]/10 dark:bg-[#23ad1b]/15 text-[#23ad1b] dark:text-[#23ad1b] border-[#23ad1b]/20 dark:border-[#23ad1b]/20",
+  WANTS:
+    "bg-[#e7964d]/10 dark:bg-[#e7964d]/15 text-[#e7964d] dark:text-[#e7964d] border-[#e7964d]/20 dark:border-[#e7964d]/20",
+  SAVINGS:
+    "bg-[#617dd5]/10 dark:bg-[#617dd5]/15 text-[#617dd5] dark:text-[#617dd5] border-[#617dd5]/20 dark:border-[#617dd5]/20",
+  DEBT:
+    "bg-[#e54d4d]/10 dark:bg-[#e54d4d]/15 text-[#e54d4d] dark:text-[#e54d4d] border-[#e54d4d]/20 dark:border-[#e54d4d]/20",
 };
 
 const RECURRENCE_PILL: Record<Recurrence, string> = {
   MONTHLY:
-    "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+    "bg-[#617dd5]/10 dark:bg-[#617dd5]/15 text-[#617dd5] dark:text-[#617dd5] border-[#617dd5]/20 dark:border-[#617dd5]/20",
   BIWEEKLY:
-    "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+    "bg-[#e7964d]/10 dark:bg-[#e7964d]/15 text-[#e7964d] dark:text-[#e7964d] border-[#e7964d]/20 dark:border-[#e7964d]/20",
   ONE_TIME:
-    "bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-300 border-stone-200 dark:border-stone-700",
+    "bg-[#f5f5f5] dark:bg-[#1a1a1e] text-[#737373] dark:text-[#a1a1aa] border-[#e8e8e8] dark:border-[#2a2a2e]",
 };
 
 function SortableHeader({
@@ -89,7 +93,7 @@ function SortableHeader({
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+      className="flex items-center gap-1.5 hover:text-[#17181c] dark:hover:text-white transition-colors text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]"
     >
       {children}
       {active ? (
@@ -111,20 +115,20 @@ function EmptyState({
   onAdd?: () => void;
 }) {
   return (
-    <div className="text-center py-12 px-4 border border-dashed border-stone-200/80 dark:border-stone-800 rounded-2xl">
-      <div className="mx-auto h-14 w-14 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center mb-4">
-        <Wallet className="h-7 w-7 text-stone-500 dark:text-stone-400" />
+    <div className="text-center py-12 px-4 border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] rounded-2xl bg-white dark:bg-[#17181c]">
+      <div className="mx-auto h-14 w-14 rounded-2xl bg-[#f5f5f5] dark:bg-[#1a1a1e] flex items-center justify-center mb-4">
+        <Wallet className="h-7 w-7 text-[#737373] dark:text-[#a1a1aa]" />
       </div>
-      <h3 className="text-base font-semibold text-stone-900 dark:text-stone-50">
+      <h3 className="text-base font-semibold text-[#17181c] dark:text-white">
         Aún no has registrado gastos
       </h3>
-      <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 max-w-md mx-auto">
+      <p className="text-sm text-[#737373] dark:text-[#a1a1aa] mt-1 max-w-md mx-auto">
         Empieza agregando tu primer gasto para ver tu distribución por categoría y recurrencia.
       </p>
       {onAdd && (
         <Button
           onClick={onAdd}
-          className="mt-4 bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
+          className="mt-4 bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5]"
         >
           Agregar gasto
         </Button>
@@ -135,14 +139,14 @@ function EmptyState({
 
 function NoResultsState({ onClear }: { onClear?: () => void }) {
   return (
-    <div className="text-center py-12 px-4 border border-dashed border-stone-200/80 dark:border-stone-800 rounded-2xl">
-      <div className="mx-auto h-14 w-14 rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center mb-4">
-        <SearchX className="h-7 w-7 text-stone-500 dark:text-stone-400" />
+    <div className="text-center py-12 px-4 border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] rounded-2xl bg-white dark:bg-[#17181c]">
+      <div className="mx-auto h-14 w-14 rounded-2xl bg-[#f5f5f5] dark:bg-[#1a1a1e] flex items-center justify-center mb-4">
+        <SearchX className="h-7 w-7 text-[#737373] dark:text-[#a1a1aa]" />
       </div>
-      <h3 className="text-base font-semibold text-stone-900 dark:text-stone-50">
+      <h3 className="text-base font-semibold text-[#17181c] dark:text-white">
         Sin resultados con esos filtros
       </h3>
-      <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 max-w-md mx-auto">
+      <p className="text-sm text-[#737373] dark:text-[#a1a1aa] mt-1 max-w-md mx-auto">
         Prueba ajustando la búsqueda, categoría, tipo o frecuencia.
       </p>
       {onClear && (
@@ -166,9 +170,9 @@ function Pagination({
   if (totalPages <= 1) return null;
   return (
     <div className="flex items-center justify-between gap-2 mt-4 px-1">
-      <p className="text-xs text-stone-500 dark:text-stone-400">
-        Página <span className="font-bold text-stone-700 dark:text-stone-200">{page}</span> de{" "}
-        <span className="font-bold text-stone-700 dark:text-stone-200">{totalPages}</span>
+      <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
+        Página <span className="font-bold text-[#17181c] dark:text-white">{page}</span> de{" "}
+        <span className="font-bold text-[#17181c] dark:text-white">{totalPages}</span>
       </p>
       <div className="flex gap-2">
         <Button
@@ -176,6 +180,7 @@ function Pagination({
           size="sm"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
+          className="border-[#e8e8e8] dark:border-[#2a2a2e] text-[#737373] dark:text-[#a1a1aa]"
         >
           <ChevronLeft className="h-3.5 w-3.5 mr-1" />
           Anterior
@@ -185,6 +190,7 @@ function Pagination({
           size="sm"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
+          className="border-[#e8e8e8] dark:border-[#2a2a2e] text-[#737373] dark:text-[#a1a1aa]"
         >
           Siguiente
           <ChevronRight className="h-3.5 w-3.5 ml-1" />
@@ -252,11 +258,12 @@ export function ExpenseList({
 
   return (
     <div className="space-y-4">
-      <div className="hidden md:block border border-stone-200/80 dark:border-stone-800 rounded-2xl overflow-hidden bg-card">
+      {/* Desktop table */}
+      <div className="hidden md:block rounded-2xl overflow-hidden bg-white dark:bg-[#17181c] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>
+            <TableRow className="bg-[#fafafa] dark:bg-[#1e1e22] hover:bg-[#fafafa] dark:hover:bg-[#1e1e22] border-b border-[#e8e8e8] dark:border-[#2a2a2e]">
+              <TableHead className="h-10 py-2">
                 <SortableHeader
                   active={sortKey === "description"}
                   direction={sortDir}
@@ -265,7 +272,7 @@ export function ExpenseList({
                   Descripción
                 </SortableHeader>
               </TableHead>
-              <TableHead>
+              <TableHead className="h-10 py-2">
                 <SortableHeader
                   active={sortKey === "category"}
                   direction={sortDir}
@@ -274,8 +281,7 @@ export function ExpenseList({
                   Categoría
                 </SortableHeader>
               </TableHead>
-              <TableHead>Recurrencia</TableHead>
-              <TableHead>
+              <TableHead className="h-10 py-2">
                 <SortableHeader
                   active={sortKey === "nextDate"}
                   direction={sortDir}
@@ -284,7 +290,7 @@ export function ExpenseList({
                   Próxima fecha
                 </SortableHeader>
               </TableHead>
-              <TableHead className="text-right">
+              <TableHead className="h-10 py-2 text-right">
                 <SortableHeader
                   active={sortKey === "amount"}
                   direction={sortDir}
@@ -293,40 +299,60 @@ export function ExpenseList({
                   Monto
                 </SortableHeader>
               </TableHead>
-              <TableHead className="text-right" sticky>
-                Acciones
+              <TableHead className="h-10 py-2 text-right" sticky>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
+                  Acciones
+                </span>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginated.map((transaction) => {
+            {paginated.map((transaction, index) => {
               const category = transaction.category;
               const type = category?.type as CategoryType | undefined;
               const amount = parseFloat(transaction.amount);
               const perPayment = getPerPaymentAmount(amount, transaction.recurrence);
               const showPerPayment =
                 transaction.recurrence === "BIWEEKLY" && perPayment !== amount;
+              const isOdd = index % 2 === 1;
 
               return (
-                <TableRow key={transaction.id}>
-                  <TableCell className="max-w-xs">
-                    <span className="text-sm font-medium text-stone-900 dark:text-stone-50 line-clamp-2">
-                      {transaction.description || (
-                        <span className="text-stone-400 italic font-normal">
-                          Sin descripción
-                        </span>
+                <TableRow
+                  key={transaction.id}
+                  className={`${
+                    isOdd
+                      ? "bg-[#fafafa]/50 dark:bg-[#1e1e22]/50"
+                      : "bg-white dark:bg-[#17181c]"
+                  } hover:bg-[#f5f5f5] dark:hover:bg-white/5 border-b border-[#e8e8e8]/50 dark:border-[#2a2a2e]/50 transition-colors`}
+                >
+                  <TableCell className="py-3">
+                    <div className="space-y-1">
+                      <span className="text-sm font-medium text-[#17181c] dark:text-white line-clamp-2">
+                        {transaction.description || (
+                          <span className="text-[#a1a1aa] italic font-normal">
+                            Sin descripción
+                          </span>
+                        )}
+                      </span>
+                      {transaction.recurrence && (
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] ${RECURRENCE_PILL[transaction.recurrence]}`}
+                        >
+                          {RECURRENCE_DESCRIPTIONS[transaction.recurrence]}
+                        </Badge>
                       )}
-                    </span>
+                    </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="py-3">
                     <div className="flex items-center gap-2 min-w-0">
                       {type && (
                         <span
-                          className={`h-2.5 w-2.5 rounded-full shrink-0 ${TYPE_DOT[type]}`}
+                          className={`h-2 w-2 rounded-full shrink-0 ${TYPE_DOT[type]}`}
                           aria-hidden="true"
                         />
                       )}
-                      <span className="text-sm truncate">
+                      <span className="text-sm text-[#17181c] dark:text-white">
                         {category?.name ?? "—"}
                       </span>
                       {type && (
@@ -339,19 +365,11 @@ export function ExpenseList({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={`text-xs ${RECURRENCE_PILL[transaction.recurrence]}`}
-                    >
-                      {RECURRENCE_DESCRIPTIONS[transaction.recurrence]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-stone-600 dark:text-stone-400 tabular-nums whitespace-nowrap">
+                  <TableCell className="py-3 text-sm text-[#737373] dark:text-[#a1a1aa] tabular-nums whitespace-nowrap">
                     {formatNextOccurrenceLabel(transaction.date, transaction.recurrence)}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums whitespace-nowrap">
-                    <div className="font-medium">
+                  <TableCell className="py-3 text-right tabular-nums whitespace-nowrap">
+                    <div className="font-semibold text-[#17181c] dark:text-white">
                       {new Intl.NumberFormat("es-CO", {
                         style: "currency",
                         currency: "COP",
@@ -359,7 +377,7 @@ export function ExpenseList({
                       }).format(amount)}
                     </div>
                     {showPerPayment && (
-                      <div className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5">
+                      <div className="text-[10px] text-[#a1a1aa] mt-0.5">
                         Por pago:{" "}
                         {new Intl.NumberFormat("es-CO", {
                           style: "currency",
@@ -369,13 +387,13 @@ export function ExpenseList({
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="text-right" sticky>
-                    <div className="flex justify-end gap-1">
+                  <TableCell className="py-3 text-right" sticky>
+                    <div className="flex justify-end gap-0.5">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(transaction)}
-                        className="h-8 w-8"
+                        className="h-8 w-8 hover:bg-[#26be15]/10 hover:text-[#26be15]"
                         aria-label="Editar"
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -384,7 +402,7 @@ export function ExpenseList({
                         variant="ghost"
                         size="icon"
                         onClick={() => onDelete(transaction)}
-                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        className="h-8 w-8 text-[#e54d4d] hover:bg-[#e54d4d]/10 hover:text-[#e54d4d]"
                         aria-label="Eliminar"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -398,6 +416,7 @@ export function ExpenseList({
         </Table>
       </div>
 
+      {/* Mobile cards */}
       <div className="md:hidden space-y-3">
         {paginated.map((transaction) => (
           <ExpenseCard

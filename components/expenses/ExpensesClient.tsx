@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Wallet, ArrowLeftRight } from "lucide-react";
+import { Plus, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { ExpenseList } from "./ExpenseList";
 import {
@@ -10,8 +10,8 @@ import {
   DEFAULT_FILTERS,
   type ExpenseFiltersState,
 } from "./ExpenseFilters";
-import { ExpenseSummary } from "./ExpenseSummary";
-import { ExpenseTypeCards } from "./ExpenseTypeCards";
+import { ExpenseFilterSheet } from "./ExpenseFilterSheet";
+import { ExpenseSummaryTabs } from "./ExpenseSummaryTabs";
 import { EditExpenseModal } from "./EditExpenseModal";
 import { AddExpenseModal } from "./AddExpenseModal";
 import { DeleteExpenseDialog } from "./DeleteExpenseDialog";
@@ -43,6 +43,7 @@ export function ExpensesClient({
 }: ExpensesClientProps) {
   const router = useRouter();
   const [filters, setFilters] = useState<ExpenseFiltersState>(DEFAULT_FILTERS);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [editTransaction, setEditTransaction] = useState<
     (Transaction & { category?: Category }) | null
   >(null);
@@ -87,28 +88,29 @@ export function ExpensesClient({
 
   return (
     <div className="space-y-6 md:space-y-8">
+      {/* Header */}
       <header className="space-y-2">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
           Tus finanzas
         </p>
         <div className="flex items-end justify-between gap-3 flex-wrap">
           <div className="min-w-0 space-y-1">
-            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-[1.1]">
+            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-[#17181c] dark:text-white leading-[1.1]">
               Gastos
             </h1>
-            <p className="text-sm md:text-[15px] text-stone-600 dark:text-stone-400 font-medium max-w-2xl leading-relaxed">
+            <p className="text-sm md:text-[15px] text-[#737373] dark:text-[#a1a1aa] font-medium max-w-2xl leading-relaxed">
               Gestiona cada cargo de tu presupuesto. Usa la frecuencia para
               ver el impacto real de tus gastos recurrentes.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-medium">
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[#737373] dark:text-[#a1a1aa] font-medium">
               <Wallet className="h-3.5 w-3.5" />
               {formatMonthName()}
             </span>
             <Button
               onClick={() => setIsAddOpen(true)}
-              className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-sm"
+              className="bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5] shadow-sm h-11 px-5 text-sm font-semibold"
             >
               <Plus className="h-4 w-4 mr-1.5" />
               Agregar gasto
@@ -117,35 +119,20 @@ export function ExpensesClient({
         </div>
       </header>
 
-      <ExpenseSummary
+      {/* Summary + Distribution Tabs */}
+      <ExpenseSummaryTabs
         totalEquivalent={totalEquivalent}
         oneTimeTotal={oneTimeTotal}
         income={income}
+        rule={rule}
+        totalsByType={totalsByType}
+        savingsRate={savingsRate}
       />
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between gap-2 px-1">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-            Distribución
-          </h2>
-          <p className="text-xs text-stone-500 dark:text-stone-400 hidden sm:flex items-center gap-1.5">
-            <ArrowLeftRight className="h-3 w-3" />
-            Equivalentes mensuales según regla{" "}
-            {rule.needs}/{rule.wants}/{rule.savings}
-          </p>
-        </div>
-        <ExpenseTypeCards
-          totals={totalsByType}
-          income={income}
-          rule={rule}
-          savingsRate={savingsRate}
-          totalEquivalent={totalEquivalent}
-        />
-      </section>
-
+      {/* Expense List */}
       <section className="space-y-3">
         <div className="px-1">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          <h2 className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
             Lista de gastos
           </h2>
         </div>
@@ -156,6 +143,7 @@ export function ExpensesClient({
           onClear={clearFilters}
           count={filteredTransactions.length}
           total={transactions.length}
+          onOpenFilterSheet={() => setFilterSheetOpen(true)}
         />
         <ExpenseList
           transactions={filteredTransactions}
@@ -166,6 +154,16 @@ export function ExpensesClient({
         />
       </section>
 
+      {/* Mobile Filter Sheet */}
+      <ExpenseFilterSheet
+        open={filterSheetOpen}
+        onOpenChange={setFilterSheetOpen}
+        filters={filters}
+        onChange={setFilters}
+        categories={categories}
+      />
+
+      {/* Modals */}
       <EditExpenseModal
         open={!!editTransaction}
         onOpenChange={(open) => {

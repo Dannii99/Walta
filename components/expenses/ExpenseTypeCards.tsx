@@ -17,27 +17,30 @@ const TYPE_LABELS: Record<"NEEDS" | "WANTS" | "SAVINGS", string> = {
 };
 
 const TYPE_DOT: Record<"NEEDS" | "WANTS" | "SAVINGS", string> = {
-  NEEDS: "bg-emerald-500",
-  WANTS: "bg-amber-500",
-  SAVINGS: "bg-blue-500",
+  NEEDS: "bg-[#23ad1b]",
+  WANTS: "bg-[#e7964d]",
+  SAVINGS: "bg-[#617dd5]",
 };
 
 const TYPE_PILL: Record<"NEEDS" | "WANTS" | "SAVINGS", string> = {
-  NEEDS: "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
-  WANTS: "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900",
-  SAVINGS: "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+  NEEDS:
+    "bg-[#23ad1b]/10 dark:bg-[#23ad1b]/15 text-[#23ad1b] dark:text-[#23ad1b] border-[#23ad1b]/20 dark:border-[#23ad1b]/20",
+  WANTS:
+    "bg-[#e7964d]/10 dark:bg-[#e7964d]/15 text-[#e7964d] dark:text-[#e7964d] border-[#e7964d]/20 dark:border-[#e7964d]/20",
+  SAVINGS:
+    "bg-[#617dd5]/10 dark:bg-[#617dd5]/15 text-[#617dd5] dark:text-[#617dd5] border-[#617dd5]/20 dark:border-[#617dd5]/20",
 };
 
 function pctColor(pct: number): string {
-  if (pct > 100) return "text-rose-700 dark:text-rose-400";
-  if (pct > 70) return "text-amber-700 dark:text-amber-400";
-  return "text-emerald-700 dark:text-emerald-400";
+  if (pct > 100) return "text-[#e54d4d]";
+  if (pct > 70) return "text-[#e7964d]";
+  return "text-[#23ad1b]";
 }
 
 function progressBarClass(pct: number): string {
-  if (pct > 100) return "bg-rose-500";
-  if (pct > 70) return "bg-amber-500";
-  return "bg-emerald-500";
+  if (pct > 100) return "bg-[#e54d4d]";
+  if (pct > 70) return "bg-[#e7964d]";
+  return "bg-[#23ad1b]";
 }
 
 function TypeCard({
@@ -51,14 +54,14 @@ function TypeCard({
 }) {
   const pct = limit > 0 ? Math.round((total / limit) * 100) : 0;
   return (
-    <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-3">
+    <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span
             className={`h-2.5 w-2.5 rounded-full ${TYPE_DOT[type]}`}
             aria-hidden="true"
           />
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
             {TYPE_LABELS[type]}
           </p>
         </div>
@@ -68,11 +71,11 @@ function TypeCard({
           {pct}%
         </span>
       </div>
-      <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
+      <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-[#17181c] dark:text-white">
         {formatCOP(total)}
       </p>
       <div
-        className="h-1.5 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800"
+        className="h-1.5 w-full overflow-hidden rounded-full bg-[#f5f5f5] dark:bg-white/5"
         role="progressbar"
         aria-valuenow={Math.min(pct, 100)}
         aria-valuemin={0}
@@ -83,7 +86,7 @@ function TypeCard({
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
       </div>
-      <p className="text-xs text-stone-500 dark:text-stone-400">
+      <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
         Límite: {formatCOP(limit)}{" "}
         <span className={pctColor(pct)}>
           {pct > 100 ? `(+${pct - 100}% sobre el límite)` : ""}
@@ -110,21 +113,21 @@ function SavingsCard({
 
   const rateColor =
     savingsRate >= 60
-      ? "text-blue-600 dark:text-blue-400"
+      ? "text-[#617dd5]"
       : savingsRate >= metaPct
-        ? "text-emerald-700 dark:text-emerald-400"
+        ? "text-[#23ad1b]"
         : deficit
-          ? "text-rose-700 dark:text-rose-400"
-          : "text-amber-700 dark:text-amber-400";
+          ? "text-[#e54d4d]"
+          : "text-[#e7964d]";
 
   const barClass =
     savingsRate >= 60
-      ? "bg-blue-500"
+      ? "bg-[#617dd5]"
       : savingsRate >= metaPct
-        ? "bg-emerald-500"
+        ? "bg-[#23ad1b]"
         : deficit
-          ? "bg-rose-500"
-          : "bg-amber-500";
+          ? "bg-[#e54d4d]"
+          : "bg-[#e7964d]";
 
   const barPct = Math.max(0, Math.min(100, savingsRate));
   const rateLabel =
@@ -137,16 +140,16 @@ function SavingsCard({
           : "Por debajo de la meta";
 
   return (
-    <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-3">
+    <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" aria-hidden="true" />
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#617dd5]" aria-hidden="true" />
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
             Ahorro real
           </p>
         </div>
-        <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center">
-          <PiggyBank className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <div className="h-8 w-8 rounded-lg bg-[#617dd5]/10 flex items-center justify-center">
+          <PiggyBank className="h-4 w-4 text-[#617dd5]" />
         </div>
       </div>
       <p
@@ -156,7 +159,7 @@ function SavingsCard({
         {savingsRate}%
       </p>
       <div
-        className="h-1.5 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800"
+        className="h-1.5 w-full overflow-hidden rounded-full bg-[#f5f5f5] dark:bg-white/5"
         role="progressbar"
         aria-valuenow={barPct}
         aria-valuemin={0}
@@ -168,11 +171,11 @@ function SavingsCard({
           style={{ width: `${barPct}%` }}
         />
       </div>
-      <p className="text-xs text-stone-500 dark:text-stone-400">{rateLabel}</p>
-      <p className="text-xs text-stone-500 dark:text-stone-400">
+      <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">{rateLabel}</p>
+      <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
         Meta: {metaPct}% según regla {rule.needs}/{rule.wants}/{rule.savings}
       </p>
-      <p className="text-xs text-stone-500 dark:text-stone-400 tabular-nums">
+      <p className="text-xs text-[#737373] dark:text-[#a1a1aa] tabular-nums">
         {deficit ? "Faltante" : "Sobrante"}: {formatCOP(Math.abs(sobrante))}
       </p>
     </div>
@@ -187,7 +190,7 @@ export function ExpenseTypeCards({
   totalEquivalent,
 }: ExpenseTypeCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
       <TypeCard type="NEEDS" total={totals.NEEDS} limit={income * (rule.needs / 100)} />
       <TypeCard type="WANTS" total={totals.WANTS} limit={income * (rule.wants / 100)} />
       <SavingsCard

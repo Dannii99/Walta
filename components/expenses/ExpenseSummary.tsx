@@ -8,15 +8,15 @@ interface ExpenseSummaryProps {
 }
 
 function pctColor(pct: number): string {
-  if (pct > 100) return "text-rose-700 dark:text-rose-400";
-  if (pct > 70) return "text-amber-700 dark:text-amber-400";
-  return "text-emerald-700 dark:text-emerald-400";
+  if (pct > 100) return "text-[#e54d4d]";
+  if (pct > 70) return "text-[#e7964d]";
+  return "text-[#23ad1b]";
 }
 
 function progressBarClass(pct: number): string {
-  if (pct > 100) return "bg-rose-500";
-  if (pct > 70) return "bg-amber-500";
-  return "bg-emerald-500";
+  if (pct > 100) return "bg-[#e54d4d]";
+  if (pct > 70) return "bg-[#e7964d]";
+  return "bg-[#23ad1b]";
 }
 
 export function ExpenseSummary({
@@ -28,48 +28,48 @@ export function ExpenseSummary({
     income > 0 ? Math.round((totalEquivalent / income) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+      <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
             Equivalente mensual
           </p>
-          <div className="h-8 w-8 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
-            <TrendingUp className="h-4 w-4 text-stone-600 dark:text-stone-300" />
+          <div className="h-8 w-8 rounded-lg bg-[#f5f5f5] dark:bg-white/5 flex items-center justify-center">
+            <TrendingUp className="h-4 w-4 text-[#617dd5] dark:text-[#617dd5]" />
           </div>
         </div>
-        <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
+        <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-[#17181c] dark:text-white">
           {formatCOP(totalEquivalent)}
         </p>
-        <p className="text-xs text-stone-500 dark:text-stone-400">
+        <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
           Suma de todos tus gastos del mes
         </p>
       </div>
 
-      <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
+      <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
             Únicos
           </p>
-          <div className="h-8 w-8 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
-            <Calendar className="h-4 w-4 text-stone-600 dark:text-stone-300" />
+          <div className="h-8 w-8 rounded-lg bg-[#f5f5f5] dark:bg-white/5 flex items-center justify-center">
+            <Calendar className="h-4 w-4 text-[#e7964d] dark:text-[#e7964d]" />
           </div>
         </div>
-        <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
+        <p className="text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums text-[#17181c] dark:text-white">
           {formatCOP(oneTimeTotal)}
         </p>
-        <p className="text-xs text-stone-500 dark:text-stone-400">
+        <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
           Cargos puntuales
         </p>
       </div>
 
-      <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
+      <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
             Del ingreso
           </p>
-          <div className="h-8 w-8 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center">
-            <Percent className="h-4 w-4 text-stone-600 dark:text-stone-300" />
+          <div className="h-8 w-8 rounded-lg bg-[#f5f5f5] dark:bg-white/5 flex items-center justify-center">
+            <Percent className="h-4 w-4 text-[#e54d4d] dark:text-[#e54d4d]" />
           </div>
         </div>
         <p
@@ -78,7 +78,7 @@ export function ExpenseSummary({
           {incomePct}%
         </p>
         <div
-          className="h-1.5 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800"
+          className="h-1.5 w-full overflow-hidden rounded-full bg-[#f5f5f5] dark:bg-white/5"
           role="progressbar"
           aria-valuenow={Math.min(incomePct, 100)}
           aria-valuemin={0}
@@ -89,7 +89,7 @@ export function ExpenseSummary({
             style={{ width: `${Math.min(incomePct, 100)}%` }}
           />
         </div>
-        <p className="text-xs text-stone-500 dark:text-stone-400">
+        <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
           {income > 0
             ? `${formatCOP(totalEquivalent)} de ${formatCOP(income)}`
             : "Sin ingresos configurados"}
