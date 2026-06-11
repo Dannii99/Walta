@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { animate, motion } from "framer-motion";
-import { Plus, Wallet } from "lucide-react";
+import { Plus, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { HealthStatus } from "@/lib/dashboard-helpers";
@@ -44,6 +45,7 @@ export function AvailableHero({
   onAddExpense,
   reducedMotion,
 }: AvailableHeroProps) {
+  const router = useRouter();
   const [displayAvailable, setDisplayAvailable] = useState(0);
   useEffect(() => {
     const controls = animate(0, available, {
@@ -107,10 +109,10 @@ export function AvailableHero({
           </Button>
           <Button
             variant="outline"
-            onClick={onAddExpense}
+            onClick={() => router.push("/expenses")}
             className="border-[#26be15] text-[#26be15] hover:bg-[#26be15]/10 hover:text-[#26be15] h-11 px-5 text-sm font-semibold"
           >
-            <Wallet className="h-4 w-4 mr-1.5" />
+            <ArrowRight className="h-4 w-4 mr-1.5" />
             Ver gastos
           </Button>
         </div>
