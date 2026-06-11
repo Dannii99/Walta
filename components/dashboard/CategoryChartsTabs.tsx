@@ -55,8 +55,7 @@ function ChartsTabs({
       role="tablist"
       aria-label="Vistas de gráficos"
       className={cn(
-        "flex items-center gap-1 p-1 rounded-xl bg-[#F0EDE9]/80 border border-[#E8E5E0]/60",
-        "dark:bg-stone-900/60 dark:border-stone-800",
+        "flex items-center gap-1 p-1 rounded-xl bg-white/50 dark:bg-white/5",
         className
       )}
     >
@@ -78,10 +77,10 @@ function ChartsTabs({
               "flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-lg",
               "text-xs md:text-sm font-semibold whitespace-nowrap",
               "transition-colors duration-150 outline-none",
-              "focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1 focus-visible:ring-offset-[#FAF9F7] dark:focus-visible:ring-stone-600 dark:focus-visible:ring-offset-stone-900",
+              "focus-visible:ring-2 focus-visible:ring-[#26be15] focus-visible:ring-offset-1",
               isActive
-                ? "bg-white text-stone-900 shadow-sm dark:bg-stone-800 dark:text-stone-50"
-                : "text-stone-600 hover:text-stone-900 hover:bg-white/50 dark:text-stone-400 dark:hover:text-stone-50 dark:hover:bg-stone-800/40"
+                ? "bg-gradient-to-r from-[#17181c] to-[#333438] text-white shadow-sm"
+                : "text-[#737373] hover:text-[#17181c] dark:text-[#a1a1aa] dark:hover:text-white"
             )}
           >
             <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -103,7 +102,7 @@ export function CategoryChartsTabs({
 
   return (
     <section
-      className="bg-white dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-300"
+      className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
       aria-labelledby="charts-heading"
     >
       <div className="p-6 md:p-7 space-y-5">
@@ -111,12 +110,12 @@ export function CategoryChartsTabs({
           <div className="space-y-0.5">
             <h2
               id="charts-heading"
-              className="text-base md:text-lg font-bold tracking-tight text-stone-900 dark:text-stone-50 flex items-center gap-2"
+              className="text-base md:text-lg font-bold tracking-tight text-[#17181c] dark:text-white flex items-center gap-2"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-stone-900 dark:bg-stone-100" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#26be15]" />
               Visualización de gastos
             </h2>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+            <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] font-medium">
               {monthLabel} · Equivalente mensual
             </p>
           </div>
@@ -127,7 +126,7 @@ export function CategoryChartsTabs({
           id={`tabpanel-${active}`}
           role="tabpanel"
           aria-labelledby={`tab-${active}`}
-          className="min-h-[360px] md:min-h-[420px]"
+          className="min-h-[320px] md:min-h-[400px]"
         >
           <AnimatePresence mode="wait">
             {active === "donut" ? (

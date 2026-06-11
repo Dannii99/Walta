@@ -3,11 +3,11 @@
 import { useReducedMotion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useDashboard } from "@/components/dashboard/DashboardContext";
-import { SaasHeader } from "@/components/shared/SaasHeader";
 import { AvailableHero } from "@/components/dashboard/AvailableHero";
+import { MiniStatsRow } from "@/components/dashboard/MiniStatsRow";
+import { HealthCards } from "@/components/dashboard/HealthCards";
 import { SimulatorQuickAccess } from "@/components/dashboard/SimulatorQuickAccess";
 import { CategoryChartsTabs } from "@/components/dashboard/CategoryChartsTabs";
-import { HealthCards } from "@/components/dashboard/HealthCards";
 import { AddExpenseModal } from "@/components/expenses/AddExpenseModal";
 import type { Category } from "@/types";
 import { getDynamicMessage, type HealthStatus } from "@/lib/dashboard-helpers";
@@ -76,47 +76,62 @@ export function DashboardContent({
     router.refresh();
   };
 
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return "Buenos días";
+    if (h < 19) return "Buenas tardes";
+    return "Buenas noches";
+  })();
+
   return (
-    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 space-y-8 md:space-y-10 max-w-[1440px] mx-auto">
-      <SaasHeader
-        userName={userName}
-        monthLabel={monthLabel}
-        budgetName={budgetName}
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:py-8 space-y-6 md:space-y-8 max-w-360 mx-auto">
+      {/* Greeting as page title */}
+      <div className="space-y-1">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[#17181c] dark:text-white">
+          {greeting},{" "}
+          <span className="text-[#26be15]">{userName}</span>
+        </h1>
+        <p className="text-sm text-[#737373] dark:text-[#a1a1aa] font-medium">
+          {monthLabel} · {budgetName}
+        </p>
+      </div>
+
+      <AvailableHero
+        available={available}
+        income={income}
+        expenses={monthlyEquivalentExpenses}
+        savingsCapacity={savingsCapacity}
+        expensesPct={Number(expensesPct)}
+        overBudget={overBudget}
+        healthStatus={healthStatus}
         dynamicMessage={dynamicMessage}
-        status={healthStatus}
         onAddExpense={() => setOpenAddModal(true)}
+        reducedMotion={shouldReduceMotion}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-        <div className="lg:col-span-7">
-          <AvailableHero
-            available={available}
-            income={income}
-            expenses={monthlyEquivalentExpenses}
-            savingsCapacity={savingsCapacity}
-            expensesPct={Number(expensesPct)}
-            overBudget={overBudget}
-            onAddExpense={() => setOpenAddModal(true)}
-            reducedMotion={shouldReduceMotion}
-          />
-        </div>
-        <div className="lg:col-span-5">
-          <HealthCards
-            ruleName={ruleName}
-            needsPct={needsPct}
-            wantsPct={wantsPct}
-            savingsPct={savingsPct}
-            needsSpent={needsSpent}
-            needsLimit={needsLimit}
-            wantsSpent={wantsSpent}
-            wantsLimit={wantsLimit}
-            savingsRate={savingsRate}
-            income={income}
-            monthlyEquivalentExpenses={monthlyEquivalentExpenses}
-            reducedMotion={shouldReduceMotion}
-          />
-        </div>
-      </div>
+      <MiniStatsRow
+        income={income}
+        expenses={monthlyEquivalentExpenses}
+        savingsCapacity={savingsCapacity}
+        expensesPct={Number(expensesPct)}
+        overBudget={overBudget}
+        reducedMotion={shouldReduceMotion}
+      />
+
+      <HealthCards
+        ruleName={ruleName}
+        needsPct={needsPct}
+        wantsPct={wantsPct}
+        savingsPct={savingsPct}
+        needsSpent={needsSpent}
+        needsLimit={needsLimit}
+        wantsSpent={wantsSpent}
+        wantsLimit={wantsLimit}
+        savingsRate={savingsRate}
+        income={income}
+        monthlyEquivalentExpenses={monthlyEquivalentExpenses}
+        reducedMotion={shouldReduceMotion}
+      />
 
       <CategoryChartsTabs
         donutData={donutData}

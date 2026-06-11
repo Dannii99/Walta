@@ -1,6 +1,6 @@
 "use client";
 
-import { createElement, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -9,17 +9,11 @@ import {
   YAxis,
   ResponsiveContainer,
   Tooltip,
-  LabelList,
+  Cell,
 } from "recharts";
 import { useTheme } from "next-themes";
-import {
-  BarChart3,
-  TrendingUp,
-  AlertTriangle,
-  type LucideIcon,
-} from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { formatCOP } from "@/lib/currency";
 import type { CategoryType } from "@/types";
 
 export interface BarChartItem {
@@ -54,20 +48,7 @@ interface BarDatum {
   color: string;
   type: CategoryType;
   id: string;
-}
-
-interface CustomBarProps {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  payload?: BarDatum;
-}
-
-interface YTickProps {
-  x?: number | string;
-  y?: number | string;
-  payload?: { value: string };
+  pct: number;
 }
 
 export function CategoryLimitsBarChart({ items, bare = false, reducedMotion }: CategoryLimitsBarChartProps) {
@@ -103,97 +84,28 @@ export function CategoryLimitsBarChart({ items, bare = false, reducedMotion }: C
     return sorted;
   }, [sorted, filter]);
 
-  const topN = filtered.slice(0, 8);
+  const topN = filtered.slice(0, 10);
 
-  const barData: BarDatum[] = topN.map((i) => ({
-    name: i.name,
-    spent: i.spent,
-    limit: i.limit,
-    color: i.color,
-    type: i.type,
-    id: i.id,
-  }));
+  const barData: BarDatum[] = topN.map((i) => {
+    const pct = i.limit > 0 ? (i.spent / i.limit) * 100 : 0;
+    return {
+      name: i.name,
+      spent: i.spent,
+      limit: i.limit,
+      color: i.color,
+      type: i.type,
+      id: i.id,
+      pct,
+    };
+  });
 
-  const renderCustomBar = (props: CustomBarProps) => {
-    const { x = 0, y = 0, width = 0, height = 0, payload } = props;
-    if (!payload) return null;
-    const { spent, limit, color } = payload;
-    const hasLimit = limit > 0;
-    const pct = hasLimit ? (spent / limit) * 100 : 0;
-    const statusColor = !hasLimit
-      ? color
-      : pct > 100
-      ? "#e11d48"
-      : pct > 85
-      ? "#f59e0b"
-      : "#10b981";
-    const fillRatio = hasLimit ? Math.min(spent / limit, 1) : 1;
-    const fillWidth = width * fillRatio;
-    const rx = Math.min(4, height / 2);
+  const maxValue = Math.max(
+    ...barData.map((d) => Math.max(d.spent, d.limit)),
+    1
+  );
 
-    return createElement(
-      "g",
-      null,
-      createElement("rect", {
-        x,
-        y,
-        width,
-        height,
-        rx,
-        ry: rx,
-        fill: isDark ? "#1e293b" : "#f5f5f4",
-      }),
-      fillWidth > 0
-        ? createElement("rect", {
-            x,
-            y,
-            width: fillWidth,
-            height,
-            rx,
-            ry: rx,
-            fill: statusColor,
-          })
-        : null
-    );
-  };
-
-  const renderYTick = (props: YTickProps) => {
-    const { x = 0, y = 0, payload } = props;
-    if (!payload) return null;
-    const item = barData.find((d) => d.name === payload.value);
-    if (!item) return null;
-    return createElement(
-      "g",
-      { transform: `translate(${x},${y})` },
-      createElement(
-        "text",
-        {
-          x: 0,
-          y: -3,
-          textAnchor: "end",
-          fill: isDark ? "#f8fafc" : "#1c1917",
-          fontSize: 12,
-          fontWeight: 600,
-        },
-        item.name
-      ),
-      createElement(
-        "text",
-        {
-          x: 0,
-          y: 11,
-          textAnchor: "end",
-          fill: isDark ? "#94a3b8" : "#78716c",
-          fontSize: 10,
-          fontWeight: 500,
-        },
-        item.limit > 0 ? `de ${formatCurrency(item.limit)}` : "Sin límite"
-      )
-    );
-  };
-
-  const labelFill = isDark ? "#f8fafc" : "#0c0a09";
-  const cursorFill = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
+  const cursorFill = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)";
+  const axisColor = isDark ? "#a1a1aa" : "#737373";
 
   return (
     <motion.div
@@ -203,22 +115,22 @@ export function CategoryLimitsBarChart({ items, bare = false, reducedMotion }: C
       className={cn(
         bare
           ? ""
-          : "bg-white dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-300"
+          : "bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
       )}
     >
       <div className={cn("space-y-5", !bare && "p-6 md:p-7")}>
         <div className="flex items-start justify-between gap-3 flex-wrap">
           {!bare && (
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-50/70 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 shrink-0">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#26be15]/10 text-[#26be15] shrink-0">
                 <BarChart3 className="h-3.5 w-3.5" strokeWidth={2.3} />
               </div>
               <div className="min-w-0">
-                <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-50">
+                <h2 className="text-sm font-bold tracking-tight text-[#17181c] dark:text-white">
                   Gastado vs Límite
                 </h2>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
-                  Equivalente mensual · top {topN.length} categorías
+                <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] font-medium">
+                  Top {topN.length} categorías
                 </p>
               </div>
             </div>
@@ -235,108 +147,158 @@ export function CategoryLimitsBarChart({ items, bare = false, reducedMotion }: C
               onClick={() => setFilter("near")}
               label="Cerca"
               count={nearCount}
-              tone="amber"
+              tone="warning"
             />
             <FilterChip
               active={filter === "exceeded"}
               onClick={() => setFilter("exceeded")}
               label="Excedidas"
               count={exceededCount}
-              tone="rose"
+              tone="danger"
             />
           </div>
         </div>
 
         {bare && !hasData ? (
-          <div className="text-center py-10 text-stone-500 dark:text-stone-400 text-sm">
+          <div className="text-center py-10 text-[#737373] dark:text-[#a1a1aa] text-sm">
             <p className="font-medium">Sin gastos registrados este mes</p>
-            <p className="text-xs mt-1">Agrega gastos para ver el comparativo contra tus límites.</p>
+            <p className="text-xs mt-1">Agrega gastos para ver el comparativo.</p>
           </div>
         ) : !hasData ? null : topN.length === 0 ? (
-          <div className="text-center py-10 text-stone-500 dark:text-stone-400 text-sm">
+          <div className="text-center py-10 text-[#737373] dark:text-[#a1a1aa] text-sm">
             <p className="font-medium">Sin categorías en este filtro</p>
             <button
               type="button"
               onClick={() => setFilter("all")}
-              className="text-xs text-stone-700 dark:text-stone-300 underline mt-1"
+              className="text-xs text-[#17181c] dark:text-white underline mt-1"
             >
               Ver todas
             </button>
           </div>
         ) : (
-          <>
-            <div
-              className="h-[280px] sm:h-[320px] md:h-[360px] outline-none focus:outline-none"
-              tabIndex={-1}
-              style={{ outline: "none" }}
-              onMouseDown={(e) => e.preventDefault()}
-            >
+          <div className="space-y-4">
+            {/* Mobile: horizontal scroll */}
+            <div className="lg:hidden overflow-x-auto scrollbar-none -mx-2 px-2">
+              <div className="flex gap-4 min-w-max">
+                {barData.map((d) => {
+                  const over = d.spent > d.limit && d.limit > 0;
+                  const pct = d.limit > 0 ? (d.spent / d.limit) * 100 : 0;
+                  const barHeight = Math.min((d.spent / maxValue) * 160, 160);
+                  const limitHeight = Math.min((d.limit / maxValue) * 160, 160);
+
+                  return (
+                    <div key={d.id} className="flex flex-col items-center gap-2 w-16">
+                      <div className="relative h-[160px] flex items-end">
+                        {/* Limit line */}
+                        {d.limit > 0 && (
+                          <div
+                            className="absolute w-full border-t border-dashed border-[#a1a1aa] dark:border-[#737373]"
+                            style={{ bottom: `${limitHeight}px` }}
+                          />
+                        )}
+                        {/* Spent bar */}
+                        <div
+                          className={cn(
+                            "w-8 rounded-t-md transition-all",
+                            over
+                              ? "bg-gradient-to-t from-[#e54d4d] to-[#e54d4d]/70"
+                              : "bg-gradient-to-t from-[#17181c] to-[#333438]"
+                          )}
+                          style={{ height: `${barHeight}px` }}
+                        />
+                      </div>
+                      <div className="text-center space-y-0.5">
+                        <p className="text-[10px] font-semibold text-[#17181c] dark:text-white truncate w-16 leading-tight">
+                          {d.name}
+                        </p>
+                        <p className={cn(
+                          "text-[9px] font-bold",
+                          over ? "text-[#e54d4d]" : "text-[#737373] dark:text-[#a1a1aa]"
+                        )}>
+                          {pct.toFixed(0)}%
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Desktop: Recharts vertical */}
+            <div className="hidden lg:block h-[320px] md:h-[360px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={barData}
-                  layout="vertical"
-                  margin={{ top: 5, right: 64, left: 0, bottom: 5 }}
-                  barCategoryGap={10}
-                  style={{ cursor: "pointer", outline: "none" }}
+                  margin={{ top: 10, right: 20, left: 10, bottom: 30 }}
+                  barCategoryGap={12}
                 >
                   <XAxis
-                    type="number"
-                    hide
-                    domain={[0, (dataMax: number) => Math.max(dataMax * 1.05, 100)]}
+                    dataKey="name"
+                    tick={{ fill: axisColor, fontSize: 11, fontWeight: 600 }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={0}
+                    angle={-30}
+                    textAnchor="end"
+                    height={60}
                   />
                   <YAxis
-                    type="category"
-                    dataKey="name"
-                    width={120}
-                    tickLine={false}
+                    tick={{ fill: axisColor, fontSize: 10 }}
                     axisLine={false}
-                    tick={renderYTick}
+                    tickLine={false}
+                    tickFormatter={(v) =>
+                      new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        notation: "compact",
+                        maximumFractionDigits: 0,
+                      }).format(v)
+                    }
                   />
                   <Tooltip
                     cursor={{ fill: cursorFill }}
                     content={({ active, payload }) => {
                       if (!active || !payload?.length) return null;
                       const d = payload[0]?.payload as BarDatum;
-                      const pct = d.limit > 0 ? (d.spent / d.limit) * 100 : 0;
                       const over = d.spent > d.limit && d.limit > 0;
                       return (
-                        <div className="rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 shadow-md p-2.5 min-w-[200px]">
+                        <div className="rounded-xl border border-[#e8e8e8] dark:border-[#26272b] bg-white dark:bg-[#17181c] shadow-md p-2.5 min-w-[180px]">
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <div
                               className="h-2 w-2 rounded-full"
                               style={{ backgroundColor: d.color }}
                             />
-                            <span className="text-xs font-semibold text-stone-900 dark:text-stone-50 truncate">
+                            <span className="text-xs font-semibold text-[#17181c] dark:text-white truncate">
                               {d.name}
                             </span>
                           </div>
                           <div className="space-y-0.5 text-[11px]">
                             <div className="flex justify-between gap-3">
-                              <span className="text-stone-500 dark:text-stone-400">Gastado</span>
-                              <span className="font-bold text-stone-900 dark:text-stone-50 tabular-nums">
+                              <span className="text-[#737373] dark:text-[#a1a1aa]">Gastado</span>
+                              <span className="font-bold text-[#17181c] dark:text-white tabular-nums">
                                 {formatCurrency(d.spent)}
                               </span>
                             </div>
                             <div className="flex justify-between gap-3">
-                              <span className="text-stone-500 dark:text-stone-400">Límite</span>
-                              <span className="font-bold text-stone-900 dark:text-stone-50 tabular-nums">
+                              <span className="text-[#737373] dark:text-[#a1a1aa]">Límite</span>
+                              <span className="font-bold text-[#17181c] dark:text-white tabular-nums">
                                 {d.limit > 0 ? formatCurrency(d.limit) : "—"}
                               </span>
                             </div>
                             {d.limit > 0 && (
-                              <div className="flex justify-between gap-3 pt-0.5 border-t border-stone-100 dark:border-stone-700">
-                                <span className="text-stone-500 dark:text-stone-400">% usado</span>
+                              <div className="flex justify-between gap-3 pt-0.5 border-t border-[#f0f0f0] dark:border-[#26272b]">
+                                <span className="text-[#737373] dark:text-[#a1a1aa]">% usado</span>
                                 <span
                                   className={cn(
                                     "font-bold tabular-nums",
                                     over
-                                      ? "text-rose-700 dark:text-rose-400"
-                                      : pct > 85
-                                      ? "text-amber-700 dark:text-amber-400"
-                                      : "text-stone-900 dark:text-stone-50"
+                                      ? "text-[#e54d4d]"
+                                      : d.pct > 85
+                                      ? "text-[#e7964d]"
+                                      : "text-[#23ad1b]"
                                   )}
                                 >
-                                  {pct.toFixed(0)}%
+                                  {d.pct.toFixed(0)}%
                                 </span>
                               </div>
                             )}
@@ -346,69 +308,54 @@ export function CategoryLimitsBarChart({ items, bare = false, reducedMotion }: C
                     }}
                   />
                   <Bar
-                    dataKey="limit"
-                    shape={renderCustomBar}
+                    dataKey="spent"
+                    radius={[4, 4, 0, 0]}
                     isAnimationActive={true}
                     animationDuration={700}
-                    background={false}
                   >
-                    <LabelList
-                      dataKey="spent"
-                      position="right"
-                      formatter={(v) =>
-                        formatCurrency(typeof v === "number" ? v : 0)
-                      }
-                      style={{
-                        fill: labelFill,
-                        fontSize: 11,
-                        fontWeight: 700,
-                      }}
-                    />
+                    {barData.map((d) => {
+                      const over = d.spent > d.limit && d.limit > 0;
+                      return (
+                        <Cell
+                          key={d.id}
+                          fill={
+                            over
+                              ? "#e54d4d"
+                              : "url(#gradientBlack)"
+                          }
+                        />
+                      );
+                    })}
                   </Bar>
+                  <defs>
+                    <linearGradient id="gradientBlack" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#333438" />
+                      <stop offset="100%" stopColor="#17181c" />
+                    </linearGradient>
+                  </defs>
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-stone-100 dark:border-stone-800">
-              <SummaryStat
-                icon={BarChart3}
-                label="Categorías"
-                value={String(sorted.length)}
-                valueColor="text-stone-900 dark:text-stone-50"
-              />
-              <SummaryStat
-                icon={TrendingUp}
-                label="Gastado"
-                value={formatCOP(totalSpent)}
-                valueColor="text-stone-900 dark:text-stone-50"
-              />
-              <SummaryStat
-                icon={AlertTriangle}
-                label="Excedidas"
-                value={String(exceededCount)}
-                valueColor={exceededCount > 0 ? "text-rose-700 dark:text-rose-400" : "text-stone-900 dark:text-stone-50"}
-              />
-            </div>
-
-            <div className="flex items-center gap-3 text-[10px] text-stone-500 dark:text-stone-400 flex-wrap">
+            {/* Simple summary row */}
+            <div className="flex items-center gap-4 text-[10px] text-[#737373] dark:text-[#a1a1aa] flex-wrap pt-2 border-t border-[#f0f0f0] dark:border-[#26272b]">
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-3 rounded-sm bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700" />
-                Disponible
+                <span className="h-2 w-2 rounded-sm bg-[#17181c]" />
+                Gastado
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-3 rounded-sm bg-emerald-500" />
-                Saludable
+                <span className="h-2 w-2 rounded-sm border border-dashed border-[#a1a1aa] dark:border-[#737373]" />
+                Límite
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2 w-3 rounded-sm bg-amber-500" />
-                Cerca del límite
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-3 rounded-sm bg-rose-500" />
+                <span className="h-2 w-2 rounded-sm bg-[#e54d4d]" />
                 Excedido
               </span>
+              <span className="ml-auto font-bold text-[#17181c] dark:text-white">
+                {exceededCount > 0 ? `${exceededCount} excedidas` : "Sin excedidos"}
+              </span>
             </div>
-          </>
+          </div>
         )}
       </div>
     </motion.div>
@@ -420,61 +367,33 @@ interface FilterChipProps {
   onClick: () => void;
   label: string;
   count: number;
-  tone?: "amber" | "rose";
+  tone?: "warning" | "danger";
 }
 
 function FilterChip({ active, onClick, label, count, tone }: FilterChipProps) {
   const toneClass = (() => {
     if (!active)
-      return "bg-stone-50 dark:bg-stone-900/60 border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800";
-    if (tone === "amber")
-      return "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400";
-    if (tone === "rose")
-      return "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400";
-    return "bg-stone-900 dark:bg-stone-100 border-stone-900 dark:border-stone-100 text-white dark:text-stone-900";
+      return "bg-[#f5f5f5] dark:bg-[#1a1a1e] text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f0f0f0] dark:hover:bg-[#26272b]";
+    if (tone === "warning")
+      return "bg-[#fffbeb] dark:bg-[#e7964d]/10 text-[#e7964d] border border-[#e7964d]/20";
+    if (tone === "danger")
+      return "bg-[#fef2f2] dark:bg-[#e54d4d]/10 text-[#e54d4d] border border-[#e54d4d]/20";
+    return "bg-gradient-to-r from-[#17181c] to-[#333438] text-white";
   })();
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1",
         "text-[10px] font-bold uppercase tracking-wider transition-colors",
         toneClass
       )}
     >
       {label}
-      <span
-        className={cn(
-          "tabular-nums",
-          active && tone === undefined && "text-white/70 dark:text-stone-900/70",
-          active && tone === "amber" && "text-amber-700/70 dark:text-amber-400/70",
-          active && tone === "rose" && "text-rose-700/70 dark:text-rose-400/70"
-        )}
-      >
+      <span className="tabular-nums opacity-70">
         {count}
       </span>
     </button>
-  );
-}
-
-interface SummaryStatProps {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  valueColor: string;
-}
-
-function SummaryStat({ icon: Icon, label, value, valueColor }: SummaryStatProps) {
-  return (
-    <div className="space-y-0.5">
-      <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-        <Icon className="h-2.5 w-2.5" />
-        {label}
-      </div>
-      <p className={cn("text-sm font-extrabold tabular-nums", valueColor)}>
-        {value}
-      </p>
-    </div>
   );
 }

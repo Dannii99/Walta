@@ -71,77 +71,77 @@ const STYLE: Record<
   }
 > = {
   healthy: {
-    bar: "[&>div]:bg-emerald-500",
-    text: "text-emerald-700 dark:text-emerald-400",
+    bar: "[&>div]:bg-[#23ad1b]",
+    text: "text-[#23ad1b] dark:text-[#23ad1b]",
     label: "Saludable",
-    pill: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+    pill: "bg-[#f0fdf4] text-[#23ad1b] border-[#23ad1b]/20 dark:bg-[#23ad1b]/10 dark:text-[#23ad1b] dark:border-[#23ad1b]/20",
     emoji: "😊",
-    barTrack: "bg-stone-100 dark:bg-stone-800",
+    barTrack: "bg-[#f0f0f0] dark:bg-[#1a1a1e]",
     pillIcon: CheckCircle2,
-    borderAccent: "bg-emerald-500",
-    ringClass: "ring-emerald-500/30",
+    borderAccent: "bg-[#23ad1b]",
+    ringClass: "ring-[#23ad1b]/20",
   },
   warning: {
-    bar: "[&>div]:bg-amber-500",
-    text: "text-amber-700 dark:text-amber-400",
+    bar: "[&>div]:bg-[#e7964d]",
+    text: "text-[#e7964d] dark:text-[#e7964d]",
     label: "Ajustado",
-    pill: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+    pill: "bg-[#fffbeb] text-[#e7964d] border-[#e7964d]/20 dark:bg-[#e7964d]/10 dark:text-[#e7964d] dark:border-[#e7964d]/20",
     emoji: "😐",
-    barTrack: "bg-stone-100 dark:bg-stone-800",
+    barTrack: "bg-[#f0f0f0] dark:bg-[#1a1a1e]",
     pillIcon: AlertCircle,
-    borderAccent: "bg-amber-500",
-    ringClass: "ring-amber-500/30",
+    borderAccent: "bg-[#e7964d]",
+    ringClass: "ring-[#e7964d]/20",
   },
   critical: {
-    bar: "[&>div]:bg-rose-500",
-    text: "text-rose-700 dark:text-rose-400",
+    bar: "[&>div]:bg-[#e54d4d]",
+    text: "text-[#e54d4d] dark:text-[#e54d4d]",
     label: "Excedido",
-    pill: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+    pill: "bg-[#fef2f2] text-[#e54d4d] border-[#e54d4d]/20 dark:bg-[#e54d4d]/10 dark:text-[#e54d4d] dark:border-[#e54d4d]/20",
     emoji: "😟",
-    barTrack: "bg-stone-100 dark:bg-stone-800",
+    barTrack: "bg-[#f0f0f0] dark:bg-[#1a1a1e]",
     pillIcon: AlertTriangle,
-    borderAccent: "bg-rose-500",
-    ringClass: "ring-rose-500/30",
+    borderAccent: "bg-[#e54d4d]",
+    ringClass: "ring-[#e54d4d]/20",
   },
   aggressive: {
-    bar: "[&>div]:bg-emerald-500",
-    text: "text-emerald-700 dark:text-emerald-400",
+    bar: "[&>div]:bg-[#23ad1b]",
+    text: "text-[#23ad1b] dark:text-[#23ad1b]",
     label: "Agresivo",
-    pill: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900",
+    pill: "bg-[#f0fdf4] text-[#23ad1b] border-[#23ad1b]/20 dark:bg-[#23ad1b]/10 dark:text-[#23ad1b] dark:border-[#23ad1b]/20",
     emoji: "💪",
-    barTrack: "bg-stone-100 dark:bg-stone-800",
+    barTrack: "bg-[#f0f0f0] dark:bg-[#1a1a1e]",
     pillIcon: Trophy,
-    borderAccent: "bg-emerald-500",
-    ringClass: "ring-emerald-500/30",
+    borderAccent: "bg-[#23ad1b]",
+    ringClass: "ring-[#23ad1b]/20",
   },
   extraordinary: {
-    bar: "[&>div]:bg-blue-500",
-    text: "text-blue-700 dark:text-blue-400",
+    bar: "[&>div]:bg-[#617dd5]",
+    text: "text-[#617dd5] dark:text-[#617dd5]",
     label: "Extraordinario",
-    pill: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+    pill: "bg-[#eff6ff] text-[#617dd5] border-[#617dd5]/20 dark:bg-[#617dd5]/10 dark:text-[#617dd5] dark:border-[#617dd5]/20",
     emoji: "🌟",
-    barTrack: "bg-stone-100 dark:bg-stone-800",
+    barTrack: "bg-[#f0f0f0] dark:bg-[#1a1a1e]",
     pillIcon: Sparkles,
-    borderAccent: "bg-blue-500",
-    ringClass: "ring-blue-500/30",
+    borderAccent: "bg-[#617dd5]",
+    ringClass: "ring-[#617dd5]/20",
   },
   deficit: {
-    bar: "[&>div]:bg-rose-500",
-    text: "text-rose-700 dark:text-rose-400",
+    bar: "[&>div]:bg-[#e54d4d]",
+    text: "text-[#e54d4d] dark:text-[#e54d4d]",
     label: "Déficit",
-    pill: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900",
+    pill: "bg-[#fef2f2] text-[#e54d4d] border-[#e54d4d]/20 dark:bg-[#e54d4d]/10 dark:text-[#e54d4d] dark:border-[#e54d4d]/20",
     emoji: "😟",
-    barTrack: "bg-stone-100 dark:bg-stone-800",
+    barTrack: "bg-[#f0f0f0] dark:bg-[#1a1a1e]",
     pillIcon: AlertTriangle,
-    borderAccent: "bg-rose-500",
-    ringClass: "ring-rose-500/30",
+    borderAccent: "bg-[#e54d4d]",
+    ringClass: "ring-[#e54d4d]/20",
   },
 };
 
 const ICON_TONE: Record<string, { bg: string; text: string }> = {
-  Necesidades: { bg: "bg-blue-50/70 dark:bg-blue-950/30", text: "text-blue-600 dark:text-blue-400" },
-  Deseos: { bg: "bg-orange-50/70 dark:bg-orange-950/30", text: "text-orange-600 dark:text-orange-400" },
-  Ahorro: { bg: "bg-emerald-50/70 dark:bg-emerald-950/30", text: "text-emerald-600 dark:text-emerald-400" },
+  Necesidades: { bg: "bg-[#617dd5]/10", text: "text-[#617dd5]" },
+  Deseos: { bg: "bg-[#e7964d]/10", text: "text-[#e7964d]" },
+  Ahorro: { bg: "bg-[#23ad1b]/10", text: "text-[#23ad1b]" },
 };
 
 interface HealthCardProps {
@@ -172,14 +172,14 @@ function HealthCard({
     ? Math.max(0, Math.min(showBarReference, 100))
     : null;
 
-  const iconTone = ICON_TONE[label] ?? { bg: "bg-stone-100 dark:bg-stone-800", text: "text-stone-600 dark:text-stone-300" };
+  const iconTone = ICON_TONE[label] ?? { bg: "bg-[#f5f5f5]", text: "text-[#737373]" };
 
   return (
     <motion.div
       initial={reducedMotion ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] p-5 sm:p-6 md:p-7 relative overflow-hidden hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-300"
+      className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 sm:p-6 relative overflow-hidden"
     >
       <span
         className={cn(
@@ -194,7 +194,7 @@ function HealthCard({
             <div className={cn("flex h-7 w-7 items-center justify-center rounded-md shrink-0", iconTone.bg)}>
               <Icon className={cn("h-3.5 w-3.5", iconTone.text)} strokeWidth={2.3} />
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 truncate">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] truncate">
               {label}
             </p>
           </div>
@@ -204,11 +204,11 @@ function HealthCard({
         </div>
 
         <div className="flex items-baseline gap-2">
-          <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
+          <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight tabular-nums text-[#17181c] dark:text-white">
             {percentage.toFixed(0)}%
           </span>
           {showPlusBadge && (
-            <span className="text-xl sm:text-2xl md:text-3xl font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
+            <span className="text-xl sm:text-2xl md:text-3xl font-extrabold tabular-nums text-[#17181c] dark:text-white">
               +
             </span>
           )}
@@ -222,12 +222,12 @@ function HealthCard({
           {reference != null && (
             <>
               <span
-                className="absolute top-0 h-1.5 w-px bg-stone-400 dark:bg-stone-500"
+                className="absolute top-0 h-1.5 w-px bg-[#737373] dark:bg-[#a1a1aa]"
                 style={{ left: `${reference}%` }}
                 aria-hidden
               />
               <span
-                className="absolute -top-3.5 text-[9px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 -translate-x-1/2 tabular-nums"
+                className="absolute -top-3.5 text-[9px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] -translate-x-1/2 tabular-nums"
                 style={{ left: `${reference}%` }}
               >
                 Meta {reference}%
@@ -295,7 +295,7 @@ export function HealthCards({
   const needsSubline = (
     <>
       {formatCOP(needsSpent)}{" "}
-      <span className="text-stone-400 dark:text-stone-500 font-medium">
+      <span className="text-[#a1a1aa] font-medium">
         de {formatCOP(needsLimit)}
       </span>
     </>
@@ -303,13 +303,13 @@ export function HealthCards({
   const wantsSubline = (
     <>
       {formatCOP(wantsSpent)}{" "}
-      <span className="text-stone-400 dark:text-stone-500 font-medium">
+      <span className="text-[#a1a1aa] font-medium">
         de {formatCOP(wantsLimit)}
       </span>
     </>
   );
   const savingsSubline = (
-    <span className="text-stone-600 dark:text-stone-300">
+    <span className="text-[#737373] dark:text-[#a1a1aa]">
       Tasa de ahorro real este mes
     </span>
   );
@@ -318,20 +318,20 @@ export function HealthCards({
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="space-y-0.5">
-          <h2 className="text-base md:text-lg font-bold tracking-tight text-stone-900 dark:text-stone-50 flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-stone-900 dark:bg-stone-100" />
+          <h2 className="text-base md:text-lg font-bold tracking-tight text-[#17181c] dark:text-white flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#26be15]" />
             Salud Financiera
           </h2>
-          <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+          <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] font-medium">
             Regla aplicada:{" "}
-            <span className="font-bold text-stone-700 dark:text-stone-300">
+            <span className="font-bold text-[#17181c] dark:text-white">
               {ruleName}
             </span>
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         <HealthCard
           label="Necesidades"
           styleKey={getSpendingStatus(needsPercentage)}
@@ -360,15 +360,15 @@ export function HealthCards({
         />
       </div>
 
-      <div className="bg-[#F0EDE9]/60 dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-xl p-4 sm:p-5 flex items-start gap-3">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900">
+      <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-4 sm:p-5 flex items-start gap-3">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#17181c] dark:bg-white text-white dark:text-[#17181c]">
           <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.3} />
         </div>
         <div className="space-y-0.5 min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
             Recomendación
           </p>
-          <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 font-medium leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#17181c] dark:text-white font-medium leading-relaxed">
             {recommendation}
           </p>
         </div>

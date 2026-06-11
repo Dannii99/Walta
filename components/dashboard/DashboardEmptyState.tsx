@@ -13,27 +13,27 @@ export function DashboardEmptyState() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 p-8 md:p-12 shadow-xl ring-1 ring-black/5 dark:ring-white/5"
+      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#f0fdf4] via-[#fafafa] to-[#f5f5f5] dark:from-[#1a1a1e] dark:via-[#17181c] dark:to-[#0c0d10] p-8 md:p-12 shadow-[0_4px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#26be15]/10 dark:ring-white/5"
     >
-      <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gradient-to-br from-blue-500/20 via-indigo-500/20 to-purple-500/20 blur-3xl" />
-      <div className="absolute -left-12 -bottom-12 h-40 w-40 rounded-full bg-gradient-to-br from-pink-500/15 to-rose-500/15 blur-2xl" />
+      <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gradient-to-br from-[#26be15]/20 via-[#23ad1b]/15 to-[#617dd5]/10 blur-3xl" />
+      <div className="absolute -left-12 -bottom-12 h-40 w-40 rounded-full bg-gradient-to-br from-[#e7964d]/10 to-[#e54d4d]/10 blur-2xl" />
 
       <div className="relative flex flex-col items-center text-center max-w-2xl mx-auto space-y-6">
-        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 text-white shadow-xl shadow-indigo-500/30 ring-4 ring-white/40 dark:ring-stone-900/40">
+        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#26be15] to-[#23ad1b] text-white shadow-xl shadow-[#26be15]/30 ring-4 ring-white/40 dark:ring-[#17181c]/40">
           <Wallet className="h-10 w-10" strokeWidth={2} />
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400">
+            <Sparkles className="h-3.5 w-3.5 text-[#26be15]" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#26be15]">
               Empieza en 1 minuto
             </span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 dark:from-gray-100 dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#17181c] dark:text-white">
             Aún no hay movimientos
           </h2>
-          <p className="text-sm md:text-base text-muted-foreground font-medium leading-relaxed max-w-lg mx-auto">
+          <p className="text-sm md:text-base text-[#737373] dark:text-[#a1a1aa] font-medium leading-relaxed max-w-lg mx-auto">
             Agrega tu primer gasto para ver tu salud financiera, el desglose por categoría y recomendaciones personalizadas.
           </p>
         </div>
@@ -41,42 +41,42 @@ export function DashboardEmptyState() {
         <Button
           onClick={() => setOpenAddModal(true)}
           size="lg"
-          className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 ring-1 ring-indigo-500/20"
+          className="bg-gradient-to-r from-[#17181c] to-[#333438] hover:from-[#25262c] hover:to-[#3d3e43] text-white shadow-lg ring-1 ring-black/10"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           Agregar tu primer gasto
         </Button>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 w-full">
-          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-[#E8E5E0]/80 dark:border-stone-800">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-sm">
+          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-[#17181c]/60 backdrop-blur p-3 border border-[#e8e8e8]/80 dark:border-[#26272b]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#23ad1b] to-[#26be15] text-white shadow-sm">
               <ShieldCheck className="h-4 w-4" strokeWidth={2.5} />
             </div>
             <div className="text-left">
-              <p className="text-xs font-bold text-foreground/90 dark:text-stone-100">Salud 50/30/20</p>
-              <p className="text-[11px] text-muted-foreground dark:text-stone-400 leading-snug">
+              <p className="text-xs font-bold text-[#17181c] dark:text-white">Salud 50/30/20</p>
+              <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] leading-snug">
                 Visualiza tu regla al instante
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-[#E8E5E0]/80 dark:border-stone-800">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-sm">
+          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-[#17181c]/60 backdrop-blur p-3 border border-[#e8e8e8]/80 dark:border-[#26272b]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#617dd5] to-[#26be15] text-white shadow-sm">
               <BarChart3 className="h-4 w-4" strokeWidth={2.5} />
             </div>
             <div className="text-left">
-              <p className="text-xs font-bold text-foreground/90 dark:text-stone-100">Distribución clara</p>
-              <p className="text-[11px] text-muted-foreground dark:text-stone-400 leading-snug">
+              <p className="text-xs font-bold text-[#17181c] dark:text-white">Distribución clara</p>
+              <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] leading-snug">
                 Sabe a dónde va tu dinero
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-[#E8E5E0]/80 dark:border-stone-800">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-sm">
+          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-[#17181c]/60 backdrop-blur p-3 border border-[#e8e8e8]/80 dark:border-[#26272b]">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#e7964d] to-[#e54d4d] text-white shadow-sm">
               <Sparkles className="h-4 w-4" strokeWidth={2.5} />
             </div>
             <div className="text-left">
-              <p className="text-xs font-bold text-foreground/90 dark:text-stone-100">Recomendaciones</p>
-              <p className="text-[11px] text-muted-foreground dark:text-stone-400 leading-snug">
+              <p className="text-xs font-bold text-[#17181c] dark:text-white">Recomendaciones</p>
+              <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] leading-snug">
                 Tips para mejorar tu mes
               </p>
             </div>
