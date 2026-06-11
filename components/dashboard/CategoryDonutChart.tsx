@@ -18,6 +18,7 @@ interface CategoryDonutChartProps {
   data: DonutData[];
   monthLabel?: string;
   bare?: boolean;
+  reducedMotion?: boolean;
 }
 
 const PALETTE = [
@@ -41,7 +42,7 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-export function CategoryDonutChart({ data, monthLabel, bare = false }: CategoryDonutChartProps) {
+export function CategoryDonutChart({ data, monthLabel, bare = false, reducedMotion }: CategoryDonutChartProps) {
   const { setOpenAddModal } = useDashboard();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -58,7 +59,7 @@ export function CategoryDonutChart({ data, monthLabel, bare = false }: CategoryD
     <div className={cn("space-y-5", !bare && "p-5 md:p-6")}>
         {!bare && (
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-50/70 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 shrink-0">
             <PieIcon className="h-3.5 w-3.5" strokeWidth={2.3} />
           </div>
           <div className="min-w-0">
@@ -75,7 +76,7 @@ export function CategoryDonutChart({ data, monthLabel, bare = false }: CategoryD
         {hasData ? (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
             <div className="lg:col-span-3 relative">
-              <div className="h-[340px] w-full">
+              <div className="h-[280px] sm:h-[340px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                   <Pie
@@ -163,7 +164,7 @@ export function CategoryDonutChart({ data, monthLabel, bare = false }: CategoryD
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[340px] gap-3 px-4 text-center">
+          <div className="flex flex-col items-center justify-center h-[280px] sm:h-[340px] gap-3 px-4 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 dark:bg-stone-800">
               <PieIcon className="h-5 w-5 text-stone-500 dark:text-stone-400" />
             </div>
@@ -192,10 +193,10 @@ export function CategoryDonutChart({ data, monthLabel, bare = false }: CategoryD
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
+      initial={reducedMotion ? false : { opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] h-full"
+      className="bg-white dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] h-full hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-300"
     >
       {body}
     </motion.div>

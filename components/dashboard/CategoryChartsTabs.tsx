@@ -14,6 +14,7 @@ interface CategoryChartsTabsProps {
   donutData: { name: string; value: number; color?: string }[];
   barItems: BarChartItem[];
   monthLabel: string;
+  reducedMotion?: boolean;
 }
 
 interface TabItem {
@@ -54,7 +55,7 @@ function ChartsTabs({
       role="tablist"
       aria-label="Vistas de gráficos"
       className={cn(
-        "flex items-center gap-1 p-1 rounded-xl bg-stone-100/80 border border-stone-200/60",
+        "flex items-center gap-1 p-1 rounded-xl bg-[#F0EDE9]/80 border border-[#E8E5E0]/60",
         "dark:bg-stone-900/60 dark:border-stone-800",
         className
       )}
@@ -74,10 +75,10 @@ function ChartsTabs({
             onClick={() => onChange(tab.id)}
             onKeyDown={(e) => onKeyDown(e, index)}
             className={cn(
-              "flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg",
+              "flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-lg",
               "text-xs md:text-sm font-semibold whitespace-nowrap",
               "transition-colors duration-150 outline-none",
-              "focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1 focus-visible:ring-offset-stone-100 dark:focus-visible:ring-stone-600 dark:focus-visible:ring-offset-stone-900",
+              "focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1 focus-visible:ring-offset-[#FAF9F7] dark:focus-visible:ring-stone-600 dark:focus-visible:ring-offset-stone-900",
               isActive
                 ? "bg-white text-stone-900 shadow-sm dark:bg-stone-800 dark:text-stone-50"
                 : "text-stone-600 hover:text-stone-900 hover:bg-white/50 dark:text-stone-400 dark:hover:text-stone-50 dark:hover:bg-stone-800/40"
@@ -96,15 +97,16 @@ export function CategoryChartsTabs({
   donutData,
   barItems,
   monthLabel,
+  reducedMotion,
 }: CategoryChartsTabsProps) {
   const [active, setActive] = useState<string>("donut");
 
   return (
     <section
-      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+      className="bg-white dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-300"
       aria-labelledby="charts-heading"
     >
-      <div className="p-5 md:p-6 space-y-5">
+      <div className="p-6 md:p-7 space-y-5">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="space-y-0.5">
             <h2
@@ -125,28 +127,28 @@ export function CategoryChartsTabs({
           id={`tabpanel-${active}`}
           role="tabpanel"
           aria-labelledby={`tab-${active}`}
-          className="min-h-[400px] md:min-h-[420px]"
+          className="min-h-[360px] md:min-h-[420px]"
         >
           <AnimatePresence mode="wait">
             {active === "donut" ? (
               <motion.div
                 key="donut"
-                initial={{ opacity: 0, y: 8 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
+                exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
               >
-                <CategoryDonutChart data={donutData} monthLabel={monthLabel} bare />
+                <CategoryDonutChart data={donutData} monthLabel={monthLabel} bare reducedMotion={reducedMotion} />
               </motion.div>
             ) : (
               <motion.div
                 key="bar"
-                initial={{ opacity: 0, y: 8 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
+                exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
               >
-                <CategoryLimitsBarChart items={barItems} bare />
+                <CategoryLimitsBarChart items={barItems} bare reducedMotion={reducedMotion} />
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { Plus, Settings, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ const STATUS_CONFIG: Record<
 
 function StatusBadge({ status }: StatusBadgeProps) {
   const cfg = STATUS_CONFIG[status];
+  const reducedMotion = useReducedMotion();
   return (
     <span
       className={cn(
@@ -46,12 +48,14 @@ function StatusBadge({ status }: StatusBadgeProps) {
       )}
     >
       <span className="relative inline-flex h-2 w-2">
-        <span
-          className={cn(
-            "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
-            cfg.dot
-          )}
-        />
+        {!reducedMotion && (
+          <span
+            className={cn(
+              "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+              cfg.dot
+            )}
+          />
+        )}
         <span
           className={cn(
             "relative inline-flex rounded-full h-2 w-2",
@@ -93,16 +97,16 @@ export function SaasHeader({
   })();
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       <div className="flex items-center flex-wrap gap-x-2 gap-y-1 text-xs">
-        <span className="text-stone-500 dark:text-stone-400 font-medium">
+        <span className="text-stone-500 dark:text-stone-400 font-medium text-xs sm:text-sm">
           {greeting},{" "}
           <span className="font-bold text-stone-900 dark:text-stone-50">
             {userName}
           </span>
         </span>
-        <span className="text-stone-300 dark:text-stone-600">·</span>
-        <span className="text-stone-500 dark:text-stone-400 font-medium">
+        <span className="text-stone-300 dark:text-stone-600 hidden sm:inline">·</span>
+        <span className="text-stone-500 dark:text-stone-400 font-medium text-xs sm:text-sm hidden sm:inline">
           {monthLabel}
         </span>
         <span className="ml-auto">
@@ -115,7 +119,7 @@ export function SaasHeader({
           <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
             {eyebrow}
           </p>
-          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-[1.1]">
+          <h1 className="text-xl sm:text-2xl md:text-4xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-[1.1]">
             {budgetName}
           </h1>
         </div>
@@ -130,7 +134,7 @@ export function SaasHeader({
         {dynamicMessage}
       </p>
 
-      <div className="flex flex-wrap items-center gap-2 pt-1">
+      <div className="hidden sm:flex flex-wrap items-center gap-2 pt-1">
         <Button
           onClick={onAddExpense}
           className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-sm"
@@ -141,7 +145,7 @@ export function SaasHeader({
         <Button
           asChild
           variant="outline"
-          className="border-stone-300 text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800/60"
+          className="border-[#E8E5E0] text-stone-700 hover:bg-[#F0EDE9]/60 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800/60"
         >
           <Link href="/reglas">
             <Settings className="h-4 w-4 mr-1.5" />

@@ -39,7 +39,7 @@ export function MobileBottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/85 dark:bg-stone-950/85 backdrop-blur-xl border-t border-stone-200/60 dark:border-stone-800 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] pb-[env(safe-area-inset-bottom)]"
+        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/85 dark:bg-stone-950/85 backdrop-blur-xl border-t border-[#E8E5E0]/60 dark:border-stone-800 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] pb-[env(safe-area-inset-bottom)]"
         aria-label="Navegación principal"
       >
         <ul className="grid grid-cols-4">
@@ -119,7 +119,7 @@ export function MobileBottomNav() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-stone-950 border-t border-stone-200/60 dark:border-stone-800 shadow-2xl pb-[env(safe-area-inset-bottom)]"
+              className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-stone-950 border-t border-[#E8E5E0]/60 dark:border-stone-800 shadow-2xl pb-[env(safe-area-inset-bottom)]"
             >
               <div className="flex justify-center pt-3 pb-1">
                 <span className="h-1.5 w-12 rounded-full bg-stone-300/70 dark:bg-stone-700" />

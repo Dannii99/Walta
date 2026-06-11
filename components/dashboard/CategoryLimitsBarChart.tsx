@@ -34,6 +34,7 @@ export interface BarChartItem {
 interface CategoryLimitsBarChartProps {
   items: BarChartItem[];
   bare?: boolean;
+  reducedMotion?: boolean;
 }
 
 const formatCurrency = (value: number) =>
@@ -69,7 +70,7 @@ interface YTickProps {
   payload?: { value: string };
 }
 
-export function CategoryLimitsBarChart({ items, bare = false }: CategoryLimitsBarChartProps) {
+export function CategoryLimitsBarChart({ items, bare = false, reducedMotion }: CategoryLimitsBarChartProps) {
   const [filter, setFilter] = useState<FilterKey>("all");
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -196,20 +197,20 @@ export function CategoryLimitsBarChart({ items, bare = false }: CategoryLimitsBa
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
       className={cn(
         bare
           ? ""
-          : "bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+          : "bg-white dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-300"
       )}
     >
-      <div className={cn("space-y-5", !bare && "p-5 md:p-6")}>
+      <div className={cn("space-y-5", !bare && "p-6 md:p-7")}>
         <div className="flex items-start justify-between gap-3 flex-wrap">
           {!bare && (
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-50/70 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400 shrink-0">
                 <BarChart3 className="h-3.5 w-3.5" strokeWidth={2.3} />
               </div>
               <div className="min-w-0">
@@ -265,7 +266,7 @@ export function CategoryLimitsBarChart({ items, bare = false }: CategoryLimitsBa
         ) : (
           <>
             <div
-              className="h-[320px] md:h-[360px] outline-none focus:outline-none"
+              className="h-[280px] sm:h-[320px] md:h-[360px] outline-none focus:outline-none"
               tabIndex={-1}
               style={{ outline: "none" }}
               onMouseDown={(e) => e.preventDefault()}

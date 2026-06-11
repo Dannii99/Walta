@@ -31,6 +31,7 @@ interface HealthCardsProps {
   savingsRate: number;
   income: number;
   monthlyEquivalentExpenses: number;
+  reducedMotion?: boolean;
 }
 
 type StyleKey =
@@ -137,6 +138,12 @@ const STYLE: Record<
   },
 };
 
+const ICON_TONE: Record<string, { bg: string; text: string }> = {
+  Necesidades: { bg: "bg-blue-50/70 dark:bg-blue-950/30", text: "text-blue-600 dark:text-blue-400" },
+  Deseos: { bg: "bg-orange-50/70 dark:bg-orange-950/30", text: "text-orange-600 dark:text-orange-400" },
+  Ahorro: { bg: "bg-emerald-50/70 dark:bg-emerald-950/30", text: "text-emerald-600 dark:text-emerald-400" },
+};
+
 interface HealthCardProps {
   label: string;
   styleKey: StyleKey;
@@ -145,6 +152,7 @@ interface HealthCardProps {
   subline?: React.ReactNode;
   showBarReference?: number;
   showPlusBadge?: boolean;
+  reducedMotion?: boolean;
 }
 
 function HealthCard({
@@ -155,6 +163,7 @@ function HealthCard({
   subline,
   showBarReference,
   showPlusBadge,
+  reducedMotion,
 }: HealthCardProps) {
   const styles = STYLE[styleKey];
   const PillIcon = styles.pillIcon;
@@ -163,12 +172,14 @@ function HealthCard({
     ? Math.max(0, Math.min(showBarReference, 100))
     : null;
 
+  const iconTone = ICON_TONE[label] ?? { bg: "bg-stone-100 dark:bg-stone-800", text: "text-stone-600 dark:text-stone-300" };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 relative overflow-hidden"
+      className="bg-white dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.03)] p-5 sm:p-6 md:p-7 relative overflow-hidden hover:shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-shadow duration-300"
     >
       <span
         className={cn(
@@ -180,24 +191,24 @@ function HealthCard({
       <div className="pl-2 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 shrink-0">
-              <Icon className="h-3.5 w-3.5" strokeWidth={2.3} />
+            <div className={cn("flex h-7 w-7 items-center justify-center rounded-md shrink-0", iconTone.bg)}>
+              <Icon className={cn("h-3.5 w-3.5", iconTone.text)} strokeWidth={2.3} />
             </div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 truncate">
               {label}
             </p>
           </div>
-          <span className="text-2xl leading-none shrink-0" aria-hidden>
+          <span className="text-xl sm:text-2xl leading-none shrink-0" aria-hidden>
             {styles.emoji}
           </span>
         </div>
 
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl md:text-4xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
+          <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50">
             {percentage.toFixed(0)}%
           </span>
           {showPlusBadge && (
-            <span className="text-2xl md:text-3xl font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
+            <span className="text-xl sm:text-2xl md:text-3xl font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
               +
             </span>
           )}
@@ -261,6 +272,7 @@ export function HealthCards({
   savingsRate,
   income,
   monthlyEquivalentExpenses,
+  reducedMotion,
 }: HealthCardsProps) {
   const savingsHealth = computeSavingsHealth(
     income,
@@ -303,7 +315,7 @@ export function HealthCards({
   );
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="space-y-0.5">
           <h2 className="text-base md:text-lg font-bold tracking-tight text-stone-900 dark:text-stone-50 flex items-center gap-2">
@@ -319,13 +331,14 @@ export function HealthCards({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
         <HealthCard
           label="Necesidades"
           styleKey={getSpendingStatus(needsPercentage)}
           percentage={needsPercentage}
           Icon={Home}
           subline={needsSubline}
+          reducedMotion={reducedMotion}
         />
         <HealthCard
           label="Deseos"
@@ -333,6 +346,7 @@ export function HealthCards({
           percentage={wantsPercentage}
           Icon={Heart}
           subline={wantsSubline}
+          reducedMotion={reducedMotion}
         />
         <HealthCard
           label="Ahorro"
@@ -342,10 +356,11 @@ export function HealthCards({
           subline={savingsSubline}
           showBarReference={savingsPct}
           showPlusBadge={savingsHealth.rate > 100}
+          reducedMotion={reducedMotion}
         />
       </div>
 
-      <div className="bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 flex items-start gap-3">
+      <div className="bg-[#F0EDE9]/60 dark:bg-stone-900/60 border border-[#E8E5E0]/60 dark:border-stone-800 rounded-xl p-4 sm:p-5 flex items-start gap-3">
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900">
           <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.3} />
         </div>
@@ -353,7 +368,7 @@ export function HealthCards({
           <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
             Recomendación
           </p>
-          <p className="text-sm text-stone-700 dark:text-stone-300 font-medium leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 font-medium leading-relaxed">
             {recommendation}
           </p>
         </div>

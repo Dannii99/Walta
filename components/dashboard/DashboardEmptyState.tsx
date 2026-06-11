@@ -48,7 +48,7 @@ export function DashboardEmptyState() {
         </Button>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 w-full">
-          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-white/80 dark:border-stone-800">
+          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-[#E8E5E0]/80 dark:border-stone-800">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-sm">
               <ShieldCheck className="h-4 w-4" strokeWidth={2.5} />
             </div>
@@ -59,7 +59,7 @@ export function DashboardEmptyState() {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-white/80 dark:border-stone-800">
+          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-[#E8E5E0]/80 dark:border-stone-800">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-sm">
               <BarChart3 className="h-4 w-4" strokeWidth={2.5} />
             </div>
@@ -70,7 +70,7 @@ export function DashboardEmptyState() {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-white/80 dark:border-stone-800">
+          <div className="flex items-start gap-2.5 rounded-xl bg-white/60 dark:bg-stone-900/60 backdrop-blur p-3 border border-[#E8E5E0]/80 dark:border-stone-800">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-sm">
               <Sparkles className="h-4 w-4" strokeWidth={2.5} />
             </div>

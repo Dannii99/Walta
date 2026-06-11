@@ -36,7 +36,7 @@ export function Sidebar() {
       className={cn(
         "fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col group",
         "w-[68px] hover:w-64 transition-[width] duration-300 ease-out",
-        "border-r border-stone-200/80 bg-white",
+        "border-r border-[#E8E5E0]/80 bg-white",
         "dark:border-stone-800 dark:bg-stone-950"
       )}
       aria-label="Navegación lateral"
