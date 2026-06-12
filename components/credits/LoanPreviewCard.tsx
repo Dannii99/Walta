@@ -1,21 +1,19 @@
 ﻿"use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import { FileText, CheckCircle2, AlertTriangle } from "lucide-react";
 import { formatCOP } from "@/lib/currency";
-import {
-  Calculator,
-  TrendingDown,
-  PiggyBank,
-  Wallet,
-  Coins,
-  AlertTriangle,
-  CheckCircle2,
-  TrendingUp,
-  Calendar,
-} from "lucide-react";
+import { calculateTotalMonthlyFees } from "@/lib/loan-fees";
 import type { FeeItem } from "@/types";
-import { calculateTotalMonthlyFees, getFeeIcon } from "@/lib/loan-fees";
+import {
+  DashedLine,
+  SectionLabel,
+  Row,
+  HighlightRow,
+  HeroRow,
+  CostRow,
+  FeeRow,
+} from "@/components/shared/BreakdownRows";
 
 interface LoanPreviewCardProps {
   principal: number;
@@ -46,30 +44,6 @@ export function LoanPreviewCard({
 }: LoanPreviewCardProps) {
   const monthlyFees = calculateTotalMonthlyFees(fees);
   const totalMonthlyPayment = monthlyPayment + monthlyFees;
-
-  const percentageOfBudget =
-    availableMoney && availableMoney > 0
-      ? (totalMonthlyPayment / availableMoney) * 100
-      : 0;
-
-  const capacityColor =
-    percentageOfBudget <= 30
-      ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900"
-      : percentageOfBudget <= 50
-        ? "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-900"
-        : "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400 border-red-200 dark:border-red-900";
-
-  const CapacityIcon =
-    percentageOfBudget <= 30 ? CheckCircle2 : AlertTriangle;
-
-  const capacityLabel =
-    percentageOfBudget <= 30
-      ? "Cómodo"
-      : percentageOfBudget <= 50
-        ? "Ajustado"
-        : "Riesgoso";
-
-  const monthlyFeeItems = fees.filter((f) => f.type === "monthly");
   const hasPrevExtra =
     previousExtraPayment && previousExtraPayment.amount > 0;
   const remainingBalance = hasPrevExtra
@@ -79,151 +53,188 @@ export function LoanPreviewCard({
     ? Math.max(0, totalCost - previousExtraPayment.amount)
     : totalCost;
 
+  const percentageOfBudget =
+    availableMoney && availableMoney > 0
+      ? (totalMonthlyPayment / availableMoney) * 100
+      : 0;
+
+  const isSafe = percentageOfBudget <= 30;
+  const isTight = percentageOfBudget <= 50 && !isSafe;
+  const isRisky = percentageOfBudget > 50;
+
+  const capacityBadge = isSafe
+    ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900"
+    : isTight
+      ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900"
+      : "bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900";
+
+  const capacityLabel = isSafe ? "Cómodo" : isTight ? "Ajustado" : "Riesgoso";
+  const CapacityIcon = isSafe ? CheckCircle2 : AlertTriangle;
+  const capacityColor = isSafe ? "green" : isRisky ? "red" : "green";
+
+  const monthlyFeeItems = fees.filter((f) => f.type === "monthly");
+  const hasMonthlyFees = monthlyFeeItems.length > 0;
+  const hasUpfrontFees = fees.some((f) => f.type === "upfront");
+  const totalUpfrontFees = fees
+    .filter((f) => f.type === "upfront")
+    .reduce((sum, f) => sum + f.amount, 0);
+
   return (
-    <Card className="border-primary/20 shadow-sm">
-      <CardContent className="p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <Calculator className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold text-sm">Tu crédito calculado</h3>
-        </div>
-
-        <div className="space-y-3">
-          {/* Base loan payment */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Wallet className="h-3.5 w-3.5" />
-              <span>Cuota del crédito</span>
-            </div>
-            <span className="font-medium">{formatCOP(monthlyPayment)}</span>
-          </div>
-
-          {/* Monthly fees itemized */}
-          {monthlyFeeItems.length > 0 && (
-            <div className="space-y-1.5">
-              {monthlyFeeItems.map((fee) => {
-                const FeeIcon = getFeeIcon(fee.name);
-                return (
-                  <div
-                    key={fee.id}
-                    className="flex items-center justify-between text-sm text-muted-foreground"
-                  >
-                    <div className="flex items-center gap-2">
-                      <FeeIcon className="h-3.5 w-3.5" />
-                      <span className="truncate max-w-[140px]">{fee.name}</span>
-                    </div>
-                    <span>+ {formatCOP(fee.amount)}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Total monthly */}
-          {monthlyFees > 0 && (
-            <div className="flex items-center justify-between rounded-lg bg-primary/5 px-3 py-2">
-              <span className="text-sm font-medium">Cuota total mensual</span>
-              <span className="text-xl font-bold text-primary">
-                {formatCOP(totalMonthlyPayment)}
-              </span>
-            </div>
-          )}
-
-          {monthlyFees === 0 && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Wallet className="h-3.5 w-3.5" />
-                <span>Cuota mensual</span>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
+      <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] overflow-hidden">
+        {/* Header */}
+        <div className="px-5 py-4 md:px-6 md:py-5 border-b border-dashed border-[#e8e8e8] dark:border-[#2a2a2e]">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 rounded-xl bg-[#26be15]/10 dark:bg-[#26be15]/15 flex items-center justify-center shrink-0">
+                <FileText className="h-4.5 w-4.5 text-[#26be15]" />
               </div>
-              <span className="text-xl font-bold text-foreground">
-                {formatCOP(monthlyPayment)}
-              </span>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <TrendingDown className="h-3.5 w-3.5" />
-              <span>Intereses totales</span>
-            </div>
-            <span className="font-medium">{formatCOP(totalInterest)}</span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Coins className="h-3.5 w-3.5" />
-              <span>Capital</span>
-            </div>
-            <span className="font-medium">{formatCOP(principal)}</span>
-          </div>
-
-          {hasPrevExtra && (
-            <div className="rounded-xl border border-emerald-200/80 dark:border-emerald-900 bg-emerald-50/50 dark:bg-emerald-950/20 p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-md bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center">
-                  <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.2} />
-                </div>
-                <p className="text-xs font-bold text-emerald-800 dark:text-emerald-400">
-                  Abono a capital previo
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-[#17181c] dark:text-white leading-tight">
+                  Tu crédito calculado
+                </h3>
+                <p className="text-[10px] text-[#737373] dark:text-[#a1a1aa] mt-0.5">
+                  Vista previa en tiempo real
                 </p>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-400">
-                  <Calendar className="h-3 w-3" />
-                  <span>{formatShortDate(previousExtraPayment.date)}</span>
-                </div>
-                <p className="text-sm font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
-                  +{formatCOP(previousExtraPayment.amount)}
-                </p>
-              </div>
-              <div className="pt-1.5 border-t border-emerald-200/60 dark:border-emerald-900/60 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-stone-600 dark:text-stone-400">
-                    Saldo después de abonos
-                  </span>
-                  <span className="font-semibold tabular-nums text-stone-900 dark:text-stone-100">
-                    {formatCOP(remainingBalance)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-stone-600 dark:text-stone-400">
-                    Total restante a pagar
-                  </span>
-                  <span className="font-semibold tabular-nums text-stone-900 dark:text-stone-100">
-                    {formatCOP(outstandingTotal)}
-                  </span>
-                </div>
-              </div>
             </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <PiggyBank className="h-3.5 w-3.5" />
-              <span>Costo total</span>
-            </div>
-            <span className="font-medium">{formatCOP(totalCost)}</span>
-          </div>
-        </div>
-
-        {availableMoney !== undefined && availableMoney > 0 && (
-          <div className="pt-3 border-t">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-muted-foreground">
-                Representa el {percentageOfBudget.toFixed(0)}% de tu presupuesto mensual
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <Badge variant="outline" className={capacityColor}>
-                <CapacityIcon className="h-3 w-3 mr-1" />
+            {availableMoney !== undefined && availableMoney > 0 && (
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border shrink-0 ${capacityBadge}`}
+              >
+                <CapacityIcon className="h-3 w-3" />
                 {capacityLabel}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                Disponible: {formatCOP(availableMoney)}
               </span>
+            )}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 md:px-6 py-4 space-y-1">
+          {/* DETALLE DEL PRÉSTAMO */}
+          <SectionLabel>Detalle del préstamo</SectionLabel>
+          <Row label="Capital a financiar" value={formatCOP(principal)} />
+          {hasPrevExtra && (
+            <HighlightRow
+              label="Saldo después de abonos"
+              value={formatCOP(remainingBalance)}
+              color="green"
+            />
+          )}
+
+          <DashedLine />
+
+          {/* RESULTADO */}
+          <SectionLabel>Resultado</SectionLabel>
+          <HeroRow
+            label="Cuota mensual"
+            value={formatCOP(monthlyPayment)}
+            color={capacityColor}
+          />
+          {hasMonthlyFees && (
+            <FeeRow
+              label="Cargos mensuales"
+              value={`+ ${formatCOP(monthlyFees)}`}
+            />
+          )}
+          {hasMonthlyFees && (
+            <HighlightRow
+              label="Cuota efectiva mensual"
+              value={formatCOP(totalMonthlyPayment)}
+              color={capacityColor}
+            />
+          )}
+          <CostRow label="Intereses totales" value={formatCOP(totalInterest)} />
+          {hasUpfrontFees && (
+            <CostRow label="Cargos iniciales" value={formatCOP(totalUpfrontFees)} />
+          )}
+          <CostRow label="Costo total" value={formatCOP(totalCost)} />
+          {hasPrevExtra && (
+            <CostRow label="Total restante a pagar" value={formatCOP(outstandingTotal)} />
+          )}
+
+          <DashedLine />
+
+          {/* DISPONIBILIDAD */}
+          {availableMoney !== undefined && availableMoney > 0 && (
+            <>
+              <SectionLabel>Disponibilidad</SectionLabel>
+              <Row label="Disponible actual" value={formatCOP(availableMoney)} />
+              <HighlightRow
+                label="Después de la cuota"
+                value={formatCOP(Math.max(0, availableMoney - totalMonthlyPayment))}
+                color={capacityColor}
+              />
+
+              {/* Capacity bar */}
+              <div className="mt-4 pt-4 border-t border-dashed border-[#e8e8e8] dark:border-[#2a2a2e]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
+                    Pago respecto a disponible
+                  </span>
+                  <span className="text-sm font-bold tabular-nums text-[#17181c] dark:text-white">
+                    {percentageOfBudget.toFixed(0)}%
+                  </span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-[#f5f5f5] dark:bg-white/5 overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-[#26be15]"
+                    initial={{ width: 0 }}
+                    animate={{
+                      width: `${Math.min(percentageOfBudget, 100)}%`,
+                    }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </div>
+                <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-2 leading-relaxed">
+                  {isSafe
+                    ? "Tu cuota representa un porcentaje saludable de tu presupuesto disponible."
+                    : isTight
+                      ? "Tu cuota consume una parte significativa de tu presupuesto. Considera reducir el plazo o el monto."
+                      : "Tu cuota excede el 50% de tu presupuesto disponible. Esto es financieramente riesgoso."}
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Previous extra payment */}
+          {hasPrevExtra && (
+            <>
+              <DashedLine />
+              <SectionLabel>Abono a capital previo</SectionLabel>
+              <Row
+                label="Fecha"
+                value={formatShortDate(previousExtraPayment.date)}
+              />
+              <Row
+                label="Monto"
+                value={formatCOP(previousExtraPayment.amount)}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Tear line */}
+        <div className="relative h-4 bg-[#f5f5f5] dark:bg-[#17181c] overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-2 flex items-center">
+            <div className="w-full border-t border-dashed border-[#d4d4d4] dark:border-[#404040]" />
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center">
+            <div className="flex gap-1">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-2 w-2 rounded-full bg-[#e8e8e8] dark:bg-[#2a2a2e]"
+                />
+              ))}
             </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </motion.div>
   );
 }
