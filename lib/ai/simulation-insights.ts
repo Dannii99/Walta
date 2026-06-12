@@ -86,3 +86,12 @@ export function clearAllInsightsCache(): void {
 export function _getCacheSizeForTests(): number {
   return cache.size;
 }
+
+/**
+ * Peek at the cache without calling the API.
+ * Returns the cached text if valid, null otherwise.
+ * Useful for stale-while-revalidate patterns.
+ */
+export function peekCache(userId: string): string | null {
+  return getCached(userId);
+}

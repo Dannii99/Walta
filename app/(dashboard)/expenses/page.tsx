@@ -27,7 +27,7 @@ export default async function ExpensesPage() {
 
   if (!budget) {
     return (
-      <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
+      <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto">
         <h1 className="text-2xl font-bold">Gastos</h1>
         <p className="text-muted-foreground mt-4">
           No tienes un presupuesto activo. Completa el onboarding primero.
@@ -91,7 +91,7 @@ export default async function ExpensesPage() {
       : -100;
 
   return (
-    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto">
       <div className="w-full space-y-6 md:space-y-8">
         <ExpensesClient
           transactions={allTransactions}

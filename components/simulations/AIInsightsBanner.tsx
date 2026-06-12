@@ -10,17 +10,24 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { generateSimulationInsights } from "@/server/actions/ai-actions";
 
-export function AIInsightsBanner() {
-  const [insight, setInsight] = useState<string | null>(null);
+interface AIInsightsBannerProps {
+  initialInsight?: string | null;
+}
+
+export function AIInsightsBanner({ initialInsight }: AIInsightsBannerProps) {
+  const [insight, setInsight] = useState<string | null>(initialInsight ?? null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(initialInsight !== undefined);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const loadInsight = () => {
     startTransition(async () => {
       try {
         const res = await generateSimulationInsights();
-        setInsight(res.insight);
+        if (res.insight !== null) {
+          setInsight(res.insight);
+        }
         setHasLoaded(true);
         setError(null);
       } catch (err) {
@@ -33,8 +40,25 @@ export function AIInsightsBanner() {
   };
 
   useEffect(() => {
-    loadInsight();
+    if (!hasLoaded) {
+      // Defer to avoid setState-in-effect lint error
+      const timer = setTimeout(() => loadInsight(), 0);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (hasLoaded && initialInsight !== undefined && !isRefreshing) {
+      // Stale-while-revalidate: if we have an initialInsight, refresh in background
+      const timer = setTimeout(() => {
+        setIsRefreshing(true);
+        loadInsight();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasLoaded]);
 
   if (error) {
     return (
@@ -48,7 +72,7 @@ export function AIInsightsBanner() {
           </p>
         </div>
         <button
-          onClick={loadInsight}
+          onClick={() => loadInsight()}
           className="text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
           aria-label="Reintentar"
         >
@@ -108,7 +132,7 @@ export function AIInsightsBanner() {
           </AnimatePresence>
         </div>
         <button
-          onClick={loadInsight}
+          onClick={() => loadInsight()}
           className="text-stone-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors shrink-0"
           aria-label="Regenerar insight"
         >

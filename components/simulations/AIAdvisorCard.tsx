@@ -68,7 +68,9 @@ export function AIAdvisorCard({ simulationId }: AIAdvisorCardProps) {
   };
 
   useEffect(() => {
-    loadAdvice();
+    if (!hasLoaded) {
+      loadAdvice();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

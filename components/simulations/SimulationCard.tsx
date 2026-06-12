@@ -10,14 +10,14 @@ import {
   type LucideIcon,
   Calendar,
   ArrowUpRight,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { formatCOP } from "@/lib/currency";
 import {
   TYPE_LABELS,
-  TYPE_ICON_BG,
   VERDICT_LABELS,
-  VERDICT_PILL,
   type DbVerdict,
   labelOr,
   FORMULA_LABELS,
@@ -30,6 +30,37 @@ const TYPE_ICON: Record<string, LucideIcon> = {
   PERSONAL: Wallet,
   HOUSING: Home,
   OTHER: CreditCard,
+};
+
+const TYPE_ICON_BG: Record<string, string> = {
+  VEHICLE: "bg-[#617dd5]/15 text-[#617dd5]",
+  PERSONAL: "bg-[#9333ea]/15 text-[#9333ea]",
+  HOUSING: "bg-[#23ad1b]/15 text-[#23ad1b]",
+  OTHER: "bg-[#737373]/15 text-[#737373]",
+};
+
+const VERDICT_ICON: Record<string, LucideIcon> = {
+  APPROVED: CheckCircle2,
+  WARNING: AlertTriangle,
+  REJECTED: XCircle,
+};
+
+const VERDICT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  APPROVED: {
+    bg: "bg-[#23ad1b]/10 dark:bg-[#23ad1b]/15",
+    text: "text-[#23ad1b]",
+    border: "border-[#23ad1b]/20 dark:border-[#23ad1b]/20",
+  },
+  WARNING: {
+    bg: "bg-[#e7964d]/10 dark:bg-[#e7964d]/15",
+    text: "text-[#e7964d]",
+    border: "border-[#e7964d]/20 dark:border-[#e7964d]/20",
+  },
+  REJECTED: {
+    bg: "bg-[#e54d4d]/10 dark:bg-[#e54d4d]/15",
+    text: "text-[#e54d4d]",
+    border: "border-[#e54d4d]/20 dark:border-[#e54d4d]/20",
+  },
 };
 
 interface SimulationCardProps {
@@ -52,7 +83,8 @@ export function SimulationCard({ simulation, inputs, result }: SimulationCardPro
     ? (result.verdict as DbVerdict)
     : "WARNING";
   const verdictLabel = VERDICT_LABELS[dbVerdict];
-  const verdictPill = VERDICT_PILL[dbVerdict];
+  const verdictColors = VERDICT_COLORS[dbVerdict];
+  const VerdictIcon = VERDICT_ICON[dbVerdict];
 
   const principal = Math.max(0, inputs.price - inputs.downPayment);
   const termYears = (inputs.term / 12).toFixed(1);
@@ -68,81 +100,84 @@ export function SimulationCard({ simulation, inputs, result }: SimulationCardPro
     >
       <Link
         href={`/simulations/${simulation.id}`}
-        className="block rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow group"
+        className="block bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow group"
       >
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div
-              className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
-                TYPE_ICON_BG[simulation.type] ?? TYPE_ICON_BG.OTHER
-              }`}
-            >
-              <Icon className="h-4 w-4" strokeWidth={2.2} />
+        {/* Header — gradient dark */}
+        <div className="relative bg-gradient-to-r from-[#17181c] to-[#333438] rounded-t-2xl p-4 md:p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div
+                className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  TYPE_ICON_BG[simulation.type] ?? TYPE_ICON_BG.OTHER
+                }`}
+              >
+                <Icon className="h-4 w-4" strokeWidth={2.2} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/60">
+                  {typeLabel}
+                </p>
+                <h3 className="text-sm font-bold text-white truncate">
+                  {simulation.title}
+                </h3>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                {typeLabel}
-              </p>
-              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50 truncate">
-                {simulation.title}
-              </h3>
+            <div className="flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${verdictColors.bg} ${verdictColors.text} ${verdictColors.border}`}
+              >
+                <VerdictIcon className="h-3 w-3" />
+                {verdictLabel}
+              </span>
+              <ArrowUpRight className="h-4 w-4 text-white/40 group-hover:text-[#26be15] transition-colors shrink-0" />
             </div>
           </div>
-          <ArrowUpRight className="h-4 w-4 text-stone-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors shrink-0" />
         </div>
 
-        <div className="space-y-2 mb-4">
-          <div className="flex items-baseline justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+        {/* Body */}
+        <div className="p-4 md:p-5 space-y-4">
+          {/* Cuota mensual */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mb-1">
               Cuota mensual
             </p>
-            <p className="text-lg font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
+            <p className="text-2xl md:text-3xl font-extrabold tabular-nums text-[#26be15] dark:text-[#26be15]">
               {formatCOP(result.monthlyPayment)}
             </p>
           </div>
-          <div className="h-px bg-stone-200/80 dark:bg-stone-800" />
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-stone-500 dark:text-stone-400">Precio</span>
-              <span className="font-semibold tabular-nums text-stone-700 dark:text-stone-200">
-                {formatCOP(inputs.price)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-stone-500 dark:text-stone-400">Inicial</span>
-              <span className="font-semibold tabular-nums text-stone-700 dark:text-stone-200">
-                {formatCOP(inputs.downPayment)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-stone-500 dark:text-stone-400">Financiado</span>
-              <span className="font-semibold tabular-nums text-stone-700 dark:text-stone-200">
+
+          {/* 3-col compact stats */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mb-0.5">
+                Financiado
+              </p>
+              <p className="text-sm font-bold tabular-nums text-[#17181c] dark:text-white">
                 {formatCOP(principal)}
-              </span>
+              </p>
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-stone-500 dark:text-stone-400">Plazo</span>
-              <span className="font-semibold text-stone-700 dark:text-stone-200">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mb-0.5">
+                Plazo
+              </p>
+              <p className="text-sm font-bold text-[#17181c] dark:text-white">
                 {termYears} años
-              </span>
+              </p>
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-stone-500 dark:text-stone-400">Tasa</span>
-              <span className="font-semibold tabular-nums text-stone-700 dark:text-stone-200">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mb-0.5">
+                Tasa
+              </p>
+              <p className="text-sm font-bold tabular-nums text-[#17181c] dark:text-white">
                 {(inputs.rate * 100).toFixed(2)}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-stone-500 dark:text-stone-400">Fórmula</span>
-              <span className="font-semibold text-stone-700 dark:text-stone-200 text-[10px]">
-                {labelOr(inputs.formula ?? "french_ea", FORMULA_LABELS)}
-              </span>
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 pt-3 border-t border-stone-200/80 dark:border-stone-800">
-          <div className="flex items-center gap-1 text-[10px] text-stone-400 dark:text-stone-500 font-medium">
+        {/* Footer */}
+        <div className="flex items-center justify-between px-4 md:px-5 pb-4 md:pb-5 pt-0">
+          <div className="flex items-center gap-1 text-[10px] text-[#737373] dark:text-[#a1a1aa] font-medium">
             <Calendar className="h-2.5 w-2.5" />
             <span>
               {new Intl.DateTimeFormat("es-CO", {
@@ -151,12 +186,9 @@ export function SimulationCard({ simulation, inputs, result }: SimulationCardPro
               }).format(new Date(simulation.createdAt))}
             </span>
           </div>
-          <Badge
-            variant="outline"
-            className={`text-[10px] font-bold uppercase tracking-wider ${verdictPill}`}
-          >
-            {verdictLabel}
-          </Badge>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
+            {labelOr(inputs.formula ?? "french_ea", FORMULA_LABELS)}
+          </span>
         </div>
       </Link>
     </motion.div>

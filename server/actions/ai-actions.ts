@@ -7,6 +7,7 @@ import { generateAdvisorAnalysis } from "@/lib/ai/simulation-advisor";
 import {
   generateInsights,
   clearInsightsCache,
+  peekCache,
 } from "@/lib/ai/simulation-insights";
 import {
   calculateFrenchEA,
@@ -231,6 +232,12 @@ export async function generateSimulationInsights() {
     throw new Error("Unauthorized");
   }
   const userId = session.user.id;
+
+  // Check in-memory cache FIRST before any DB queries
+  const cached = peekCache(userId);
+  if (cached) {
+    return { insight: cached, cached: true };
+  }
 
   const simulations = await prisma.simulation.findMany({
     where: { userId },

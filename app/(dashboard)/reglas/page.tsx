@@ -26,7 +26,7 @@ export default async function ReglasPage() {
 
   if (!budget) {
     return (
-      <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
+      <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto">
         <div className="space-y-4 max-w-3xl">
           <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-50">
             Reglas

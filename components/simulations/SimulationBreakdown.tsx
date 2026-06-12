@@ -35,14 +35,14 @@ function StatRow({
 }) {
   const valueClass =
     accent === "primary"
-      ? "text-primary font-bold tabular-nums"
+      ? "text-[#26be15] font-bold tabular-nums"
       : accent === "destructive"
-      ? "text-rose-600 dark:text-rose-400 font-bold tabular-nums"
-      : "font-semibold tabular-nums text-stone-900 dark:text-stone-50";
+      ? "text-[#e54d4d] font-bold tabular-nums"
+      : "font-semibold tabular-nums text-[#17181c] dark:text-white";
 
   return (
     <div className="flex items-center justify-between gap-2 py-2">
-      <span className="text-sm text-stone-600 dark:text-stone-400 font-medium">
+      <span className="text-sm text-[#737373] dark:text-[#a1a1aa] font-medium">
         {label}
       </span>
       <span className={valueClass}>{value}</span>
@@ -75,10 +75,10 @@ export function SimulationBreakdown({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <Card>
+      <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
         <CardContent className="p-5 md:p-6 space-y-1">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
+            <h3 className="text-sm font-bold text-[#17181c] dark:text-white">
               Resumen financiero
             </h3>
             <span
@@ -95,7 +95,7 @@ export function SimulationBreakdown({
             value={formatCOP(principal)}
             accent="primary"
           />
-          <div className="border-t border-stone-200/80 dark:border-stone-800" />
+          <div className="border-t border-[#e8e8e8] dark:border-[#2a2a2e]" />
           <StatRow
             label={`Plazo (${termYears} años)`}
             value={`${inputs.term} meses`}
@@ -108,7 +108,7 @@ export function SimulationBreakdown({
             label="Fórmula"
             value={labelOr(inputs.formula ?? "french_ea", FORMULA_LABELS)}
           />
-          <div className="border-t border-stone-200/80 dark:border-stone-800" />
+          <div className="border-t border-[#e8e8e8] dark:border-[#2a2a2e]" />
           <StatRow
             label="Cuota mensual"
             value={formatCOP(result.monthlyPayment)}
@@ -124,7 +124,7 @@ export function SimulationBreakdown({
             value={formatCOP(result.totalCost)}
             accent="destructive"
           />
-          <div className="border-t border-stone-200/80 dark:border-stone-800" />
+          <div className="border-t border-[#e8e8e8] dark:border-[#2a2a2e]" />
           <StatRow
             label="Disponible actual"
             value={formatCOP(availableMoney)}

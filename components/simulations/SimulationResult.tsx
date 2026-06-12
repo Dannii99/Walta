@@ -25,19 +25,31 @@ export function SimulationResult({
 }: SimulationResultProps) {
   const config = VERDICT_CONFIG[verdict];
 
+  const barColor =
+    verdict === "SAFE"
+      ? "bg-[#23ad1b]"
+      : verdict === "TIGHT"
+      ? "bg-[#e7964d]"
+      : verdict === "RISKY"
+      ? "bg-[#e7964d]"
+      : "bg-[#e54d4d]";
+
+  const remainingColor =
+    remainingAfter >= 0 ? "text-[#23ad1b] dark:text-[#23ad1b]" : "text-[#e54d4d] dark:text-[#e54d4d]";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <Card className="border-l-4 border-l-primary">
+      <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0 border-l-4 border-l-[#26be15]">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Resultado de la Simulación</CardTitle>
+            <CardTitle className="text-base text-[#17181c] dark:text-white">Resultado de la Simulación</CardTitle>
             <div className="flex items-center gap-2">
               {formula && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs text-[#737373] dark:text-[#a1a1aa] border-[#e8e8e8] dark:border-[#2a2a2e]">
                   {formula}
                 </Badge>
               )}
@@ -50,22 +62,16 @@ export function SimulationResult({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Pago Mensual</p>
-              <p className="text-xl font-bold tabular-nums">{formatCOP(monthlyPayment)}</p>
+              <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">Pago Mensual</p>
+              <p className="text-xl font-bold tabular-nums text-[#17181c] dark:text-white">{formatCOP(monthlyPayment)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Disponible Actual</p>
-              <p className="text-xl font-bold tabular-nums">{formatCOP(availableMoney)}</p>
+              <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">Disponible Actual</p>
+              <p className="text-xl font-bold tabular-nums text-[#17181c] dark:text-white">{formatCOP(availableMoney)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Restante después del pago</p>
-              <p
-                className={`text-xl font-bold tabular-nums ${
-                  remainingAfter >= 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-destructive"
-                }`}
-              >
+              <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">Restante después del pago</p>
+              <p className={`text-xl font-bold tabular-nums ${remainingColor}`}>
                 {formatCOP(remainingAfter)}
               </p>
             </div>
@@ -73,22 +79,14 @@ export function SimulationResult({
 
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Pago respecto a disponible</span>
+              <span className="text-[#737373] dark:text-[#a1a1aa]">Pago respecto a disponible</span>
               <span className={`font-medium tabular-nums ${config.color}`}>
                 {percentage.toFixed(1)}%
               </span>
             </div>
-            <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+            <div className="h-3 w-full rounded-full bg-[#f5f5f5] dark:bg-white/5 overflow-hidden">
               <motion.div
-                className={`h-full rounded-full ${
-                  verdict === "SAFE"
-                    ? "bg-emerald-500"
-                    : verdict === "TIGHT"
-                    ? "bg-amber-500"
-                    : verdict === "RISKY"
-                    ? "bg-orange-500"
-                    : "bg-rose-500"
-                }`}
+                className={`h-full rounded-full ${barColor}`}
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(percentage, 100)}%` }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
@@ -96,7 +94,7 @@ export function SimulationResult({
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground">{config.description}</p>
+          <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">{config.description}</p>
         </CardContent>
       </Card>
     </motion.div>

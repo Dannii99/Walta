@@ -59,7 +59,7 @@ export default async function SimulationDetailPage({
   const availableMoney = Math.max(0, income - totalMonthly);
 
   return (
-    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto">
       <SimulationDetailClient
         simulation={{
           id: simulation.id,

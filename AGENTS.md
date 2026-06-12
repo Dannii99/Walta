@@ -166,7 +166,7 @@ Versions exactas en `package.json`:
   - `components/history/CloseMonthButton.tsx` — **ELIMINADO** (no se puede crear snapshots manuales).
   - `components/ui/alert.tsx` — **NUEVO** UI component con 5 variants (`default`/`info`/`warning`/`success`/`destructive`) + `icon` Lucide prop + `AlertTitle` + `AlertDescription`. Usado en `error.tsx` y `SnapshotsLegacy.tsx`.
   - Cursor pagination correctness: en orden DESC, "después del cursor" = `eTime < cursorTime || (eTime === cursorTime && e.id < cursor.id)`. `localeCompare` con signo INVERTIDO vs búsqueda original.
-  - Container pattern: `max-w-[1440px] mx-auto p-4 md:px-6 lg:px-10 py-6 md:py-8` + inner `max-w-3xl space-y-6 md:space-y-8`.
+  - Container pattern: `max-w-360 mx-auto p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8` + inner `max-w-3xl space-y-6 md:space-y-8`.
   - `scripts/seed-timeline-demo.ts` — Script idempotente con `upsert` (IDs deterministas `seed-*`). Crea 2 sims (`VEHICLE` aprobado, `HOUSING` rechazado) + 1 loan con 8 payments (interés+capital computados) + 2 extras. Cargar con `npx tsx scripts/seed-timeline-demo.ts` (requiere `.env` con `DATABASE_URL`).
   - Schema: **sin cambios** (datos derivados on-the-fly). Futuro: `MonthlySnapshot.triggerEvent String?` para snapshots automáticos.
 - **Módulo "Reglas" (`/reglas`):**
@@ -176,7 +176,7 @@ Versions exactas en `package.json`:
   - `components/reglas/IncomeEditor.tsx` — Hero card + form inline con Zod.
   - `components/reglas/RuleEditor.tsx` — 3 inputs + progress bars + preview.
   - `components/reglas/CategoryManager.tsx` — CRUD con AlertDialogs.
-  - Container pattern: `max-w-[1440px] mx-auto p-4 md:px-6 lg:px-10 py-6 md:py-8` + inner `max-w-3xl space-y-6 md:space-y-8`.
+  - Container pattern: `max-w-360 mx-auto p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8` + inner `max-w-3xl space-y-6 md:space-y-8`.
   - `app/(dashboard)/reglas/loading.tsx` — Skeleton de carga.
   - Server actions revalidan `/reglas` en `budget-actions.ts` y `category-actions.ts`.
 - **Módulo "Configuración" (`/settings`):**

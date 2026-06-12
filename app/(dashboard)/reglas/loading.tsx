@@ -1,6 +1,6 @@
 export default function ReglasLoading() {
   return (
-    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto">
       <div className="space-y-6 md:space-y-8 max-w-3xl">
         <div className="space-y-2">
           <div className="h-3 w-16 rounded-md bg-stone-200 dark:bg-stone-800 animate-pulse" />

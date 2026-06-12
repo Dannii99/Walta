@@ -75,17 +75,17 @@ export function SimulationDetailClient({
         <div className="lg:col-span-2 space-y-6">
           <AIAdvisorCard simulationId={simulation.id} />
 
-          <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 md:p-6 space-y-3">
-            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-50">
+          <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-3">
+            <h3 className="text-sm font-bold text-[#17181c] dark:text-white">
               ¿Listo para empezar?
             </h3>
-            <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+            <p className="text-xs text-[#737373] dark:text-[#a1a1aa] leading-relaxed">
               Convierte esta simulación en un crédito real para llevar el
               seguimiento de tus pagos mes a mes.
             </p>
             <Button
               asChild
-              className="w-full bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
+              className="w-full bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5]"
             >
               <Link href={`/credits/new?fromSimulation=${simulation.id}`}>
                 Iniciar seguimiento
@@ -94,7 +94,7 @@ export function SimulationDetailClient({
             </Button>
             <Button
               variant="ghost"
-              className="w-full text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 dark:hover:text-rose-300"
+              className="w-full text-[#e54d4d] hover:bg-[#e54d4d]/10 dark:hover:bg-[#e54d4d]/10 hover:text-[#c43939] dark:hover:text-[#c43939]"
               onClick={() => setDeleteOpen(true)}
               disabled={isDeleting}
             >

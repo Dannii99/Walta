@@ -2,7 +2,7 @@
 
 export default function DashboardLoading() {
   return (
-    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 space-y-6 md:space-y-8 max-w-[1440px] mx-auto">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 space-y-6 md:space-y-8 max-w-360 mx-auto">
       <div className="space-y-3">
         <Skeleton className="h-3 w-48 rounded" />
         <Skeleton className="h-10 w-72 rounded" />

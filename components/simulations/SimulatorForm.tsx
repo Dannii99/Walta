@@ -6,7 +6,7 @@ import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence } from "framer-motion";
-import { Save, Loader2, Sparkles, Calculator } from "lucide-react";
+import { Save, Loader2, Calculator } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -152,13 +152,13 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400 flex items-center justify-center shrink-0">
+            <div className="h-7 w-7 rounded-lg bg-[#26be15]/10 text-[#26be15] flex items-center justify-center shrink-0">
               <Calculator className="h-3.5 w-3.5" strokeWidth={2.2} />
             </div>
-            <CardTitle className="text-base">Datos del préstamo</CardTitle>
+            <CardTitle className="text-base text-[#17181c] dark:text-white">Datos del préstamo</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -177,7 +177,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   {...register("name")}
                 />
                 {errors.name && (
-                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                  <p className="text-sm text-[#e54d4d] dark:text-[#e54d4d]">
                     {errors.name.message}
                   </p>
                 )}
@@ -189,7 +189,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   id="creditType"
                   {...register("creditType")}
                   onChange={(e) => handleCreditTypeChange(e.target.value as CreditType)}
-                  className="flex h-10 w-full rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 dark:focus-visible:ring-stone-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] px-3 py-2 text-sm text-[#17181c] dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#26be15] dark:focus-visible:ring-[#26be15] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="vehicle">{creditTypeLabels.vehicle}</option>
                   <option value="personal">{creditTypeLabels.personal}</option>
@@ -212,7 +212,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   )}
                 />
                 {errors.price && (
-                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                  <p className="text-sm text-[#e54d4d] dark:text-[#e54d4d]">
                     {errors.price.message}
                   </p>
                 )}
@@ -232,7 +232,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   )}
                 />
                 {errors.downPayment && (
-                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                  <p className="text-sm text-[#e54d4d] dark:text-[#e54d4d]">
                     {errors.downPayment.message}
                   </p>
                 )}
@@ -248,7 +248,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   {...register("termYears", { valueAsNumber: true })}
                 />
                 {errors.termYears && (
-                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                  <p className="text-sm text-[#e54d4d] dark:text-[#e54d4d]">
                     {errors.termYears.message}
                   </p>
                 )}
@@ -266,7 +266,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   )}
                 />
                 {errors.rate && (
-                  <p className="text-sm text-rose-600 dark:text-rose-400">
+                  <p className="text-sm text-[#e54d4d] dark:text-[#e54d4d]">
                     {errors.rate.message}
                   </p>
                 )}
@@ -277,7 +277,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                 <select
                   id="formula"
                   {...register("formula")}
-                  className="flex h-10 w-full rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 dark:focus-visible:ring-stone-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] px-3 py-2 text-sm text-[#17181c] dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#26be15] dark:focus-visible:ring-[#26be15] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="french_ea">
                     Amortización Francesa (EA)
@@ -293,7 +293,7 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-sm"
+                className="bg-[#26be15] hover:bg-[#23ad1b] text-white shadow-sm"
               >
                 {isPending ? (
                   <>
@@ -307,42 +307,38 @@ export function SimulatorForm({ availableMoney }: SimulatorFormProps) {
                   </>
                 )}
               </Button>
-              <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
-                <Sparkles className="h-3 w-3" />
-                <span>Generará análisis IA al guardar</span>
-              </div>
             </div>
           </form>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
         <CardHeader>
-          <CardTitle className="text-base">Cálculo en tiempo real</CardTitle>
+          <CardTitle className="text-base text-[#17181c] dark:text-white">Cálculo en tiempo real</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 Monto a financiar
               </p>
-              <p className="text-lg font-bold tabular-nums text-stone-900 dark:text-stone-50">
+              <p className="text-lg font-bold tabular-nums text-[#17181c] dark:text-white">
                 {formatCOP(result.principal)}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 Plazo
               </p>
-              <p className="text-lg font-bold tabular-nums text-stone-900 dark:text-stone-50">
+              <p className="text-lg font-bold tabular-nums text-[#17181c] dark:text-white">
                 {result.termMonths} meses
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 Cuota mensual
               </p>
-              <p className="text-lg font-bold tabular-nums text-primary">
+              <p className="text-lg font-bold tabular-nums text-[#26be15] dark:text-[#26be15]">
                 {formatCOP(result.monthlyPayment)}
               </p>
             </div>

@@ -708,7 +708,7 @@ A consistent pattern is used across modules:
 All pages use:
 
 ```tsx
-<main className="max-w-[1440px] mx-auto p-4 md:px-6 lg:px-10 py-6 md:py-8">
+<main className="max-w-360 mx-auto p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8">
   <div className="space-y-6 md:space-y-8">
     {/* content */}
   </div>

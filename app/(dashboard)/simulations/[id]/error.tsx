@@ -17,7 +17,7 @@ export default function SimulationDetailError({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] p-4 md:px-6 lg:px-10 space-y-4 max-w-[1440px] mx-auto">
+    <div className="flex flex-col items-center justify-center min-h-[50vh] p-4 md:px-6 lg:px-10 space-y-4 max-w-360 mx-auto">
       <div className="h-12 w-12 rounded-full bg-rose-100 dark:bg-rose-950/40 flex items-center justify-center">
         <AlertTriangle className="h-6 w-6 text-rose-600 dark:text-rose-400" />
       </div>

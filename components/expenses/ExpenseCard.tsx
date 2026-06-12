@@ -136,11 +136,11 @@ export function ExpenseCard({
             )}
           </div>
           <div className="flex gap-0.5 shrink-0">
-            <Button
+             <Button
               variant="ghost"
               size="icon"
               onClick={() => onEdit(transaction)}
-              className="h-8 w-8 hover:bg-[#26be15]/10 hover:text-[#26be15]"
+              className="h-8 w-8 hover:bg-[#2a2b2f]/10 hover:text-[#2a2b2f]"
               aria-label="Editar"
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -149,7 +149,7 @@ export function ExpenseCard({
               variant="ghost"
               size="icon"
               onClick={() => onDelete(transaction)}
-              className="h-8 w-8 text-[#e54d4d] hover:bg-[#e54d4d]/10 hover:text-[#e54d4d]"
+              className="h-8 w-8 text-[#c43939] hover:bg-[#c43939]/10 hover:text-[#c43939]"
               aria-label="Eliminar"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -200,7 +200,7 @@ export function ExpenseCard({
         <button
           type="button"
           onClick={handleEdit}
-          className="flex items-center justify-center w-20 bg-[#26be15] text-white hover:bg-[#1e9e0f] transition-colors"
+          className="flex items-center justify-center w-20 bg-[#2a2b2f] text-white hover:bg-[#3a3b40] transition-colors"
           aria-label="Editar gasto"
         >
           <div className="flex flex-col items-center gap-1">
@@ -211,7 +211,7 @@ export function ExpenseCard({
         <button
           type="button"
           onClick={handleDelete}
-          className="flex items-center justify-center w-20 bg-[#e54d4d] text-white hover:bg-[#d43d3d] transition-colors"
+          className="flex items-center justify-center w-20 bg-[#c43939] text-white hover:bg-[#a82e2e] transition-colors"
           aria-label="Eliminar gasto"
         >
           <div className="flex flex-col items-center gap-1">
@@ -229,7 +229,7 @@ export function ExpenseCard({
         onDragEnd={handleDragEnd}
         onTap={handleTap}
         animate={controls}
-        className="relative z-10 bg-white dark:bg-[#17181c] rounded-2xl cursor-grab active:cursor-grabbing"
+        className={`relative z-10 bg-white dark:bg-[#17181c] cursor-grab active:cursor-grabbing transition-[border-radius] duration-200 ${isOpen ? "rounded-l-2xl rounded-r-none" : "rounded-2xl"}`}
         style={{ touchAction: "pan-y" }}
       >
         <div className="p-4 space-y-3">

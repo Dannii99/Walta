@@ -76,7 +76,7 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
 
   if (!budget) {
     return (
-      <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto space-y-4">
+      <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-4">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link href="/credits">
             <ArrowLeft className="h-4 w-4 mr-1.5" />
@@ -122,7 +122,7 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
       : "Completa los datos de tu crédito para empezar el seguimiento.";
 
   return (
-    <div className="p-4 md:px-6 lg:px-10 py-6 md:py-8 max-w-[1440px] mx-auto space-y-6">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-6">
       <div className="space-y-3">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link href="/credits">
