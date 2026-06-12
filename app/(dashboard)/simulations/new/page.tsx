@@ -91,16 +91,17 @@ export default async function NewSimulationPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <SimulatorForm availableMoney={availableMoney} />
-        </div>
-        <div className="lg:col-span-1 space-y-6">
+         <div className="lg:col-span-1 space-y-6">
           <AvailableMoneyCard
             income={income}
             totalMonthlyExpenses={totalMonthlyExpenses}
             availableMoney={availableMoney}
           />
         </div>
+        <div className="lg:col-span-2 space-y-6">
+          <SimulatorForm availableMoney={availableMoney} />
+        </div>
+       
       </div>
     </div>
   );
