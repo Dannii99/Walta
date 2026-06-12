@@ -118,11 +118,27 @@ interface LoanFormProps {
   defaultValues?: Record<string, unknown> | null;
   availableMoney?: number;
   loanId?: string;
+  hideStepIndicator?: boolean;
+  step?: number;
+  onStepChange?: (step: number) => void;
 }
 
-export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: LoanFormProps) {
+export function LoanForm({ 
+  mode, 
+  defaultValues, 
+  availableMoney = 0, 
+  loanId, 
+  hideStepIndicator = false,
+  step: externalStep,
+  onStepChange 
+}: LoanFormProps) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const [internalStep, setInternalStep] = useState(1);
+  const step = externalStep ?? internalStep;
+  const setStep = useCallback((newStep: number) => {
+    setInternalStep(newStep);
+    onStepChange?.(newStep);
+  }, [onStepChange]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termMode, setTermMode] = useState<"years" | "months">("years");
 
@@ -518,44 +534,46 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   return (
     <div className="space-y-6">
       {/* Step Indicator */}
-      <div className="flex items-center gap-2">
-        {[1, 2, 3].map((s) => {
-          if (s > totalSteps) return null;
-          const isActive = s === step;
-          const isCompleted = s < step;
-          return (
-            <div key={s} className="flex items-center gap-2 flex-1">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-[#26be15] text-white"
-                    : isCompleted
-                      ? "bg-[#26be15]/20 text-[#26be15]"
-                      : "bg-[#f5f5f5] dark:bg-white/5 text-[#737373] dark:text-[#a1a1aa]"
-                }`}
-              >
-                {isCompleted ? <Check className="h-4 w-4" /> : s}
-              </div>
-              <div className="hidden sm:block">
-                <p
-                  className={`text-xs font-medium ${
-                    isActive ? "text-[#26be15]" : "text-[#737373] dark:text-[#a1a1aa]"
+      {!hideStepIndicator && (
+        <div className="flex items-center gap-2">
+          {[1, 2, 3].map((s) => {
+            if (s > totalSteps) return null;
+            const isActive = s === step;
+            const isCompleted = s < step;
+            return (
+              <div key={s} className="flex items-center gap-2 flex-1">
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-[#26be15] text-white"
+                      : isCompleted
+                        ? "bg-[#26be15]/20 text-[#26be15]"
+                        : "bg-[#f5f5f5] dark:bg-white/5 text-[#737373] dark:text-[#a1a1aa]"
                   }`}
                 >
-                  {s === 1
-                    ? "Información básica"
-                    : s === 2
-                      ? "Condiciones"
-                      : "En curso"}
-                </p>
+                  {isCompleted ? <Check className="h-4 w-4" /> : s}
+                </div>
+                <div className="hidden sm:block">
+                  <p
+                    className={`text-xs font-medium ${
+                      isActive ? "text-[#26be15]" : "text-[#737373] dark:text-[#a1a1aa]"
+                    }`}
+                  >
+                    {s === 1
+                      ? "Información básica"
+                      : s === 2
+                        ? "Condiciones"
+                        : "En curso"}
+                  </p>
+                </div>
+                {s < totalSteps && (
+                  <div className="h-px flex-1 bg-[#e8e8e8] dark:bg-[#2a2a2e] mx-2" />
+                )}
               </div>
-              {s < totalSteps && (
-                <div className="h-px flex-1 bg-[#e8e8e8] dark:bg-[#2a2a2e] mx-2" />
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Step 1: Basic Info */}
       {step === 1 && (
