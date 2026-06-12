@@ -27,6 +27,7 @@ import {
   Trash2,
   Plus,
   AlertTriangle,
+  Loader2,
   Pencil,
   Save,
   X,
@@ -41,6 +42,7 @@ import {
 } from "lucide-react";
 import { createCategory, updateCategory, deleteCategory } from "@/server/actions/category-actions";
 import { PREDEFINED_CATEGORIES, OTHER_CATEGORY_KEY, type PredefinedCategory } from "@/lib/categories";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import type { Category, CategoryType } from "@/types";
 
@@ -109,6 +111,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
   } | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const isMobile = useMediaQuery("(max-width: 767px)") ?? false;
 
   const existingNames = useMemo(
     () => new Set(categories.map((c) => c.name.toLowerCase())),
@@ -305,8 +308,8 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
         )}
 
         {/* Filter chips */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mr-1">
+        <div className="flex items-center gap-2 overflow-x-auto flex-nowrap scrollbar-none">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mr-1 shrink-0">
             Filtrar
           </span>
           {filterOptions.map((opt) => {
@@ -317,7 +320,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                 type="button"
                 onClick={() => setActiveFilter(opt.value)}
                 className={cn(
-                  "px-2.5 py-1 text-xs font-semibold rounded-full border transition-colors",
+                  "shrink-0 px-2.5 py-1 text-xs font-semibold rounded-full border transition-colors",
                   active
                     ? "bg-[#17181c] text-white border-[#17181c] dark:bg-white dark:text-[#17181c] dark:border-white"
                     : "bg-white dark:bg-[#1a1a1e] text-[#737373] dark:text-[#a1a1aa] border-[#e8e8e8] dark:border-[#2a2a2e] hover:border-[#737373]"
@@ -665,72 +668,33 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
       </div>
 
       {/* Delete dialog */}
-      <AlertDialog
-        open={!!deleteDialog}
-        onOpenChange={(open) => !open && setDeleteDialog(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar categoría</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteDialog && deleteDialog.category._count.transactions > 0 ? (
-                <div className="space-y-3">
-                  <div>
-                    <strong>{deleteDialog.category.name}</strong> tiene{" "}
-                    <strong>{deleteDialog.category._count.transactions}</strong>{" "}
-                    gastos asociados. Selecciona la categoría de destino
-                    para reasignarlos antes de eliminar.
-                  </div>
-                  <Select
-                    value={deleteDialog.reassignTo}
-                    onValueChange={(v) =>
-                      setDeleteDialog({ ...deleteDialog, reassignTo: v })
-                    }
-                  >
-                    <SelectTrigger className="h-10 border-[#e8e8e8] dark:border-[#2a2a2e]">
-                      <SelectValue placeholder="Seleccionar categoría de destino..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {otherCategories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="h-2 w-2 rounded-full"
-                              style={{ backgroundColor: TYPE_COLORS[c.type as CategoryType] }}
-                            />
-                            {c.name} ({TYPE_LABELS[c.type as CategoryType]})
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ) : (
-                <div>
-                  ¿Estás seguro de eliminar la categoría{" "}
-                  <strong>{deleteDialog?.category.name}</strong>? Esta acción no
-                  se puede deshacer.
-                </div>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-[#e54d4d] text-white hover:bg-[#c43939]"
-              disabled={
-                isPending ||
-                (!!deleteDialog &&
-                  deleteDialog.category._count.transactions > 0 &&
-                  !deleteDialog.reassignTo)
-              }
-            >
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {isMobile ? (
+        <MobileDeleteSheet
+          open={!!deleteDialog}
+          onCancel={() => setDeleteDialog(null)}
+          onConfirm={confirmDelete}
+          isPending={isPending}
+          category={deleteDialog?.category ?? null}
+          reassignTo={deleteDialog?.reassignTo ?? ""}
+          onReassignChange={(v) =>
+            deleteDialog && setDeleteDialog({ ...deleteDialog, reassignTo: v })
+          }
+          otherCategories={otherCategories}
+        />
+      ) : (
+        <DesktopDeleteDialog
+          open={!!deleteDialog}
+          onCancel={() => setDeleteDialog(null)}
+          onConfirm={confirmDelete}
+          isPending={isPending}
+          category={deleteDialog?.category ?? null}
+          reassignTo={deleteDialog?.reassignTo ?? ""}
+          onReassignChange={(v) =>
+            deleteDialog && setDeleteDialog({ ...deleteDialog, reassignTo: v })
+          }
+          otherCategories={otherCategories}
+        />
+      )}
 
       {/* Type change warning dialog */}
       <AlertDialog
@@ -777,5 +741,312 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
         </AlertDialogContent>
       </AlertDialog>
     </motion.div>
+  );
+}
+
+/* ─── Desktop delete dialog ─── */
+function DesktopDeleteDialog({
+  open,
+  onCancel,
+  onConfirm,
+  isPending,
+  category,
+  reassignTo,
+  onReassignChange,
+  otherCategories,
+}: {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+  isPending: boolean;
+  category: CategoryWithCount | null;
+  reassignTo: string;
+  onReassignChange: (v: string) => void;
+  otherCategories: CategoryWithCount[];
+}) {
+  const hasTx = (category?._count.transactions ?? 0) > 0;
+
+  return (
+    <AlertDialog open={open} onOpenChange={(o) => !o && onCancel()}>
+      <AlertDialogContent>
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-full bg-[#e54d4d]/10 flex items-center justify-center shrink-0">
+            <AlertTriangle className="h-5 w-5 text-[#e54d4d]" />
+          </div>
+          <div className="flex-1 min-w-0 space-y-3">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-[#17181c] dark:text-white">
+                Eliminar categoría
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogDescription className="text-[#737373] dark:text-[#a1a1aa]">
+              <div className="space-y-3">
+                {hasTx ? (
+                  <p>
+                    <strong>{category?.name}</strong> tiene{" "}
+                    <strong>{category?._count.transactions}</strong> gastos
+                    asociados. Selecciona la categoría de destino para
+                    reasignarlos antes de eliminar.
+                  </p>
+                ) : (
+                  <p>
+                    ¿Estás seguro de eliminar la categoría{" "}
+                    <strong>{category?.name}</strong>? Esta acción no se puede
+                    deshacer.
+                  </p>
+                )}
+
+                {/* Summary card */}
+                {category && (
+                  <div className="rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#fafafa] dark:bg-[#1a1a1e]/80 p-3 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs text-[#737373] dark:text-[#a1a1aa] font-medium">
+                        Categoría
+                      </p>
+                      <div className="flex items-center gap-1.5">
+                        {category.type && (
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${TYPE_BG[category.type as CategoryType]}`}
+                          >
+                            {TYPE_LABELS[category.type as CategoryType]}
+                          </span>
+                        )}
+                        <span className="text-xs font-semibold text-[#17181c] dark:text-white">
+                          {category.name}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs text-[#737373] dark:text-[#a1a1aa] font-medium">
+                        Gastos asociados
+                      </p>
+                      <span className="text-xs font-semibold text-[#17181c] dark:text-white">
+                        {category._count.transactions}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reassign select */}
+                {hasTx && otherCategories.length > 0 && (
+                  <Select value={reassignTo} onValueChange={onReassignChange}>
+                    <SelectTrigger className="h-10 border-[#e8e8e8] dark:border-[#2a2a2e]">
+                      <SelectValue placeholder="Seleccionar categoría de destino..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {otherCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="h-2 w-2 rounded-full"
+                              style={{ backgroundColor: TYPE_COLORS[c.type as CategoryType] }}
+                            />
+                            {c.name} ({TYPE_LABELS[c.type as CategoryType]})
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </div>
+        </div>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onCancel}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onConfirm}
+            disabled={isPending || (hasTx && !reassignTo)}
+            className="bg-[#e54d4d] text-white hover:bg-[#d43d3d] dark:bg-[#e54d4d] dark:hover:bg-[#d43d3d]"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                Eliminando...
+              </>
+            ) : (
+              <>
+                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                Eliminar
+              </>
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+/* ─── Mobile delete bottom sheet ─── */
+function MobileDeleteSheet({
+  open,
+  onCancel,
+  onConfirm,
+  isPending,
+  category,
+  reassignTo,
+  onReassignChange,
+  otherCategories,
+}: {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+  isPending: boolean;
+  category: CategoryWithCount | null;
+  reassignTo: string;
+  onReassignChange: (v: string) => void;
+  otherCategories: CategoryWithCount[];
+}) {
+  const hasTx = (category?._count.transactions ?? 0) > 0;
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden"
+            onClick={onCancel}
+          />
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: -78 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-[#1a1a1e] shadow-2xl max-h-[92dvh] min-h-[40dvh] flex flex-col"
+          >
+            {/* Handle bar */}
+            <div className="flex justify-center pt-3 pb-1 shrink-0">
+              <span className="h-1.5 w-12 rounded-full bg-[#17181c]/20 dark:bg-white/20" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-full bg-[#e54d4d]/10 flex items-center justify-center">
+                  <AlertTriangle className="h-4 w-4 text-[#e54d4d]" />
+                </div>
+                <h3 className="text-base font-bold tracking-tight text-[#17181c] dark:text-white">
+                  Eliminar categoría
+                </h3>
+              </div>
+              <button
+                onClick={onCancel}
+                className="p-1.5 rounded-md hover:bg-[#17181c]/5 dark:hover:bg-white/10 text-[#737373]"
+                aria-label="Cerrar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4">
+              {hasTx ? (
+                <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
+                  <strong>{category?.name}</strong> tiene{" "}
+                  <strong>{category?._count.transactions}</strong> gastos
+                  asociados. Selecciona la categoría de destino para
+                  reasignarlos antes de eliminar.
+                </p>
+              ) : (
+                <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
+                  ¿Estás seguro de eliminar la categoría{" "}
+                  <strong>{category?.name}</strong>? Esta acción no se puede
+                  deshacer.
+                </p>
+              )}
+
+              {/* Summary card */}
+              {category && (
+                <div className="rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#fafafa] dark:bg-[#1a1a1e]/80 p-3 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs text-[#737373] dark:text-[#a1a1aa] font-medium">
+                      Categoría
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      {category.type && (
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${TYPE_BG[category.type as CategoryType]}`}
+                        >
+                          {TYPE_LABELS[category.type as CategoryType]}
+                        </span>
+                      )}
+                      <span className="text-xs font-semibold text-[#17181c] dark:text-white">
+                        {category.name}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs text-[#737373] dark:text-[#a1a1aa] font-medium">
+                      Gastos asociados
+                    </p>
+                    <span className="text-xs font-semibold text-[#17181c] dark:text-white">
+                      {category._count.transactions}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Reassign select */}
+              {hasTx && otherCategories.length > 0 && (
+                <Select value={reassignTo} onValueChange={onReassignChange}>
+                  <SelectTrigger className="h-10 border-[#e8e8e8] dark:border-[#2a2a2e]">
+                    <SelectValue placeholder="Seleccionar categoría de destino..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {otherCategories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: TYPE_COLORS[c.type as CategoryType] }}
+                          />
+                          {c.name} ({TYPE_LABELS[c.type as CategoryType]})
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+
+            {/* Sticky footer */}
+            <div className="shrink-0 border-t border-[#e8e8e8] dark:border-white/10 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white/95 dark:bg-[#1a1a1e]/95 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  className="flex-1 border-[#e8e8e8] text-[#17181c] hover:bg-[#fafafa] dark:border-[#334155] dark:text-white dark:hover:bg-[#1a1a1e]"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  onClick={onConfirm}
+                  disabled={isPending || (hasTx && !reassignTo)}
+                  className="flex-1 bg-[#e54d4d] text-white hover:bg-[#d43d3d] font-semibold"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                      Eliminando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                      Eliminar
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

@@ -103,16 +103,16 @@ export function ExpensesClient({
               ver el impacto real de tus gastos recurrentes.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-[#737373] dark:text-[#a1a1aa] font-medium">
               <Wallet className="h-3.5 w-3.5" />
               {formatMonthName()}
             </span>
             <Button
               onClick={() => setIsAddOpen(true)}
-              className="bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5] shadow-sm h-11 px-5 text-sm font-semibold"
+              className="bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5] shadow-sm h-9 px-4 text-sm font-semibold rounded-full"
             >
-              <Plus className="h-4 w-4 mr-1.5" />
+              <Plus className="h-4 w-4" />
               Agregar gasto
             </Button>
           </div>
