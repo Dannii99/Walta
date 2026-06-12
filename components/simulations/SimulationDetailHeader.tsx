@@ -7,6 +7,7 @@ import {
   Car,
   CreditCard,
   Home,
+  Sparkles,
   Trash2,
   Wallet,
   CheckCircle2,
@@ -77,12 +78,14 @@ interface SimulationDetailHeaderProps {
   };
   verdict: string;
   onDelete: () => void;
+  onOpenAI: () => void;
 }
 
 export function SimulationDetailHeader({
   simulation,
   verdict,
   onDelete,
+  onOpenAI,
 }: SimulationDetailHeaderProps) {
   const Icon = TYPE_ICON[simulation.type] ?? CreditCard;
   const typeLabel = labelOr(simulation.type, TYPE_LABELS);
@@ -130,6 +133,14 @@ export function SimulationDetailHeader({
             <VerdictIcon className="h-3 w-3" />
             {verdictLabel}
           </span>
+          <button
+            onClick={onOpenAI}
+            aria-label="Abrir análisis inteligente"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border bg-[#617dd5]/10 text-[#617dd5] border-[#617dd5]/20 hover:bg-[#617dd5]/20 dark:bg-[#617dd5]/15 dark:text-[#617dd5] dark:border-[#617dd5]/30 dark:hover:bg-[#617dd5]/25"
+          >
+            <Sparkles className="h-3 w-3" />
+            IA
+          </button>
           <Button
             variant="ghost"
             size="icon"
