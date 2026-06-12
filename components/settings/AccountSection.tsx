@@ -30,8 +30,8 @@ export function AccountSection() {
   if (status === "loading") {
     return (
       <div className="space-y-3">
-        <div className="h-4 w-32 rounded-md bg-stone-200 dark:bg-stone-800 animate-pulse" />
-        <div className="h-20 w-full rounded-xl bg-stone-100 dark:bg-stone-800/60 animate-pulse" />
+        <div className="h-4 w-32 rounded-md bg-[#e8e8e8] dark:bg-[#2a2a2e] animate-pulse" />
+        <div className="h-20 w-full rounded-xl bg-[#f5f5f5] dark:bg-white/5 animate-pulse" />
       </div>
     );
   }
@@ -47,16 +47,16 @@ export function AccountSection() {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="space-y-3"
     >
-      <div className="flex items-center gap-3 p-4 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900/60">
-        <div className="h-12 w-12 rounded-full bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 flex items-center justify-center shrink-0 font-extrabold text-sm tracking-tight">
+      <div className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-[#17181c]">
+        <div className="h-12 w-12 rounded-full bg-[#17181c] text-white dark:bg-white dark:text-[#17181c] flex items-center justify-center shrink-0 font-extrabold text-sm tracking-tight">
           {initials}
         </div>
         <div className="flex-1 min-w-0 space-y-0.5">
-          <div className="flex items-center gap-1.5 text-stone-900 dark:text-stone-50">
-            <UserIcon className="h-3.5 w-3.5 text-stone-400 dark:text-stone-500 shrink-0" strokeWidth={2.2} />
+          <div className="flex items-center gap-1.5 text-[#17181c] dark:text-white">
+            <UserIcon className="h-3.5 w-3.5 text-[#737373] dark:text-[#a1a1aa] shrink-0" strokeWidth={2.2} />
             <p className="text-sm font-bold truncate">{userName}</p>
           </div>
-          <div className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
+          <div className="flex items-center gap-1.5 text-[#737373] dark:text-[#a1a1aa]">
             <Mail className="h-3.5 w-3.5 shrink-0" strokeWidth={2.2} />
             <p className="text-xs font-medium truncate">{email}</p>
           </div>
@@ -67,7 +67,7 @@ export function AccountSection() {
         type="button"
         variant="outline"
         onClick={() => signOut({ callbackUrl: "/login" })}
-        className="w-full sm:w-auto h-10 px-4 gap-1.5 border-stone-300 text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800/60"
+        className="w-full sm:w-auto h-10 px-4 gap-1.5 border-[#e8e8e8] text-[#17181c] hover:bg-[#f5f5f5] dark:border-[#2a2a2e] dark:text-white dark:hover:bg-[#2a2a2e]"
       >
         <LogOut className="h-4 w-4" strokeWidth={2.2} />
         Cerrar sesión

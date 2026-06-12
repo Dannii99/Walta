@@ -54,7 +54,7 @@ function ProgressBar({
   const isPaidOff = status === "PAID_OFF";
   return (
     <div className="space-y-1.5">
-      <div className="h-1.5 w-full rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
+      <div className="h-1.5 w-full rounded-full bg-[#e8e8e8] dark:bg-[#2a2a2e] overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
@@ -62,14 +62,14 @@ function ProgressBar({
           className={cn(
             "h-full rounded-full",
             isDefaulted
-              ? "bg-rose-500"
+              ? "bg-[#e54d4d]"
               : isPaidOff
-              ? "bg-emerald-500"
-              : "bg-blue-500"
+              ? "bg-[#23ad1b]"
+              : "bg-[#617dd5]"
           )}
         />
       </div>
-      <p className="text-[10px] text-stone-500 dark:text-stone-400 tabular-nums">
+      <p className="text-[10px] text-[#737373] dark:text-[#a1a1aa] tabular-nums">
         {payments} de {total} cuotas
       </p>
     </div>
@@ -93,7 +93,7 @@ export function CreditCard({ loan, index }: CreditCardProps) {
     >
       <Link
         href={`/credits/${loan.id}`}
-        className="block group rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow"
+        className="block group rounded-2xl bg-white dark:bg-[#17181c] hover:bg-[#fafafa] dark:hover:bg-[#1a1a1e] transition-colors"
       >
         <div className="p-5 space-y-4">
           <div className="flex items-start gap-3">
@@ -106,10 +106,10 @@ export function CreditCard({ loan, index }: CreditCardProps) {
               <TypeIcon type={loan.type} />
             </div>
             <div className="min-w-0 flex-1 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 {typeLabel}
               </p>
-              <h3 className="text-base font-bold text-stone-900 dark:text-stone-50 truncate">
+              <h3 className="text-base font-bold text-[#17181c] dark:text-white truncate">
                 {loan.title}
               </h3>
             </div>
@@ -126,39 +126,39 @@ export function CreditCard({ loan, index }: CreditCardProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 Cuota mensual
               </p>
-              <p className="text-sm font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
+              <p className="text-sm font-extrabold tabular-nums text-[#17181c] dark:text-white">
                 {formatCOP(totalMonthly)}
                 {cargosMonthly > 0 && (
-                  <span className="block text-[10px] font-normal text-stone-500 dark:text-stone-400 mt-0.5">
+                  <span className="block text-[10px] font-normal text-[#737373] dark:text-[#a1a1aa] mt-0.5">
                     Banco {formatCOP(bankMonthly)} + Cargos {formatCOP(cargosMonthly)}
                   </span>
                 )}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 Capital
               </p>
-              <p className="text-sm font-extrabold tabular-nums text-stone-900 dark:text-stone-50">
+              <p className="text-sm font-extrabold tabular-nums text-[#17181c] dark:text-white">
                 {formatCOP(parseFloat(loan.principal))}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 Plazo
               </p>
-              <p className="text-sm font-bold tabular-nums text-stone-700 dark:text-stone-300">
+              <p className="text-sm font-bold tabular-nums text-[#17181c] dark:text-white">
                 {loan.termMonths} meses
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 Tasa anual
               </p>
-              <p className="text-sm font-bold tabular-nums text-stone-700 dark:text-stone-300">
+              <p className="text-sm font-bold tabular-nums text-[#17181c] dark:text-white">
                 {(parseFloat(loan.annualRate) * 100).toFixed(2)}%
               </p>
             </div>
@@ -170,9 +170,9 @@ export function CreditCard({ loan, index }: CreditCardProps) {
             status={loan.status}
           />
 
-          <div className="flex items-center justify-end text-xs font-semibold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center justify-end text-xs font-semibold text-[#17181c] dark:text-white group-hover:text-[#26be15] transition-colors">
             Ver detalle
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </div>
         </div>
       </Link>

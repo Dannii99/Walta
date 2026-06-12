@@ -108,7 +108,7 @@ export function CreditSummary({ loan }: CreditSummaryProps) {
           return (
             <div
               key={i}
-              className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 md:p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+              className="rounded-2xl bg-white dark:bg-[#17181c] p-4 md:p-5"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div
@@ -120,13 +120,13 @@ export function CreditSummary({ loan }: CreditSummaryProps) {
                   <Icon className={cn("h-3.5 w-3.5", stat.color)} strokeWidth={2.2} />
                 </div>
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                 {stat.label}
               </p>
-              <p className="text-sm md:text-base font-extrabold tracking-tight tabular-nums text-stone-900 dark:text-stone-50 mt-1">
+              <p className="text-sm md:text-base font-extrabold tracking-tight tabular-nums text-[#17181c] dark:text-white mt-1">
                 {stat.value}
               </p>
-              <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-[#737373] dark:text-[#a1a1aa] mt-0.5 line-clamp-2">
                 {stat.sub}
               </p>
             </div>

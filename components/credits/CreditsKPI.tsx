@@ -32,17 +32,17 @@ function KpiCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05, ease: "easeOut" }}
-      className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 md:p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+      className="rounded-2xl bg-white dark:bg-[#17181c] p-4 md:p-5"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 truncate">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] truncate">
             {label}
           </p>
           <p
             className={`text-xl md:text-2xl font-extrabold tracking-tight ${
               isString ? "tabular-nums" : ""
-            } text-stone-900 dark:text-stone-50 truncate`}
+            } text-[#17181c] dark:text-white truncate`}
           >
             {value}
           </p>
@@ -70,7 +70,7 @@ export function CreditsKPI({
         label="Total"
         value={total}
         icon={Landmark}
-        color="bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300"
+        color="bg-[#f5f5f5] text-[#737373] dark:bg-white/5 dark:text-[#a1a1aa]"
         index={0}
       />
       <KpiCard

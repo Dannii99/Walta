@@ -41,18 +41,18 @@ export function ThemeToggle({
         title={ariaLabel}
         className={cn(
           "group/toggle flex items-center h-10 rounded-lg px-[10px] w-full",
-          "text-stone-700 hover:bg-stone-100 hover:text-stone-900",
-          "dark:text-stone-300 dark:hover:bg-stone-800/60 dark:hover:text-stone-50",
+          "text-[#17181c] hover:bg-[#f5f5f5] hover:text-[#17181c]",
+          "dark:text-[#a1a1aa] dark:hover:bg-white/5 dark:hover:text-white",
           "transition-colors duration-150 outline-none",
-          "focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-stone-900",
+          "focus-visible:ring-2 focus-visible:ring-[#617dd5]/40 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#17181c]",
           className
         )}
       >
         <span
           className={cn(
             "h-7 w-7 rounded-md flex items-center justify-center shrink-0",
-            "bg-stone-100 text-stone-700",
-            "dark:bg-stone-800 dark:text-stone-200",
+            "bg-[#f5f5f5] text-[#737373]",
+            "dark:bg-white/5 dark:text-[#a1a1aa]",
             "transition-colors"
           )}
         >
@@ -79,17 +79,17 @@ export function ThemeToggle({
       title={ariaLabel}
       className={cn(
         "group/toggle flex items-center gap-2.5 rounded-lg px-2.5 py-2",
-        "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/60",
+        "text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f5f5f5] dark:hover:bg-white/5",
         "transition-colors duration-150 outline-none",
-        "focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-stone-900",
+        "focus-visible:ring-2 focus-visible:ring-[#617dd5]/40 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#17181c]",
         className
       )}
     >
       <span
         className={cn(
           "h-7 w-7 rounded-md flex items-center justify-center shrink-0",
-          "bg-stone-100 text-stone-700",
-          "dark:bg-stone-800 dark:text-stone-200",
+          "bg-[#f5f5f5] text-[#737373]",
+          "dark:bg-white/5 dark:text-[#a1a1aa]",
           "transition-colors"
         )}
       >

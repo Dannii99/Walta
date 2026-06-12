@@ -66,10 +66,10 @@ export function ThemeSelector() {
               className={cn(
                 "relative flex flex-col items-start text-left p-4 rounded-xl",
                 "border transition-all duration-150 outline-none",
-                "focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-stone-900",
+                "focus-visible:ring-2 focus-visible:ring-[#617dd5]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#17181c]",
                 isActive
-                  ? "border-stone-900 bg-stone-50 dark:border-stone-100 dark:bg-stone-800/60"
-                  : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50/50 dark:border-stone-800 dark:bg-stone-900/50 dark:hover:border-stone-700 dark:hover:bg-stone-800/30"
+                  ? "border-[#17181c] bg-[#f5f5f5] dark:border-white dark:bg-white/5"
+                  : "border-[#e8e8e8] bg-white hover:border-[#ccc] hover:bg-[#fafafa] dark:border-[#2a2a2e] dark:bg-[#17181c] dark:hover:border-[#3a3a3e] dark:hover:bg-[#1a1a1e]"
               )}
             >
               <div className="flex items-center justify-between w-full mb-2">
@@ -77,8 +77,8 @@ export function ThemeSelector() {
                   className={cn(
                     "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
                     isActive
-                      ? "bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900"
-                      : "bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200"
+                      ? "bg-[#17181c] text-white dark:bg-white dark:text-[#17181c]"
+                      : "bg-[#f5f5f5] text-[#737373] dark:bg-white/5 dark:text-[#a1a1aa]"
                   )}
                 >
                   <Icon className="h-4 w-4" strokeWidth={2.3} />
@@ -88,17 +88,17 @@ export function ThemeSelector() {
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.15 }}
-                    className="h-5 w-5 rounded-full bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 flex items-center justify-center"
+                    className="h-5 w-5 rounded-full bg-[#17181c] text-white dark:bg-white dark:text-[#17181c] flex items-center justify-center"
                     aria-hidden
                   >
                     <Check className="h-3 w-3" strokeWidth={3} />
                   </motion.span>
                 )}
               </div>
-              <p className="text-sm font-bold text-stone-900 dark:text-stone-50">
+              <p className="text-sm font-bold text-[#17181c] dark:text-white">
                 {opt.label}
               </p>
-              <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-0.5 leading-relaxed">
+              <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] font-medium mt-0.5 leading-relaxed">
                 {opt.description}
               </p>
             </button>
@@ -106,9 +106,9 @@ export function ThemeSelector() {
         })}
       </div>
       {hydrated && (
-        <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+        <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa] font-medium">
           Tema activo:{" "}
-          <span className="font-semibold text-stone-700 dark:text-stone-200 capitalize">
+          <span className="font-semibold text-[#17181c] dark:text-white capitalize">
             {effective === "dark" ? "oscuro" : "claro"}
           </span>
           {current === "system" && " (siguiendo al sistema)"}

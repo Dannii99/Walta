@@ -40,7 +40,7 @@ export function NewCreditButton({ className }: NewCreditButtonProps) {
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-full bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200 shadow-sm transition-colors"
+        className="inline-flex items-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-full bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5] shadow-sm transition-colors"
       >
         <Plus className="h-4 w-4" />
         Nuevo crédito
@@ -60,41 +60,41 @@ export function NewCreditButton({ className }: NewCreditButtonProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.97 }}
             transition={{ duration: 0.12, ease: "easeOut" }}
-            className="absolute right-0 top-full mt-2 z-50 min-w-[260px] rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-lg overflow-hidden"
+            className="absolute right-0 top-full mt-2 z-50 min-w-[260px] rounded-2xl bg-white dark:bg-[#17181c] shadow-lg overflow-hidden"
           >
             <Link
               href="/credits/new?mode=new"
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex items-start gap-3 p-3 hover:bg-stone-50 dark:hover:bg-stone-800/60 transition-colors"
+              className="flex items-start gap-3 p-3 hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e] transition-colors"
             >
               <div className="h-9 w-9 rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 flex items-center justify-center shrink-0">
                 <FilePlus className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-50">
+                <p className="text-sm font-bold text-[#17181c] dark:text-white">
                   Crear nuevo
                 </p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 leading-snug">
+                <p className="text-xs text-[#737373] dark:text-[#a1a1aa] leading-snug">
                   Simula y registra un crédito que vas a tomar.
                 </p>
               </div>
             </Link>
-            <div className="h-px bg-stone-200/80 dark:bg-stone-800" />
+            <div className="h-px bg-[#e8e8e8] dark:bg-[#2a2a2e]" />
             <Link
               href="/credits/new?mode=ongoing"
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="flex items-start gap-3 p-3 hover:bg-stone-50 dark:hover:bg-stone-800/60 transition-colors"
+              className="flex items-start gap-3 p-3 hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e] transition-colors"
             >
               <div className="h-9 w-9 rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 flex items-center justify-center shrink-0">
                 <ClipboardPlus className="h-4 w-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-50">
+                <p className="text-sm font-bold text-[#17181c] dark:text-white">
                   Agregar existente
                 </p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 leading-snug">
+                <p className="text-xs text-[#737373] dark:text-[#a1a1aa] leading-snug">
                   Registra un crédito que ya tienes en marcha.
                 </p>
               </div>

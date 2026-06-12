@@ -47,7 +47,7 @@ export function CreditDetailHeader({
       <div>
         <Link
           href="/credits"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#737373] dark:text-[#a1a1aa] hover:text-[#17181c] dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="h-3 w-3" />
           Volver a créditos
@@ -65,10 +65,10 @@ export function CreditDetailHeader({
             <TypeIcon className="h-6 w-6 md:h-7 md:w-7" strokeWidth={2.2} />
           </div>
           <div className="min-w-0 space-y-1.5">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
               {loanTypeLabel(loan.type)} · {loanFormulaLabel(loan.formula)}
             </p>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50 truncate">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#17181c] dark:text-white truncate">
               {loan.title}
             </h1>
             <div className="flex flex-wrap items-center gap-1.5">
@@ -81,10 +81,10 @@ export function CreditDetailHeader({
                 <span className="h-1.5 w-1.5 rounded-full bg-current" />
                 {loanStatusLabel(loan.status)}
               </span>
-              <span className="text-xs text-stone-500 dark:text-stone-400 tabular-nums">
+              <span className="text-xs text-[#737373] dark:text-[#a1a1aa] tabular-nums">
                 Cuota {formatCOP(totalMonthly)} · {loan.termMonths} meses
                 {cargosMonthly > 0 && (
-                  <span className="block text-[10px] font-normal text-stone-500 dark:text-stone-400 mt-0.5">
+                  <span className="block text-[10px] font-normal text-[#737373] dark:text-[#a1a1aa] mt-0.5">
                     Banco {formatCOP(bankMonthly)} + Cargos {formatCOP(cargosMonthly)}
                   </span>
                 )}
@@ -97,7 +97,7 @@ export function CreditDetailHeader({
             <button
               type="button"
               onClick={onOpenActions}
-              className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] text-[#17181c] dark:text-white hover:bg-[#fafafa] dark:hover:bg-[#2a2a2e] transition-colors"
               aria-label="Abrir acciones rápidas"
             >
               <Zap className="h-3.5 w-3.5" />
@@ -106,7 +106,7 @@ export function CreditDetailHeader({
           )}
           <Link
             href={`/credits/${loan.id}/edit`}
-            className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+            className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] text-[#17181c] dark:text-white hover:bg-[#fafafa] dark:hover:bg-[#2a2a2e] transition-colors"
           >
             <Pencil className="h-3.5 w-3.5" />
             Editar
@@ -115,7 +115,7 @@ export function CreditDetailHeader({
             type="button"
             onClick={onDelete}
             disabled={isDeleting}
-            className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-rose-200 dark:border-rose-900 bg-white dark:bg-stone-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-rose-200 dark:border-rose-900 bg-white dark:bg-[#17181c] text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5" />
             {isDeleting ? "Eliminando..." : "Eliminar"}
@@ -123,7 +123,7 @@ export function CreditDetailHeader({
         </div>
       </div>
 
-      <div className="border-b border-stone-200 dark:border-stone-800">
+      <div className="border-b border-[#e8e8e8] dark:border-[#2a2a2e]">
         <div className="flex gap-1 overflow-x-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -137,8 +137,8 @@ export function CreditDetailHeader({
                 className={cn(
                   "inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap",
                   isActive
-                    ? "border-stone-900 text-stone-900 dark:border-stone-100 dark:text-stone-50"
-                    : "border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+                    ? "border-[#17181c] text-[#17181c] dark:border-white dark:text-white"
+                    : "border-transparent text-[#737373] dark:text-[#a1a1aa] hover:text-[#17181c] dark:hover:text-white"
                 )}
               >
                 <Icon className="h-4 w-4" />
