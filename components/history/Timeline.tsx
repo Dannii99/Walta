@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimelineEvent } from "@/components/history/TimelineEvent";
 import { TimelineFilters } from "@/components/history/TimelineFilters";
+import { TimelineFilterSheet } from "@/components/history/TimelineFilterSheet";
 import { TimelineEmpty } from "@/components/history/TimelineEmpty";
 import { TIMELINE_EVENT_TYPES, type TimelineEventType } from "@/lib/timeline-types";
 import type { TimelineEvent as TimelineEventModel, TimelineCursor } from "@/types";
@@ -62,6 +63,7 @@ export function Timeline({
   );
   const [isPending, startTransition] = useTransition();
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const filteredEvents = useMemo(() => {
     if (selected.size === TIMELINE_EVENT_TYPES.length) return events;
@@ -136,17 +138,25 @@ export function Timeline({
         onChange={handleFilterChange}
         total={total}
         filtered={filteredEvents.length}
+        onOpenFilterSheet={() => setSheetOpen(true)}
+      />
+
+      <TimelineFilterSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        selected={selected}
+        onChange={handleFilterChange}
       />
 
       {grouped.length === 0 ? (
-        <div className="text-center py-10 text-sm text-stone-500 dark:text-stone-400">
+        <div className="text-center py-10 text-sm text-[#737373] dark:text-[#a1a1aa]">
           Ningún evento coincide con los filtros seleccionados.
         </div>
       ) : (
         <div className="space-y-7">
           {grouped.map(([key, monthEvents]) => (
             <div key={key} className="space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 pl-1">
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] pl-1">
                 {monthLabel(monthEvents[0].occurredAt)}
               </h3>
               <ul className="space-y-0 list-none">
@@ -175,6 +185,7 @@ export function Timeline({
             variant="outline"
             onClick={handleLoadMore}
             disabled={isPending}
+            className="border-[#e8e8e8] dark:border-[#2a2a2e] text-[#17181c] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
           >
             {isPending ? (
               <>
@@ -189,7 +200,7 @@ export function Timeline({
       )}
 
       {loadError && (
-        <p className="text-center text-xs text-rose-600 dark:text-rose-400">
+        <p className="text-center text-xs text-[#e54d4d] dark:text-[#e54d4d]">
           {loadError}
         </p>
       )}
@@ -198,7 +209,7 @@ export function Timeline({
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center text-xs text-stone-400 dark:text-stone-500 pt-2"
+          className="text-center text-xs text-[#737373] dark:text-[#a1a1aa] pt-2"
         >
           Has llegado al final de tu línea de tiempo.
         </motion.p>

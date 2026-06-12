@@ -68,23 +68,23 @@ function renderBody(event: TimelineEventType): RenderedBody {
       return {
         description: (
           <div className="space-y-1.5">
-            <p className="text-sm text-stone-700 dark:text-stone-300">
+            <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
               Simulación de{" "}
-              <span className="font-semibold text-stone-900 dark:text-stone-50">
+              <span className="font-semibold text-[#17181c] dark:text-white">
                 {event.title}
               </span>{" "}
               ({loanTypeLabel(event.simulationType.toLowerCase())}).
             </p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500 dark:text-stone-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#737373] dark:text-[#a1a1aa]">
               <span>
                 Cuota:{" "}
-                <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                   {formatCOP(event.monthlyPayment)}
                 </span>
               </span>
               <span>
                 Plazo:{" "}
-                <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                   {event.term} meses
                 </span>
               </span>
@@ -105,34 +105,34 @@ function renderBody(event: TimelineEventType): RenderedBody {
       return {
         description: (
           <div className="space-y-1.5">
-            <p className="text-sm text-stone-700 dark:text-stone-300">
+            <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
               Crédito{" "}
-              <span className="font-semibold text-stone-900 dark:text-stone-50">
+              <span className="font-semibold text-[#17181c] dark:text-white">
                 {event.title}
               </span>{" "}
               ({loanTypeLabel(event.loanType.toLowerCase())}).
             </p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500 dark:text-stone-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#737373] dark:text-[#a1a1aa]">
               <span>
                 Capital:{" "}
-                <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                   {formatCOP(event.principal)}
                 </span>
               </span>
               <span>
                 Cuota:{" "}
-                <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                   {formatCOP(event.monthlyPayment)}
                 </span>
               </span>
               <span>
                 Plazo:{" "}
-                <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                   {event.termMonths} meses
                 </span>
               </span>
               {event.simulationId && (
-                <span className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                <span className="inline-flex items-center gap-1 text-[#617dd5] dark:text-[#617dd5]">
                   <span>Desde simulación</span>
                 </span>
               )}
@@ -148,21 +148,21 @@ function renderBody(event: TimelineEventType): RenderedBody {
       return {
         description: (
           <div className="space-y-1.5">
-            <p className="text-sm text-stone-700 dark:text-stone-300">
+            <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
               Cuota{" "}
-              <span className="font-semibold text-stone-900 dark:text-stone-50 tabular-nums">
+              <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                 {event.installmentNumber}
               </span>{" "}
               de {event.totalInstallments} pagada en{" "}
-              <span className="font-semibold text-stone-900 dark:text-stone-50">
+              <span className="font-semibold text-[#17181c] dark:text-white">
                 {event.loanTitle}
               </span>
               .
             </p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500 dark:text-stone-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#737373] dark:text-[#a1a1aa]">
               <span>
                 Cuota:{" "}
-                <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                   {formatCOP(event.amount)}
                 </span>
               </span>
@@ -190,16 +190,16 @@ function renderBody(event: TimelineEventType): RenderedBody {
       return {
         description: (
           <div className="space-y-1.5">
-            <p className="text-sm text-stone-700 dark:text-stone-300">
+            <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
               Abono a capital de{" "}
               <span className="font-semibold text-amber-700 dark:text-amber-400 tabular-nums">
                 {formatCOP(event.amount)}
               </span>{" "}
               en{" "}
-              <span className="font-semibold text-stone-900 dark:text-stone-50">
+              <span className="font-semibold text-[#17181c] dark:text-white">
                 {event.loanTitle}
               </span>
-              {event.note ? <span className="text-stone-500 dark:text-stone-400">. {event.note}</span> : "."}
+              {event.note ? <span className="text-[#737373] dark:text-[#a1a1aa]">. {event.note}</span> : "."}
             </p>
           </div>
         ),
@@ -212,21 +212,21 @@ function renderBody(event: TimelineEventType): RenderedBody {
       return {
         description: (
           <div className="space-y-1.5">
-            <p className="text-sm text-stone-700 dark:text-stone-300">
+            <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
               Crédito{" "}
-              <span className="font-semibold text-stone-900 dark:text-stone-50">
+              <span className="font-semibold text-[#17181c] dark:text-white">
                 {event.loanTitle}
               </span>{" "}
               pagado en su totalidad (
-              <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+              <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                 {event.termMonths} meses
               </span>
               ).
             </p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500 dark:text-stone-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#737373] dark:text-[#a1a1aa]">
               <span>
                 Intereses totales:{" "}
-                <span className="font-semibold text-stone-700 dark:text-stone-300 tabular-nums">
+                <span className="font-semibold text-[#17181c] dark:text-white tabular-nums">
                   {formatCOP(event.totalInterest)}
                 </span>
               </span>
@@ -260,22 +260,22 @@ export function TimelineEvent({ event, isLast }: TimelineEventProps) {
           <Icon className="h-4 w-4 md:h-5 md:w-5" strokeWidth={2} />
         </div>
         {!isLast && (
-          <div className="flex-1 w-px bg-stone-200 dark:bg-stone-800 mt-2" />
+          <div className="flex-1 w-px bg-[#e8e8e8] dark:bg-[#2a2a2e] mt-2" />
         )}
       </div>
 
       <div className="flex-1 pb-5">
         <Link
           href={body.href}
-          className="group block rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4 md:p-5 transition-colors hover:border-stone-300 dark:hover:border-stone-700"
+          className="group block rounded-2xl bg-white dark:bg-[#17181c] p-4 md:p-5 transition-colors hover:bg-[#fafafa] dark:hover:bg-[#1a1a1e]"
         >
           <div className="flex items-center justify-between gap-3 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
               {visual.label}
             </span>
             <time
               dateTime={event.occurredAt.toISOString()}
-              className="text-[10px] font-medium text-stone-400 dark:text-stone-500 tabular-nums"
+              className="text-[10px] font-medium text-[#737373] dark:text-[#a1a1aa] tabular-nums"
             >
               {formatShortDate(event.occurredAt)}
             </time>
@@ -283,14 +283,14 @@ export function TimelineEvent({ event, isLast }: TimelineEventProps) {
 
           {body.description}
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#e8e8e8] dark:border-[#2a2a2e]">
             <time
               dateTime={event.occurredAt.toISOString()}
-              className="text-xs text-stone-500 dark:text-stone-400"
+              className="text-xs text-[#737373] dark:text-[#a1a1aa]"
             >
               {formatDate(event.occurredAt)}
             </time>
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-stone-700 dark:text-stone-300 group-hover:text-stone-900 dark:group-hover:text-stone-50 transition-colors">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#17181c] dark:text-white group-hover:text-[#26be15] transition-colors">
               {body.cta}
               <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </span>
