@@ -43,6 +43,7 @@ export default async function SimulationDetailPage({
 
   const inputs = parseSimulationInputs(simulation.inputs);
   const result = parseSimulationResult(simulation.result);
+  const rawFees = (simulation.inputs as { fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[] })?.fees ?? [];
 
   const budgets = await getUserBudgets(session.user.id);
   const budget = budgets[0] ?? null;
@@ -70,6 +71,7 @@ export default async function SimulationDetailPage({
         inputs={inputs}
         result={result}
         availableMoney={availableMoney}
+        fees={rawFees}
       />
     </div>
   );

@@ -6,12 +6,20 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import type { SimulationType, SimulationInputs, SimulationResult } from "@/types";
 
+const feeItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  amount: z.number().nonnegative(),
+  type: z.enum(["monthly", "upfront"] as const),
+});
+
 const simulationInputsSchema = z.object({
   price: z.number().positive(),
   downPayment: z.number().nonnegative(),
   term: z.number().int().positive().max(120),
   rate: z.number().positive(),
   formula: z.string().optional(),
+  fees: z.array(feeItemSchema).optional(),
 });
 
 const simulationResultSchema = z.object({

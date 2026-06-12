@@ -16,6 +16,7 @@ import type {
   SimulationInputRow,
   SimulationResultRow,
 } from "@/lib/simulation-types";
+import type { FeeItem } from "@/types";
 
 interface SimulationDetailClientProps {
   simulation: {
@@ -27,6 +28,7 @@ interface SimulationDetailClientProps {
   inputs: SimulationInputRow;
   result: SimulationResultRow;
   availableMoney: number;
+  fees?: FeeItem[];
 }
 
 export function SimulationDetailClient({
@@ -34,6 +36,7 @@ export function SimulationDetailClient({
   inputs,
   result,
   availableMoney,
+  fees = [],
 }: SimulationDetailClientProps) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -71,6 +74,7 @@ export function SimulationDetailClient({
             inputs={inputs}
             result={result}
             availableMoney={availableMoney}
+            fees={fees}
           />
         </div>
         <div className="lg:col-span-2 space-y-6">

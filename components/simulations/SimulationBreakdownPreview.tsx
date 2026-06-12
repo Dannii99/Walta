@@ -3,10 +3,11 @@
 import { motion } from "framer-motion";
 import { FileText, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { formatCOP } from "@/lib/currency";
-import { labelOr, FORMULA_LABELS, type DbVerdict } from "@/lib/simulation-types";
-import { VERDICT_CONFIG, type Verdict, getVerdict } from "@/lib/simulation-engine";
+import { labelOr, FORMULA_LABELS } from "@/lib/simulation-types";
+import { VERDICT_CONFIG, type Verdict } from "@/lib/simulation-engine";
+import type { FeeItem } from "@/types";
 
-interface SimulationBreakdownProps {
+interface SimulationBreakdownPreviewProps {
   inputs: {
     price: number;
     downPayment: number;
@@ -16,37 +17,40 @@ interface SimulationBreakdownProps {
   };
   result: {
     monthlyPayment: number;
-    verdict: string;
-    availableAfter: number;
+    effectiveMonthlyPayment: number;
+    totalMonthlyFees: number;
+    totalUpfrontFees: number;
+    verdict: Verdict;
+    percentage: number;
+    remainingAfter: number;
     totalInterest: number;
     totalCost: number;
   };
   availableMoney: number;
-  fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
+  fees: FeeItem[];
 }
 
-const VERDICT_ICON: Record<DbVerdict, typeof CheckCircle2> = {
-  APPROVED: CheckCircle2,
-  WARNING: AlertTriangle,
-  REJECTED: XCircle,
+const VERDICT_ICON: Record<string, typeof CheckCircle2> = {
+  SAFE: CheckCircle2,
+  TIGHT: AlertTriangle,
+  RISKY: XCircle,
+  NOT_RECOMMENDED: XCircle,
 };
 
-const VERDICT_BADGE: Record<DbVerdict, string> = {
-  APPROVED:
-    "bg-[#23ad1b]/10 text-[#23ad1b] border-[#23ad1b]/20 dark:bg-[#23ad1b]/15 dark:text-[#23ad1b] dark:border-[#23ad1b]/20",
-  WARNING:
-    "bg-[#e7964d]/10 text-[#e7964d] border-[#e7964d]/20 dark:bg-[#e7964d]/15 dark:text-[#e7964d] dark:border-[#e7964d]/20",
-  REJECTED:
-    "bg-[#e54d4d]/10 text-[#e54d4d] border-[#e54d4d]/20 dark:bg-[#e54d4d]/15 dark:text-[#e54d4d] dark:border-[#e54d4d]/20",
+const VERDICT_BADGE: Record<string, string> = {
+  SAFE: "bg-[#23ad1b]/10 text-[#23ad1b] border-[#23ad1b]/20 dark:bg-[#23ad1b]/15 dark:text-[#23ad1b] dark:border-[#23ad1b]/20",
+  TIGHT: "bg-[#e7964d]/10 text-[#e7964d] border-[#e7964d]/20 dark:bg-[#e7964d]/15 dark:text-[#e7964d] dark:border-[#e7964d]/20",
+  RISKY: "bg-[#e7964d]/10 text-[#e7964d] border-[#e7964d]/20 dark:bg-[#e7964d]/15 dark:text-[#e7964d] dark:border-[#e7964d]/20",
+  NOT_RECOMMENDED: "bg-[#e54d4d]/10 text-[#e54d4d] border-[#e54d4d]/20 dark:bg-[#e54d4d]/15 dark:text-[#e54d4d] dark:border-[#e54d4d]/20",
 };
 
-const VERDICT_LABEL: Record<DbVerdict, string> = {
-  APPROVED: "Aprobado",
-  WARNING: "Advertencia",
-  REJECTED: "Rechazado",
+const VERDICT_LABEL: Record<string, string> = {
+  SAFE: "Seguro",
+  TIGHT: "Ajustado",
+  RISKY: "Riesgoso",
+  NOT_RECOMMENDED: "No Recomendado",
 };
 
-/* ─── line separator ─── */
 function DashedLine() {
   return (
     <div className="relative h-px my-4">
@@ -57,7 +61,6 @@ function DashedLine() {
   );
 }
 
-/* ─── section label ─── */
 function SectionLabel({ children }: { children: string }) {
   return (
     <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mb-2">
@@ -66,7 +69,6 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
-/* ─── plain row ─── */
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-2 py-1.5">
@@ -78,7 +80,6 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-/* ─── highlighted (green bg tint) ─── */
 function HighlightRow({ label, value, color }: { label: string; value: string; color?: "green" | "red" }) {
   const bg = color === "red" ? "bg-[#e54d4d]/5 dark:bg-[#e54d4d]/10" : "bg-[#26be15]/5 dark:bg-[#26be15]/10";
   const text = color === "red" ? "text-[#e54d4d]" : "text-[#26be15]";
@@ -90,7 +91,17 @@ function HighlightRow({ label, value, color }: { label: string; value: string; c
   );
 }
 
-/* ─── cost row with red dot ─── */
+function HeroRow({ label, value, color }: { label: string; value: string; color?: "green" | "red" }) {
+  const bg = color === "red" ? "bg-[#e54d4d]/5 dark:bg-[#e54d4d]/10" : "bg-[#26be15]/5 dark:bg-[#26be15]/10";
+  const text = color === "red" ? "text-[#e54d4d]" : "text-[#26be15]";
+  return (
+    <div className={`flex items-baseline justify-between gap-2 py-3 px-3 rounded-lg ${bg}`}>
+      <span className="text-sm font-semibold text-[#17181c] dark:text-white">{label}</span>
+      <span className={`text-base font-bold tabular-nums ${text}`}>{value}</span>
+    </div>
+  );
+}
+
 function CostRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-2 py-1.5">
@@ -112,46 +123,21 @@ function FeeRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-/* ─── hero row (cuota mensual) ─── */
-function HeroRow({ label, value, color }: { label: string; value: string; color?: "green" | "red" }) {
-  const bg = color === "red" ? "bg-[#e54d4d]/5 dark:bg-[#e54d4d]/10" : "bg-[#26be15]/5 dark:bg-[#26be15]/10";
-  const text = color === "red" ? "text-[#e54d4d]" : "text-[#26be15]";
-  return (
-    <div className={`flex items-baseline justify-between gap-2 py-3 px-3 rounded-lg ${bg}`}>
-      <span className="text-sm font-semibold text-[#17181c] dark:text-white">{label}</span>
-      <span className={`text-base font-bold tabular-nums ${text}`}>{value}</span>
-    </div>
-  );
-}
-
-export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] }: SimulationBreakdownProps) {
+export function SimulationBreakdownPreview({
+  inputs,
+  result,
+  availableMoney,
+  fees,
+}: SimulationBreakdownPreviewProps) {
   const principal = Math.max(0, inputs.price - inputs.downPayment);
   const termYears = (inputs.term / 12).toFixed(1);
-  const remainingAfter = availableMoney - result.monthlyPayment;
-
-  const totalMonthlyFees = fees
-    .filter((f) => f.type === "monthly")
-    .reduce((sum, f) => sum + f.amount / 12, 0);
-  const totalUpfrontFees = fees
-    .filter((f) => f.type === "upfront")
-    .reduce((sum, f) => sum + f.amount, 0);
-  const hasMonthlyFees = totalMonthlyFees > 0;
-  const hasUpfrontFees = totalUpfrontFees > 0;
-  const effectiveMonthlyPayment = result.monthlyPayment + totalMonthlyFees;
-
-  const dbToEngine: Record<DbVerdict, Verdict> = {
-    APPROVED: "SAFE",
-    WARNING: "TIGHT",
-    REJECTED: "RISKY",
-  };
-  const engineVerdict = dbToEngine[result.verdict as DbVerdict] ?? "TIGHT";
-  const verdictInfo = VERDICT_CONFIG[engineVerdict];
-  const { percentage } = getVerdict(result.monthlyPayment, availableMoney);
-
-  const dbVerdict = (result.verdict as DbVerdict) ?? "WARNING";
-  const VerdictIcon = VERDICT_ICON[dbVerdict];
-  const verdictBadge = VERDICT_BADGE[dbVerdict];
-  const verdictLabel = VERDICT_LABEL[dbVerdict];
+  const verdictInfo = VERDICT_CONFIG[result.verdict];
+  const VerdictIcon = VERDICT_ICON[result.verdict];
+  const verdictBadge = VERDICT_BADGE[result.verdict];
+  const verdictLabel = VERDICT_LABEL[result.verdict];
+  const hasFees = fees.length > 0;
+  const hasMonthlyFees = result.totalMonthlyFees > 0;
+  const hasUpfrontFees = result.totalUpfrontFees > 0;
 
   return (
     <motion.div
@@ -160,7 +146,7 @@ export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] 
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] overflow-hidden">
-        {/* ── Receipt header ── */}
+        {/* Header */}
         <div className="px-5 py-4 md:px-6 md:py-5 border-b border-dashed border-[#e8e8e8] dark:border-[#2a2a2e]">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
@@ -172,13 +158,7 @@ export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] 
                   Resumen financiero
                 </h3>
                 <p className="text-[10px] text-[#737373] dark:text-[#a1a1aa] mt-0.5">
-                  {new Intl.DateTimeFormat("es-CO", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }).format(new Date())}
+                  Vista previa en tiempo real
                 </p>
               </div>
             </div>
@@ -191,7 +171,7 @@ export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] 
           </div>
         </div>
 
-        {/* ── Body ── */}
+        {/* Body */}
         <div className="px-5 md:px-6 py-4 space-y-1">
           {/* DETALLE DEL PRÉSTAMO */}
           <SectionLabel>Detalle del préstamo</SectionLabel>
@@ -214,24 +194,24 @@ export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] 
           <HeroRow
             label="Cuota mensual"
             value={formatCOP(result.monthlyPayment)}
-            color={remainingAfter >= 0 ? "green" : "red"}
+            color={result.remainingAfter >= 0 ? "green" : "red"}
           />
           {hasMonthlyFees && (
             <FeeRow
               label="Cargos mensuales"
-              value={`+ ${formatCOP(totalMonthlyFees)}`}
+              value={`+ ${formatCOP(result.totalMonthlyFees)}`}
             />
           )}
-          {hasMonthlyFees && (
+          {hasFees && hasMonthlyFees && (
             <HighlightRow
               label="Cuota efectiva mensual"
-              value={formatCOP(effectiveMonthlyPayment)}
-              color={remainingAfter >= 0 ? "green" : "red"}
+              value={formatCOP(result.effectiveMonthlyPayment)}
+              color={result.remainingAfter >= 0 ? "green" : "red"}
             />
           )}
           <CostRow label="Intereses totales" value={formatCOP(result.totalInterest)} />
           {hasUpfrontFees && (
-            <CostRow label="Cargos iniciales" value={formatCOP(totalUpfrontFees)} />
+            <CostRow label="Cargos iniciales" value={formatCOP(result.totalUpfrontFees)} />
           )}
           <CostRow label="Costo total" value={formatCOP(result.totalCost)} />
 
@@ -242,11 +222,11 @@ export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] 
           <Row label="Disponible actual" value={formatCOP(availableMoney)} />
           <HighlightRow
             label="Después de la cuota"
-            value={formatCOP(remainingAfter)}
-            color={remainingAfter >= 0 ? "green" : "red"}
+            value={formatCOP(result.remainingAfter)}
+            color={result.remainingAfter >= 0 ? "green" : "red"}
           />
 
-          {/* ── Verdict bar ── */}
+          {/* Verdict bar */}
           <div className="mt-5 pt-4 border-t border-dashed border-[#e8e8e8] dark:border-[#2a2a2e]">
             <div className="flex items-center gap-3">
               <div className="flex-1">
@@ -255,14 +235,14 @@ export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] 
                     Pago respecto a disponible
                   </span>
                   <span className={`text-sm font-bold tabular-nums ${verdictInfo.color}`}>
-                    {percentage.toFixed(1)}%
+                    {result.percentage.toFixed(1)}%
                   </span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-[#f5f5f5] dark:bg-white/5 overflow-hidden">
                   <motion.div
                     className="h-full rounded-full bg-[#26be15]"
                     initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(percentage, 100)}%` }}
+                    animate={{ width: `${Math.min(result.percentage, 100)}%` }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                   />
                 </div>
@@ -274,7 +254,7 @@ export function SimulationBreakdown({ inputs, result, availableMoney, fees = [] 
           </div>
         </div>
 
-        {/* ── Receipt tear-line footer ── */}
+        {/* Tear line */}
         <div className="relative h-4 bg-[#f5f5f5] dark:bg-[#17181c] overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-2 flex items-center">
             <div className="w-full border-t border-dashed border-[#d4d4d4] dark:border-[#404040]" />

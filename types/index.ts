@@ -64,8 +64,9 @@ export interface SimulationInputs {
   price: number;
   downPayment: number;
   term: number; // meses
-  rate: number; // EA (efectivo anual) o mensual seg├║n contexto
+  rate: number; // EA (efectivo anual) o mensual según contexto
   formula?: string; // "french_ea" | "nominal_monthly"
+  fees?: FeeItem[];
 }
 
 export interface SimulationResult {

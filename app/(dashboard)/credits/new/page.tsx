@@ -44,6 +44,7 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
         term?: number;
         rate?: number;
         formula?: string;
+        fees?: { id: string; name: string; amount: number; type: "monthly" | "upfront" }[];
       };
       const result = simulation.result as {
         monthlyPayment?: number;
@@ -63,6 +64,7 @@ export default async function NewCreditPage({ searchParams }: NewCreditPageProps
         totalInterest: result.totalInterest ?? 0,
         totalCost: result.totalCost ?? 0,
         simulationId: simulation.id,
+        fees: inputs.fees ?? [],
       };
     }
   }
