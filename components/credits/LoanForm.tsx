@@ -139,7 +139,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   const [downPayment, setDownPayment] = useState(initialDownPayment);
 
   // Step 1: Previous capital contribution (abono a capital previo al registro)
-  // Pre-populated from `defaultValues.initialExtraPayment` (amount) + date
   const initialPrevAmount =
     (defaultValues?.initialExtraPayment as number) || 0;
   const [initialExtraPaymentEnabled, setInitialExtraPaymentEnabled] =
@@ -200,9 +199,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     (defaultValues?.exactTotalInterest as number) || 0
   );
 
-  // Calculate past months between startDate and today for sync.
-  // Declared before the derived `pastPaymentsSync` so its dependencies
-  // resolve in source order (required by react-hooks/immutability).
   const pastMonths = useMemo(() => {
     if (!startDate) return [];
     const start = new Date(startDate);
@@ -224,12 +220,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     return months;
   }, [startDate]);
 
-  // Source of truth for past-payments toggles, keyed by `${year}-${month}`.
-  // - For new/ongoing: starts empty, the user toggles each month.
-  // - For edit: starts pre-populated from real `LoanPayment` records.
-  //   The derived `pastPaymentsSync` below only renders entries for months in
-  //   the current `pastMonths` range, so changing startDate re-projects the
-  //   toggles onto the new range automatically.
   const [paymentStatuses, setPaymentStatuses] = useState<
     Record<string, "PAID" | "PENDING" | "DEFAULTED">
   >(() => {
@@ -242,8 +232,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     return initial;
   });
 
-  // Derived: the pastPaymentsSync array for the current `pastMonths` range.
-  // Months without an entry in `paymentStatuses` default to "PENDING".
   const pastPaymentsSync = useMemo<PastPaymentSync[]>(
     () =>
       pastMonths.map((m) => ({
@@ -298,8 +286,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     return principal + totalInterest;
   }, [principal, totalInterest]);
 
-  // Derived: the previous extra payment object (or null). Used in Tab 2 to
-  // feed the preview card and the engine-backed recompute.
   const previousExtraPayment = useMemo(() => {
     if (
       !initialExtraPaymentEnabled ||
@@ -318,11 +304,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     initialExtraPaymentDate,
   ]);
 
-  // Derived: amortization schedule with the previous extra applied at its
-  // date. Used to recompute totalInterestAdjusted so the preview reflects
-  // the lower interest the user will actually pay. monthlyPayment itself
-  // doesn't change (the user is committed to a fixed installment) — the
-  // extra just reduces the balance and shortens the lifetime interest.
   const previewSchedule = useMemo(() => {
     if (
       principal <= 0 ||
@@ -393,12 +374,8 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
     return principal + totalInterestAdjusted;
   }, [principal, totalInterestAdjusted]);
 
-  // Derived: months elapsed since startDate (capped at termMonths for display).
-  // Always visible in Tab 2 as a read-only informational card.
   const mesesTranscurridos = useMemo(() => pastMonths.length, [pastMonths]);
 
-  // Derived: count of toggles marked as PAID in pastPaymentsSync.
-  // This is what gets persisted to `Loan.paidInstallments` server-side.
   const paidCount = useMemo(
     () => pastPaymentsSync.filter((p) => p.status === "PAID").length,
     [pastPaymentsSync]
@@ -470,11 +447,6 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
-    // Build the initial-extra payload. For create: only send if enabled and > 0.
-    // For edit: ALWAYS send so the action can upsert/delete the corresponding
-    // LoanExtraPayment row. Sending `{ amount: 0, date }` is the signal to
-    // delete; `null` would mean "user didn't touch the field" — but in our
-    // form every state always has a value, so we always send the shape.
     const buildExtraPayload = () => {
       if (!initialExtraPaymentEnabled) {
         return { amount: 0, date: new Date(initialExtraPaymentDate) };
@@ -556,10 +528,10 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-[#26be15] text-white"
                     : isCompleted
-                      ? "bg-primary/20 text-primary"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-[#26be15]/20 text-[#26be15]"
+                      : "bg-[#f5f5f5] dark:bg-white/5 text-[#737373] dark:text-[#a1a1aa]"
                 }`}
               >
                 {isCompleted ? <Check className="h-4 w-4" /> : s}
@@ -567,18 +539,18 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
               <div className="hidden sm:block">
                 <p
                   className={`text-xs font-medium ${
-                    isActive ? "text-primary" : "text-muted-foreground"
+                    isActive ? "text-[#26be15]" : "text-[#737373] dark:text-[#a1a1aa]"
                   }`}
                 >
                   {s === 1
-                    ? "Información bísica"
+                    ? "Información básica"
                     : s === 2
                       ? "Condiciones"
                       : "En curso"}
                 </p>
               </div>
               {s < totalSteps && (
-                <div className="h-px flex-1 bg-border mx-2" />
+                <div className="h-px flex-1 bg-[#e8e8e8] dark:bg-[#2a2a2e] mx-2" />
               )}
             </div>
           );
@@ -587,9 +559,16 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
       {/* Step 1: Basic Info */}
       {step === 1 && (
-        <Card>
+        <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
           <CardHeader>
-            <CardTitle className="text-lg">Información bísica</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <FileText className="h-3.5 w-3.5" strokeWidth={2.2} />
+              </div>
+              <CardTitle className="text-base text-[#17181c] dark:text-white">
+                Información básica
+              </CardTitle>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -628,7 +607,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
               />
             </div>
 
-            <div className="space-y-3 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 p-3">
+            <div className="space-y-3 rounded-xl border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <Label
@@ -637,7 +616,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   >
                     ¿Tienes cuota inicial?
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
                     Activa para registrar un pago inicial al crédito.
                   </p>
                 </div>
@@ -663,7 +642,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
               )}
             </div>
 
-            <div className="space-y-3 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 p-3">
+            <div className="space-y-3 rounded-xl border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <Label
@@ -672,7 +651,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   >
                     ¿Ya hiciste un abono a capital?
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
                     Registra un pago extra a capital previo a este crédito.
                   </p>
                 </div>
@@ -713,8 +692,8 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
             </div>
 
             {price > 0 && downPayment > 0 && (
-              <div className="rounded-lg bg-muted p-3 text-sm">
-                <p>
+              <div className="rounded-lg bg-[#f5f5f5] dark:bg-white/5 p-3 text-sm">
+                <p className="text-[#17181c] dark:text-white">
                   Monto a financiar:{" "}
                   <span className="font-semibold">
                   {new Intl.NumberFormat("es-CO", {
@@ -725,7 +704,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   }).format(principal)}
                   </span>
                 </p>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-[#737373] dark:text-[#a1a1aa] mt-1">
                   Esto es lo que realmente vas a pedir prestado.
                 </p>
               </div>
@@ -737,7 +716,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   className="h-4 w-4 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0"
                   strokeWidth={2.2}
                 />
-                <p className="text-stone-700 dark:text-stone-200">
+                <p className="text-[#17181c] dark:text-white">
                   Saldo inicial reducido:{" "}
                   <span className="font-semibold tabular-nums">
                     {new Intl.NumberFormat("es-CO", {
@@ -747,7 +726,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                       maximumFractionDigits: 0,
                     }).format(principal - initialExtraPayment)}
                   </span>
-                  <span className="text-stone-500 dark:text-stone-400 block text-xs mt-0.5">
+                  <span className="text-[#737373] dark:text-[#a1a1aa] block text-xs mt-0.5">
                     Verás el impacto completo en el siguiente paso.
                   </span>
                 </p>
@@ -760,9 +739,16 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
       {/* Step 2: Terms & Preview */}
       {step === 2 && (
         <div className="space-y-6">
-          <Card>
+          <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
             <CardHeader>
-              <CardTitle className="text-lg">Condiciones del crédito</CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-[#26be15]/10 text-[#26be15] flex items-center justify-center shrink-0">
+                  <Settings2 className="h-3.5 w-3.5" strokeWidth={2.2} />
+                </div>
+                <CardTitle className="text-base text-[#17181c] dark:text-white">
+                  Condiciones del crédito
+                </CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -785,7 +771,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                         }}
                       />
                     </div>
-                    <div className="flex rounded-md border border-input overflow-hidden">
+                    <div className="flex rounded-md border border-[#e8e8e8] dark:border-[#2a2a2e] overflow-hidden">
                       <button
                         type="button"
                         onClick={() => {
@@ -794,10 +780,10 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                             setTermValue(Math.ceil(termValue / 12));
                           }
                         }}
-                        className={`px-3 py-2 text-sm font-medium ${
+                        className={`px-3 py-2 text-sm font-medium transition-colors ${
                           termMode === "years"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-background text-muted-foreground hover:bg-muted"
+                            ? "bg-[#26be15] text-white"
+                            : "bg-white dark:bg-[#17181c] text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
                         }`}
                       >
                         Años
@@ -810,17 +796,17 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                             setTermValue(termValue * 12);
                           }
                         }}
-                        className={`px-3 py-2 text-sm font-medium ${
+                        className={`px-3 py-2 text-sm font-medium transition-colors ${
                           termMode === "months"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-background text-muted-foreground hover:bg-muted"
+                            ? "bg-[#26be15] text-white"
+                            : "bg-white dark:bg-[#17181c] text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
                         }`}
                       >
                         Meses
                       </button>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
                     {termMonths} meses en total
                   </p>
                 </div>
@@ -840,7 +826,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                        <SelectLabel className="flex items-center gap-1.5 text-[#26be15] dark:text-[#26be15]">
                           <Sparkles className="h-3 w-3" />
                           Recomendado
                         </SelectLabel>
@@ -878,7 +864,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
               {/* Read-only: meses transcurridos (always visible) */}
               <div
-                className="flex items-start gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/40 p-3"
+                className="flex items-start gap-3 rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#f5f5f5] dark:bg-white/5 p-3"
                 data-testid="meses-transcurridos"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950/40 shrink-0">
@@ -888,14 +874,14 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-stone-900 dark:text-stone-100">
+                  <p className="text-sm font-medium text-[#17181c] dark:text-white">
                     {mesesTranscurridos === 0
                       ? "Aún no hay meses por sincronizar."
                       : mesesTranscurridos === 1
                         ? "Ha transcurrido 1 mes desde la fecha de inicio."
                         : `Han transcurrido ${mesesTranscurridos} meses desde la fecha de inicio.`}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
                     {mesesTranscurridos === 0
                       ? "Esta fecha determina las cuotas que puedes sincronizar en el siguiente paso (si eliges crédito en curso)."
                       : mesesTranscurridos >= termMonths
@@ -925,14 +911,21 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
 
       {/* Step 3: Ongoing Details */}
       {step === 3 && (
-        <Card>
+        <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
           <CardHeader>
-            <CardTitle className="text-lg">Crédito en curso</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.2} />
+              </div>
+              <CardTitle className="text-base text-[#17181c] dark:text-white">
+                Crédito en curso
+              </CardTitle>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Read-only: cuotas pagadas según tu extracto (derived from toggles) */}
             <div
-              className="flex items-start gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/40 p-3"
+              className="flex items-start gap-3 rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#f5f5f5] dark:bg-white/5 p-3"
               data-testid="cuotas-pagadas-readonly"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/40 shrink-0">
@@ -942,7 +935,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-stone-900 dark:text-stone-100">
+                <p className="text-sm font-medium text-[#17181c] dark:text-white">
                   Cuotas pagadas según tu extracto:{" "}
                   <span className="tabular-nums font-semibold">
                     {paidCount}
@@ -953,7 +946,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                   </span>{" "}
                   posibles
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
                   Marca abajo cuáles cuotas están pagadas, pendientes o en mora.
                 </p>
               </div>
@@ -963,13 +956,15 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
             {pastMonths.length > 0 && (
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-amber-500" />
-                  <Label className="text-sm font-medium">Sincronizar cuotas pasadas</Label>
+                  <AlertCircle className="h-4 w-4 text-[#e7964d]" />
+                  <Label className="text-sm font-medium text-[#17181c] dark:text-white">
+                    Sincronizar cuotas pasadas
+                  </Label>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
                   Selecciona el estado de cada mes pasado entre la fecha de inicio y hoy.
                 </p>
-                <div className="space-y-2 max-h-64 overflow-y-auto rounded-lg border border-border p-2">
+                <div className="space-y-2 max-h-64 overflow-y-auto rounded-lg border border-[#e8e8e8] dark:border-[#2a2a2e] p-2">
                   {pastMonths.map((m) => {
                     const sync = pastPaymentsSync.find(
                       (p) => p.month === m.month && p.year === m.year
@@ -977,9 +972,9 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                     return (
                       <div
                         key={`${m.year}-${m.month}`}
-                        className="flex items-center justify-between p-2 rounded-md bg-muted/30"
+                        className="flex items-center justify-between p-2 rounded-md bg-[#f5f5f5]/50 dark:bg-white/5"
                       >
-                        <span className="text-sm font-medium capitalize">
+                        <span className="text-sm font-medium text-[#17181c] dark:text-white capitalize">
                           {m.label}
                         </span>
                         <div className="flex gap-1">
@@ -995,7 +990,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                                     : status === "PENDING"
                                       ? "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border border-amber-200 dark:border-amber-900"
                                       : "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-900"
-                                  : "bg-background text-muted-foreground border border-border hover:bg-muted"
+                                  : "bg-white dark:bg-[#17181c] text-[#737373] dark:text-[#a1a1aa] border border-[#e8e8e8] dark:border-[#2a2a2e] hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
                               }`}
                             >
                               {status === "PAID" && "Pagada"}
@@ -1015,7 +1010,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-2 text-sm text-[#737373] dark:text-[#a1a1aa] hover:text-[#17181c] dark:hover:text-white transition-colors"
               >
                 <Settings2 className="h-4 w-4" />
                 {showAdvanced ? "Ocultar opciones avanzadas" : "Opciones avanzadas (datos exactos del banco)"}
@@ -1023,7 +1018,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
             </div>
 
             {showAdvanced && (
-              <div className="rounded-lg border border-border p-4 space-y-4">
+              <div className="rounded-lg border border-[#e8e8e8] dark:border-[#2a2a2e] p-4 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="exactMonthlyPayment">
                     Cuota mensual exacta (del banco)
@@ -1034,7 +1029,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                     onValueChange={setExactMonthlyPayment}
                     placeholder="Opcional"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
                     Si la cuota calculada difiere de la real, ingresa el valor
                     exacto de tu extracto.
                   </p>
@@ -1050,7 +1045,7 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
                     onValueChange={setExactTotalInterest}
                     placeholder="Opcional"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
                     Opcional: útil si quieres ajustar el saldo con exactitud.
                   </p>
                 </div>
@@ -1066,18 +1061,18 @@ export function LoanForm({ mode, defaultValues, availableMoney = 0, loanId }: Lo
           variant="outline"
           onClick={handleBack}
           disabled={step === 1 || isSubmitting}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto border-[#e8e8e8] dark:border-[#2a2a2e] text-[#17181c] dark:text-white"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Anterior
         </Button>
 
         {step === totalSteps ? (
-          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full sm:w-auto">
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full sm:w-auto bg-[#26be15] hover:bg-[#23ad1b] text-white shadow-sm">
             {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar crédito" : "Crear crédito"}
           </Button>
         ) : (
-          <Button onClick={handleNext} disabled={isSubmitting} className="w-full sm:w-auto">
+          <Button onClick={handleNext} disabled={isSubmitting} className="w-full sm:w-auto bg-[#26be15] hover:bg-[#23ad1b] text-white shadow-sm">
             {step === 1 ? "Calcular" : "Continuar"}
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>

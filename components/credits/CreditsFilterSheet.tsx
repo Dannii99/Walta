@@ -80,7 +80,7 @@ export function CreditsFilterSheet({
             animate={{ y: -54 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            style={{ maxHeight: "92dvh", minHeight: "50dvh" }}
+            style={{ maxHeight: "92dvh", minHeight: "40dvh" }}
           >
             {/* Header */}
             <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-[#e8e8e8] dark:border-[#2a2a2e] bg-white/80 dark:bg-[#17181c]/80 backdrop-blur-sm">
