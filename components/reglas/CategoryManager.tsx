@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition, useRef, useEffect } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,6 @@ import {
   Tags,
   Search,
   Check,
-  ChevronDown,
   Home,
   ShoppingBag,
   PiggyBank,
@@ -110,8 +109,6 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
   } | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const existingNames = useMemo(
     () => new Set(categories.map((c) => c.name.toLowerCase())),
@@ -144,16 +141,6 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
     return groups;
   }, [filteredPredefined]);
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const handleAdd = () => {
     setError("");
     let name: string;
@@ -185,7 +172,6 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
         setSelectedCategory("");
         setOtherName("");
         setSearchQuery("");
-        setDropdownOpen(false);
         router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al crear la categoría");
@@ -506,127 +492,116 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
         <AnimatePresence>
           {showAddSection && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="overflow-hidden"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
             >
               <div className="space-y-3 pt-2 border-t border-[#e8e8e8] dark:border-[#2a2a2e]">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
                   Seleccionar categoría
                 </p>
 
-                {/* Custom searchable dropdown */}
-                <div className="relative" ref={dropdownRef}>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#737373] dark:text-[#a1a1aa]" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setDropdownOpen(true);
-                        setSelectedCategory("");
-                      }}
-                      onFocus={() => setDropdownOpen(true)}
-                      placeholder="Buscar categoría..."
-                      className={cn(
-                        "w-full h-10 pl-9 pr-10 text-sm rounded-xl border",
-                        "bg-white dark:bg-[#1a1a1e] border-[#e8e8e8] dark:border-[#2a2a2e]",
-                        "text-[#17181c] dark:text-white placeholder:text-[#a1a1aa]",
-                        "focus:outline-none focus:ring-2 focus:ring-[#617dd5]/30 focus:border-[#617dd5]"
-                      )}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center rounded-lg text-[#737373] hover:text-[#17181c] hover:bg-[#f5f5f5] dark:text-[#a1a1aa] dark:hover:text-white dark:hover:bg-[#2a2a2e]"
-                    >
-                      <ChevronDown className={cn("h-4 w-4 transition-transform", dropdownOpen && "rotate-180")} />
-                    </button>
-                  </div>
-
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {dropdownOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute z-20 top-full left-0 right-0 mt-1 rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] shadow-[0_4px_24px_rgba(0,0,0,0.08)] overflow-hidden max-h-[320px] overflow-y-auto"
-                      >
-                        {TYPE_OPTIONS.map((type) => {
-                          const group = groupedPredefined[type];
-                          if (group.length === 0) return null;
-                          const color = TYPE_COLORS[type];
-                          return (
-                            <div key={type}>
-                              <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] bg-[#fafafa] dark:bg-[#1a1a1e] sticky top-0">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
-                                  {TYPE_LABELS[type]}
-                                </div>
-                              </div>
-                              {group.map((cat) => {
-                                const isAdded = existingNames.has(cat.name.toLowerCase());
-                                return (
-                                  <button
-                                    key={cat.name}
-                                    type="button"
-                                    disabled={isAdded}
-                                    onClick={() => {
-                                      setSelectedCategory(cat.name);
-                                      setSearchQuery(cat.name);
-                                      setDropdownOpen(false);
-                                    }}
-                                    className={cn(
-                                      "w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors",
-                                      isAdded
-                                        ? "text-[#a1a1aa] dark:text-[#737373] cursor-not-allowed"
-                                        : "text-[#17181c] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
-                                    )}
-                                  >
-                                    {isAdded ? (
-                                      <Check className="h-4 w-4 text-[#23ad1b] shrink-0" />
-                                    ) : (
-                                      <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                                    )}
-                                    <span className={cn("flex-1", isAdded && "line-through opacity-60")}>
-                                      {cat.name}
-                                    </span>
-                                    {isAdded && (
-                                      <span className="text-[10px] text-[#23ad1b] font-semibold">Agregada</span>
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          );
-                        })}
-                        {/* Custom option */}
-                        <div className="border-t border-[#e8e8e8] dark:border-[#2a2a2e]">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedCategory(OTHER_CATEGORY_KEY);
-                              setDropdownOpen(false);
-                            }}
-                            className={cn(
-                              "w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors",
-                              selectedCategory === OTHER_CATEGORY_KEY
-                                ? "bg-[#f5f5f5] dark:bg-[#2a2a2e] text-[#17181c] dark:text-white"
-                                : "text-[#17181c] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
-                            )}
-                          >
-                            <Plus className="h-4 w-4 text-[#617dd5] shrink-0" />
-                            <span className="flex-1">Personalizado (otro)...</span>
-                          </button>
-                        </div>
-                      </motion.div>
+                {/* Search input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#737373] dark:text-[#a1a1aa]" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setSelectedCategory("");
+                    }}
+                    placeholder="Buscar categoría..."
+                    className={cn(
+                      "w-full h-10 pl-9 pr-4 text-sm rounded-xl border",
+                      "bg-white dark:bg-[#1a1a1e] border-[#e8e8e8] dark:border-[#2a2a2e]",
+                      "text-[#17181c] dark:text-white placeholder:text-[#a1a1aa]",
+                      "focus:outline-none focus:ring-2 focus:ring-[#617dd5]/30 focus:border-[#617dd5]"
                     )}
-                  </AnimatePresence>
+                  />
+                </div>
+
+                {/* Inline scrollable category list */}
+                  <div className="rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] overflow-hidden">
+                  <div className="max-h-[240px] overflow-y-auto pb-2">
+                    {TYPE_OPTIONS.map((type) => {
+                      const group = groupedPredefined[type];
+                      if (group.length === 0) return null;
+                      const color = TYPE_COLORS[type];
+                      return (
+                        <div key={type}>
+                              <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] bg-[#fafafa] dark:bg-[#1a1a1e] sticky top-0 z-10">
+                            <div className="flex items-center gap-1.5">
+                              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+                              {TYPE_LABELS[type]}
+                            </div>
+                          </div>
+                          {group.map((cat) => {
+                            const isAdded = existingNames.has(cat.name.toLowerCase());
+                            const isSelected = selectedCategory === cat.name;
+                            return (
+                              <button
+                                key={cat.name}
+                                type="button"
+                                disabled={isAdded}
+                                onClick={() => {
+                                  setSelectedCategory(cat.name);
+                                  setSearchQuery(cat.name);
+                                }}
+                                className={cn(
+                                  "w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors",
+                                  isSelected
+                                    ? "bg-[#f5f5f5] dark:bg-[#2a2a2e] text-[#17181c] dark:text-white"
+                                    : isAdded
+                                    ? "text-[#a1a1aa] dark:text-[#737373] cursor-not-allowed"
+                                    : "text-[#17181c] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
+                                )}
+                              >
+                                {isAdded ? (
+                                  <Check className="h-4 w-4 text-[#23ad1b] shrink-0" />
+                                ) : isSelected ? (
+                                  <span className="h-4 w-4 rounded-full bg-[#617dd5] flex items-center justify-center shrink-0">
+                                    <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />
+                                  </span>
+                                ) : (
+                                  <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                                )}
+                                <span className={cn("flex-1", isAdded && "line-through opacity-60")}>
+                                  {cat.name}
+                                </span>
+                                {isAdded && (
+                                  <span className="text-[10px] text-[#23ad1b] font-semibold pr-3">Agregada</span>
+                                )}
+                                {isSelected && !isAdded && (
+                                  <span className="text-[10px] text-[#617dd5] font-semibold">Seleccionada</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                    {/* Custom option */}
+                    <div className="border-t border-[#e8e8e8] dark:border-[#2a2a2e]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory(OTHER_CATEGORY_KEY);
+                          setSearchQuery("");
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-3 py-2.5 text-sm text-left transition-colors",
+                          selectedCategory === OTHER_CATEGORY_KEY
+                            ? "bg-[#f5f5f5] dark:bg-[#2a2a2e] text-[#17181c] dark:text-white"
+                            : "text-[#17181c] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
+                        )}
+                      >
+                        <Plus className="h-4 w-4 text-[#617dd5] shrink-0" />
+                        <span className="flex-1">Personalizado (otro)...</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Custom name input */}
