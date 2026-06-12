@@ -116,10 +116,10 @@ export function MobileBottomNav() {
             />
             <motion.div
               initial={{ y: "100%" }}
-              animate={{ y: 0 }}
+              animate={{ y: -78 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-gradient-to-br from-[#17181c] to-[#333438] shadow-2xl"
+              className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-linear-to-br from-[#17181c] to-[#333438] shadow-2xl"
             >
               <div className="flex justify-center pt-3 pb-1">
                 <span className="h-1.5 w-12 rounded-full bg-white/20" />

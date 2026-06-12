@@ -4,8 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Info } from "lucide-react";
+import { Info, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import {
   Dialog,
   DialogHeader,
@@ -71,21 +73,22 @@ function amountHint(recurrence: Recurrence): string | null {
   return null;
 }
 
-interface FormBodyProps {
-  transaction: (Transaction & { category?: Category }) | null;
-  categories: Category[];
-  onSuccess: () => void;
-  onOpenChange: (open: boolean) => void;
-  onSubmittingChange: (submitting: boolean) => void;
-}
-
+/* ─── Shared form body ─── */
 function FormBody({
   transaction,
   categories,
   onSuccess,
   onOpenChange,
   onSubmittingChange,
-}: FormBodyProps) {
+  hideActions = false,
+}: {
+  transaction: (Transaction & { category?: Category }) | null;
+  categories: Category[];
+  onSuccess: () => void;
+  onOpenChange: (open: boolean) => void;
+  onSubmittingChange: (submitting: boolean) => void;
+  hideActions?: boolean;
+}) {
   const isEdit = !!transaction;
 
   const {
@@ -163,10 +166,16 @@ function FormBody({
     <form
       id="edit-expense-form"
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4"
+      className="space-y-5"
     >
-      <div className="space-y-2">
-        <Label htmlFor="edit-category">Categoría</Label>
+      {/* Category */}
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="edit-category"
+          className="text-xs font-bold uppercase tracking-wider text-[#737373]"
+        >
+          Categoría
+        </Label>
         <Controller
           name="categoryId"
           control={control}
@@ -180,14 +189,18 @@ function FormBody({
           )}
         />
         {errors.categoryId && (
-          <p className="text-sm text-destructive">
+          <p className="text-xs font-medium text-[#e54d4d]">
             {errors.categoryId.message}
           </p>
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="edit-amount">
+      {/* Amount */}
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="edit-amount"
+          className="text-xs font-bold uppercase tracking-wider text-[#737373]"
+        >
           {amountLabel(recurrence as Recurrence)}
         </Label>
         <Controller
@@ -204,19 +217,27 @@ function FormBody({
           )}
         />
         {amountHintText && (
-          <p className="text-xs text-stone-500 dark:text-stone-400 flex items-start gap-1.5">
+          <p className="text-xs text-[#737373] flex items-start gap-1.5">
             <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" aria-hidden="true" />
             <span>{amountHintText}</span>
           </p>
         )}
         {errors.amount && (
-          <p className="text-sm text-destructive">{errors.amount.message}</p>
+          <p className="text-xs font-medium text-[#e54d4d]">
+            {errors.amount.message}
+          </p>
         )}
       </div>
 
+      {/* Recurrence + Date */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="edit-recurrence">Frecuencia</Label>
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="edit-recurrence"
+            className="text-xs font-bold uppercase tracking-wider text-[#737373]"
+          >
+            Frecuencia
+          </Label>
           <Controller
             name="recurrence"
             control={control}
@@ -239,25 +260,36 @@ function FormBody({
             )}
           />
           {errors.recurrence && (
-            <p className="text-sm text-destructive">
+            <p className="text-xs font-medium text-[#e54d4d]">
               {errors.recurrence.message}
             </p>
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="edit-date">Fecha del cargo</Label>
+        <div className="space-y-1.5">
+          <Label
+            htmlFor="edit-date"
+            className="text-xs font-bold uppercase tracking-wider text-[#737373]"
+          >
+            Fecha del cargo
+          </Label>
           <Input id="edit-date" type="date" {...register("date")} />
           {errors.date && (
-            <p className="text-sm text-destructive">
+            <p className="text-xs font-medium text-[#e54d4d]">
               {errors.date.message}
             </p>
           )}
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="edit-description">Descripción (opcional)</Label>
+      {/* Description */}
+      <div className="space-y-1.5">
+        <Label
+          htmlFor="edit-description"
+          className="text-xs font-bold uppercase tracking-wider text-[#737373]"
+        >
+          Descripción (opcional)
+        </Label>
         <Input
           id="edit-description"
           placeholder="Ej. Netflix, Mercado del mes, Gasolina..."
@@ -265,15 +297,188 @@ function FormBody({
           {...register("description")}
         />
         {errors.description && (
-          <p className="text-sm text-destructive">
+          <p className="text-xs font-medium text-[#e54d4d]">
             {errors.description.message}
           </p>
         )}
       </div>
+
+      {/* Desktop actions */}
+      {!hideActions && (
+        <div className="flex items-center gap-3 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="flex-1 border-[#e8e8e8] text-[#17181c] hover:bg-[#fafafa] dark:border-[#334155] dark:text-white dark:hover:bg-[#1a1a1e]"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="edit-expense-form"
+            disabled={isSubmitting}
+            className="flex-1 bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
+          >
+            {isSubmitting ? "Guardando..." : "Guardar"}
+          </Button>
+        </div>
+      )}
     </form>
   );
 }
 
+/* ─── Desktop modal wrapper ─── */
+function DesktopModal({
+  open,
+  onOpenChange,
+  children,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <div className="relative bg-white dark:bg-[#17181c] rounded-2xl shadow-xl max-w-lg w-full mx-4 p-6 md:p-8">
+        <DialogHeader className="mb-5">
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-xl bg-[#26be15]/10 flex items-center justify-center">
+              <Wallet className="h-4 w-4 text-[#26be15]" strokeWidth={2.3} />
+            </div>
+            <DialogTitle className="text-xl font-extrabold tracking-tight text-[#17181c] dark:text-white">
+              Editar Gasto
+            </DialogTitle>
+          </div>
+          <DialogClose onClick={() => onOpenChange(false)} />
+        </DialogHeader>
+        <DialogContent>{children}</DialogContent>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="border-[#e8e8e8] text-[#17181c] hover:bg-[#fafafa] dark:border-[#334155] dark:text-white dark:hover:bg-[#1a1a1e]"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="edit-expense-form"
+            className="bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
+          >
+            Guardar
+          </Button>
+        </DialogFooter>
+      </div>
+    </Dialog>
+  );
+}
+
+/* ─── Mobile bottom sheet wrapper ─── */
+function MobileSheet({
+  open,
+  onOpenChange,
+  children,
+  onCancel,
+  isSubmitting,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+  onCancel: () => void;
+  isSubmitting: boolean;
+  onSubmit: (e: React.FormEvent) => void;
+}) {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden"
+            onClick={() => onOpenChange(false)}
+          />
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: -78 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-[#1a1a1e] shadow-2xl max-h-[92dvh] min-h-[60dvh] flex flex-col"
+          >
+            {/* Handle bar */}
+            <div className="flex justify-center pt-3 pb-1 shrink-0">
+              <span className="h-1.5 w-12 rounded-full bg-[#17181c]/20 dark:bg-white/20" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-xl bg-[#26be15]/10 flex items-center justify-center">
+                  <Wallet className="h-4 w-4 text-[#26be15]" strokeWidth={2.3} />
+                </div>
+                <h3 className="text-base font-bold tracking-tight text-[#17181c] dark:text-white">
+                  Editar Gasto
+                </h3>
+              </div>
+              <button
+                onClick={() => onOpenChange(false)}
+                className="p-1.5 rounded-md hover:bg-[#17181c]/5 dark:hover:bg-white/10 text-[#737373]"
+                aria-label="Cerrar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Content: scrollable form fields */}
+            <div className="flex-1 overflow-y-auto px-5 py-3">
+              <form id="edit-expense-form" onSubmit={onSubmit}>
+                {children}
+              </form>
+            </div>
+
+            {/* Sticky footer: actions always visible */}
+            <div className="shrink-0 border-t border-[#e8e8e8] dark:border-white/10 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white/95 dark:bg-[#1a1a1e]/95 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  className="flex-1 border-[#e8e8e8] text-[#17181c] hover:bg-[#fafafa] dark:border-[#334155] dark:text-white dark:hover:bg-[#1a1a1e]"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  form="edit-expense-form"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
+                >
+                  {isSubmitting ? "Guardando..." : "Guardar"}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ─── Main component ─── */
 export function EditExpenseModal({
   open,
   onOpenChange,
@@ -281,20 +486,39 @@ export function EditExpenseModal({
   categories,
   onSuccess,
 }: EditExpenseModalProps) {
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmittingChange = useCallback(
     (submitting: boolean) => setIsSubmitting(submitting),
     []
   );
 
+  const handleCancel = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <div className="relative bg-white dark:bg-[#17181c] rounded-2xl shadow-xl p-6 md:p-8">
-        <DialogHeader>
-          <DialogTitle>Editar Gasto</DialogTitle>
-          <DialogClose onClick={() => onOpenChange(false)} />
-        </DialogHeader>
-        <DialogContent>
+    <div>
+      {isMobile ? (
+        <MobileSheet
+          open={open}
+          onOpenChange={onOpenChange}
+          onCancel={handleCancel}
+          isSubmitting={isSubmitting}
+          onSubmit={(e) => e.preventDefault()}
+        >
+          <FormBody
+            key={transaction?.id ?? "new"}
+            transaction={transaction}
+            categories={categories}
+            onSuccess={onSuccess}
+            onOpenChange={onOpenChange}
+            onSubmittingChange={handleSubmittingChange}
+            hideActions
+          />
+        </MobileSheet>
+      ) : (
+        <DesktopModal open={open} onOpenChange={onOpenChange}>
           <FormBody
             key={transaction?.id ?? "new"}
             transaction={transaction}
@@ -303,21 +527,8 @@ export function EditExpenseModal({
             onOpenChange={onOpenChange}
             onSubmittingChange={handleSubmittingChange}
           />
-        </DialogContent>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            form="edit-expense-form"
-            disabled={isSubmitting}
-            className="bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
-          >
-            {isSubmitting ? "Guardando..." : "Guardar"}
-          </Button>
-        </DialogFooter>
-      </div>
-      </Dialog>
+        </DesktopModal>
+      )}
+    </div>
   );
 }
