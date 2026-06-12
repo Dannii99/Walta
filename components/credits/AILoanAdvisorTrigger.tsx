@@ -79,7 +79,7 @@ export function AILoanAdvisorTrigger({ loanId }: AILoanAdvisorTriggerProps) {
             />
             <motion.div
               initial={{ y: "100%" }}
-              animate={{ y: 0 }}
+              animate={{ y: -72 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
               className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-[#17181c] rounded-t-2xl max-h-[85dvh] overflow-y-auto shadow-xl"
