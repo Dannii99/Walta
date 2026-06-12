@@ -22,8 +22,8 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/expenses", label: "Gastos", icon: Wallet },
   { href: "/simulations", label: "Simulaciones", icon: Calculator },
-  { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/credits", label: "Créditos", icon: CreditCard },
+  { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/history", label: "Historial", icon: History },
   { href: "/settings", label: "Configuración", icon: Settings },
 ];

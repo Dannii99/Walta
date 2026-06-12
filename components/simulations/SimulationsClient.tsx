@@ -85,19 +85,19 @@ export function SimulationsClient({
             Evalúa compras grandes antes de comprometerte. Te mostramos el
             impacto en tu presupuesto mes a mes.
           </p>
-          {hasSimulations && <AIInsightsBanner />}
         </div>
-        {hasBudget && (
-          <Button
-            asChild
-            className="hidden md:inline-flex bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5] shadow-sm"
-          >
-            <Link href="/simulations/new">
-              <Plus className="h-4 w-4 mr-1.5" />
+        <div className="flex items-center gap-2">
+          {hasSimulations && <AIInsightsBanner />}
+          {hasBudget && (
+            <Link
+              href="/simulations/new"
+              className="inline-flex items-center gap-1.5 h-9 px-4 text-sm font-semibold rounded-full bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5] shadow-sm transition-colors"
+            >
+              <Plus className="h-4 w-4" />
               Nueva simulación
             </Link>
-          </Button>
-        )}
+          )}
+        </div>
       </div>
 
       {/* KPIs */}
@@ -178,16 +178,6 @@ export function SimulationsClient({
         </div>
       )}
 
-      {/* Mobile FAB */}
-      {hasBudget && (
-        <Link
-          href="/simulations/new"
-          className="fixed bottom-[160px] right-4 md:hidden z-30 h-14 w-14 rounded-full bg-[#26be15] hover:bg-[#23ad1b] text-white shadow-lg flex items-center justify-center transition-colors"
-          aria-label="Nueva simulación"
-        >
-          <Plus className="h-6 w-6" />
-        </Link>
-      )}
     </div>
   );
 }

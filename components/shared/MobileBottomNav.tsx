@@ -24,8 +24,8 @@ const primaryTabs = [
 ];
 
 const moreItems = [
-  { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/credits", label: "Créditos", icon: CreditCard },
+  { href: "/reglas", label: "Reglas", icon: SlidersHorizontal },
   { href: "/history", label: "Historial", icon: History },
   { href: "/settings", label: "Configuración", icon: Settings },
 ];
