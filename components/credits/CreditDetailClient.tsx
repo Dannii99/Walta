@@ -13,7 +13,7 @@ import { CreditCharts } from "./CreditCharts";
 import { DeleteCreditDialog } from "./DeleteCreditDialog";
 import { AmortizationTab } from "./AmortizationTab";
 import { ExtractTab } from "./ExtractTab";
-import { AILoanAdvisorCard } from "./AILoanAdvisorCard";
+import { AILoanAdvisorTrigger } from "./AILoanAdvisorTrigger";
 import { EditExtraPaymentDialog } from "./EditExtraPaymentDialog";
 import { DeleteExtraPaymentDialog } from "./DeleteExtraPaymentDialog";
 import {
@@ -166,6 +166,7 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
         activeTab={activeTab}
         onTabChange={(k) => setActiveTab(k as TabKey)}
         onOpenActions={() => setActionsOpen(true)}
+        aiTrigger={<AILoanAdvisorTrigger loanId={loan.id} />}
       />
 
       <CreditSummary key={`summary-${refreshKey}`} loan={loan} />
@@ -212,8 +213,6 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
       </AnimatePresence>
 
       <CreditCharts key={`charts-${refreshKey}`} loan={loan} />
-
-      <AILoanAdvisorCard loanId={loan.id} />
 
       <DeleteCreditDialog
         open={showDeleteDialog}

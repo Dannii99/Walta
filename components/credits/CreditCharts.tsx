@@ -1,45 +1,74 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTheme } from "next-themes";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  Legend,
+  ReferenceLine,
 } from "recharts";
-import { TrendingDown, BarChart3 } from "lucide-react";
+import { TrendingDown } from "lucide-react";
 import { generateAmortizationSchedule } from "@/lib/loan-engine";
 import { formatCOP } from "@/lib/currency";
 import type { Loan, LoanPayment, LoanExtraPayment } from "@/types";
 
 interface CreditChartsProps {
   loan: Loan & { payments: LoanPayment[]; extraPayments: LoanExtraPayment[] };
-  simulatedExtraAmount?: number;
 }
 
-export function CreditCharts({ loan, simulatedExtraAmount = 0 }: CreditChartsProps) {
+interface BalanceDataPoint {
+  mes: number;
+  saldo: number;
+}
+
+function CustomTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: number;
+  isDark?: boolean;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  return (
+    <div className="bg-white dark:bg-[#1e1e22] border border-[#e8e8e8] dark:border-[#2a2a2e] rounded-xl px-4 py-3 shadow-lg">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa] mb-1">
+        Mes {label}
+      </p>
+      <p className="text-sm font-extrabold tabular-nums text-[#17181c] dark:text-white">
+        {formatCOP(payload[0].value)}
+      </p>
+    </div>
+  );
+}
+
+export function CreditCharts({ loan }: CreditChartsProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
-  const scheduleOriginal = generateAmortizationSchedule(
-    loan,
-    loan.payments,
-    loan.extraPayments
+  const schedule = useMemo(
+    () => generateAmortizationSchedule(loan, loan.payments, loan.extraPayments),
+    [loan]
   );
 
-  const balanceData = scheduleOriginal.map((row) => ({
-    mes: row.month,
-    saldo: Math.round(row.balance),
-  }));
+  const balanceData: BalanceDataPoint[] = useMemo(
+    () =>
+      schedule.map((row) => ({
+        mes: row.month,
+        saldo: Math.round(row.balance),
+      })),
+    [schedule]
+  );
 
   const today = new Date();
-  const currentMonthRow = scheduleOriginal.find((row) => {
+  const currentMonthRow = schedule.find((row) => {
     const rowDate = new Date(row.date);
     return (
       rowDate.getUTCFullYear() === today.getUTCFullYear() &&
@@ -48,61 +77,60 @@ export function CreditCharts({ loan, simulatedExtraAmount = 0 }: CreditChartsPro
   });
   const currentMonth = currentMonthRow?.month ?? 0;
 
-  const scheduleWithAbono =
-    simulatedExtraAmount > 0
-      ? generateAmortizationSchedule(loan, loan.payments, [
-          ...loan.extraPayments,
-          {
-            id: "simulated",
-            loanId: loan.id,
-            amount: String(simulatedExtraAmount),
-            date: new Date(),
-            createdAt: new Date(),
-          } as LoanExtraPayment,
-        ])
-      : scheduleOriginal;
+  const minBalance = Math.min(...balanceData.map((d) => d.saldo));
+  const maxBalance = Math.max(...balanceData.map((d) => d.saldo));
+  const yDomain = [Math.max(0, minBalance * 0.95), maxBalance * 1.05];
 
-  const originalCost = scheduleOriginal.reduce(
-    (sum, row) => sum + row.payment + row.interest,
-    0
-  );
-  const newCost = scheduleWithAbono.reduce(
-    (sum, row) => sum + row.payment + row.interest,
-    0
-  );
-  const comparisonData = [
-    {
-      name: "Costo total",
-      sinAbono: Math.round(originalCost),
-      conAbono: Math.round(newCost),
-    },
-  ];
-
-  const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
-  const tickColor = isDark ? "#a8a29e" : "#78716c";
-  const cursorColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
+  const gridColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+  const tickColor = isDark ? "#a1a1aa" : "#a1a1aa";
+  const axisColor = isDark ? "#2a2a2e" : "#e8e8e8";
+  const lineColor = isDark ? "#60a5fa" : "#3b82f6";
+  const refLineColor = isDark ? "#a1a1aa" : "#737373";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-        <div className="p-5 md:p-6 border-b border-stone-200/80 dark:border-stone-800 flex items-center gap-2">
-          <div className="h-7 w-7 rounded-md bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-            <TrendingDown className="h-3.5 w-3.5" strokeWidth={2.3} />
-          </div>
-          <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-50">
+    <div className="rounded-2xl bg-white dark:bg-[#17181c] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+      <div className="p-5 md:p-6 border-b border-[#e8e8e8] dark:border-[#2a2a2e] flex items-center gap-2">
+        <div className="h-7 w-7 rounded-md bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+          <TrendingDown className="h-3.5 w-3.5" strokeWidth={2.3} />
+        </div>
+        <div>
+          <h2 className="text-sm font-bold tracking-tight text-[#17181c] dark:text-white">
             Evolución del saldo
           </h2>
+          <p className="text-[10px] text-[#737373] dark:text-[#a1a1aa]">
+            Proyección mes a mes del saldo pendiente
+          </p>
         </div>
-        <div className="p-5 md:p-6">
-          <div className="h-[200px] w-full">
+      </div>
+
+      <div className="p-5 md:p-6">
+        <div className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={balanceData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+            <AreaChart data={balanceData} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
+              <defs>
+                <linearGradient id="saldoGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={lineColor} stopOpacity={1} />
+                  <stop offset="100%" stopColor={lineColor} stopOpacity={0.05} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={gridColor}
+                vertical={false}
+              />
               <XAxis
                 dataKey="mes"
-                tickFormatter={(v) => `Mes ${v}`}
-                tick={{ fontSize: 12, fill: tickColor }}
-                stroke={tickColor}
+                tickFormatter={(v) => `${v}`}
+                tick={{ fontSize: 11, fill: tickColor, fontWeight: 500 }}
+                stroke={axisColor}
+                tickSize={0}
+                tickMargin={8}
+                label={{
+                  value: "Mes",
+                  position: "insideBottomRight",
+                  offset: -6,
+                  style: { fontSize: 10, fill: tickColor },
+                }}
               />
               <YAxis
                 tickFormatter={(v) =>
@@ -111,104 +139,63 @@ export function CreditCharts({ loan, simulatedExtraAmount = 0 }: CreditChartsPro
                     compactDisplay: "short",
                   }).format(v)
                 }
-                tick={{ fontSize: 12, fill: tickColor }}
-                stroke={tickColor}
+                tick={{ fontSize: 11, fill: tickColor, fontWeight: 500 }}
+                stroke={axisColor}
+                tickSize={0}
+                tickMargin={8}
+                domain={yDomain}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: isDark ? "#1c1917" : "#ffffff",
-                  border: `1px solid ${isDark ? "#292524" : "#e7e5e4"}`,
-                  borderRadius: "8px",
-                  fontSize: "12px",
-                }}
-                cursor={{ fill: cursorColor }}
-                formatter={(value) => formatCOP(Number(value))}
-                labelFormatter={(label) => `Mes ${label}`}
-              />
-              <Line
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: gridColor, strokeWidth: 1, strokeDasharray: "3 3" }} />
+              {currentMonth > 0 && (
+                <ReferenceLine
+                  x={currentMonth}
+                  stroke={refLineColor}
+                  strokeDasharray="4 4"
+                  strokeWidth={1.5}
+                  label={{
+                    value: "Hoy",
+                    position: "top",
+                    fill: refLineColor,
+                    fontSize: 10,
+                    fontWeight: 700,
+                  }}
+                />
+              )}
+              <Area
                 type="monotone"
                 dataKey="saldo"
-                stroke={isDark ? "#60a5fa" : "#3b82f6"}
+                stroke={lineColor}
                 strokeWidth={2.5}
+                fill="url(#saldoGradient)"
                 dot={false}
-                activeDot={{ r: 6, fill: isDark ? "#60a5fa" : "#3b82f6" }}
+                activeDot={{
+                  r: 5,
+                  fill: lineColor,
+                  stroke: isDark ? "#17181c" : "#ffffff",
+                  strokeWidth: 2,
+                }}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-[#e8e8e8] dark:border-[#2a2a2e]">
+          <div className="flex items-center gap-1.5 text-[11px] text-[#737373] dark:text-[#a1a1aa]">
+            <span className="h-2 w-4 rounded-sm bg-blue-500" />
+            Saldo proyectado
           </div>
           {currentMonth > 0 && (
-            <p className="text-xs text-center text-stone-500 dark:text-stone-400 mt-3 tabular-nums">
-              Punto actual: <span className="font-semibold text-stone-700 dark:text-stone-300">Mes {currentMonth}</span>
-            </p>
+            <div className="flex items-center gap-1.5 text-[11px] text-[#737373] dark:text-[#a1a1aa]">
+              <span className="h-0.5 w-4 border-t border-dashed border-[#a1a1aa]" />
+              Posición actual (mes {currentMonth})
+            </div>
           )}
+          <div className="flex items-center gap-1.5 text-[11px] text-[#737373] dark:text-[#a1a1aa]">
+            <span className="w-2 h-2 rounded-sm bg-emerald-500" />
+            Liquidación (mes {schedule.length})
+          </div>
         </div>
       </div>
-
-      {simulatedExtraAmount > 0 && (
-        <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-          <div className="p-5 md:p-6 border-b border-stone-200/80 dark:border-stone-800 flex items-center gap-2">
-            <div className="h-7 w-7 rounded-md bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <BarChart3 className="h-3.5 w-3.5" strokeWidth={2.3} />
-            </div>
-            <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-50">
-              Impacto del abono simulado
-            </h2>
-          </div>
-          <div className="p-5 md:p-6">
-            <div className="h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={comparisonData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                <XAxis
-                  type="number"
-                  tickFormatter={(v) =>
-                    new Intl.NumberFormat("es-CO", {
-                      notation: "compact",
-                      compactDisplay: "short",
-                    }).format(v)
-                  }
-                  tick={{ fontSize: 12, fill: tickColor }}
-                  stroke={tickColor}
-                />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  tick={{ fontSize: 12, fill: tickColor }}
-                  stroke={tickColor}
-                  width={80}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: isDark ? "#1c1917" : "#ffffff",
-                    border: `1px solid ${isDark ? "#292524" : "#e7e5e4"}`,
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                  }}
-                  cursor={{ fill: cursorColor }}
-                  formatter={(value) => formatCOP(Number(value))}
-                />
-                <Legend wrapperStyle={{ fontSize: "12px", color: tickColor }} />
-                <Bar
-                  dataKey="sinAbono"
-                  name="Sin abono"
-                  fill={isDark ? "#57534e" : "#a8a29e"}
-                  radius={[0, 4, 4, 0]}
-                />
-                <Bar
-                  dataKey="conAbono"
-                  name="Con abono"
-                  fill={isDark ? "#34d399" : "#10b981"}
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-            </div>
-            <p className="text-xs text-center text-emerald-600 dark:text-emerald-400 font-bold mt-3 tabular-nums">
-              Ahorro: {formatCOP(originalCost - newCost)}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

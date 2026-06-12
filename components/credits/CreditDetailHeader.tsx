@@ -24,6 +24,7 @@ interface CreditDetailHeaderProps {
   activeTab: string;
   onTabChange: (key: string) => void;
   onOpenActions?: () => void;
+  aiTrigger?: React.ReactNode;
 }
 
 export function CreditDetailHeader({
@@ -34,6 +35,7 @@ export function CreditDetailHeader({
   activeTab,
   onTabChange,
   onOpenActions,
+  aiTrigger,
 }: CreditDetailHeaderProps) {
   const statusConfig = loanStatusConfig(loan.status);
   const TypeIcon = TYPE_ICON[loan.type] ?? CreditCardIcon;
@@ -98,12 +100,13 @@ export function CreditDetailHeader({
               type="button"
               onClick={onOpenActions}
               className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] text-[#17181c] dark:text-white hover:bg-[#fafafa] dark:hover:bg-[#2a2a2e] transition-colors"
-              aria-label="Abrir acciones rápidas"
+              aria-label="Abrir formulario de abono"
             >
               <Zap className="h-3.5 w-3.5" />
-              Acciones
+              Abono
             </button>
           )}
+          {aiTrigger}
           <Link
             href={`/credits/${loan.id}/edit`}
             className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] text-[#17181c] dark:text-white hover:bg-[#fafafa] dark:hover:bg-[#2a2a2e] transition-colors"
