@@ -102,8 +102,6 @@ export function CreditsClient({ loans, stats, hasBudget }: CreditsClientProps) {
     <div className="space-y-6">
       <PageHeader />
 
-      <AILoanInsightsBanner />
-
       <CreditsKPI
         total={stats.total}
         active={stats.active}
@@ -171,7 +169,10 @@ function PageHeader() {
           Visualiza, registra y haz seguimiento al progreso de tus préstamos.
         </p>
       </div>
-      <NewCreditButton />
+      <div className="flex items-center gap-2">
+        <AILoanInsightsBanner />
+        <NewCreditButton />
+      </div>
     </div>
   );
 }

@@ -127,21 +127,21 @@ export function SimulationDetailHeader({
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <span
+          {/* <span
             className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${verdictColors.bg} ${verdictColors.text} ${verdictColors.border}`}
           >
             <VerdictIcon className="h-3 w-3" />
             {verdictLabel}
-          </span>
+          </span> */}
           <button
             onClick={onOpenAI}
             aria-label="Abrir análisis inteligente"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border bg-[#617dd5]/10 text-[#617dd5] border-[#617dd5]/20 hover:bg-[#617dd5]/20 dark:bg-[#617dd5]/15 dark:text-[#617dd5] dark:border-[#617dd5]/30 dark:hover:bg-[#617dd5]/25"
+            className="inline-flex items-center gap-1.5 h-7 px-2.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 transition-all shadow-sm"
           >
             <Sparkles className="h-3 w-3" />
             IA
           </button>
-          <Button
+         {/*  <Button
             variant="ghost"
             size="icon"
             onClick={onDelete}
@@ -149,7 +149,7 @@ export function SimulationDetailHeader({
             className="text-[#737373] hover:text-[#e54d4d] hover:bg-[#e54d4d]/10 dark:hover:bg-[#e54d4d]/10 dark:hover:text-[#e54d4d]"
           >
             <Trash2 className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </div>
       </div>
 

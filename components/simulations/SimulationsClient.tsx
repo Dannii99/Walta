@@ -85,6 +85,7 @@ export function SimulationsClient({
             Evalúa compras grandes antes de comprometerte. Te mostramos el
             impacto en tu presupuesto mes a mes.
           </p>
+          {hasSimulations && <AIInsightsBanner />}
         </div>
         {hasBudget && (
           <Button
@@ -108,9 +109,6 @@ export function SimulationsClient({
           riskyCount={stats.riskyCount}
         />
       )}
-
-      {/* AI Insights */}
-      {hasSimulations && <AIInsightsBanner />}
 
       {/* No budget state */}
       {!hasBudget && <EmptyBudgetState />}

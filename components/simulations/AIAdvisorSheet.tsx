@@ -38,10 +38,10 @@ export function AIAdvisorSheet({ open, onOpenChange, simulationId }: AIAdvisorSh
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-[#e8e8e8] dark:border-[#2a2a2e]">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-[#617dd5]/15 flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-[#617dd5]" />
+                <div className="h-7 w-7 rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+                  <Sparkles className="h-3.5 w-3.5 text-white" />
                 </div>
-                <span className="text-sm font-semibold text-[#17181c] dark:text-white">
+                <span className="text-sm font-bold text-[#17181c] dark:text-white">
                   Análisis inteligente
                 </span>
               </div>
@@ -84,10 +84,10 @@ export function AIAdvisorSheet({ open, onOpenChange, simulationId }: AIAdvisorSh
             {/* Header */}
             <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-[#e8e8e8] dark:border-[#2a2a2e] bg-white/80 dark:bg-[#17181c]/80 backdrop-blur-sm">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-[#617dd5]/15 flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-[#617dd5]" />
+                <div className="h-7 w-7 rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+                  <Sparkles className="h-3.5 w-3.5 text-white" />
                 </div>
-                <span className="text-sm font-semibold text-[#17181c] dark:text-white">
+                <span className="text-sm font-bold text-[#17181c] dark:text-white">
                   Análisis inteligente
                 </span>
               </div>

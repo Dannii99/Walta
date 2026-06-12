@@ -1,83 +1,53 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import {
-  Sparkles,
-  Loader2,
-  AlertCircle,
-  RefreshCw,
-  X,
-} from "lucide-react";
+import { useState, useTransition } from "react";
+import { Sparkles, Loader2, AlertCircle, X, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { generateSimulationInsights } from "@/server/actions/ai-actions";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
-interface AIInsightsBannerProps {
-  initialInsight?: string | null;
-}
-
-export function AIInsightsBanner({ initialInsight }: AIInsightsBannerProps) {
-  const [insight, setInsight] = useState<string | null>(initialInsight ?? null);
+export function AIInsightsBanner() {
+  const [insight, setInsight] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [hasLoaded, setHasLoaded] = useState(initialInsight !== undefined);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)") ?? false;
-
-  // Body scroll lock for mobile sheet
-  useEffect(() => {
-    if (sheetOpen && isMobile) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [sheetOpen, isMobile]);
 
   const loadInsight = () => {
     startTransition(async () => {
       try {
         const res = await generateSimulationInsights();
-        if (res.insight !== null) {
-          setInsight(res.insight);
-        }
+        setInsight(res.insight ?? null);
         setHasLoaded(true);
         setError(null);
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "No se pudo generar el insight";
-        setError(message);
+        setError(
+          err instanceof Error ? err.message : "No se pudo generar el insight"
+        );
         setHasLoaded(true);
       }
     });
   };
 
-  useEffect(() => {
-    if (!hasLoaded) {
-      const timer = setTimeout(() => loadInsight(), 0);
-      return () => clearTimeout(timer);
+  const handleOpen = () => {
+    if (!hasLoaded && !isPending) {
+      loadInsight();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (hasLoaded && initialInsight !== undefined && !isRefreshing) {
-      const timer = setTimeout(() => {
-        setIsRefreshing(true);
-        loadInsight();
-      }, 0);
-      return () => clearTimeout(timer);
+    if (isMobile) {
+      setSheetOpen(true);
+    } else {
+      setDialogOpen(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasLoaded]);
+  };
 
-  // If nothing to show, hide completely
-  if (hasLoaded && !insight && !error) return null;
+  const handleClose = () => {
+    setDialogOpen(false);
+    setSheetOpen(false);
+  };
 
-  // Shared content renderer
   const renderContent = () => {
     if (error) {
       return (
@@ -91,7 +61,7 @@ export function AIInsightsBanner({ initialInsight }: AIInsightsBannerProps) {
             </p>
           </div>
           <button
-            onClick={() => loadInsight()}
+            onClick={loadInsight}
             className="text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 transition-colors"
             aria-label="Reintentar"
           >
@@ -149,7 +119,7 @@ export function AIInsightsBanner({ initialInsight }: AIInsightsBannerProps) {
             </AnimatePresence>
           </div>
           <button
-            onClick={() => loadInsight()}
+            onClick={loadInsight}
             className="text-stone-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors shrink-0"
             aria-label="Regenerar insight"
           >
@@ -160,82 +130,80 @@ export function AIInsightsBanner({ initialInsight }: AIInsightsBannerProps) {
     );
   };
 
-  // Mobile: compact button + bottom sheet
-  if (isMobile) {
-    const isLoading = !hasLoaded || isPending;
-    const icon = error ? (
-      <AlertCircle className="h-4 w-4" />
-    ) : isLoading ? (
-      <Loader2 className="h-4 w-4 animate-spin" />
-    ) : (
-      <Sparkles className="h-4 w-4" />
-    );
+  return (
+    <>
+      <button
+        type="button"
+        onClick={handleOpen}
+        className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-semibold rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 transition-all shadow-sm"
+        aria-label="Abrir análisis IA de simulaciones"
+      >
+        <Sparkles className="h-3.5 w-3.5" />
+        Análisis IA
+      </button>
 
-    return (
-      <>
-        <button
-          onClick={() => setSheetOpen(true)}
-          className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#617dd5]/20 bg-white dark:bg-[#17181c] px-3 py-2.5 text-sm font-semibold text-[#617dd5] hover:bg-[#617dd5]/5 dark:hover:bg-[#617dd5]/10 transition-colors"
-          aria-label="Abrir diagnóstico inteligente"
-        >
-          {icon}
-          Diagnóstico
-        </button>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto p-0 gap-0 bg-white dark:bg-[#17181c] border border-[#e8e8e8] dark:border-[#2a2a2e] rounded-2xl">
+          <div className="sticky top-0 z-10 bg-white dark:bg-[#17181c] border-b border-[#e8e8e8] dark:border-[#2a2a2e] px-5 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 text-white" />
+              </div>
+              <h2 className="text-sm font-bold text-[#17181c] dark:text-white">
+                Análisis IA de simulaciones
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDialogOpen(false)}
+              className="h-7 w-7 rounded-md flex items-center justify-center text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f5f5f5] dark:hover:bg-white/5 transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <div className="px-5 py-4">{renderContent()}</div>
+        </DialogContent>
+      </Dialog>
 
-        <AnimatePresence>
-          {sheetOpen && (
+      <AnimatePresence>
+        {sheetOpen && (
+          <>
             <motion.div
-              className="fixed inset-0 z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              onClick={handleClose}
+              className="fixed inset-0 z-50 bg-black/40"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: -72 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-[#17181c] rounded-t-2xl max-h-[85dvh] overflow-y-auto shadow-xl"
             >
-              {/* Backdrop */}
-              <div
-                className="absolute inset-0 bg-black/40"
-                onClick={() => setSheetOpen(false)}
-              />
-
-              {/* Sheet */}
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#17181c] rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.12)] overflow-hidden"
-                initial={{ y: "100%" }}
-                animate={{ y: -54 }}
-                exit={{ y: "100%" }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                style={{ maxHeight: "92dvh", minHeight: "35dvh" }}
-              >
-                {/* Sticky header */}
-                <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-[#e8e8e8] dark:border-[#2a2a2e] bg-white/80 dark:bg-[#17181c]/80 backdrop-blur-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-[#17181c] dark:text-white">
-                      Diagnóstico inteligente
-                    </span>
+              <div className="sticky top-0 z-10 bg-white dark:bg-[#17181c] border-b border-[#e8e8e8] dark:border-[#2a2a2e] px-5 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-md bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
+                    <Sparkles className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <button
-                    onClick={() => setSheetOpen(false)}
-                    className="h-8 w-8 rounded-full flex items-center justify-center text-[#737373] hover:text-[#17181c] dark:hover:text-white hover:bg-[#e8e8e8] dark:hover:bg-[#2a2a2e]"
-                    aria-label="Cerrar"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                  <h2 className="text-sm font-bold text-[#17181c] dark:text-white">
+                    Análisis IA
+                  </h2>
                 </div>
-
-                {/* Content */}
-                <div className="overflow-y-auto max-h-[80dvh] p-4 pb-[calc(4rem+env(safe-area-inset-bottom))]">
-                  {renderContent()}
-                </div>
-              </motion.div>
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="h-7 w-7 rounded-md flex items-center justify-center text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f5f5f5] dark:hover:bg-white/5 transition-colors"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="px-5 py-4 pb-8">{renderContent()}</div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </>
-    );
-  }
-
-  // Desktop: inline card
-  return renderContent();
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }
