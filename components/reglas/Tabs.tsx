@@ -31,8 +31,8 @@ export function Tabs({ tabs, active, onChange, className }: TabsProps) {
       role="tablist"
       aria-label="Secciones de reglas"
       className={cn(
-        "flex items-center gap-1 p-1 rounded-xl bg-stone-100/80 border border-stone-200/60",
-        "dark:bg-stone-900/60 dark:border-stone-800",
+        "flex items-center gap-1 p-1 rounded-xl",
+        "bg-[#f5f5f5]/80 dark:bg-white/5",
         "overflow-x-auto scrollbar-none",
         className
       )}
@@ -55,10 +55,10 @@ export function Tabs({ tabs, active, onChange, className }: TabsProps) {
               "flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg",
               "text-xs md:text-sm font-semibold whitespace-nowrap",
               "transition-colors duration-150 outline-none",
-              "focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-1 focus-visible:ring-offset-stone-100 dark:focus-visible:ring-stone-600 dark:focus-visible:ring-offset-stone-900",
+              "focus-visible:ring-2 focus-visible:ring-[#617dd5]/40 focus-visible:ring-offset-1",
               isActive
-                ? "bg-white text-stone-900 shadow-sm dark:bg-stone-800 dark:text-stone-50"
-                : "text-stone-600 hover:text-stone-900 hover:bg-white/50 dark:text-stone-400 dark:hover:text-stone-50 dark:hover:bg-stone-800/40"
+                ? "bg-[#17181c] text-white shadow-sm dark:bg-white dark:text-[#17181c]"
+                : "text-[#737373] hover:text-[#17181c] hover:bg-white/60 dark:text-[#a1a1aa] dark:hover:text-white dark:hover:bg-white/10"
             )}
           >
             <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
