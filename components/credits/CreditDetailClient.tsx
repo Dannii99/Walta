@@ -6,12 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Receipt, PiggyBank, CalendarDays, FileText } from "lucide-react";
 import { CreditDetailHeader } from "./CreditDetailHeader";
 import { CreditSummary } from "./CreditSummary";
-import { CreditProgressBar } from "./CreditProgressBar";
-import { CreditPaymentsList } from "./CreditPaymentsList";
 import { CreditExtrasList } from "./CreditExtrasList";
-import { CreditCharts } from "./CreditCharts";
 import { DeleteCreditDialog } from "./DeleteCreditDialog";
 import { AmortizationTab } from "./AmortizationTab";
+import { PaymentsTab } from "./PaymentsTab";
 import { ExtractTab } from "./ExtractTab";
 import { AILoanAdvisorTrigger } from "./AILoanAdvisorTrigger";
 import { EditExtraPaymentDialog } from "./EditExtraPaymentDialog";
@@ -71,8 +69,6 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
     loan.termMonths - (loan.paidInstallments ?? 0)
   );
 
-  // Al cerrar el dialog limpiamos el prefill para que la próxima apertura
-  // manual (botón "Acciones") no herede valores stale del simulador.
   const handleActionsOpenChange = (open: boolean) => {
     setActionsOpen(open);
     if (!open) setFormPrefill(null);
@@ -171,18 +167,6 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
 
       <CreditSummary key={`summary-${refreshKey}`} loan={loan} />
 
-      <CreditProgressBar
-        key={`progress-${refreshKey}`}
-        loan={loan}
-        schedule={schedule}
-      />
-
-      <CapitalImpactSimulator
-        key={`simulator-${refreshKey}`}
-        loan={loan}
-        onApplyPrefill={handleApplyPrefill}
-      />
-
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab + refreshKey}
@@ -199,20 +183,25 @@ export function CreditDetailClient({ loan }: CreditDetailClientProps) {
             />
           )}
           {activeTab === "payments" && (
-            <CreditPaymentsList payments={loan.payments} />
+            <PaymentsTab loan={loan} />
           )}
           {activeTab === "extras" && (
-            <CreditExtrasList
-              extras={loan.extraPayments}
-              onEdit={setEditingExtra}
-              onDelete={setDeletingExtra}
-            />
+            <div className="space-y-6">
+              <CapitalImpactSimulator
+                key={`simulator-${refreshKey}`}
+                loan={loan}
+                onApplyPrefill={handleApplyPrefill}
+              />
+              <CreditExtrasList
+                extras={loan.extraPayments}
+                onEdit={setEditingExtra}
+                onDelete={setDeletingExtra}
+              />
+            </div>
           )}
           {activeTab === "extract" && <ExtractTab loan={loan} />}
         </motion.div>
       </AnimatePresence>
-
-      <CreditCharts key={`charts-${refreshKey}`} loan={loan} />
 
       <DeleteCreditDialog
         open={showDeleteDialog}
