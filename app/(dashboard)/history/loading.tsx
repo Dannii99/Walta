@@ -2,7 +2,7 @@
 
 export default function HistoryLoading() {
   return (
-    <div className="p-4 md:px-6 lg:px-10 pb-18 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-6">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-6">
       <div className="space-y-2">
         <Skeleton className="h-8 w-56 bg-[#e8e8e8] dark:bg-[#2a2a2e]" />
         <Skeleton className="h-4 w-80 max-w-full bg-[#e8e8e8] dark:bg-[#2a2a2e]" />

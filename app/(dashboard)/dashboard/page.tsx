@@ -166,7 +166,7 @@ export default async function DashboardPage() {
 
   if (isEmpty) {
     return (
-      <div className="p-4 md:px-6 lg:px-10 pb-18 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto">
+      <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto">
         <DashboardEmptyClient categories={categories} />
       </div>
     );

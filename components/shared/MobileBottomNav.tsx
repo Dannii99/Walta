@@ -39,7 +39,7 @@ export function MobileBottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-4 right-4 -translate-y-[10px] z-40 md:hidden bg-gradient-to-br from-[#17181c] to-[#333438] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)] overflow-hidden"
+        className="fixed bottom-0 left-4 right-4 -translate-y-[1rem] z-40 md:hidden bg-gradient-to-br from-[#17181c] to-[#333438] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)] overflow-hidden"
         aria-label="Navegación principal"
       >
         <ul className="grid grid-cols-4">

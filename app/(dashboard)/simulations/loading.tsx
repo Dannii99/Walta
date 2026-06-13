@@ -2,7 +2,7 @@
 
 export default function SimulationsLoading() {
   return (
-    <div className="p-4 md:px-6 lg:px-10 pb-18 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-6">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div className="space-y-2">
           <Skeleton className="h-3 w-24" />
