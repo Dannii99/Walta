@@ -44,8 +44,12 @@ export function Sidebar() {
         href="/dashboard"
         className="h-16 flex items-center px-[18px] shrink-0"
       >
-        <div className="h-9 w-9 rounded-xl bg-white flex items-center justify-center shrink-0 transition-transform hover:scale-105">
-          <Wallet className="h-4 w-4 text-[#17181c]" strokeWidth={2.3} />
+        <div className="h-9 w-9 shrink-0 transition-transform hover:scale-105">
+          <img
+            src="/logo/Walta_App_dark.svg"
+            alt="Walta"
+            className="h-full w-full"
+          />
         </div>
         <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap overflow-hidden">
           <p className="text-sm font-extrabold tracking-tight text-white leading-none">

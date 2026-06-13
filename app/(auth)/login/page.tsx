@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Wallet } from "lucide-react";
 import { LoginHero } from "@/components/auth/LoginHero";
 import { LoginForm } from "@/components/auth/LoginForm";
 
@@ -18,12 +17,17 @@ export default function LoginPage() {
 
         <div className="flex flex-col">
           <div className="md:hidden flex items-center justify-center gap-3 px-6 pt-8 pb-2">
-            <div className="h-11 w-11 rounded-xl bg-stone-900 dark:bg-stone-100 flex items-center justify-center shrink-0">
-              <Wallet
-                className="h-5 w-5 text-white dark:text-stone-900"
-                strokeWidth={2.3}
-                aria-hidden
-              />
+            <div className="h-11 w-11 shrink-0">
+            <img
+              src="/logo/Walta_App_dark.svg"
+              alt="Walta"
+              className="h-full w-full hidden dark:block"
+            />
+            <img
+              src="/logo/Walta_App_light.svg"
+              alt="Walta"
+              className="h-full w-full block dark:hidden"
+            />
             </div>
             <div className="min-w-0">
               <p className="text-base font-extrabold tracking-tight text-stone-900 dark:text-stone-50 leading-none">

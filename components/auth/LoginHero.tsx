@@ -49,11 +49,17 @@ export function LoginHero() {
           <motion.div
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="h-12 w-12 rounded-2xl bg-stone-900 dark:bg-stone-100 flex items-center justify-center shadow-sm"
+            className="h-12 w-12 shrink-0"
           >
-            <Wallet
-              className="h-5 w-5 text-white dark:text-stone-900"
-              strokeWidth={2.3}
+            <img
+              src="/logo/Walta_App_dark.svg"
+              alt="Walta"
+              className="h-full w-full hidden dark:block"
+            />
+            <img
+              src="/logo/Walta_App_light.svg"
+              alt="Walta"
+              className="h-full w-full block dark:hidden"
             />
           </motion.div>
           <div>
