@@ -59,16 +59,16 @@ export function ExtractReconciliationCard({
   const hasChanges = paidInstallments !== initialPaidInstallments;
 
   return (
-    <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-5">
+    <div className="rounded-2xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-5">
       <div className="flex items-center gap-2">
         <div className="h-7 w-7 rounded-md bg-purple-100 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
           <FileText className="h-3.5 w-3.5" strokeWidth={2.3} />
         </div>
         <div>
-          <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-50">
+          <h2 className="text-sm font-bold tracking-tight text-[#17181c] dark:text-white">
             Tu crédito en el extracto
           </h2>
-          <p className="text-[11px] text-stone-500 dark:text-stone-400">
+          <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa]">
             Compara lo que dice tu banco con nuestros cálculos
           </p>
         </div>
@@ -102,7 +102,7 @@ export function ExtractReconciliationCard({
               className="text-lg font-bold tabular-nums"
             />
           </div>
-          <div className="flex items-center text-sm text-stone-500 dark:text-stone-400 px-2 font-medium tabular-nums">
+          <div className="flex items-center text-sm text-[#737373] dark:text-[#a1a1aa] px-2 font-medium tabular-nums">
             / {termMonths}
           </div>
           <Button
@@ -130,7 +130,7 @@ export function ExtractReconciliationCard({
             )}
           </Button>
         </div>
-        <p className="text-[11px] text-stone-500 dark:text-stone-400">
+        <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa]">
           {isFullyPaid ? (
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
               Tu extracto indica que el crédito ya está liquidado.
@@ -143,7 +143,7 @@ export function ExtractReconciliationCard({
         </p>
       </div>
 
-      <div className="space-y-2 pt-3 border-t border-stone-200/60 dark:border-stone-800">
+      <div className="space-y-2 pt-3 border-t border-[#e8e8e8]/60 dark:border-[#2a2a2e]">
         <Label htmlFor="actual-monthly-payment">
           Cuota mensual real de tu extracto
         </Label>
@@ -153,7 +153,7 @@ export function ExtractReconciliationCard({
           onValueChange={handleActualMonthlyChange}
           placeholder="Ej: $ 550.000"
         />
-        <p className="text-[11px] text-stone-500 dark:text-stone-400">
+        <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa]">
           Ingresa la cuota exacta que el banco te cobra. La usaremos para
           verificar que nuestros cálculos coincidan.
         </p>

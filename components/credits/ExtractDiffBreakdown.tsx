@@ -43,17 +43,17 @@ export function ExtractDiffBreakdown({ calibration }: ExtractDiffBreakdownProps)
   ];
 
   return (
-    <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-5">
+    <div className="rounded-2xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6 space-y-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-md bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
             <Sparkles className="h-3.5 w-3.5" strokeWidth={2.3} />
           </div>
           <div>
-            <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-50">
+            <h2 className="text-sm font-bold tracking-tight text-[#17181c] dark:text-white">
               Comparación de cuota
             </h2>
-            <p className="text-[11px] text-stone-500 dark:text-stone-400">
+            <p className="text-[11px] text-[#737373] dark:text-[#a1a1aa]">
               Lo que calculamos vs lo que ves en tu extracto
             </p>
           </div>
@@ -69,23 +69,23 @@ export function ExtractDiffBreakdown({ calibration }: ExtractDiffBreakdownProps)
         </span>
       </div>
 
-      <div className="rounded-xl border border-stone-200/60 dark:border-stone-800 overflow-hidden">
-        <div className="divide-y divide-stone-200/60 dark:divide-stone-800">
+      <div className="rounded-xl border border-[#e8e8e8]/60 dark:border-[#2a2a2e] overflow-hidden">
+        <div className="divide-y divide-[#e8e8e8]/60 dark:divide-[#2a2a2e]">
           {breakdownRows.map((row, i) => (
             <div
               key={i}
               className={cn(
                 "flex items-center justify-between px-4 py-2.5 text-sm",
                 row.muted
-                  ? "bg-stone-50/50 dark:bg-stone-800/30"
-                  : "bg-white dark:bg-stone-900 font-semibold"
+                  ? "bg-[#fafafa] dark:bg-[#1a1a1e]/50"
+                  : "bg-white dark:bg-[#17181c] font-semibold"
               )}
             >
               <span
                 className={cn(
                   row.muted
-                    ? "text-stone-600 dark:text-stone-400"
-                    : "text-stone-900 dark:text-stone-50"
+                    ? "text-[#737373] dark:text-[#a1a1aa]"
+                    : "text-[#17181c] dark:text-white"
                 )}
               >
                 {row.label}
@@ -94,8 +94,8 @@ export function ExtractDiffBreakdown({ calibration }: ExtractDiffBreakdownProps)
                 className={cn(
                   "tabular-nums",
                   row.muted
-                    ? "text-stone-700 dark:text-stone-300"
-                    : "text-stone-900 dark:text-stone-50 font-bold"
+                    ? "text-[#17181c] dark:text-white"
+                    : "text-[#17181c] dark:text-white font-bold"
                 )}
               >
                 {formatCOP(row.value)}
@@ -177,7 +177,7 @@ export function ExtractDiffBreakdown({ calibration }: ExtractDiffBreakdownProps)
       )}
 
       {calibration.status === "UNKNOWN" && (
-        <div className="rounded-xl border border-stone-200/60 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-800/30 p-3 text-xs text-stone-600 dark:text-stone-400">
+        <div className="rounded-xl border border-[#e8e8e8]/60 dark:border-[#2a2a2e] bg-[#fafafa] dark:bg-[#1a1a1e]/50 p-3 text-xs text-[#737373] dark:text-[#a1a1aa]">
           <p className="leading-relaxed">
             Ingresa la cuota exacta que aparece en tu extracto bancario para
             validar que nuestros cálculos coincidan.

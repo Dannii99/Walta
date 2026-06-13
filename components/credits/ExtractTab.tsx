@@ -46,17 +46,17 @@ export function ExtractTab({ loan }: ExtractTabProps) {
       <motion.div
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6"
+        className="rounded-2xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6"
       >
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-xl bg-purple-100 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
             <FileText className="h-5 w-5" strokeWidth={2.2} />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-stone-900 dark:text-stone-50">
+            <h3 className="text-base font-bold text-[#17181c] dark:text-white">
               Sincroniza con tu extracto bancario
             </h3>
-            <p className="text-sm text-stone-600 dark:text-stone-400 mt-1 leading-relaxed">
+            <p className="text-sm text-[#737373] dark:text-[#a1a1aa] mt-1 leading-relaxed">
               Tu extracto es la fuente de verdad. Compara lo que el banco te
               cobra con nuestros cálculos para asegurarte de que las
               recomendaciones de IA estén basadas en datos reales.
