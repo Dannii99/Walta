@@ -315,7 +315,7 @@ export function CapitalContributionForm({
               />
               <motion.div
                 initial={{ y: "100%" }}
-                animate={{ y: -72 }}
+                animate={{ y: -16 }}
                 exit={{ y: "100%" }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-[#17181c] shadow-2xl max-h-[92dvh] min-h-[55dvh] flex flex-col"

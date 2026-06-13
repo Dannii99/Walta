@@ -15,7 +15,7 @@ export default function DashboardLayout({
     <DashboardProvider>
       <div className="min-h-dvh md:min-h-screen bg-[#e8e8e8] dark:bg-[#0c0d10]">
         <Sidebar />
-        <main className="md:pl-[76px] pb-20 md:pb-0 min-w-0">
+        <main className="md:pl-[76px] min-w-0">
           <Suspense fallback={<PageTransitionOverlay />}>
             {children}
           </Suspense>
