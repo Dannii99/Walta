@@ -71,12 +71,13 @@ export function ExpensesClient({
       await deleteTransaction(pendingDelete.id);
       toast.success("Gasto eliminado");
       router.refresh();
+      setPendingDelete(null);
     } catch (err) {
       console.error(err);
       toast.error("No pudimos eliminar el gasto");
       throw err;
     }
-  }, [pendingDelete, router]);
+  }, [pendingDelete, setPendingDelete, router]);
 
   const handleSuccess = useCallback(() => {
     router.refresh();
