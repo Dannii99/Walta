@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, AlertTriangle, CalendarDays } from "lucide-react";
 import { getDaysOverdue } from "@/lib/loan-engine";
@@ -14,8 +14,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
 import { AmortizationCard } from "./AmortizationCard";
 import type { AmortizationRow } from "@/types";
+
+const PAGE_SIZE = 16;
 
 interface CreditAmortizationTableProps {
   schedule: AmortizationRow[];
@@ -45,6 +48,11 @@ export function CreditAmortizationTable({
   onMarkPaid,
 }: CreditAmortizationTableProps) {
   const [activeFilter, setActiveFilter] = useState<FilterTab>("all");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilter]);
 
   const counts = useMemo(() => {
     return schedule.reduce(
@@ -70,6 +78,18 @@ export function CreditAmortizationTable({
       return true;
     });
   }, [schedule, activeFilter]);
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(filteredSchedule.length / PAGE_SIZE)),
+    [filteredSchedule]
+  );
+
+  const currentPage = useMemo(() => Math.min(page, totalPages), [page, totalPages]);
+
+  const displayedRows = useMemo(
+    () => filteredSchedule.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filteredSchedule, currentPage]
+  );
 
   const hasFees = useMemo(
     () => schedule.some((row) => row.monthlyFee > 0),
@@ -157,7 +177,7 @@ export function CreditAmortizationTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredSchedule.map((row, index) => {
+            {displayedRows.map((row, index) => {
               const daysOverdue =
                 row.status === "PENDING" || row.status === "DEFAULTED"
                   ? getDaysOverdue(row.date)
@@ -290,7 +310,7 @@ export function CreditAmortizationTable({
 
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
-        {filteredSchedule.map((row) => (
+        {displayedRows.map((row) => (
           <AmortizationCard
             key={row.month}
             row={row}
@@ -298,6 +318,12 @@ export function CreditAmortizationTable({
           />
         ))}
       </div>
+
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
 
       {filteredSchedule.length === 0 && (
         <div className="py-8 text-center text-sm text-[#737373] dark:text-[#a1a1aa] bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)]">

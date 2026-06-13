@@ -22,14 +22,13 @@ import {
   Pencil,
   Trash2,
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
   Wallet,
   SearchX,
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
 import { ExpenseCard } from "./ExpenseCard";
+import { Pagination } from "@/components/ui/pagination";
 
 interface ExpenseListProps {
   transactions: (Transaction & { category?: Category })[];
@@ -154,48 +153,6 @@ function NoResultsState({ onClear }: { onClear?: () => void }) {
           Limpiar filtros
         </Button>
       )}
-    </div>
-  );
-}
-
-function Pagination({
-  page,
-  totalPages,
-  onPageChange,
-}: {
-  page: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  if (totalPages <= 1) return null;
-  return (
-    <div className="flex items-center justify-between gap-2 mt-4 px-1">
-      <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
-        Página <span className="font-bold text-[#17181c] dark:text-white">{page}</span> de{" "}
-        <span className="font-bold text-[#17181c] dark:text-white">{totalPages}</span>
-      </p>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1}
-          className="border-[#e8e8e8] dark:border-[#2a2a2e] text-[#737373] dark:text-[#a1a1aa]"
-        >
-          <ChevronLeft className="h-3.5 w-3.5 mr-1" />
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(page + 1)}
-          disabled={page >= totalPages}
-          className="border-[#e8e8e8] dark:border-[#2a2a2e] text-[#737373] dark:text-[#a1a1aa]"
-        >
-          Siguiente
-          <ChevronRight className="h-3.5 w-3.5 ml-1" />
-        </Button>
-      </div>
     </div>
   );
 }
