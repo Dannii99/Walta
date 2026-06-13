@@ -1,0 +1,1101 @@
+﻿"use client";
+
+import { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { createLoan, updateLoan } from "@/server/actions/loan-actions";
+import { getLoanSummary } from "@/lib/simulation-engine";
+import { generateAmortizationSchedule } from "@/lib/loan-engine";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CurrencyInput } from "@/components/ui/currency-input";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RateInput } from "@/components/simulations/RateInput";
+import { LoanPreviewCard } from "./LoanPreviewCard";
+import { FeesSection } from "./FeesSection";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Settings2,
+  AlertCircle,
+  Sparkles,
+  Calendar,
+  FileText,
+  TrendingUp,
+} from "lucide-react";
+import { toast } from "sonner";
+import type { FeeItem, PastPaymentSync, Loan, LoanExtraPayment } from "@/types";
+
+function getMonthlyRate(annualRate: number, formula: string): number {
+  return formula === "french_ea" || formula === "constant_capital_ea"
+    ? Math.pow(1 + annualRate, 1 / 12) - 1
+    : annualRate / 12;
+}
+
+function calculatePreview(
+  principal: number,
+  annualRate: number,
+  termMonths: number,
+  formula: string
+): { monthlyPayment: number; totalInterest: number; totalCost: number } {
+  if (principal <= 0 || termMonths <= 0 || annualRate < 0) {
+    return { monthlyPayment: 0, totalInterest: 0, totalCost: 0 };
+  }
+
+  const monthlyRate = getMonthlyRate(annualRate, formula);
+
+  // French (fixed payment)
+  if (formula === "french_ea" || formula === "french_namv") {
+    const summary = getLoanSummary(
+      principal,
+      annualRate,
+      termMonths,
+      formula === "french_ea" ? "french_ea" : "nominal_monthly"
+    );
+    return summary;
+  }
+
+  // German (constant capital, decreasing payment)
+  const monthlyPrincipal = principal / termMonths;
+  let balance = principal;
+  let totalInterest = 0;
+
+  for (let i = 0; i < termMonths; i++) {
+    const interest = balance * monthlyRate;
+    totalInterest += interest;
+    balance -= monthlyPrincipal;
+    if (balance < 0) balance = 0;
+  }
+
+  const firstMonthPayment = monthlyPrincipal + principal * monthlyRate;
+  return {
+    monthlyPayment: Number(firstMonthPayment.toFixed(2)),
+    totalInterest: Number(totalInterest.toFixed(2)),
+    totalCost: Number((principal + totalInterest).toFixed(2)),
+  };
+}
+
+function mapTypeToSchema(type: string): string {
+  const map: Record<string, string> = {
+    personal: "PERSONAL",
+    mortgage: "HOUSING",
+    vehicle: "VEHICLE",
+    student: "OTHER",
+    credit_card: "OTHER",
+    microcredit: "OTHER",
+  };
+  return map[type] || "OTHER";
+}
+
+function mapFormulaToSchema(formula: string): string {
+  if (formula === "french_ea" || formula === "constant_capital_ea") return "french_ea";
+  return "nominal_monthly";
+}
+
+const LOAN_TYPES = [
+  { value: "personal", label: "Personal" },
+  { value: "mortgage", label: "Hipotecario" },
+  { value: "vehicle", label: "Vehículo" },
+  { value: "student", label: "Estudiantil" },
+  { value: "credit_card", label: "Tarjeta de Crédito" },
+  { value: "microcredit", label: "Microcrédito" },
+];
+
+interface LoanFormProps {
+  mode: "new" | "ongoing" | "edit";
+  defaultValues?: Record<string, unknown> | null;
+  availableMoney?: number;
+  loanId?: string;
+  hideStepIndicator?: boolean;
+  step?: number;
+  onStepChange?: (step: number) => void;
+}
+
+export function LoanForm({ 
+  mode, 
+  defaultValues, 
+  availableMoney = 0, 
+  loanId, 
+  hideStepIndicator = false,
+  step: externalStep,
+  onStepChange 
+}: LoanFormProps) {
+  const router = useRouter();
+  const [internalStep, setInternalStep] = useState(1);
+  const step = externalStep ?? internalStep;
+  const setStep = useCallback((newStep: number) => {
+    setInternalStep(newStep);
+    onStepChange?.(newStep);
+  }, [onStepChange]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [termMode, setTermMode] = useState<"years" | "months">("years");
+
+  // Step 1: Basic info
+  const [title, setTitle] = useState((defaultValues?.title as string) || "");
+  const [type, setType] = useState(
+    (defaultValues?.type as string) || "personal"
+  );
+  const [price, setPrice] = useState((defaultValues?.price as number) || 0);
+  const initialDownPayment = (defaultValues?.downPayment as number) || 0;
+  const [downPaymentEnabled, setDownPaymentEnabled] = useState(
+    initialDownPayment > 0
+  );
+  const [downPayment, setDownPayment] = useState(initialDownPayment);
+
+  // Step 1: Previous capital contribution (abono a capital previo al registro)
+  const initialPrevAmount =
+    (defaultValues?.initialExtraPayment as number) || 0;
+  const [initialExtraPaymentEnabled, setInitialExtraPaymentEnabled] =
+    useState(initialPrevAmount > 0);
+  const [initialExtraPayment, setInitialExtraPayment] = useState(
+    initialPrevAmount
+  );
+  const [initialExtraPaymentDate, setInitialExtraPaymentDate] = useState(
+    () => {
+      const raw = defaultValues?.initialExtraPaymentDate as string | undefined;
+      if (raw) {
+        const d = new Date(raw);
+        if (!Number.isNaN(d.getTime())) {
+          return d.toISOString().split("T")[0];
+        }
+      }
+      const now = new Date();
+      return now.toISOString().split("T")[0];
+    }
+  );
+
+  // Step 2: Terms + preview
+  const [termValue, setTermValue] = useState(
+    defaultValues?.termMonths
+      ? termMode === "years"
+        ? Math.ceil((defaultValues.termMonths as number) / 12)
+        : (defaultValues.termMonths as number)
+      : 5
+  );
+  const [annualRate, setAnnualRate] = useState(
+    (defaultValues?.annualRate as number) || 0.18
+  );
+  const [formula, setFormula] = useState(
+    (defaultValues?.formula as string) || "french_ea"
+  );
+  const [startDate, setStartDate] = useState(() => {
+    if (defaultValues?.startDate) {
+      const d = new Date(defaultValues.startDate as string | Date);
+      if (!Number.isNaN(d.getTime())) {
+        return d.toISOString().split("T")[0];
+      }
+    }
+    const now = new Date();
+    return now.toISOString().split("T")[0];
+  });
+
+  // Step 2: Fees
+  const [fees, setFees] = useState<FeeItem[]>(
+    (defaultValues?.fees as FeeItem[]) || []
+  );
+
+  // Step 3: Advanced (ongoing only)
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [exactMonthlyPayment, setExactMonthlyPayment] = useState(
+    (defaultValues?.exactMonthlyPayment as number) || 0
+  );
+  const [exactTotalInterest, setExactTotalInterest] = useState(
+    (defaultValues?.exactTotalInterest as number) || 0
+  );
+
+  const pastMonths = useMemo(() => {
+    if (!startDate) return [];
+    const start = new Date(startDate);
+    const today = new Date();
+    const months: { month: number; year: number; label: string }[] = [];
+
+    const current = new Date(start.getFullYear(), start.getMonth(), 1);
+    const end = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    while (current < end) {
+      months.push({
+        month: current.getMonth(),
+        year: current.getFullYear(),
+        label: current.toLocaleDateString("es-CO", { month: "long", year: "numeric" }),
+      });
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    return months;
+  }, [startDate]);
+
+  const [paymentStatuses, setPaymentStatuses] = useState<
+    Record<string, "PAID" | "PENDING" | "DEFAULTED">
+  >(() => {
+    const initial: Record<string, "PAID" | "PENDING" | "DEFAULTED"> = {};
+    const initialSync =
+      (defaultValues?.pastPaymentsSync as PastPaymentSync[]) || [];
+    for (const p of initialSync) {
+      initial[`${p.year}-${p.month}`] = p.status;
+    }
+    return initial;
+  });
+
+  const pastPaymentsSync = useMemo<PastPaymentSync[]>(
+    () =>
+      pastMonths.map((m) => ({
+        month: m.month,
+        year: m.year,
+        status: paymentStatuses[`${m.year}-${m.month}`] ?? "PENDING",
+      })),
+    [pastMonths, paymentStatuses]
+  );
+
+  const updatePaymentStatus = useCallback(
+    (
+      year: number,
+      month: number,
+      status: "PAID" | "PENDING" | "DEFAULTED"
+    ) => {
+      setPaymentStatuses((current) => ({
+        ...current,
+        [`${year}-${month}`]: status,
+      }));
+    },
+    []
+  );
+
+  const termMonths = useMemo(
+    () => (termMode === "years" ? termValue * 12 : termValue),
+    [termMode, termValue]
+  );
+
+  const principal = useMemo(() => price - downPayment, [price, downPayment]);
+
+  const loanSummary = useMemo(() => {
+    if (principal <= 0 || termMonths <= 0 || annualRate < 0) return null;
+    try {
+      return calculatePreview(principal, annualRate, termMonths, formula);
+    } catch {
+      return null;
+    }
+  }, [principal, annualRate, termMonths, formula]);
+
+  const monthlyPayment = useMemo(() => {
+    if (mode === "ongoing" && exactMonthlyPayment > 0) return exactMonthlyPayment;
+    return loanSummary?.monthlyPayment ?? 0;
+  }, [mode, exactMonthlyPayment, loanSummary]);
+
+  const totalInterest = useMemo(() => {
+    if (mode === "ongoing" && exactTotalInterest > 0) return exactTotalInterest;
+    return loanSummary?.totalInterest ?? 0;
+  }, [mode, exactTotalInterest, loanSummary]);
+
+  const totalCost = useMemo(() => {
+    return principal + totalInterest;
+  }, [principal, totalInterest]);
+
+  const previousExtraPayment = useMemo(() => {
+    if (
+      !initialExtraPaymentEnabled ||
+      initialExtraPayment <= 0 ||
+      !initialExtraPaymentDate
+    ) {
+      return null;
+    }
+    return {
+      amount: initialExtraPayment,
+      date: new Date(initialExtraPaymentDate),
+    };
+  }, [
+    initialExtraPaymentEnabled,
+    initialExtraPayment,
+    initialExtraPaymentDate,
+  ]);
+
+  const previewSchedule = useMemo(() => {
+    if (
+      principal <= 0 ||
+      termMonths <= 0 ||
+      annualRate < 0 ||
+      monthlyPayment <= 0
+    ) {
+      return null;
+    }
+    if (!previousExtraPayment) return null;
+    const fakeLoan = {
+      id: "preview",
+      userId: "preview",
+      simulationId: null,
+      title: "preview",
+      type: "OTHER" as const,
+      principal: String(principal),
+      downPayment: "0",
+      annualRate: String(annualRate),
+      termMonths,
+      formula:
+        formula === "french_ea" || formula === "constant_capital_ea"
+          ? ("french_ea" as const)
+          : ("nominal_monthly" as const),
+      monthlyPayment: String(monthlyPayment),
+      startDate: new Date(startDate),
+      totalInterest: String(totalInterest),
+      totalCost: String(totalCost),
+      paidInstallments: 0,
+      status: "ACTIVE" as const,
+      fees: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as unknown as Loan;
+    const fakeExtras: LoanExtraPayment[] = [
+      {
+        id: "preview-extra",
+        loanId: "preview",
+        amount: String(previousExtraPayment.amount),
+        date: previousExtraPayment.date,
+        note: null,
+        createdAt: new Date(),
+      },
+    ];
+    try {
+      return generateAmortizationSchedule(fakeLoan, [], fakeExtras);
+    } catch {
+      return null;
+    }
+  }, [
+    principal,
+    termMonths,
+    annualRate,
+    monthlyPayment,
+    startDate,
+    formula,
+    previousExtraPayment,
+    totalInterest,
+    totalCost,
+  ]);
+
+  const totalInterestAdjusted = useMemo(() => {
+    if (!previewSchedule) return totalInterest;
+    return previewSchedule.reduce((sum, r) => sum + r.interest, 0);
+  }, [previewSchedule, totalInterest]);
+
+  const totalCostAdjusted = useMemo(() => {
+    return principal + totalInterestAdjusted;
+  }, [principal, totalInterestAdjusted]);
+
+  const mesesTranscurridos = useMemo(() => pastMonths.length, [pastMonths]);
+
+  const paidCount = useMemo(
+    () => pastPaymentsSync.filter((p) => p.status === "PAID").length,
+    [pastPaymentsSync]
+  );
+
+  const validateStep1 = useCallback(() => {
+    if (!title.trim()) return "Debes ingresar un nombre para el crédito.";
+    if (price <= 0) return "El precio total debe ser mayor a cero.";
+    if (downPayment < 0) return "La cuota inicial no puede ser negativa.";
+    if (downPayment >= price) return "La cuota inicial no puede ser igual o mayor al precio.";
+    if (initialExtraPaymentEnabled) {
+      if (initialExtraPayment < 0)
+        return "El abono a capital previo no puede ser negativo.";
+      if (initialExtraPayment > 0) {
+        if (!initialExtraPaymentDate)
+          return "Debes seleccionar la fecha del abono a capital previo.";
+        const d = new Date(initialExtraPaymentDate);
+        if (Number.isNaN(d.getTime()))
+          return "La fecha del abono a capital previo no es válida.";
+        const tomorrow = new Date();
+        tomorrow.setHours(23, 59, 59, 999);
+        if (d.getTime() > tomorrow.getTime())
+          return "La fecha del abono a capital previo no puede ser futura.";
+      }
+    }
+    return null;
+  }, [
+    title,
+    price,
+    downPayment,
+    initialExtraPaymentEnabled,
+    initialExtraPayment,
+    initialExtraPaymentDate,
+  ]);
+
+  const validateStep2 = useCallback(() => {
+    if (termValue < 1) return "El plazo debe ser de al menos 1.";
+    if (annualRate <= 0) return "La tasa de intereses debe ser mayor a cero.";
+    if (!startDate) return "Debes seleccionar la fecha de inicio.";
+    return null;
+  }, [termValue, annualRate, startDate]);
+
+  const handleNext = () => {
+    if (step === 1) {
+      const error = validateStep1();
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      const error = validateStep2();
+      if (error) {
+        toast.error(error);
+        return;
+      }
+      if (mode === "ongoing" || (mode === "edit" && mesesTranscurridos > 0)) {
+        setStep(3);
+      } else {
+        handleSubmit();
+      }
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
+    const buildExtraPayload = () => {
+      if (!initialExtraPaymentEnabled) {
+        return { amount: 0, date: new Date(initialExtraPaymentDate) };
+      }
+      return {
+        amount: initialExtraPayment,
+        date: new Date(initialExtraPaymentDate),
+      };
+    };
+
+    try {
+      if (mode === "edit" && loanId) {
+        await updateLoan(loanId, {
+          title,
+          type: mapTypeToSchema(type),
+          principal,
+          downPayment,
+          annualRate,
+          termMonths,
+          formula: mapFormulaToSchema(formula),
+          startDate: new Date(startDate),
+          monthlyPayment,
+          totalInterest,
+          totalCost,
+          fees,
+          initialExtraPayment: buildExtraPayload(),
+          pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
+        });
+        toast.success("Crédito actualizado");
+        router.push(`/credits/${loanId}`);
+        router.refresh();
+      } else {
+        await createLoan({
+          title,
+          type: mapTypeToSchema(type),
+          principal,
+          downPayment,
+          annualRate,
+          termMonths,
+          formula: mapFormulaToSchema(formula),
+          startDate: new Date(startDate),
+          monthlyPayment,
+          totalInterest,
+          totalCost,
+          fees,
+          initialExtraPayment:
+            initialExtraPaymentEnabled && initialExtraPayment > 0
+              ? {
+                  amount: initialExtraPayment,
+                  date: new Date(initialExtraPaymentDate),
+                }
+              : undefined,
+          pastPaymentsSync: pastPaymentsSync.length > 0 ? pastPaymentsSync : undefined,
+        });
+        toast.success(mode === "ongoing" ? "Crédito en curso agregado" : "Crédito creado");
+        router.push("/credits");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al guardar el crédito");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const totalSteps = mode === "ongoing" || (mode === "edit" && mesesTranscurridos > 0) ? 3 : 2;
+
+  return (
+    <div className="space-y-6">
+      {/* Step Indicator */}
+      {!hideStepIndicator && (
+        <div className="flex items-center gap-2">
+          {[1, 2, 3].map((s) => {
+            if (s > totalSteps) return null;
+            const isActive = s === step;
+            const isCompleted = s < step;
+            return (
+              <div key={s} className="flex items-center gap-2 flex-1">
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-[#26be15] text-white"
+                      : isCompleted
+                        ? "bg-[#26be15]/20 text-[#26be15]"
+                        : "bg-[#f5f5f5] dark:bg-white/5 text-[#737373] dark:text-[#a1a1aa]"
+                  }`}
+                >
+                  {isCompleted ? <Check className="h-4 w-4" /> : s}
+                </div>
+                <div className="hidden sm:block">
+                  <p
+                    className={`text-xs font-medium ${
+                      isActive ? "text-[#26be15]" : "text-[#737373] dark:text-[#a1a1aa]"
+                    }`}
+                  >
+                    {s === 1
+                      ? "Información básica"
+                      : s === 2
+                        ? "Condiciones"
+                        : "En curso"}
+                  </p>
+                </div>
+                {s < totalSteps && (
+                  <div className="h-px flex-1 bg-[#e8e8e8] dark:bg-[#2a2a2e] mx-2" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Step 1: Basic Info */}
+      {step === 1 && (
+        <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <FileText className="h-3.5 w-3.5" strokeWidth={2.2} />
+              </div>
+              <CardTitle className="text-base text-[#17181c] dark:text-white">
+                Información básica
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Nombre del crédito</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Ej. Apartamento en Cedritos"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="type">Tipo de crédito</Label>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger id="type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOAN_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price">Precio total</Label>
+              <CurrencyInput
+                id="price"
+                value={price}
+                onValueChange={setPrice}
+                placeholder="0"
+              />
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <Label
+                    htmlFor="downPayment-switch"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    ¿Tienes cuota inicial?
+                  </Label>
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
+                    Activa para registrar un pago inicial al crédito.
+                  </p>
+                </div>
+                <Switch
+                  id="downPayment-switch"
+                  checked={downPaymentEnabled}
+                  onCheckedChange={(checked) => {
+                    setDownPaymentEnabled(checked);
+                    if (!checked) setDownPayment(0);
+                  }}
+                />
+              </div>
+              {downPaymentEnabled && (
+                <div className="space-y-2 pt-1">
+                  <Label htmlFor="downPayment">Cuota inicial</Label>
+                  <CurrencyInput
+                    id="downPayment"
+                    value={downPayment}
+                    onValueChange={setDownPayment}
+                    placeholder="0"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3 rounded-xl border border-dashed border-[#e8e8e8] dark:border-[#2a2a2e] p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <Label
+                    htmlFor="initialExtraPayment-switch"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    ¿Ya hiciste un abono a capital?
+                  </Label>
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
+                    Registra un pago extra a capital previo a este crédito.
+                  </p>
+                </div>
+                <Switch
+                  id="initialExtraPayment-switch"
+                  checked={initialExtraPaymentEnabled}
+                  onCheckedChange={(checked) => {
+                    setInitialExtraPaymentEnabled(checked);
+                    if (!checked) setInitialExtraPayment(0);
+                  }}
+                />
+              </div>
+              {initialExtraPaymentEnabled && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                  <div className="space-y-2">
+                    <Label htmlFor="initialExtraPayment">Monto del abono</Label>
+                    <CurrencyInput
+                      id="initialExtraPayment"
+                      value={initialExtraPayment}
+                      onValueChange={setInitialExtraPayment}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="initialExtraPaymentDate">
+                      Fecha del abono
+                    </Label>
+                    <Input
+                      id="initialExtraPaymentDate"
+                      type="date"
+                      value={initialExtraPaymentDate}
+                      max={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => setInitialExtraPaymentDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {price > 0 && downPayment > 0 && (
+              <div className="rounded-lg bg-[#f5f5f5] dark:bg-white/5 p-3 text-sm">
+                <p className="text-[#17181c] dark:text-white">
+                  Monto a financiar:{" "}
+                  <span className="font-semibold">
+                  {new Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(principal)}
+                  </span>
+                </p>
+                <p className="text-[#737373] dark:text-[#a1a1aa] mt-1">
+                  Esto es lo que realmente vas a pedir prestado.
+                </p>
+              </div>
+            )}
+
+            {initialExtraPaymentEnabled && initialExtraPayment > 0 && (
+              <div className="rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900 p-3 text-sm flex items-start gap-2">
+                <TrendingUp
+                  className="h-4 w-4 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0"
+                  strokeWidth={2.2}
+                />
+                <p className="text-[#17181c] dark:text-white">
+                  Saldo inicial reducido:{" "}
+                  <span className="font-semibold tabular-nums">
+                    {new Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(principal - initialExtraPayment)}
+                  </span>
+                  <span className="text-[#737373] dark:text-[#a1a1aa] block text-xs mt-0.5">
+                    Verás el impacto completo en el siguiente paso.
+                  </span>
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 2: Terms & Preview */}
+      {step === 2 && (
+        <div className="space-y-6">
+          <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-[#26be15]/10 text-[#26be15] flex items-center justify-center shrink-0">
+                  <Settings2 className="h-3.5 w-3.5" strokeWidth={2.2} />
+                </div>
+                <CardTitle className="text-base text-[#17181c] dark:text-white">
+                  Condiciones del crédito
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Plazo</Label>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        min={1}
+                        maxLength={3}
+                        value={termValue}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (Number.isNaN(val) || val < 1) {
+                            setTermValue(1);
+                          } else {
+                            setTermValue(val);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex rounded-md border border-[#e8e8e8] dark:border-[#2a2a2e] overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (termMode === "months") {
+                            setTermMode("years");
+                            setTermValue(Math.ceil(termValue / 12));
+                          }
+                        }}
+                        className={`px-3 py-2 text-sm font-medium transition-colors ${
+                          termMode === "years"
+                            ? "bg-[#26be15] text-white"
+                            : "bg-white dark:bg-[#17181c] text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
+                        }`}
+                      >
+                        Años
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (termMode === "years") {
+                            setTermMode("months");
+                            setTermValue(termValue * 12);
+                          }
+                        }}
+                        className={`px-3 py-2 text-sm font-medium transition-colors ${
+                          termMode === "months"
+                            ? "bg-[#26be15] text-white"
+                            : "bg-white dark:bg-[#17181c] text-[#737373] dark:text-[#a1a1aa] hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
+                        }`}
+                      >
+                        Meses
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
+                    {termMonths} meses en total
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <RateInput
+                    value={annualRate}
+                    onRateChange={setAnnualRate}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="formula">Fórmula de amortización</Label>
+                  <Select value={formula} onValueChange={setFormula}>
+                    <SelectTrigger id="formula">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel className="flex items-center gap-1.5 text-[#26be15] dark:text-[#26be15]">
+                          <Sparkles className="h-3 w-3" />
+                          Recomendado
+                        </SelectLabel>
+                        <SelectItem value="french_ea">
+                          Cuota Fija (Francés EA)
+                        </SelectItem>
+                      </SelectGroup>
+                      <SelectSeparator />
+                      <SelectGroup>
+                        <SelectLabel>Otros métodos</SelectLabel>
+                        <SelectItem value="french_namv">
+                          Cuota Fija (Francés NAMV)
+                        </SelectItem>
+                        <SelectItem value="constant_capital_ea">
+                          Capital Constante (Alemán EA)
+                        </SelectItem>
+                        <SelectItem value="constant_capital_namv">
+                          Capital Constante (Alemán NAMV)
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Fecha de inicio</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Read-only: meses transcurridos (always visible) */}
+              <div
+                className="flex items-start gap-3 rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#f5f5f5] dark:bg-white/5 p-3"
+                data-testid="meses-transcurridos"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950/40 shrink-0">
+                  <Calendar
+                    className="h-4 w-4 text-blue-700 dark:text-blue-400"
+                    strokeWidth={2.2}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-[#17181c] dark:text-white">
+                    {mesesTranscurridos === 0
+                      ? "Aún no hay meses por sincronizar."
+                      : mesesTranscurridos === 1
+                        ? "Ha transcurrido 1 mes desde la fecha de inicio."
+                        : `Han transcurrido ${mesesTranscurridos} meses desde la fecha de inicio.`}
+                  </p>
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
+                    {mesesTranscurridos === 0
+                      ? "Esta fecha determina las cuotas que puedes sincronizar en el siguiente paso (si eliges crédito en curso)."
+                      : mesesTranscurridos >= termMonths
+                        ? "Esto cubre todo el plazo del crédito."
+                        : "Podrás sincronizar estas cuotas en el siguiente paso (si eliges crédito en curso)."}
+                  </p>
+                </div>
+              </div>
+
+              <FeesSection fees={fees} onChange={setFees} />
+            </CardContent>
+          </Card>
+
+          <div className="lg:sticky lg:top-6 lg:self-start space-y-4">
+            <LoanPreviewCard
+              principal={principal}
+              monthlyPayment={monthlyPayment}
+              totalInterest={totalInterestAdjusted}
+              totalCost={totalCostAdjusted}
+              availableMoney={availableMoney}
+              fees={fees}
+              previousExtraPayment={previousExtraPayment}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Ongoing Details */}
+      {step === 3 && (
+        <Card className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-0">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <TrendingUp className="h-3.5 w-3.5" strokeWidth={2.2} />
+              </div>
+              <CardTitle className="text-base text-[#17181c] dark:text-white">
+                Crédito en curso
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Read-only: cuotas pagadas según tu extracto (derived from toggles) */}
+            <div
+              className="flex items-start gap-3 rounded-xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#f5f5f5] dark:bg-white/5 p-3"
+              data-testid="cuotas-pagadas-readonly"
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/40 shrink-0">
+                <FileText
+                  className="h-4 w-4 text-emerald-700 dark:text-emerald-400"
+                  strokeWidth={2.2}
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-[#17181c] dark:text-white">
+                  Cuotas pagadas según tu extracto:{" "}
+                  <span className="tabular-nums font-semibold">
+                    {paidCount}
+                  </span>{" "}
+                  de{" "}
+                  <span className="tabular-nums font-semibold">
+                    {mesesTranscurridos}
+                  </span>{" "}
+                  posibles
+                </p>
+                <p className="text-xs text-[#737373] dark:text-[#a1a1aa] mt-0.5">
+                  Marca abajo cuáles cuotas están pagadas, pendientes o en mora.
+                </p>
+              </div>
+            </div>
+
+            {/* Past Payments Sync */}
+            {pastMonths.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-[#e7964d]" />
+                  <Label className="text-sm font-medium text-[#17181c] dark:text-white">
+                    Sincronizar cuotas pasadas
+                  </Label>
+                </div>
+                <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
+                  Selecciona el estado de cada mes pasado entre la fecha de inicio y hoy.
+                </p>
+                <div className="space-y-2 max-h-64 overflow-y-auto rounded-lg border border-[#e8e8e8] dark:border-[#2a2a2e] p-2">
+                  {pastMonths.map((m) => {
+                    const sync = pastPaymentsSync.find(
+                      (p) => p.month === m.month && p.year === m.year
+                    ) || { status: "PENDING" as const };
+                    return (
+                      <div
+                        key={`${m.year}-${m.month}`}
+                        className="flex items-center justify-between p-2 rounded-md bg-[#f5f5f5]/50 dark:bg-white/5"
+                      >
+                        <span className="text-sm font-medium text-[#17181c] dark:text-white capitalize">
+                          {m.label}
+                        </span>
+                        <div className="flex gap-1">
+                          {(["PAID", "PENDING", "DEFAULTED"] as const).map((status) => (
+                            <button
+                              key={status}
+                              type="button"
+                              onClick={() => updatePaymentStatus(m.year, m.month, status)}
+                              className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                                sync.status === status
+                                  ? status === "PAID"
+                                    ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900"
+                                    : status === "PENDING"
+                                      ? "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border border-amber-200 dark:border-amber-900"
+                                      : "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-400 border border-red-200 dark:border-red-900"
+                                  : "bg-white dark:bg-[#17181c] text-[#737373] dark:text-[#a1a1aa] border border-[#e8e8e8] dark:border-[#2a2a2e] hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
+                              }`}
+                            >
+                              {status === "PAID" && "Pagada"}
+                              {status === "PENDING" && "Pendiente"}
+                              {status === "DEFAULTED" && "En mora"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-2 text-sm text-[#737373] dark:text-[#a1a1aa] hover:text-[#17181c] dark:hover:text-white transition-colors"
+              >
+                <Settings2 className="h-4 w-4" />
+                {showAdvanced ? "Ocultar opciones avanzadas" : "Opciones avanzadas (datos exactos del banco)"}
+              </button>
+            </div>
+
+            {showAdvanced && (
+              <div className="rounded-lg border border-[#e8e8e8] dark:border-[#2a2a2e] p-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="exactMonthlyPayment">
+                    Cuota mensual exacta (del banco)
+                  </Label>
+                  <CurrencyInput
+                    id="exactMonthlyPayment"
+                    value={exactMonthlyPayment}
+                    onValueChange={setExactMonthlyPayment}
+                    placeholder="Opcional"
+                  />
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
+                    Si la cuota calculada difiere de la real, ingresa el valor
+                    exacto de tu extracto.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="exactTotalInterest">
+                    Intereses totales exactos pagados hasta ahora
+                  </Label>
+                  <CurrencyInput
+                    id="exactTotalInterest"
+                    value={exactTotalInterest}
+                    onValueChange={setExactTotalInterest}
+                    placeholder="Opcional"
+                  />
+                  <p className="text-xs text-[#737373] dark:text-[#a1a1aa]">
+                    Opcional: útil si quieres ajustar el saldo con exactitud.
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Navigation Buttons */}
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-4">
+        <Button
+          variant="outline"
+          onClick={handleBack}
+          disabled={step === 1 || isSubmitting}
+          className="w-full sm:w-auto border-[#e8e8e8] dark:border-[#2a2a2e] text-[#17181c] dark:text-white"
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" />
+          Anterior
+        </Button>
+
+        {step === totalSteps ? (
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full sm:w-auto bg-[#26be15] hover:bg-[#23ad1b] text-white shadow-sm">
+            {isSubmitting ? "Guardando..." : mode === "edit" ? "Guardar cambios" : mode === "ongoing" ? "Agregar crédito" : "Crear crédito"}
+          </Button>
+        ) : (
+          <Button onClick={handleNext} disabled={isSubmitting} className="w-full sm:w-auto bg-[#26be15] hover:bg-[#23ad1b] text-white shadow-sm">
+            {step === 1 ? "Calcular" : "Continuar"}
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

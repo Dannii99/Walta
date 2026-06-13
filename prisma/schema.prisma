@@ -1,0 +1,154 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+  output     = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  budgets       Budget[]
+  simulations   Simulation[]
+  loans         Loan[]
+  createdAt     DateTime       @default(now())
+}
+
+model Budget {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  name          String
+  income        Decimal        @db.Decimal(15, 2)
+  currency      String         @default("COP")
+  rule          Json           // { needs: 50, wants: 30, savings: 20 }
+  categories    Category[]
+  snapshots     MonthlySnapshot[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Category {
+  id            String         @id @default(cuid())
+  budgetId      String
+  budget        Budget         @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  name          String
+  type          String         // NEEDS, WANTS, SAVINGS, DEBT
+  color         String         // hex para grficos
+  transactions  Transaction[]
+}
+
+model Transaction {
+  id            String         @id @default(cuid())
+  categoryId    String
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount        Decimal        @db.Decimal(15, 2)
+  description   String?
+  date          DateTime       @default(now())
+  recurrence    String         @default("MONTHLY") // MONTHLY | BIWEEKLY | ONE_TIME
+  createdAt     DateTime       @default(now())
+}
+
+model Simulation {
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id])
+  type                  String    // VEHICLE, HOUSING, etc.
+  title                 String
+  inputs                Json      // { price, downPayment, term, rate }
+  result                Json      // { monthlyPayment, verdict, availableAfter }
+  aiAnalysis            String?   // JSON stringified: { verdict_explanation, recommendations, risks, alternative_suggestion }
+  aiAnalysisGeneratedAt DateTime?
+  createdAt             DateTime  @default(now())
+}
+
+model MonthlySnapshot {
+  id                String   @id @default(cuid())
+  budgetId          String
+  budget            Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  month             Int
+  year              Int
+  income            Decimal  @db.Decimal(15, 2)
+  totalExpenses     Decimal  @db.Decimal(15, 2)
+  totalSavings      Decimal  @db.Decimal(15, 2)
+  categoryBreakdown Json
+  createdAt         DateTime @default(now())
+
+  @@unique([budgetId, month, year])
+}
+
+model Loan {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  simulationId    String?
+  title           String
+  type            String   // VEHICLE, PERSONAL, HOUSING, OTHER
+  principal       Decimal  @db.Decimal(15, 2)
+  downPayment     Decimal  @db.Decimal(15, 2) @default(0)
+  annualRate      Decimal  @db.Decimal(10, 6)
+  termMonths      Int
+  formula         String   // french_ea | nominal_monthly
+  monthlyPayment  Decimal  @db.Decimal(15, 2)
+  startDate       DateTime @default(now())
+  status           String   @default("ACTIVE") // ACTIVE | PAID_OFF | DEFAULTED
+  paidInstallments Int      @default(0)
+  totalInterest    Decimal  @db.Decimal(15, 2)
+  totalCost        Decimal  @db.Decimal(15, 2)
+  currency         String   @default("COP")
+  fees             LoanFee[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  payments         LoanPayment[]
+  extraPayments    LoanExtraPayment[]
+}
+
+model LoanPayment {
+  id            String   @id @default(cuid())
+  loanId        String
+  loan          Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  amount        Decimal  @db.Decimal(15, 2)
+  principalPaid Decimal  @db.Decimal(15, 2)
+  interestPaid  Decimal  @db.Decimal(15, 2)
+  paidDate      DateTime
+  createdAt     DateTime @default(now())
+}
+
+model LoanExtraPayment {
+  id                String   @id @default(cuid())
+  loanId            String
+  loan              Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  amount            Decimal  @db.Decimal(15, 2)
+  date              DateTime
+  note              String?
+  /// Cómo afecta el abono a la amortización:
+  /// - null | "REDUCE_TERM"     → comportamiento histórico: misma cuota, menor plazo.
+  /// - "REDUCE_PAYMENT"         → recalcula la cuota con la fórmula francesa sobre
+  ///                              `newTermMonths` usando el saldo pendiente post-abono.
+  recalculationMode String?
+  /// Plazo TOTAL en meses del crédito después del recálculo. Solo aplica cuando
+  /// `recalculationMode === "REDUCE_PAYMENT"`. Debe ser >= meses restantes al
+  /// momento del abono.
+  newTermMonths     Int?
+  createdAt         DateTime @default(now())
+
+  @@index([loanId])
+}
+
+model LoanFee {
+  id        String   @id @default(cuid())
+  loanId    String
+  loan      Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Decimal  @db.Decimal(15, 2) // ANUAL si type="monthly", RAW si type="upfront"
+  type      String   // "monthly" | "upfront"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([loanId])
+}

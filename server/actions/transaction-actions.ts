@@ -1,0 +1,166 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { toStoredAmount } from "@/lib/recurrence";
+
+const createTransactionSchema = z.object({
+  categoryId: z.string().min(1),
+  amount: z.number().positive(),
+  description: z.string().max(500).nullable().optional(),
+  date: z.union([z.date(), z.string().datetime()]),
+  recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]).default("MONTHLY"),
+});
+
+export async function createTransaction(
+  categoryId: string,
+  amount: number,
+  description?: string | null,
+  date: Date | string = new Date(),
+  recurrence: "MONTHLY" | "BIWEEKLY" | "ONE_TIME" = "MONTHLY"
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const category = await prisma.category.findUnique({
+    where: { id: categoryId },
+    include: {
+      budget: { select: { userId: true } },
+    },
+  });
+
+  if (!category || category.budget.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const parsed = createTransactionSchema.parse({
+    categoryId,
+    amount,
+    description,
+    date,
+    recurrence,
+  });
+
+  const storedAmount = toStoredAmount(parsed.amount, parsed.recurrence);
+
+  const transaction = await prisma.transaction.create({
+    data: {
+      categoryId: parsed.categoryId,
+      amount: storedAmount,
+      description: parsed.description,
+      date: parsed.date,
+      recurrence: parsed.recurrence,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/expenses");
+
+  return {
+    ...transaction,
+    amount: transaction.amount.toString(),
+  };
+}
+
+const updateTransactionSchema = z.object({
+  categoryId: z.string().min(1).optional(),
+  amount: z.number().positive().optional(),
+  description: z.string().max(500).nullable().optional(),
+  date: z.union([z.date(), z.string().datetime()]).optional(),
+  recurrence: z.enum(["MONTHLY", "BIWEEKLY", "ONE_TIME"]).optional(),
+});
+
+export async function updateTransaction(
+  id: string,
+  data: {
+    categoryId?: string;
+    amount?: number;
+    description?: string | null;
+    date?: Date | string;
+    recurrence?: "MONTHLY" | "BIWEEKLY" | "ONE_TIME";
+  }
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const existing = await prisma.transaction.findUnique({
+    where: { id },
+    include: {
+      category: {
+        include: {
+          budget: { select: { userId: true } },
+        },
+      },
+    },
+  });
+
+  if (!existing || existing.category.budget.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const parsed = updateTransactionSchema.parse(data);
+
+  const nextRecurrence = parsed.recurrence ?? existing.recurrence;
+  const nextAmount =
+    parsed.amount !== undefined
+      ? toStoredAmount(parsed.amount, nextRecurrence)
+      : undefined;
+
+  const updated = await prisma.transaction.update({
+    where: { id },
+    data: {
+      ...(parsed.categoryId && { categoryId: parsed.categoryId }),
+      ...(nextAmount !== undefined && { amount: nextAmount }),
+      ...(parsed.description !== undefined && {
+        description: parsed.description,
+      }),
+      ...(parsed.date && { date: parsed.date }),
+      ...(parsed.recurrence && { recurrence: parsed.recurrence }),
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/expenses");
+
+  return {
+    ...updated,
+    amount: updated.amount.toString(),
+  };
+}
+
+export async function deleteTransaction(id: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const existing = await prisma.transaction.findUnique({
+    where: { id },
+    include: {
+      category: {
+        include: {
+          budget: { select: { userId: true } },
+        },
+      },
+    },
+  });
+
+  if (!existing || existing.category.budget.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.transaction.delete({
+    where: { id },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/expenses");
+
+  return { success: true };
+}

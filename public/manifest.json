@@ -1,0 +1,26 @@
+{
+  "name": "Walta",
+  "short_name": "Walta",
+  "description": "Tu dinero, más claro. Controla tu presupuesto de forma visual.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAF7",
+  "theme_color": "#0c0a09",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/ico/walta-ico.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/ico/walta-ico.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "es",
+  "dir": "ltr"
+}
