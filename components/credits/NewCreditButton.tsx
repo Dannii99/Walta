@@ -123,7 +123,7 @@ export function NewCreditButton({ className }: NewCreditButtonProps) {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-50 md:hidden"
+            className="fixed inset-0 z-50 md:hidden mb-0!"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -165,7 +165,7 @@ export function NewCreditButton({ className }: NewCreditButtonProps) {
               </div>
 
               {/* Content */}
-              <div className="p-4 space-y-3 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]">
+              <div className="p-4 flex flex-col gap-3 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]">
                 <Link
                   href="/credits/new?mode=new"
                   onClick={() => setOpen(false)}

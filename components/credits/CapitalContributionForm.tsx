@@ -315,7 +315,7 @@ export function CapitalContributionForm({
               />
               <motion.div
                 initial={{ y: "100%" }}
-                animate={{ y: -16 }}
+                animate={{ y: 0 }}
                 exit={{ y: "100%" }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-[#17181c] shadow-2xl max-h-[92dvh] min-h-[55dvh] flex flex-col"
@@ -345,7 +345,7 @@ export function CapitalContributionForm({
                   onSubmit={handleSubmit(onSubmit)}
                   className="flex flex-col flex-1 min-h-0"
                 >
-                  <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4">
+                  <div className="flex-1 overflow-y-auto px-5 py-3 flex flex-col gap-4">
                     {formFields}
                   </div>
                   <div className="shrink-0 border-t border-[#e8e8e8] dark:border-white/10 px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white/95 dark:bg-[#17181c]/95 backdrop-blur-sm">

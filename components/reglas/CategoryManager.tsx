@@ -913,7 +913,7 @@ function MobileDeleteSheet({
           />
           <motion.div
             initial={{ y: "100%" }}
-            animate={{ y: -78 }}
+            animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-[#1a1a1e] shadow-2xl max-h-[92dvh] min-h-[40dvh] flex flex-col"
@@ -943,7 +943,7 @@ function MobileDeleteSheet({
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4">
+            <div className="flex-1 overflow-y-auto px-5 py-3 flex flex-col gap-4">
               {hasTx ? (
                 <p className="text-sm text-[#737373] dark:text-[#a1a1aa]">
                   <strong>{category?.name}</strong> tiene{" "}

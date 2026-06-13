@@ -92,7 +92,7 @@ function ExpenseFormBody({
   const today = formatDateForInput(new Date());
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-5">
       {/* Category */}
       <div className="space-y-1.5">
         <Label
@@ -331,7 +331,7 @@ function MobileSheet({
           />
           <motion.div
             initial={{ y: "100%" }}
-            animate={{ y: -78 }}
+            animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-[#1a1a1e] shadow-2xl max-h-[92dvh] min-h-[60dvh] flex flex-col"

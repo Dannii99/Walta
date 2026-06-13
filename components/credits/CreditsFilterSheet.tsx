@@ -62,7 +62,7 @@ export function CreditsFilterSheet({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 md:hidden"
+          className="fixed inset-0 z-50 md:hidden mb-0!"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -107,7 +107,7 @@ export function CreditsFilterSheet({
             </div>
 
             {/* Content */}
-            <div className="p-4 space-y-5 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]">
+            <div className="p-4 flex flex-col gap-5 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]">
               {/* Search */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-[#17181c] dark:text-white">
