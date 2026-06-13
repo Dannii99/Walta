@@ -10,14 +10,17 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/icons/icon-192x192.svg",
+      "src": "/ico/walta-ico.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "/icons/icon-512x512.svg",
+      "src": "/ico/walta-ico.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
-  ]
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "es",
+  "dir": "ltr"
 }
