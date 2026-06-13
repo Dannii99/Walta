@@ -204,7 +204,7 @@ export function ExpenseFilterSheet({
             {/* Sticky footer */}
             <div className="sticky bottom-0 p-4 border-t border-[#e8e8e8] dark:border-[#2a2a2e] bg-white/80 dark:bg-[#17181c]/80 backdrop-blur-sm">
               <Button
-                className="w-full bg-[#17181c] text-white hover:bg-[#333438] dark:bg-white dark:text-[#17181c] dark:hover:bg-[#f5f5f5]"
+                className="w-full bg-[#26be15] text-white hover:bg-[#23ad1b] font-semibold"
                 onClick={() => onOpenChange(false)}
               >
                 Listo

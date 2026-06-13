@@ -97,7 +97,7 @@ export function DeleteExtraPaymentDialog({
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isDeleting}
-            className="bg-rose-600 text-white hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-600"
+            className="bg-[#e54d4d] text-white hover:bg-[#d43d3d] dark:bg-[#e54d4d] dark:hover:bg-[#d43d3d]"
           >
             {isDeleting ? (
               <>
