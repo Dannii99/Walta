@@ -533,7 +533,7 @@ The `ENGINE_TO_DB` and `DB_TO_ENGINE` maps in `simulation-types.ts` translate be
 - **Base**: Tailwind v4 with CSS-based config (`@theme inline` in `globals.css`).
 - **shadcn/ui**: 16 components in `components/ui/`. Style: `base-nova`. Configured in `components.json`.
 - **Cards (SaaS pattern)**: `bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6`. Used everywhere.
-- **Container**: `max-w-360 mx-auto p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8`. With optional inner `max-w-3xl space-y-6 md:space-y-8` for forms.
+- **Container**: `max-w-360 mx-auto p-4 md:px-6 lg:px-10 pb-18 md:pb-6 pt-6 md:pt-8`. With optional inner `max-w-3xl space-y-6 md:space-y-8` for forms.
 
 ### Dark Mode
 

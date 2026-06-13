@@ -62,7 +62,7 @@ export function TimelineFilterSheet({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 md:hidden"
+          className="fixed inset-0 z-50 md:hidden mb-0!"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -77,7 +77,7 @@ export function TimelineFilterSheet({
           <motion.div
             className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#17181c] rounded-t-2xl shadow-[0_-4px_24px_rgba(0,0,0,0.12)] overflow-hidden"
             initial={{ y: "100%" }}
-            animate={{ y: -54 }}
+            animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             style={{ maxHeight: "92dvh", minHeight: "50dvh" }}
@@ -107,7 +107,7 @@ export function TimelineFilterSheet({
             </div>
 
             {/* Content */}
-            <div className="p-4 space-y-5 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]">
+            <div className="p-4 flex flex-col gap-5 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom))]">
               {/* Quick actions */}
               <div className="flex items-center gap-2">
                 <button

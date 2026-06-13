@@ -39,7 +39,7 @@ export function MobileBottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-4 right-4 -translate-y-[90px] z-40 md:hidden bg-gradient-to-br from-[#17181c] to-[#333438] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)] overflow-hidden"
+        className="fixed bottom-0 left-4 right-4 -translate-y-[10px] z-40 md:hidden bg-gradient-to-br from-[#17181c] to-[#333438] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)] overflow-hidden"
         aria-label="Navegación principal"
       >
         <ul className="grid grid-cols-4">
@@ -116,7 +116,7 @@ export function MobileBottomNav() {
             />
             <motion.div
               initial={{ y: "100%" }}
-              animate={{ y: -78 }}
+              animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-linear-to-br from-[#17181c] to-[#333438] shadow-2xl"
