@@ -84,7 +84,7 @@ export function DashboardContent({
   })();
 
   return (
-    <div className="p-4 md:px-6 lg:px-10 pb-18 md:pb-6 pt-6 md:py-8 space-y-6 md:space-y-8 max-w-360 mx-auto">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:py-8 space-y-6 md:space-y-8 max-w-360 mx-auto">
       {/* Greeting as page title */}
       <div className="space-y-1">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[#17181c] dark:text-white">

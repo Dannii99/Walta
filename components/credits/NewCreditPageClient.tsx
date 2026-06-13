@@ -35,7 +35,7 @@ export function NewCreditPageClient({
   const totalSteps = mode === "ongoing" ? 3 : 2;
 
   return (
-    <div className="p-4 md:px-6 lg:px-10 pb-18 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-6">
+    <div className="p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8 max-w-360 mx-auto space-y-6">
       <div className="space-y-3">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link href="/credits">

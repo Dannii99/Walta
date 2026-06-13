@@ -48,7 +48,7 @@ export function ExtractTab({ loan }: ExtractTabProps) {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-[#e8e8e8] dark:border-[#2a2a2e] bg-white dark:bg-[#17181c] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6"
       >
-        <div className="flex items-start gap-3">
+        <div className="flex flex-wrap sm:flex-nowrap items-start gap-3">
           <div className="h-10 w-10 rounded-xl bg-purple-100 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
             <FileText className="h-5 w-5" strokeWidth={2.2} />
           </div>
@@ -64,7 +64,7 @@ export function ExtractTab({ loan }: ExtractTabProps) {
           </div>
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border shrink-0",
+              "inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full border shrink-0 order-first sm:order-last w-full sm:w-auto",
               config.badge
             )}
           >
