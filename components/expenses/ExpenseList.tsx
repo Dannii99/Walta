@@ -70,9 +70,9 @@ const TYPE_PILL: Record<CategoryType, string> = {
 
 const RECURRENCE_PILL: Record<Recurrence, string> = {
   MONTHLY:
-    "bg-[#617dd5]/10 dark:bg-[#617dd5]/15 text-[#617dd5] dark:text-[#617dd5] border-[#617dd5]/20 dark:border-[#617dd5]/20",
+    "bg-[#8b5cf6]/10 dark:bg-[#8b5cf6]/15 text-[#8b5cf6] dark:text-[#8b5cf6] border-[#8b5cf6]/20 dark:border-[#8b5cf6]/20",
   BIWEEKLY:
-    "bg-[#e7964d]/10 dark:bg-[#e7964d]/15 text-[#e7964d] dark:text-[#e7964d] border-[#e7964d]/20 dark:border-[#e7964d]/20",
+    "bg-[#06b6d4]/10 dark:bg-[#06b6d4]/15 text-[#06b6d4] dark:text-[#06b6d4] border-[#06b6d4]/20 dark:border-[#06b6d4]/20",
   ONE_TIME:
     "bg-[#f5f5f5] dark:bg-[#1a1a1e] text-[#737373] dark:text-[#a1a1aa] border-[#e8e8e8] dark:border-[#2a2a2e]",
 };
