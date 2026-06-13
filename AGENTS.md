@@ -52,9 +52,9 @@ Versions exactas en `package.json`:
 - **prisma@7.8.0** (cliente generado en `generated/prisma/`, NO `node_modules/.prisma/client`)
 - **@prisma/adapter-neon** + **@neondatabase/serverless@1.1.x** (Prisma 7 requiere adapter)
 - **tailwindcss@4.x** (CSS-based config en `app/globals.css` vía `@theme inline`. **No `tailwind.config.ts`**)
-- **shadcn/ui** style `base-nova` — 15 componentes en `components/ui/` (incluye `switch.tsx` para cuota inicial toggle)
+- **shadcn/ui** style `base-nova` — 16 componentes en `components/ui/` (incluye `pagination.tsx`, `popover.tsx`, `skeleton.tsx`)
 - **recharts@3.8.1**, **framer-motion@12.40.0**, **lucide-react**
-- **next-themes@0.4.6**, **sonner@2.0.7**
+- **next-themes@^1.0.0-beta.0**, **sonner@2.0.7**
 - **react-hook-form@7.76.1** + **@hookform/resolvers@5.4.0** + **zod@4.4.3**
 - **next-auth@5.0.0-beta.31** (Auth.js v5)
 - **dinero.js@2.0.2** (solo en `lib/currency.ts` para math; UI usa `Intl.NumberFormat("es-CO", ...)` vía `formatCOP`)
@@ -64,7 +64,8 @@ Versions exactas en `package.json`:
 **Instalados pero NO usados (candidatos a remover):**
 - `zustand@5.0.14` — 0 imports en source. Legacy de scaffolding inicial.
 - `next-pwa@5.6.0` — **incompatible con Next 16 + Turbopack**. En `package.json` pero **NO** en `next.config.ts`. Ver "PWA Status" abajo.
-- `@tanstack/react-query@5.100.14` — configurado en `app/providers.tsx` para futuro, pero 0 `useQuery` en producción. Data flow real: Server Component → `prisma.find*` → render. Mutaciones: Server Actions + `revalidatePath`.
+
+**TanStack Query** está activo en `hooks/use-budget.ts` + `hooks/use-simulation.ts` (ambos llaman `useQuery`). Principal data flow sigue siendo Server Component → Prisma directo.
 
 **Removidos en dev cleanup:**
 - `@tremor/react` — desinstalado, 0 imports. `node_modules/@tremor` no existe. `npm install` regenerado a 843 paquetes sin `ERESOLVE`.
@@ -78,7 +79,7 @@ Versions exactas en `package.json`:
 
 ## Database & Prisma
 
-- Schema at `prisma/schema.prisma`. Models: `User`, `Budget`, `Category`, `Transaction`, `Simulation`, `MonthlySnapshot`.
+- Schema at `prisma/schema.prisma`. Models: `User`, `Budget`, `Category`, `Transaction`, `Simulation`, `MonthlySnapshot`, `Loan`, `LoanPayment`, `LoanExtraPayment`, `LoanFee` (10 models).
 - Neon connection uses pooled URL with SSL (`sslmode=require`).
 - After any schema change: run `npx prisma generate` then `npx prisma db push`.
 

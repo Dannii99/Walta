@@ -15,12 +15,14 @@
 - **Phase 10**: Settings (`/settings`) — theme selector + account
 - **Phase 11**: AI module — GROQ integration (`llama-3.3-70b-versatile`) for 4 features (sim advisor, sim insights, loan advisor, loan insights) with 2-level cache (DB 24h + memory 1h)
 - **Phase 12**: Dev cleanup — Tremor removal, Recharts wrapper pattern audit, dark mode everywhere
+- **Phase 13**: UI/UX polish sprint — PageTransitionOverlay, pagination component, mobile modal patterns, expense filter sheet, credit filter sheet
+- **Phase 14**: Extract module (/credits/[id]/extract) — Loan vs. bank statement reconciliation with ExtractTab, ExtractReconciliationCard, ExtractDiffBreakdown
 
 The architecture evolved organically from the original proposal (see `setup-plan.md` for the original). Major pivots:
 
 1. **PWA was abandoned**: `next-pwa` is incompatible with Next.js 16 + Turbopack. The dependency is still in `package.json` but **not wired in `next.config.ts`**. The `/offline` page is a static fallback.
 2. **Zustand is unused**: The dependency is in `package.json` (legacy from initial scaffolding) but has **zero imports in source code**. Client state is managed with `useState` + `useTransition` + Server Actions.
-3. **TanStack Query is configured but rarely used**: It's in `app/providers.tsx` for future use, but the current data flow is **Server Component → `prisma.find*` directly → render**. Mutations use Server Actions + `revalidatePath`. No `useQuery` in production pages.
+3.  **TanStack Query is partially active**: It's configured in `app/providers.tsx` and used in `hooks/use-budget.ts` + `hooks/use-simulation.ts` (both call `useQuery`). However the primary data flow is still **Server Component → `prisma.find*` directly → render**. Mutations use Server Actions + `revalidatePath`.
 4. **Dinero.js is used only in `lib/currency.ts`**: Most UI formatting uses `Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" })` directly via `formatCOP(amount)`. Dinero.js exists for `addMoney` / `subtractMoney` / `multiplyMoney` helpers but is not the default code path.
 5. **`middleware.ts` was renamed to `proxy.ts`** per the Next.js 16 deprecation notice. The file is a thin auth wrapper that redirects unauthenticated users from `/` and `/dashboard/*` to `/login`.
 
@@ -65,11 +67,11 @@ Versions are exact, taken from `package.json` at the time of writing.
 | **Icons** | Lucide React | 1.17.0+ | Active. **All icons are Lucide** (no heroicons, no react-icons). |
 | **Forms** | React Hook Form + Zod | 7.76.1 / 4.4.3 | Active. `@hookform/resolvers` 5.4.0. |
 | **Auth** | Auth.js v5 (NextAuth) | 5.0.0-beta.31 | Active. JWT strategy, hardcoded CredentialsProvider. |
-| **Server state** | TanStack Query | 5.100.14 | **Configured but not used** in production pages. In `app/providers.tsx` for future. |
+| **Server state** | TanStack Query | 5.100.14 | **Partially active** in `hooks/use-budget.ts` + `hooks/use-simulation.ts`. Primary data flow: Server Component → Prisma directly. |
 | **Client state** | (none) | — | Local `useState` + `useTransition`. No global store. |
 | **State (Client)** | Zustand | 5.0.14 | **Installed but unused**. Legacy from scaffolding. Candidate for removal. |
 | **Decimal precision** | Dinero.js | 2.0.2 | **Used only in `lib/currency.ts`**. UI uses `Intl.NumberFormat` + `formatCOP`. |
-| **Theming** | next-themes | 0.4.6 | Active. `attribute="class"`, `storageKey="walta-theme"`, `disableTransitionOnChange`. |
+| **Theming** | next-themes | ^1.0.0-beta.0 | Active. `attribute="class"`, `storageKey="walta-theme"`, `disableTransitionOnChange`. |
 | **Toasts** | sonner | 2.0.7 | Active. `<Toaster position="top-right" richColors />` in `app/providers.tsx`. |
 | **PWA** | next-pwa | 5.6.0 | **DISABLED**. In `package.json` but NOT in `next.config.ts`. Incompatible with Next 16 + Turbopack. `/offline` page is a static fallback. |
 | **AI** | GROQ (via fetch) | llama-3.3-70b-versatile | Active. Wrapper in `lib/ai/groq-client.ts`. Zod validation. 2-level cache. |
@@ -153,16 +155,16 @@ presupuesto-app/
 │   │   ├── OAuthButton.tsx
 │   │   ├── FeaturePill.tsx
 │   │   └── TrustChip.tsx
-│   ├── dashboard/                    # 12 components: DashboardContent, KPICard, CategoryDonutChart, etc.
-│   ├── expenses/                     # 10 components: ExpensesClient, AddExpenseModal, ExpenseList, etc.
+│   ├── dashboard/                    # 14 components: DashboardContent, KPICard, CategoryDonutChart, HealthCards, CategoryBreakdown, CategoryChartsTabs, AvailableHero, MiniStatsRow, HeroSection, SimulatorQuickAccess, DashboardContext, DashboardEmptyState, DashboardEmptyClient
+│   ├── expenses/                     # 12 components: ExpensesClient, AddExpenseModal, EditExpenseModal, ExpenseList, ExpenseFilters, ExpenseFilterSheet, ExpenseSummary, ExpenseSummaryTabs, ExpenseTypeCards, ExpenseCard, DeleteExpenseDialog, CategorySelect
 │   ├── simulations/                  # 15 components: SimulationsClient, SimulatorForm, AIAdvisorCard, AIInsightsBanner, etc.
 │   ├── reglas/                       # 5 components: ReglasClient, Tabs, IncomeEditor, RuleEditor, CategoryManager
-│   ├── credits/                      # 25 components: CreditCard, LoanForm, AILoanAdvisorCard, AvailableCreditCard, etc.
-│   ├── history/                      # 11 components: Timeline, TimelineEvent, EventIcon, Tabs, etc.
+│   ├── credits/                      # 39 components: full loan tracker
+│   ├── history/                      # 7 components: Timeline, TimelineEvent, EventIcon, TimelineFilters, TimelineFilterSheet, TimelineEmpty, TimelineSkeleton
 │   ├── settings/                     # 3 components: ThemeSelector, AccountSection
 │   ├── onboarding/                   # 6 components: OnboardingFlow + 4 step components + StepIndicator
-│   ├── shared/                       # 4 components: Sidebar, MobileBottomNav, ThemeToggle, SaasHeader
-│   └── ui/                           # 13 shadcn components: button, card, input, dialog, alert, alert-dialog, etc.
+│   ├── shared/                       # 6 components: Sidebar, MobileBottomNav, ThemeToggle, SaasHeader, PageTransitionOverlay, BreakdownRows
+│   └── ui/                           # 16 shadcn components: pagination, popover, skeleton
 │
 ├── lib/
 │   ├── prisma.ts                     # Singleton + PrismaNeon adapter
@@ -324,9 +326,9 @@ export async function createLoan(input: CreateLoanInput) {
 
 `loan-actions.ts` also calls `invalidateLoanAdvisorCache(userId, loanId)` on every mutation (create/update/delete loan, record/delete payment, record/delete extra) to ensure AI responses reflect fresh data.
 
-### No TanStack Query in production
+### TanStack Query — partially active
 
-TanStack Query is configured in `app/providers.tsx` for future use, but no production page calls `useQuery` today. The dashboard, expenses, simulations, rules, credits, and history all use **Server Component → props → Client Component**. The queryClient has `staleTime: 60_000` + `refetchOnWindowFocus: false` as defaults.
+TanStack Query is configured in `app/providers.tsx` and used in `hooks/use-budget.ts` + `hooks/use-simulation.ts` (both call `useQuery`). However, production pages (dashboard, expenses, simulations, rules, credits, history) all use **Server Component → props → Client Component** as the primary data flow. The queryClient has `staleTime: 60_000` + `refetchOnWindowFocus: false` as defaults.
 
 ## 8. Feature Organization
 
@@ -348,7 +350,7 @@ The app has 8 main user-facing modules. Each one is described in detail in `modu
 
 ### Prisma Schema (current)
 
-9 models. All use `Decimal(15, 2)` for money, `String` for enums (Prisma enums not used), `Json` for flexible payloads (`inputs`, `result`, `aiAnalysis`, `fees`, `rule`, `categoryBreakdown`).
+10 models. All use `Decimal(15, 2)` for money, `String` for enums (Prisma enums not used), `Json` for flexible payloads (`inputs`, `result`, `aiAnalysis`, `fees`, `rule`, `categoryBreakdown`).
 
 ```prisma
 model User {
@@ -442,7 +444,7 @@ model Loan {
   totalInterest     Decimal  @db.Decimal(15, 2)
   totalCost         Decimal  @db.Decimal(15, 2)
   currency          String   @default("COP")
-  fees              Json     @default("[]") // [{ id, name, amount, type: "monthly" | "upfront" }]
+  fees              LoanFee[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   payments          LoanPayment[]
@@ -468,6 +470,19 @@ model LoanExtraPayment {
   date      DateTime
   note      String?
   createdAt DateTime @default(now())
+}
+
+model LoanFee {
+  id        String   @id @default(cuid())
+  loanId    String
+  loan      Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Decimal  @db.Decimal(15, 2) // ANUAL si type="monthly", RAW si type="upfront"
+  type      String   // "monthly" | "upfront"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([loanId])
 }
 ```
 
@@ -501,13 +516,13 @@ After any schema change: `npx prisma generate` then `npx prisma db push`.
 
 ### Pattern: Defensive Parsing
 
-Because `Simulation.inputs` / `Simulation.result` / `Loan.fees` are stored as `Json` (and may be malformed from old data or migrations), every loader has a `parse*` function with safe defaults:
+Because `Simulation.inputs` / `Simulation.result` are stored as `Json` (and may be malformed from old data or migrations), every loader has a `parse*` function with safe defaults:
 
 - `parseSimulationInputs(raw)` → `SimulationInputRow` (price, downPayment, term, rate, formula)
 - `parseSimulationResult(raw)` → `SimulationResultRow` (monthlyPayment, verdict, availableAfter, totalInterest, totalCost)
 - `parseLoanInputs(raw)` → `LoanInputRow`
 - `parseLoanResult(raw)` → `LoanResultRow`
-- `parseLoan(loan)` → ensures `fees: FeeItem[]` (never undefined)
+
 
 The `ENGINE_TO_DB` and `DB_TO_ENGINE` maps in `simulation-types.ts` translate between the engine's `Verdict` ("SAFE" | "TIGHT" | "RISKY" | "NOT_RECOMMENDED") and the DB enum `DbVerdict` ("APPROVED" | "WARNING" | "REJECTED").
 
@@ -516,7 +531,7 @@ The `ENGINE_TO_DB` and `DB_TO_ENGINE` maps in `simulation-types.ts` translate be
 ### Visual System
 
 - **Base**: Tailwind v4 with CSS-based config (`@theme inline` in `globals.css`).
-- **shadcn/ui**: 13 components in `components/ui/`. Style: `base-nova`. Configured in `components.json`.
+- **shadcn/ui**: 16 components in `components/ui/`. Style: `base-nova`. Configured in `components.json`.
 - **Cards (SaaS pattern)**: `bg-white dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-5 md:p-6`. Used everywhere.
 - **Container**: `max-w-360 mx-auto p-4 md:px-6 lg:px-10 pb-24 md:pb-6 pt-6 md:pt-8`. With optional inner `max-w-3xl space-y-6 md:space-y-8` for forms.
 
@@ -554,7 +569,7 @@ Verified parent dimensions: 748×340 in the hero donut. The warning may appear o
 |----------|-----------|------|
 | `components/dashboard/CategoryDonutChart.tsx` | Donut (hero + default) | h-[340px] |
 | `components/dashboard/CategoryLimitsBarChart.tsx` | Bar | h-[320px] md:h-[360px] |
-| `components/credits/CreditCharts.tsx` | 2 charts (balance + cumulative interest) | h-[250px] each |
+| `components/credits/CreditCharts.tsx` | 2 charts (balance + cumulative interest) | h-[200px] each |
 | `components/history/HistoryChart.tsx` | Bar (legacy, snapshots tab) | h-80 |
 
 ### Recharts outline reset
@@ -649,7 +664,7 @@ Each module has a dedicated empty state with a contextual CTA:
 1. `npm run build` passes.
 2. `npx tsc --noEmit` passes.
 3. `npm run lint` passes.
-4. `npx vitest` passes (119/119).
+4. `npx vitest` passes (119/119 (may grow with new features)).
 5. If Prisma schema changed: `npx prisma generate` + `npx prisma db push`.
 
 ## 14. Risks & Tradeoffs
@@ -684,6 +699,8 @@ The original proposal had 9 phases. The actual implementation had 12.
 | 10 | Auth refactor | Demo user hardcoded, OAuth path documented for future. |
 | 11 | AI consolidation | Loan advisor + insights, 2-level cache, GROQ client with retries. |
 | 12 | Dev cleanup | Tremor removed. Recharts wrapper audited. Sidebar collapse. |
+| 13 | UI/UX polish sprint | PageTransitionOverlay, pagination component, ExpenseFilterSheet, CreditsFilterSheet, mobile modal patterns, unified close behavior |
+| 14 | Extract module | Loan vs bank statement reconciliation in /credits/[id]/extract with ExtractTab, ExtractReconciliationCard, ExtractDiffBreakdown |
 
 **Roadmap (NOT yet done):**
 - Real multi-tenant auth (Google OAuth + email magic link).
@@ -691,6 +708,7 @@ The original proposal had 9 phases. The actual implementation had 12.
 - Multiple budget templates.
 - Currency switcher.
 - Account deletion (danger zone).
+- Extract module improvements (auto-import bank statements).
 - i18n (currently es-CO only).
 - Move AI cache to DB-backed (instead of in-memory).
 - PWA via `serwist`.

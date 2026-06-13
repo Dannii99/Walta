@@ -188,11 +188,14 @@ Full CRUD for expenses (the domain model is `Transaction`, but the UI/routes/com
 ### Key files
 
 - `app/(dashboard)/expenses/page.tsx` — Server Component. Loads `getActiveBudgetWithTransactions` (budget + categories + all transactions in period).
-- `components/expenses/ExpensesClient.tsx` — Client orchestrator. Holds filter state, computes filtered totals.
+- `components/expenses/ExpensesClient.tsx` — Client orchestrator. Holds filter state, manages pendingDelete for modal close behavior, computes filtered totals.
 - `components/expenses/AddExpenseModal.tsx` — `CurrencyInput` (thousands mask) + recurrence select (Mensual/Quincenal/Única) + category select.
 - `components/expenses/EditExpenseModal.tsx` — same form, preloaded.
 - `components/expenses/ExpenseList.tsx` — table sorted by date desc, badges for type (Fijo/Variable) and recurrence, edit/delete actions.
 - `components/expenses/ExpenseFilters.tsx` — search by description, category, type, recurrence.
+- `components/expenses/ExpenseSummaryTabs.tsx` — tab switcher for expense views (summary/monthly/detail).
+- `components/expenses/ExpenseFilterSheet.tsx` — mobile filter bottom sheet for expense filters.
+- `components/expenses/CategorySelect.tsx` — category selector dropdown (reused in Add/Edit modals).
 - `components/expenses/ExpenseTypeCards.tsx` — 3 cards at the top showing totals for Fijos / Variables / Únicos.
 - `components/expenses/ExpenseSummary.tsx` — monthly equivalent total.
 - `components/expenses/DeleteExpenseDialog.tsx` — `AlertDialog` confirm.
@@ -421,6 +424,14 @@ Track active and historical loans. Each loan has: type (VEHICLE/HOUSING/PERSONAL
 - `components/credits/AILoanAdvisorCard.tsx` — per-loan AI analysis (24h memory cache).
 - `components/credits/AILoanInsightsBanner.tsx` — cross-loan insights (1h memory cache).
 - `components/credits/CreateFromSimulationButton.tsx` — CTA on sim detail to "Convertir a crédito" (copies inputs to LoanForm).
+- `components/credits/CreditsKPI.tsx` — aggregated loan KPIs (total debt, monthly payments, health ratio).
+- `components/credits/CreditsFilterSheet.tsx` — mobile filter bottom sheet for credit list.
+- `components/credits/AILoanAdvisorTrigger.tsx` — compact AI trigger button for loan detail.
+- `components/credits/AmortizationCard.tsx` — summary card for amortization schedule overview.
+- `components/credits/PaymentRecorder.tsx` — form to record a single payment (amount, date, interest/principal auto-computed).
+- `components/credits/PaymentsTab.tsx` — tab content showing payment history with filters.
+- `components/credits/NewCreditPageClient.tsx` — orchestrator for /credits/new page, manages LoanFormSteps + 2-col layout.
+- `components/credits/LoanFormSteps.tsx` — step indicator (Datos → Condiciones → En curso) rendered above the form.
 - `lib/credit-engine.ts` — `getLoanSummary` (moved from `simulation-engine.ts`), `LOAN_HEALTH_CONFIG`, `getLoanHealthFromCapacity`, `HEALTH_THRESHOLDS`.
 - `lib/credit-types.ts` — `LOAN_TYPES`, `LOAN_STATUSES`, `LOAN_FORMULA_LABELS`, `parseLoan`, parsers.
 - `lib/loan-engine.ts` — `generateAmortizationSchedule` calculates `monthlyFee` once at the start and emits `monthlyFee` + `totalPayment` on every row. `calculateRemainingBalance`, `getProjectedPayoffDate`, `getDaysOverdue`, status detection.
@@ -485,6 +496,14 @@ Track active and historical loans. Each loan has: type (VEHICLE/HOUSING/PERSONAL
 - **Moratory detection** = `loan.status === "DEFAULTED"`, NOT on `LoanPayment`. A loan becomes DEFAULTED when it has overdue payments.
 - **`getActiveLoanCapacity` vs `getLoanStats`** — `getLoanStats` includes all loans (active + paid off + defaulted). `getActiveLoanCapacity` only includes ACTIVE loans. The Available Credit Card uses the latter.
 - **Recharts in `CreditCharts.tsx`** — 2 charts, both wrapped in `<div className="h-[200px] w-full">`. Pattern is enforced in `architecture.md §10`.
+
+#### Extract Tab — Bank Statement Reconciliation
+
+- `components/credits/ExtractTab.tsx` — full UI tab with reconciliation controls, fetches `getLoanCalibration()` and renders comparison.
+- `components/credits/ExtractReconciliationCard.tsx` — compares one amortization row against one bank statement entry, highlights diffs in interest/capital/balance.
+- `components/credits/ExtractDiffBreakdown.tsx` — visual diff breakdown for a single row (interest, capital, balance columns with ± amounts).
+- `lib/credit-engine.ts` → exports `getLoanCalibration()`, `CALIBRATION_CONFIG`, `LoanCalibration` interface.
+- `server/actions/loan-actions.ts` → contains `syncPaidInstallmentsAction` used by the extract flow.
 
 ---
 
@@ -644,7 +663,23 @@ These don't belong to one module but cut across all of them.
 - `app/globals.css` must contain `@custom-variant dark (&:is(.dark, .dark *));` immediately after `@import "tailwindcss"`. Without it, `dark:` doesn't respond to the toggle.
 - The theme applies by adding `.dark` to `<html>`. Tailwind v4 reads the class via the custom variant.
 
-### 10.4 AI Layer
+### 10.4 UI Components
+
+- `components/ui/` — 16 shadcn components: button, card, input, dialog, alert, alert-dialog, badge, select, switch, table, progress, currency-input, label, pagination, popover, skeleton.
+- `components/ui/pagination.tsx` — reusable pagination with prev/next + page numbers. Used by `CreditAmortizationTable` and `ExpenseList`.
+- `components/ui/popover.tsx` — shadcn popover component.
+- `components/ui/skeleton.tsx` — shadcn skeleton loading component.
+
+#### New Hooks
+
+- `hooks/use-media-query.ts` — responsive breakpoint hook (e.g. `useMediaQuery("(max-width: 768px)")`).
+
+#### New Shared Components
+
+- `components/shared/PageTransitionOverlay.tsx` — full-screen loader with Framer Motion fade used as Suspense fallback in dashboard layout.
+- `components/shared/BreakdownRows.tsx` — reusable breakdown rows component for category spending.
+
+### 10.5 AI Layer
 
 - **Provider**: GROQ via `fetch`. Model: `llama-3.3-70b-versatile`. Configured in `lib/ai/groq-client.ts`.
 - **Wrapper**: `callGroqChat(messages, options)` with retries (2) + exponential backoff + 5 typed errors: `GroqError`, `GroqAuthError`, `GroqRateLimitError`, `GroqServiceError`, `GroqTimeoutError`, `GroqParseError`.
@@ -656,7 +691,7 @@ These don't belong to one module but cut across all of them.
 - **Actions**: `generateSimulationAdvisorAction(simulationId)`, `generateSimulationInsightsAction()`, `generateLoanAdvisorAction(loanId)`, `generateLoanInsightsAction()`. All call `auth()` first.
 - **Disclaimer UI**: every AI card shows "Análisis generado por IA. No constituye asesoría financiera profesional." plus the cache timestamp ("Cache · 4 jun, 19:42" or "Nuevo · 4 jun, 19:42").
 
-### 10.5 Error / Loading / Empty States
+### 10.6 Error / Loading / Empty States
 
 A consistent pattern is used across modules:
 
@@ -671,31 +706,31 @@ A consistent pattern is used across modules:
   - Reglas: not applicable (budget must exist).
 - **No-budget redirect**: dashboard, reglas, expenses, simulations, credits, history all redirect to `/onboarding` if no budget.
 
-### 10.6 Toasts
+### 10.7 Toasts
 
 - `<Toaster position="top-right" richColors />` in `app/providers.tsx` (sonner).
 - Pattern: `toast.success("Gasto creado", { description: "..." })` after successful server action. `toast.error("...")` on validation failure.
 - `Loading` toasts are rare; the `useTransition` pattern provides inline feedback instead.
 
-### 10.7 Money Display
+### 10.8 Money Display
 
 - `formatCOP(amount)` in `lib/currency.ts` uses `Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0, maximumFractionDigits: 0 })`. Output: `$ 1.234.567` (no decimals, since Colombia does not use centavos).
 - `tabular-nums` is added to all monetary values in tables and cards (prevents layout shift when values change).
 - **NO `number` for money in business logic** — `Decimal` in Prisma, `string` in JSON/API, Dinero.js in `lib/currency.ts`. The rule is enforced by code review, not lints.
 
-### 10.8 Validation Pipeline
+### 10.9 Validation Pipeline
 
 - **Server actions**: every action validates input with Zod before touching Prisma. The schema lives in the same file as the action.
 - **Client forms**: React Hook Form + Zod resolver. The same schema is shared between client and server when possible (e.g. `loanFormSchema` in `lib/credit-types.ts`).
 - **AI responses**: Zod validation. If validation fails, the action throws `GroqParseError` and the UI shows a retry button.
 
-### 10.9 Scripts
+### 10.10 Scripts
 
 - `scripts/seed-timeline-demo.ts` — `npx tsx scripts/seed-timeline-demo.ts`. Seeds 2 sims + 1 loan + 8 payments + 2 extras. Idempotent (uses `upsert` with deterministic IDs).
 - `scripts/test-ai-prompt.ts` — smoke test for sim AI. Outputs `scripts/test-ai-output.md` (gitignored).
 - `scripts/test-loan-ai.ts` — smoke test for loan AI. Outputs `scripts/test-loan-ai-output.md` (gitignored).
 
-### 10.10 Testing
+### 10.11 Testing
 
 - **Vitest** (unit): 119 tests across 9 files. All pure functions. jsdom environment. `@/` alias mapped.
 - **Playwright** (E2E): installed, no specs. Used ad-hoc for smoke tests (e.g. `/history` timeline screenshots).
@@ -703,7 +738,7 @@ A consistent pattern is used across modules:
 - **Lint**: `npm run lint` (flat config, must be 0 warnings before commit).
 - **Build**: `npm run build` (17 routes, must pass before commit).
 
-### 10.11 Container Pattern
+### 10.12 Container Pattern
 
 All pages use:
 
@@ -717,7 +752,7 @@ All pages use:
 
 Forms add an inner `max-w-3xl` for readability.
 
-### 10.12 SaaS Card Pattern
+### 10.13 SaaS Card Pattern
 
 All cards use:
 
@@ -727,7 +762,7 @@ All cards use:
 
 Plus `CardHeader`, `CardTitle`, `CardContent` as needed.
 
-### 10.13 Recharts Wrapper Pattern
+### 10.14 Recharts Wrapper Pattern
 
 All Recharts containers:
 
