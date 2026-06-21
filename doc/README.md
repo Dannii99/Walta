@@ -27,17 +27,27 @@ This directory contains the canonical documentation for **Walta — Tu dinero, m
 
 ### 3. [`project-context.md`](./project-context.md) — *The product "what" and "why"*
 
-~250 lines. For PMs, designers, and engineers who need to understand the product vision.
+~350 lines. For PMs, designers, and engineers who need to understand the product vision.
 
 - Problem statement, target users, value proposition
 - MVP scope (Must/Should/Could/Out of scope)
-- 7 main user flows
-- 18 functional requirements
-- 10 business rules
+- 10 main user flows
+- 25 functional requirements
+- 14 business rules
 - Success criteria, assumptions, risks
 - Open questions and engineering handoff notes
 
-### 4. [`setup-plan.md`](./setup-plan.md) — *Developer "how to start"*
+### 4. [`propuesta.md`](./propuesta.md) — *The human-language pitch*
+
+~100 lines. For stakeholders, investors, or anyone who wants to understand Walta without reading technical specs.
+
+- Product identity in plain language (zero technical jargon)
+- Vision, mission, target audience described as people
+- Benefits explained as value, not features
+- What makes Walta different (vs Excel, vs bank calculators, vs generic apps)
+- Horizon roadmap
+
+### 5. [`setup-plan.md`](./setup-plan.md) — *Developer "how to start"*
 
 ~150 lines. For new contributors setting up the project locally.
 
@@ -76,7 +86,8 @@ The agent should prefer the docs in `doc/` for depth, but use `AGENTS.md` for qu
 ## Reading order for new contributors
 
 1. [`project-context.md`](./project-context.md) — understand the product.
-2. [`setup-plan.md`](./setup-plan.md) — get the project running locally.
-3. [`architecture.md`](./architecture.md) sections 1-4 + 7 + 9 — understand the system.
-4. [`module-reference.md`](./module-reference.md) — for the module you will touch.
-5. [`AGENTS.md`](../AGENTS.md) — keep it open as a quick reference while you work.
+2. [`propuesta.md`](./propuesta.md) — understand the vision and value proposition in plain language.
+3. [`setup-plan.md`](./setup-plan.md) — get the project running locally.
+4. [`architecture.md`](./architecture.md) sections 1-4 + 7 + 9 — understand the system.
+5. [`module-reference.md`](./module-reference.md) — for the module you will touch.
+6. [`AGENTS.md`](../AGENTS.md) — keep it open as a quick reference while you work.
