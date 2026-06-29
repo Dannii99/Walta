@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { createBudget } from "@/server/actions/budget-actions";
 import { DEFAULT_BUDGET_RULE } from "@/lib/constants";
 import type { CategoryType } from "@/types";
@@ -31,7 +30,6 @@ const STEPS = [
 
 const DEFAULT_CATEGORIES: Record<string, { name: string; type: CategoryType; percentage: number }[]> = {
   "50-30-20": [
-    // Necesidades (50%)
     { name: "Vivienda/Arriendo", type: "NEEDS", percentage: 20 },
     { name: "Alimentación", type: "NEEDS", percentage: 10 },
     { name: "Servicios públicos", type: "NEEDS", percentage: 5 },
@@ -39,18 +37,15 @@ const DEFAULT_CATEGORIES: Record<string, { name: string; type: CategoryType; per
     { name: "Salud", type: "NEEDS", percentage: 3 },
     { name: "Créditos / Préstamos", type: "NEEDS", percentage: 4 },
     { name: "Gastos bancarios", type: "NEEDS", percentage: 3 },
-    // Deseos (30%)
     { name: "Entretenimiento", type: "WANTS", percentage: 8 },
     { name: "Restaurantes", type: "WANTS", percentage: 10 },
     { name: "Compras personales", type: "WANTS", percentage: 7 },
     { name: "Hobbies", type: "WANTS", percentage: 5 },
-    // Ahorros (20%)
     { name: "Ahorro de emergencia", type: "SAVINGS", percentage: 10 },
     { name: "Inversiones", type: "SAVINGS", percentage: 7 },
     { name: "Aportes / Pensiones", type: "SAVINGS", percentage: 3 },
   ],
   detailed: [
-    // Necesidades (50%)
     { name: "Arriendo", type: "NEEDS", percentage: 15 },
     { name: "Administración", type: "NEEDS", percentage: 5 },
     { name: "Mercado/Supermercado", type: "NEEDS", percentage: 8 },
@@ -65,7 +60,6 @@ const DEFAULT_CATEGORIES: Record<string, { name: string; type: CategoryType; per
     { name: "Seguros", type: "NEEDS", percentage: 2 },
     { name: "Créditos / Préstamos", type: "NEEDS", percentage: 4 },
     { name: "Gastos bancarios", type: "NEEDS", percentage: 1 },
-    // Deseos (30%)
     { name: "Ocio/Entretenimiento", type: "WANTS", percentage: 5 },
     { name: "Restaurantes (salir)", type: "WANTS", percentage: 6 },
     { name: "Café/Snacks", type: "WANTS", percentage: 2 },
@@ -74,7 +68,6 @@ const DEFAULT_CATEGORIES: Record<string, { name: string; type: CategoryType; per
     { name: "Suscripciones", type: "WANTS", percentage: 3 },
     { name: "Viajes", type: "WANTS", percentage: 3 },
     { name: "Tecnología", type: "WANTS", percentage: 3 },
-    // Ahorros (20%)
     { name: "Fondo de emergencia", type: "SAVINGS", percentage: 8 },
     { name: "Inversiones", type: "SAVINGS", percentage: 5 },
     { name: "Aportes/Pensiones", type: "SAVINGS", percentage: 4 },
@@ -213,82 +206,106 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-8">
-      {step > 1 && (
-        <div className="mb-8">
-          <StepIndicator steps={STEPS} currentStep={step} />
-        </div>
-      )}
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Decorative gradient blobs */}
+      <div
+        className="pointer-events-none absolute -top-32 -right-32 h-80 w-80 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(38,190,21,0.12) 0%, transparent 70%)" }}
+      />
+      <div
+        className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(97,125,213,0.10) 0%, transparent 70%)" }}
+      />
 
-      <Card className="p-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {step === 1 && (
-              <WelcomeStep onStart={handleStart} onQuickCreate={handleQuickCreate} />
-            )}
-
-            {step === 2 && (
-              <TemplateStep
-                value={template}
-                onChange={handleTemplateSelect}
-              />
-            )}
-
-            {step === 3 && (
-              <IncomeStep
-                budgetName={budgetName}
-                income={income}
-                onBudgetNameChange={setBudgetName}
-                onIncomeChange={setIncome}
-              />
-            )}
-
-            {step === 4 && (
-              <ReviewStep
-                income={income}
-                categories={categories}
-                onCategoriesChange={setCategories}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {error && (
-          <div className="mt-4 rounded-md bg-destructive/10 dark:bg-destructive/20 p-3 text-sm text-destructive">
-            {error}
-          </div>
-        )}
-
+      <div className="relative mx-auto w-full max-w-xl px-4 py-8 sm:py-12">
         {step > 1 && (
-          <div className="flex items-center justify-between pt-6 mt-6 border-t border-stone-200/80 dark:border-stone-800">
-            <Button variant="ghost" size="sm" onClick={handleBack}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Atrás
-            </Button>
-
-            <Button
-              size="sm"
-              onClick={handleNext}
-              disabled={!canGoNext()}
-            >
-              {step === 4 ? (
-                isSaving ? "Guardando..." : "Guardar y empezar"
-              ) : (
-                <>
-                  Siguiente
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
+          <div className="mb-8">
+            <StepIndicator steps={STEPS} currentStep={step} />
           </div>
         )}
-      </Card>
+
+        <div className="rounded-2xl bg-card border border-border shadow-lg dark:shadow-black/20 overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              >
+                {step === 1 && (
+                  <WelcomeStep onStart={handleStart} onQuickCreate={handleQuickCreate} />
+                )}
+
+                {step === 2 && (
+                  <TemplateStep
+                    value={template}
+                    onChange={handleTemplateSelect}
+                  />
+                )}
+
+                {step === 3 && (
+                  <IncomeStep
+                    budgetName={budgetName}
+                    income={income}
+                    onBudgetNameChange={setBudgetName}
+                    onIncomeChange={setIncome}
+                  />
+                )}
+
+                {step === 4 && (
+                  <ReviewStep
+                    income={income}
+                    categories={categories}
+                    onCategoriesChange={setCategories}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            {error && (
+              <div className="mt-4 rounded-lg bg-destructive/10 dark:bg-destructive/20 border border-destructive/30 p-3 text-sm text-destructive font-medium">
+                {error}
+              </div>
+            )}
+
+            {step > 1 && (
+              <div className="flex items-center justify-between pt-6 mt-6 border-t border-border">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBack}
+                  className="rounded-full"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Atrás
+                </Button>
+
+                <Button
+                  size="sm"
+                  onClick={handleNext}
+                  disabled={!canGoNext()}
+                  className="rounded-full"
+                >
+                  {step === 4 ? (
+                    isSaving ? "Guardando..." : "Guardar y empezar"
+                  ) : (
+                    <>
+                      Siguiente
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <p className="mt-6 text-center text-[11px] text-muted-foreground font-medium">
+          Tu dinero, más claro.
+        </p>
+      </div>
     </div>
   );
 }

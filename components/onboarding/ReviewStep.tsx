@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Home, Utensils, Car, Heart, CreditCard, Landmark, Film, ShoppingBag, Gamepad2, PiggyBank, TrendingUp, Archive, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,9 +10,9 @@ import { PREDEFINED_CATEGORIES, OTHER_CATEGORY_KEY, type PredefinedCategory } fr
 import type { CategoryType } from "@/types";
 
 const CATEGORY_COLORS: Record<CategoryType, string> = {
-  NEEDS: "#EF4444",
-  WANTS: "#3B82F6",
-  SAVINGS: "#10B981",
+  NEEDS: "#26be15",
+  WANTS: "#e7964d",
+  SAVINGS: "#617dd5",
   DEBT: "#8B5CF6",
 };
 
@@ -36,7 +36,9 @@ const TYPE_LABELS: Record<CategoryType, string> = {
   DEBT: "Deudas",
 };
 
-const TYPE_OPTIONS: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
+const TYPE_TYPE_OPTIONS: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
+
+const TYPE_ORDER: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
 
 export function ReviewStep({
   income,
@@ -64,6 +66,21 @@ export function ReviewStep({
     });
     return groups;
   }, []);
+
+  const groupedItems = useMemo(() => {
+    const result: Record<CategoryType, CategoryItem[]> = {
+      NEEDS: [],
+      WANTS: [],
+      SAVINGS: [],
+      DEBT: [],
+    };
+    categories.forEach((c) => {
+      if (result[c.type]) {
+        result[c.type].push(c);
+      }
+    });
+    return result;
+  }, [categories]);
 
   const updateCategoryName = (id: string, name: string) => {
     onCategoriesChange(
@@ -111,54 +128,77 @@ export function ReviewStep({
 
   const totalAllocated = categories.reduce((sum, c) => sum + c.suggestedAmount, 0);
   const isValid = totalAllocated <= income;
+  const progressPct = income > 0 ? Math.min((totalAllocated / income) * 100, 100) : 0;
 
   const isAddDisabled =
     !selectedCategory ||
     (selectedCategory === OTHER_CATEGORY_KEY && !otherName.trim());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">Revisa tus categorías</h2>
+        <h2 className="text-2xl font-extrabold tracking-tight">Revisa tus categorías</h2>
         <p className="text-muted-foreground text-sm">
           Edita los nombres o elimina las que no necesites
         </p>
       </div>
 
-      <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-        {categories.map((category) => (
-          <Card key={category.id} className="border-l-4" style={{ borderLeftColor: CATEGORY_COLORS[category.type] }}>
-            <CardContent className="p-3 flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ backgroundColor: CATEGORY_COLORS[category.type] }}
-                  />
-                  <span className="text-xs font-medium text-muted-foreground uppercase">
-                    {TYPE_LABELS[category.type]}
-                  </span>
-                </div>
-                <Input
-                  value={category.name}
-                  onChange={(e) => updateCategoryName(category.id, e.target.value)}
-                  className="h-8 text-sm"
+      {/* Categorías agrupadas por tipo */}
+      <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1 scrollbar-none">
+        {TYPE_ORDER.map((type) => {
+          const items = groupedItems[type];
+          if (items.length === 0) return null;
+          const color = CATEGORY_COLORS[type];
+
+          return (
+            <div key={type} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: color }}
                 />
+                <h3 className="text-xs font-bold uppercase tracking-wide" style={{ color }}>
+                  {TYPE_LABELS[type]}
+                </h3>
+                <span className="text-[10px] text-muted-foreground font-semibold">
+                  {items.length} {items.length === 1 ? "categoría" : "categorías"}
+                </span>
+                <div className="flex-1 h-px bg-border" />
               </div>
-              <div className="text-right shrink-0">
-                <p className="text-sm font-medium">{formatCOP(category.suggestedAmount)}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                onClick={() => removeCategory(category.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+
+              {items.map((category) => (
+                <Card
+                  key={category.id}
+                  className="border-l-2"
+                  style={{ borderLeftColor: color }}
+                >
+                  <CardContent className="p-2.5 flex items-center gap-2.5">
+                    <div className="flex-1 min-w-0">
+                      <Input
+                        value={category.name}
+                        onChange={(e) => updateCategoryName(category.id, e.target.value)}
+                        className="h-8 text-sm border-transparent hover:border-border focus-visible:border-border bg-transparent"
+                      />
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-xs font-bold tabular-nums">
+                        {formatCOP(category.suggestedAmount)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeCategory(category.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          );
+        })}
       </div>
 
       {/* Agregar categoría */}
@@ -221,7 +261,7 @@ export function ReviewStep({
               onChange={(e) => setOtherType(e.target.value as CategoryType)}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm"
             >
-              {TYPE_OPTIONS.map((t) => (
+              {TYPE_TYPE_OPTIONS.map((t) => (
                 <option key={t} value={t}>
                   {TYPE_LABELS[t]}
                 </option>
@@ -234,28 +274,40 @@ export function ReviewStep({
           onClick={addCategory}
           variant="outline"
           size="sm"
-          className="h-9 gap-1 w-full"
+          className="h-9 gap-1 w-full rounded-full"
           disabled={isAddDisabled}
         >
           <Plus className="h-4 w-4" />
-          Agregar
+          Agregar categoría
         </Button>
       </div>
 
-      {/* Resumen */}
-      <div className="rounded-lg border p-4">
+      {/* Resumen con barra de progreso */}
+      <div className="rounded-xl border border-border p-4 space-y-2.5">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Total asignado</span>
-          <span className={`text-lg font-bold ${isValid ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
+          <span className="text-sm font-semibold">Total asignado</span>
+          <span className={`text-base font-extrabold tabular-nums ${isValid ? "text-primary" : "text-destructive"}`}>
             {formatCOP(totalAllocated)}
           </span>
         </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-xs text-muted-foreground">Ingreso mensual</span>
-          <span className="text-xs text-muted-foreground">{formatCOP(income)}</span>
+
+        {/* Barra de progreso */}
+        <div className="relative h-2 rounded-full overflow-hidden bg-muted">
+          <div
+            className={`absolute inset-y-0 left-0 rounded-full transition-all ${isValid ? "bg-gradient-to-r from-primary/60 to-primary" : "bg-gradient-to-r from-amber-500 to-destructive"}`}
+            style={{ width: `${progressPct}%` }}
+          />
         </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] text-muted-foreground font-medium">Ingreso mensual</span>
+          <span className="text-[11px] text-muted-foreground font-semibold tabular-nums">
+            {formatCOP(income)}
+          </span>
+        </div>
+
         {!isValid && (
-          <p className="text-xs text-destructive mt-2">
+          <p className="text-xs text-destructive font-medium pt-1">
             El total asignado excede el ingreso mensual
           </p>
         )}

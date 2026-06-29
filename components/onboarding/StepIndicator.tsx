@@ -26,29 +26,35 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
               {/* Step circle */}
               <div className="flex flex-col items-center">
                 <motion.div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold transition-all ${
                     isCompleted
                       ? "bg-primary text-primary-foreground"
                       : isCurrent
-                      ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
+                      ? "text-primary-foreground ring-4 ring-primary/20"
                       : "bg-muted text-muted-foreground"
-                  }`}
+                  } ${isCurrent ? "bg-gradient-to-br from-primary to-emerald-700 dark:to-emerald-600" : ""}`}
                   animate={
                     isCurrent
-                      ? { scale: [1, 1.1, 1] }
+                      ? { scale: [1, 1.08, 1] }
+                      : isCompleted
+                      ? { scale: [0.9, 1] }
                       : {}
                   }
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.4 }}
                 >
                   {isCompleted ? (
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4" strokeWidth={3} />
                   ) : (
                     stepNum
                   )}
                 </motion.div>
                 <span
-                  className={`mt-1 hidden text-xs font-medium sm:block ${
-                    isCurrent ? "text-foreground dark:text-stone-100" : "text-muted-foreground"
+                  className={`mt-1.5 hidden text-[11px] font-semibold sm:block ${
+                    isCurrent
+                      ? "text-stone-900 dark:text-stone-50"
+                      : isCompleted
+                      ? "text-primary"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {step.label}
@@ -57,15 +63,15 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
 
               {/* Connector line */}
               {index < steps.length - 1 && (
-                <div className="relative mx-2 h-0.5 flex-1 sm:mx-4">
+                <div className="relative mx-2 h-1 flex-1 sm:mx-4 rounded-full overflow-hidden">
                   <div className="absolute inset-0 bg-muted" />
                   <motion.div
-                    className="absolute inset-y-0 left-0 bg-primary"
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/60 to-primary rounded-full"
                     initial={{ width: "0%" }}
                     animate={{
-                      width: isCompleted ? "100%" : "0%",
+                      width: isCompleted ? "100%" : isCurrent ? "50%" : "0%",
                     }}
-                    transition={{ duration: 0.4 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                   />
                 </div>
               )}
