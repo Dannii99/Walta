@@ -1,7 +1,7 @@
 "use client";
 
+import { signIn } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface OAuthButtonProps {
   provider: "google";
@@ -11,11 +11,7 @@ interface OAuthButtonProps {
 
 function GoogleIcon() {
   return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      className="h-4 w-4"
-    >
+    <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4">
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"
@@ -46,7 +42,7 @@ export function OAuthButton({ provider, onClick, className }: OAuthButtonProps) 
       onClick();
       return;
     }
-    toast.info("Próximamente — sigue usando email por ahora.");
+    signIn(provider, { callbackUrl: "/" });
   };
 
   return (
