@@ -4190,6 +4190,8 @@ export namespace Prisma {
     name: string | null
     type: string | null
     color: string | null
+    icon: string | null
+    description: string | null
   }
 
   export type CategoryMaxAggregateOutputType = {
@@ -4198,6 +4200,8 @@ export namespace Prisma {
     name: string | null
     type: string | null
     color: string | null
+    icon: string | null
+    description: string | null
   }
 
   export type CategoryCountAggregateOutputType = {
@@ -4206,6 +4210,8 @@ export namespace Prisma {
     name: number
     type: number
     color: number
+    icon: number
+    description: number
     _all: number
   }
 
@@ -4216,6 +4222,8 @@ export namespace Prisma {
     name?: true
     type?: true
     color?: true
+    icon?: true
+    description?: true
   }
 
   export type CategoryMaxAggregateInputType = {
@@ -4224,6 +4232,8 @@ export namespace Prisma {
     name?: true
     type?: true
     color?: true
+    icon?: true
+    description?: true
   }
 
   export type CategoryCountAggregateInputType = {
@@ -4232,6 +4242,8 @@ export namespace Prisma {
     name?: true
     type?: true
     color?: true
+    icon?: true
+    description?: true
     _all?: true
   }
 
@@ -4313,6 +4325,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon: string | null
+    description: string | null
     _count: CategoryCountAggregateOutputType | null
     _min: CategoryMinAggregateOutputType | null
     _max: CategoryMaxAggregateOutputType | null
@@ -4338,6 +4352,8 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
     transactions?: boolean | Category$transactionsArgs<ExtArgs>
     _count?: boolean | CategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -4349,6 +4365,8 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["category"]>
 
@@ -4358,6 +4376,8 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["category"]>
 
@@ -4367,9 +4387,11 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
   }
 
-  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetId" | "name" | "type" | "color", ExtArgs["result"]["category"]>
+  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetId" | "name" | "type" | "color" | "icon" | "description", ExtArgs["result"]["category"]>
   export type CategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
     transactions?: boolean | Category$transactionsArgs<ExtArgs>
@@ -4394,6 +4416,8 @@ export namespace Prisma {
       name: string
       type: string
       color: string
+      icon: string | null
+      description: string | null
     }, ExtArgs["result"]["category"]>
     composites: {}
   }
@@ -4824,6 +4848,8 @@ export namespace Prisma {
     readonly name: FieldRef<"Category", 'String'>
     readonly type: FieldRef<"Category", 'String'>
     readonly color: FieldRef<"Category", 'String'>
+    readonly icon: FieldRef<"Category", 'String'>
+    readonly description: FieldRef<"Category", 'String'>
   }
     
 
@@ -13500,7 +13526,9 @@ export namespace Prisma {
     budgetId: 'budgetId',
     name: 'name',
     type: 'type',
-    color: 'color'
+    color: 'color',
+    icon: 'icon',
+    description: 'description'
   };
 
   export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -13894,6 +13922,8 @@ export namespace Prisma {
     name?: StringFilter<"Category"> | string
     type?: StringFilter<"Category"> | string
     color?: StringFilter<"Category"> | string
+    icon?: StringNullableFilter<"Category"> | string | null
+    description?: StringNullableFilter<"Category"> | string | null
     budget?: XOR<BudgetScalarRelationFilter, BudgetWhereInput>
     transactions?: TransactionListRelationFilter
   }
@@ -13904,6 +13934,8 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
     budget?: BudgetOrderByWithRelationInput
     transactions?: TransactionOrderByRelationAggregateInput
   }
@@ -13917,6 +13949,8 @@ export namespace Prisma {
     name?: StringFilter<"Category"> | string
     type?: StringFilter<"Category"> | string
     color?: StringFilter<"Category"> | string
+    icon?: StringNullableFilter<"Category"> | string | null
+    description?: StringNullableFilter<"Category"> | string | null
     budget?: XOR<BudgetScalarRelationFilter, BudgetWhereInput>
     transactions?: TransactionListRelationFilter
   }, "id">
@@ -13927,6 +13961,8 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
     _count?: CategoryCountOrderByAggregateInput
     _max?: CategoryMaxOrderByAggregateInput
     _min?: CategoryMinOrderByAggregateInput
@@ -13941,6 +13977,8 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Category"> | string
     type?: StringWithAggregatesFilter<"Category"> | string
     color?: StringWithAggregatesFilter<"Category"> | string
+    icon?: StringNullableWithAggregatesFilter<"Category"> | string | null
+    description?: StringNullableWithAggregatesFilter<"Category"> | string | null
   }
 
   export type TransactionWhereInput = {
@@ -14662,6 +14700,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
     budget: BudgetCreateNestedOneWithoutCategoriesInput
     transactions?: TransactionCreateNestedManyWithoutCategoryInput
   }
@@ -14672,6 +14712,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
     transactions?: TransactionUncheckedCreateNestedManyWithoutCategoryInput
   }
 
@@ -14680,6 +14722,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     budget?: BudgetUpdateOneRequiredWithoutCategoriesNestedInput
     transactions?: TransactionUpdateManyWithoutCategoryNestedInput
   }
@@ -14690,6 +14734,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     transactions?: TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
@@ -14699,6 +14745,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
   }
 
   export type CategoryUpdateManyMutationInput = {
@@ -14706,6 +14754,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CategoryUncheckedUpdateManyInput = {
@@ -14714,6 +14764,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TransactionCreateInput = {
@@ -15641,6 +15693,8 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrder
+    description?: SortOrder
   }
 
   export type CategoryMaxOrderByAggregateInput = {
@@ -15649,6 +15703,8 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrder
+    description?: SortOrder
   }
 
   export type CategoryMinOrderByAggregateInput = {
@@ -15657,6 +15713,8 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrder
+    description?: SortOrder
   }
 
   export type CategoryScalarRelationFilter = {
@@ -17153,6 +17211,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
     transactions?: TransactionCreateNestedManyWithoutCategoryInput
   }
 
@@ -17161,6 +17221,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
     transactions?: TransactionUncheckedCreateNestedManyWithoutCategoryInput
   }
 
@@ -17262,6 +17324,8 @@ export namespace Prisma {
     name?: StringFilter<"Category"> | string
     type?: StringFilter<"Category"> | string
     color?: StringFilter<"Category"> | string
+    icon?: StringNullableFilter<"Category"> | string | null
+    description?: StringNullableFilter<"Category"> | string | null
   }
 
   export type MonthlySnapshotUpsertWithWhereUniqueWithoutBudgetInput = {
@@ -17421,6 +17485,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
     budget: BudgetCreateNestedOneWithoutCategoriesInput
   }
 
@@ -17430,6 +17496,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
   }
 
   export type CategoryCreateOrConnectWithoutTransactionsInput = {
@@ -17453,6 +17521,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     budget?: BudgetUpdateOneRequiredWithoutCategoriesNestedInput
   }
 
@@ -17462,6 +17532,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserCreateWithoutSimulationsInput = {
@@ -18333,6 +18405,8 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
   }
 
   export type MonthlySnapshotCreateManyBudgetInput = {
@@ -18351,6 +18425,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     transactions?: TransactionUpdateManyWithoutCategoryNestedInput
   }
 
@@ -18359,6 +18435,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     transactions?: TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
@@ -18367,6 +18445,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MonthlySnapshotUpdateWithoutBudgetInput = {

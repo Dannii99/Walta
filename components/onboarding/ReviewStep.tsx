@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Trash2, Plus, Home, Utensils, Car, Heart, CreditCard, Landmark, Film, ShoppingBag, Gamepad2, PiggyBank, TrendingUp, Archive, Sparkles } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCOP } from "@/lib/currency";
 import { PREDEFINED_CATEGORIES, OTHER_CATEGORY_KEY, type PredefinedCategory } from "@/lib/categories";
+import { getCategoryIconComponent } from "@/lib/category-icons";
 import type { CategoryType } from "@/types";
 
 const CATEGORY_COLORS: Record<CategoryType, string> = {
   NEEDS: "#26be15",
   WANTS: "#e7964d",
   SAVINGS: "#617dd5",
-  DEBT: "#8B5CF6",
+  DEBT: "#9333ea",
 };
 
 interface CategoryItem {
@@ -21,6 +22,8 @@ interface CategoryItem {
   name: string;
   type: CategoryType;
   suggestedAmount: number;
+  icon: string;
+  description?: string;
 }
 
 interface ReviewStepProps {
@@ -36,7 +39,7 @@ const TYPE_LABELS: Record<CategoryType, string> = {
   DEBT: "Deudas",
 };
 
-const TYPE_TYPE_OPTIONS: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
+const TYPE_OPTIONS: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
 
 const TYPE_ORDER: CategoryType[] = ["NEEDS", "WANTS", "SAVINGS"];
 
@@ -95,6 +98,8 @@ export function ReviewStep({
   const addCategory = () => {
     let name: string;
     let type: CategoryType;
+    let icon: string = "Home";
+    let description: string | undefined;
 
     if (selectedCategory === OTHER_CATEGORY_KEY) {
       const trimmed = otherName.trim();
@@ -102,6 +107,7 @@ export function ReviewStep({
       if (existingNames.has(trimmed.toLowerCase())) return;
       name = trimmed;
       type = otherType;
+      icon = "Home";
     } else if (selectedCategory) {
       const predefined = PREDEFINED_CATEGORIES.find(
         (c) => c.name === selectedCategory
@@ -109,6 +115,8 @@ export function ReviewStep({
       if (!predefined) return;
       name = predefined.name;
       type = predefined.type;
+      icon = predefined.icon;
+      description = predefined.description;
     } else {
       return;
     }
@@ -120,6 +128,8 @@ export function ReviewStep({
         name,
         type,
         suggestedAmount: 0,
+        icon,
+        description,
       },
     ]);
     setSelectedCategory("");
@@ -143,7 +153,6 @@ export function ReviewStep({
         </p>
       </div>
 
-      {/* Categorías agrupadas por tipo */}
       <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1 scrollbar-none">
         {TYPE_ORDER.map((type) => {
           const items = groupedItems[type];
@@ -166,42 +175,55 @@ export function ReviewStep({
                 <div className="flex-1 h-px bg-border" />
               </div>
 
-              {items.map((category) => (
-                <Card
-                  key={category.id}
-                  className="border-l-2"
-                  style={{ borderLeftColor: color }}
-                >
-                  <CardContent className="p-2.5 flex items-center gap-2.5">
-                    <div className="flex-1 min-w-0">
-                      <Input
-                        value={category.name}
-                        onChange={(e) => updateCategoryName(category.id, e.target.value)}
-                        className="h-8 text-sm border-transparent hover:border-border focus-visible:border-border bg-transparent"
-                      />
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-xs font-bold tabular-nums">
-                        {formatCOP(category.suggestedAmount)}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
-                      onClick={() => removeCategory(category.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+              {items.map((category) => {
+                const Icon = getCategoryIconComponent(category.icon);
+                return (
+                  <Card
+                    key={category.id}
+                    className="border-l-2"
+                    style={{ borderLeftColor: color }}
+                  >
+                    <CardContent className="p-2.5 flex items-center gap-2.5">
+                      <div
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground"
+                        style={{ backgroundColor: `${color}15` }}
+                      >
+                        <Icon className="h-3.5 w-3.5" strokeWidth={2.2} style={{ color }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <Input
+                          value={category.name}
+                          onChange={(e) => updateCategoryName(category.id, e.target.value)}
+                          className="h-8 text-sm border-transparent hover:border-border focus-visible:border-border bg-transparent"
+                        />
+                        {category.description && (
+                          <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 px-1 truncate">
+                            {category.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs font-bold tabular-nums">
+                          {formatCOP(category.suggestedAmount)}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => removeCategory(category.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           );
         })}
       </div>
 
-      {/* Agregar categoría */}
       <div className="space-y-2">
         <select
           value={selectedCategory}
@@ -261,7 +283,7 @@ export function ReviewStep({
               onChange={(e) => setOtherType(e.target.value as CategoryType)}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm"
             >
-              {TYPE_TYPE_OPTIONS.map((t) => (
+              {TYPE_OPTIONS.map((t) => (
                 <option key={t} value={t}>
                   {TYPE_LABELS[t]}
                 </option>
@@ -282,7 +304,6 @@ export function ReviewStep({
         </Button>
       </div>
 
-      {/* Resumen con barra de progreso */}
       <div className="rounded-xl border border-border p-4 space-y-2.5">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold">Total asignado</span>
@@ -291,7 +312,6 @@ export function ReviewStep({
           </span>
         </div>
 
-        {/* Barra de progreso */}
         <div className="relative h-2 rounded-full overflow-hidden bg-muted">
           <div
             className={`absolute inset-y-0 left-0 rounded-full transition-all ${isValid ? "bg-gradient-to-r from-primary/60 to-primary" : "bg-gradient-to-r from-amber-500 to-destructive"}`}

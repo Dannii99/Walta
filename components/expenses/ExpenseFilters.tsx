@@ -159,7 +159,7 @@ export function ExpenseFilters({
               {filters.categoryId && <Check className="h-3 w-3" />}
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-0" align="start">
+          <PopoverContent className="w-[min(92vw,340px)] p-0" align="start">
             <div className="p-3 space-y-3">
               <p className="text-xs font-semibold text-[#737373] uppercase tracking-wider">
                 Categoría

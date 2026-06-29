@@ -9,6 +9,8 @@ const categoryInputSchema = z.object({
   name: z.string().min(1).max(100),
   type: z.enum(["NEEDS", "WANTS", "SAVINGS", "DEBT"]),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#3B82F6"),
+  icon: z.string().max(50).nullish(),
+  description: z.string().max(200).nullish(),
 });
 
 const categoryUpdateSchema = categoryInputSchema.partial();
@@ -31,7 +33,7 @@ async function verifyCategoryOwnership(categoryId: string) {
 
 export async function createCategory(
   budgetId: string,
-  data: { name: string; type: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string }
+  data: { name: string; type: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string }
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -66,6 +68,8 @@ export async function createCategory(
       name: parsed.name,
       type: parsed.type,
       color: parsed.color,
+      icon: parsed.icon ?? null,
+      description: parsed.description ?? null,
     },
   });
 
@@ -78,7 +82,7 @@ export async function createCategory(
 
 export async function updateCategory(
   categoryId: string,
-  data: { name?: string; type?: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string }
+  data: { name?: string; type?: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string }
 ) {
   const { category } = await verifyCategoryOwnership(categoryId);
   const parsed = categoryUpdateSchema.parse(data);

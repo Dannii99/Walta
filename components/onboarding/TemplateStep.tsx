@@ -3,9 +3,11 @@
 import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { getCategoryIconComponent } from "@/lib/category-icons";
+import { PREDEFINED_CATEGORIES } from "@/lib/categories";
 import { DEFAULT_BUDGET_RULE } from "@/lib/constants";
 
-type Template = "50-30-20" | "detailed" | "blank";
+type Template = "standard" | "minimal" | "blank";
 
 interface TemplateStepProps {
   value: Template | null;
@@ -27,17 +29,17 @@ export function TemplateStep({ value, onChange }: TemplateStepProps) {
     recommended?: boolean;
   }[] = [
     {
-      id: "50-30-20",
-      title: "Plantilla 50/30/20",
-      description: "15 categorías balanceadas, ideal para empezar",
-      categoryCount: 15,
+      id: "standard",
+      title: "Plantilla Estándar",
+      description: "12 categorías agrupadas que cubren todos tus gastos",
+      categoryCount: 12,
       recommended: true,
     },
     {
-      id: "detailed",
-      title: "Plantilla Detallada",
-      description: "26 categorías con desglose fino de gastos",
-      categoryCount: 26,
+      id: "minimal",
+      title: "Plantilla Mínima",
+      description: "6 categorías esenciales para empezar simple",
+      categoryCount: 6,
     },
     {
       id: "blank",
@@ -92,52 +94,42 @@ export function TemplateStep({ value, onChange }: TemplateStepProps) {
                         {template.description}
                       </p>
 
-                      {/* Mini illustration per template */}
-                      {template.id === "50-30-20" && (
-                        <div className="flex items-center gap-1 pt-1">
-                          <div
-                            className="h-2 rounded-full"
-                            style={{
-                              width: `${DEFAULT_BUDGET_RULE.needs}%`,
-                              backgroundColor: BAR_COLORS.needs,
-                            }}
-                          />
-                          <div
-                            className="h-2 rounded-full"
-                            style={{
-                              width: `${DEFAULT_BUDGET_RULE.wants}%`,
-                              backgroundColor: BAR_COLORS.wants,
-                            }}
-                          />
-                          <div
-                            className="h-2 rounded-full"
-                            style={{
-                              width: `${DEFAULT_BUDGET_RULE.savings}%`,
-                              backgroundColor: BAR_COLORS.savings,
-                            }}
-                          />
-                          <span className="ml-2 text-[10px] font-semibold text-muted-foreground min-w-14">
-                            50 · 30 · 20
+                      {template.id === "standard" && (
+                        <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                          {PREDEFINED_CATEGORIES.slice(0, 6).map((cat) => {
+                            const Icon = getCategoryIconComponent(cat.icon);
+                            return (
+                              <div
+                                key={cat.name}
+                                className="flex h-5 w-5 items-center justify-center rounded-md bg-muted text-muted-foreground"
+                                title={cat.name}
+                              >
+                                <Icon className="h-3 w-3" strokeWidth={2.5} />
+                              </div>
+                            );
+                          })}
+                          <span className="text-[10px] font-semibold text-muted-foreground ml-1">
+                            +6 más
                           </span>
                         </div>
                       )}
 
-                      {template.id === "detailed" && (
-                        <div className="flex items-end gap-0.5 pt-1">
-                          {[60, 90, 40, 75, 55, 85, 45, 65, 50, 80].map((h, i) => (
-                            <div
-                              key={i}
-                              className="w-1.5 rounded-sm"
-                              style={{
-                                height: `${h * 0.25}px`,
-                                backgroundColor: i < 6 ? BAR_COLORS.needs : i < 8 ? BAR_COLORS.wants : BAR_COLORS.savings,
-                                opacity: 0.7,
-                              }}
-                            />
-                          ))}
-                          <span className="ml-2 text-[10px] font-semibold text-muted-foreground">
-                            {template.categoryCount} categorías
-                          </span>
+                      {template.id === "minimal" && (
+                        <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                          {["Hogar", "Alimentación", "Transporte", "Deudas", "Ocio", "Ahorro"].map((name) => {
+                            const predef = PREDEFINED_CATEGORIES.find((c) => c.name === name);
+                            if (!predef) return null;
+                            const Icon = getCategoryIconComponent(predef.icon);
+                            return (
+                              <div
+                                key={name}
+                                className="flex h-5 w-5 items-center justify-center rounded-md bg-muted text-muted-foreground"
+                                title={name}
+                              >
+                                <Icon className="h-3 w-3" strokeWidth={2.5} />
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
 
@@ -169,6 +161,33 @@ export function TemplateStep({ value, onChange }: TemplateStepProps) {
             </motion.div>
           );
         })}
+      </div>
+
+      <div className="flex items-center gap-1 pt-1">
+        <div
+          className="h-2 rounded-full"
+          style={{
+            width: `${DEFAULT_BUDGET_RULE.needs}%`,
+            backgroundColor: BAR_COLORS.needs,
+          }}
+        />
+        <div
+          className="h-2 rounded-full"
+          style={{
+            width: `${DEFAULT_BUDGET_RULE.wants}%`,
+            backgroundColor: BAR_COLORS.wants,
+          }}
+        />
+        <div
+          className="h-2 rounded-full"
+          style={{
+            width: `${DEFAULT_BUDGET_RULE.savings}%`,
+            backgroundColor: BAR_COLORS.savings,
+          }}
+        />
+        <span className="ml-2 text-[10px] font-semibold text-muted-foreground min-w-21.5">
+          Regla 50 · 30 · 20
+        </span>
       </div>
     </div>
   );

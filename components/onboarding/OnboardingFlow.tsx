@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createBudget } from "@/server/actions/budget-actions";
 import { DEFAULT_BUDGET_RULE } from "@/lib/constants";
+import { PREDEFINED_CATEGORIES } from "@/lib/categories";
 import type { CategoryType } from "@/types";
 import { StepIndicator } from "./StepIndicator";
 import { WelcomeStep } from "./WelcomeStep";
@@ -19,6 +20,8 @@ interface CategoryItem {
   name: string;
   type: CategoryType;
   suggestedAmount: number;
+  icon: string;
+  description?: string;
 }
 
 const STEPS = [
@@ -28,53 +31,49 @@ const STEPS = [
   { label: "Revisar" },
 ];
 
-const DEFAULT_CATEGORIES: Record<string, { name: string; type: CategoryType; percentage: number }[]> = {
-  "50-30-20": [
-    { name: "Vivienda/Arriendo", type: "NEEDS", percentage: 20 },
-    { name: "Alimentación", type: "NEEDS", percentage: 10 },
-    { name: "Servicios públicos", type: "NEEDS", percentage: 5 },
-    { name: "Transporte", type: "NEEDS", percentage: 5 },
-    { name: "Salud", type: "NEEDS", percentage: 3 },
-    { name: "Créditos / Préstamos", type: "NEEDS", percentage: 4 },
-    { name: "Gastos bancarios", type: "NEEDS", percentage: 3 },
-    { name: "Entretenimiento", type: "WANTS", percentage: 8 },
-    { name: "Restaurantes", type: "WANTS", percentage: 10 },
-    { name: "Compras personales", type: "WANTS", percentage: 7 },
-    { name: "Hobbies", type: "WANTS", percentage: 5 },
-    { name: "Ahorro de emergencia", type: "SAVINGS", percentage: 10 },
-    { name: "Inversiones", type: "SAVINGS", percentage: 7 },
-    { name: "Aportes / Pensiones", type: "SAVINGS", percentage: 3 },
-  ],
-  detailed: [
-    { name: "Arriendo", type: "NEEDS", percentage: 15 },
-    { name: "Administración", type: "NEEDS", percentage: 5 },
-    { name: "Mercado/Supermercado", type: "NEEDS", percentage: 8 },
-    { name: "Restaurantes (hogar)", type: "NEEDS", percentage: 2 },
-    { name: "Energía eléctrica", type: "NEEDS", percentage: 2 },
-    { name: "Agua", type: "NEEDS", percentage: 1 },
-    { name: "Gas", type: "NEEDS", percentage: 1 },
-    { name: "Internet/Teléfono", type: "NEEDS", percentage: 2 },
-    { name: "Transporte público", type: "NEEDS", percentage: 2 },
-    { name: "Gasolina", type: "NEEDS", percentage: 3 },
-    { name: "Salud/Medicinas", type: "NEEDS", percentage: 2 },
-    { name: "Seguros", type: "NEEDS", percentage: 2 },
-    { name: "Créditos / Préstamos", type: "NEEDS", percentage: 4 },
-    { name: "Gastos bancarios", type: "NEEDS", percentage: 1 },
-    { name: "Ocio/Entretenimiento", type: "WANTS", percentage: 5 },
-    { name: "Restaurantes (salir)", type: "WANTS", percentage: 6 },
-    { name: "Café/Snacks", type: "WANTS", percentage: 2 },
-    { name: "Ropa", type: "WANTS", percentage: 4 },
-    { name: "Hobbies", type: "WANTS", percentage: 4 },
-    { name: "Suscripciones", type: "WANTS", percentage: 3 },
-    { name: "Viajes", type: "WANTS", percentage: 3 },
-    { name: "Tecnología", type: "WANTS", percentage: 3 },
-    { name: "Fondo de emergencia", type: "SAVINGS", percentage: 8 },
-    { name: "Inversiones", type: "SAVINGS", percentage: 5 },
-    { name: "Aportes/Pensiones", type: "SAVINGS", percentage: 4 },
-    { name: "Otros", type: "SAVINGS", percentage: 3 },
-  ],
-  blank: [],
+const TYPE_COLORS: Record<CategoryType, string> = {
+  NEEDS: "#26be15",
+  WANTS: "#e7964d",
+  SAVINGS: "#617dd5",
+  DEBT: "#9333ea",
 };
+
+const DEFAULT_PERCENTAGES: Record<string, number> = {
+  Hogar: 25,
+  Alimentación: 10,
+  Transporte: 5,
+  Salud: 5,
+  Servicios: 5,
+  Deudas: 0,
+  Ocio: 15,
+  Compras: 10,
+  Entretenimiento: 5,
+  Viajes: 0,
+  Ahorro: 15,
+  Inversiones: 5,
+};
+
+const FULL_TEMPLATE_KEYS = PREDEFINED_CATEGORIES.map((c) => c.name);
+const MINIMAL_KEYS = ["Hogar", "Alimentación", "Transporte", "Deudas", "Ocio", "Ahorro"];
+
+function generateFromTemplate(
+  keys: string[],
+  inc: number
+): CategoryItem[] {
+  return keys.map((name, index) => {
+    const predef = PREDEFINED_CATEGORIES.find((c) => c.name === name);
+    if (!predef) return null as never;
+    const pct = DEFAULT_PERCENTAGES[name] ?? 5;
+    return {
+      id: `cat-${index}`,
+      name: predef.name,
+      type: predef.type,
+      suggestedAmount: Math.round(inc * (pct / 100)),
+      icon: predef.icon,
+      description: predef.description,
+    };
+  }).filter(Boolean);
+}
 
 interface OnboardingFlowProps {
   userId: string;
@@ -83,25 +82,12 @@ interface OnboardingFlowProps {
 export function OnboardingFlow({ userId }: OnboardingFlowProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [template, setTemplate] = useState<"50-30-20" | "detailed" | "blank" | null>(null);
+  const [template, setTemplate] = useState<"standard" | "minimal" | "blank" | null>(null);
   const [budgetName, setBudgetName] = useState("Mi Presupuesto");
   const [income, setIncome] = useState(0);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
-
-  const generateCategories = (
-    tmpl: "50-30-20" | "detailed" | "blank",
-    inc: number
-  ): CategoryItem[] => {
-    const defs = DEFAULT_CATEGORIES[tmpl] || [];
-    return defs.map((def, index) => ({
-      id: `cat-${index}`,
-      name: def.name,
-      type: def.type,
-      suggestedAmount: Math.round(inc * (def.percentage / 100)),
-    }));
-  };
 
   const handleStart = () => {
     setStep(2);
@@ -112,7 +98,7 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
     setIsSaving(true);
     try {
       const quickIncome = 3000000;
-      const quickCategories = generateCategories("50-30-20", quickIncome);
+      const quickCategories = generateFromTemplate(FULL_TEMPLATE_KEYS, quickIncome);
 
       await createBudget(
         userId,
@@ -122,7 +108,9 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
         quickCategories.map((c) => ({
           name: c.name,
           type: c.type,
-          color: "#3B82F6",
+          color: TYPE_COLORS[c.type],
+          icon: c.icon,
+          description: c.description,
         }))
       );
 
@@ -134,7 +122,7 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
     }
   };
 
-  const handleTemplateSelect = (selected: "50-30-20" | "detailed" | "blank") => {
+  const handleTemplateSelect = (selected: "standard" | "minimal" | "blank") => {
     setTemplate(selected);
     if (selected === "blank") {
       setCategories([]);
@@ -144,7 +132,12 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
 
   const handleIncomeNext = () => {
     if (template && income > 0) {
-      const generated = generateCategories(template, income);
+      let generated: CategoryItem[] = [];
+      if (template === "standard") {
+        generated = generateFromTemplate(FULL_TEMPLATE_KEYS, income);
+      } else if (template === "minimal") {
+        generated = generateFromTemplate(MINIMAL_KEYS, income);
+      }
       setCategories(generated);
       setStep(4);
     }
@@ -164,7 +157,9 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
         categories.map((c) => ({
           name: c.name,
           type: c.type,
-          color: "#3B82F6",
+          color: TYPE_COLORS[c.type],
+          icon: c.icon,
+          description: c.description,
         }))
       );
 
@@ -207,7 +202,6 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Decorative gradient blobs */}
       <div
         className="pointer-events-none absolute -top-32 -right-32 h-80 w-80 rounded-full blur-3xl"
         style={{ background: "radial-gradient(circle, rgba(38,190,21,0.12) 0%, transparent 70%)" }}

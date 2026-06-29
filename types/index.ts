@@ -32,6 +32,8 @@ export interface Category {
   name: string;
   type: CategoryType;
   color: string;
+  icon?: string | null;
+  description?: string | null;
   transactions: Transaction[];
 }
 

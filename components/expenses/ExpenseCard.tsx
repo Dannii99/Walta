@@ -12,6 +12,8 @@ import {
   formatNextOccurrenceLabel,
 } from "@/lib/recurrence";
 import type { Category, CategoryType, Recurrence, Transaction } from "@/types";
+import { getCategoryIconComponent } from "@/lib/category-icons";
+import { getCategoryIconName } from "@/lib/dashboard-helpers";
 
 interface ExpenseCardProps {
   transaction: Transaction & { category?: Category };
@@ -25,13 +27,6 @@ const TYPE_LABELS: Record<CategoryType, string> = {
   WANTS: "Deseos",
   SAVINGS: "Ahorros",
   DEBT: "Deudas",
-};
-
-const TYPE_DOT: Record<CategoryType, string> = {
-  NEEDS: "bg-[#23ad1b]",
-  WANTS: "bg-[#e7964d]",
-  SAVINGS: "bg-[#617dd5]",
-  DEBT: "bg-[#e54d4d]",
 };
 
 const TYPE_PILL: Record<CategoryType, string> = {
@@ -112,17 +107,17 @@ export function ExpenseCard({
   };
 
   // If reducedMotion, show actions always visible (fallback)
+  const catIconName = category?.icon ?? getCategoryIconName(category?.name ?? "");
+  const Icon = getCategoryIconComponent(catIconName);
+
   if (reducedMotion) {
     return (
       <div className="bg-white dark:bg-[#17181c] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            {type && (
-              <span
-                className={`h-2 w-2 rounded-full shrink-0 ${TYPE_DOT[type]}`}
-                aria-hidden="true"
-              />
-            )}
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+            </div>
             <span className="text-sm font-semibold text-[#17181c] dark:text-white truncate">
               {category?.name ?? "—"}
             </span>
@@ -235,12 +230,9 @@ export function ExpenseCard({
         <div className="p-4 space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              {type && (
-                <span
-                  className={`h-2 w-2 rounded-full shrink-0 ${TYPE_DOT[type]}`}
-                  aria-hidden="true"
-                />
-              )}
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+              </div>
               <span className="text-sm font-semibold text-[#17181c] dark:text-white truncate">
                 {category?.name ?? "—"}
               </span>

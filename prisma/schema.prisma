@@ -40,6 +40,8 @@ model Category {
   name          String
   type          String         // NEEDS, WANTS, SAVINGS, DEBT
   color         String         // hex para grficos
+  icon          String?
+  description   String?
   transactions  Transaction[]
 }
 

@@ -195,7 +195,7 @@ Full CRUD for expenses (the domain model is `Transaction`, but the UI/routes/com
 - `components/expenses/ExpenseFilters.tsx` — search by description, category, type, recurrence.
 - `components/expenses/ExpenseSummaryTabs.tsx` — tab switcher for expense views (summary/monthly/detail).
 - `components/expenses/ExpenseFilterSheet.tsx` — mobile filter bottom sheet for expense filters.
-- `components/expenses/CategorySelect.tsx` — category selector dropdown (reused in Add/Edit modals).
+- `components/expenses/CategorySelect.tsx` — mobile-first category picker grid of tappable icon tiles (3 cols mobile / 4 sm+), reused in Add/Edit modals + filter popover + filter sheet.
 - `components/expenses/ExpenseTypeCards.tsx` — 3 cards at the top showing totals for Fijos / Variables / Únicos.
 - `components/expenses/ExpenseSummary.tsx` — monthly equivalent total.
 - `components/expenses/DeleteExpenseDialog.tsx` — `AlertDialog` confirm.

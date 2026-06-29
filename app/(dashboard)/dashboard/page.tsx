@@ -154,6 +154,7 @@ export default async function DashboardPage() {
         color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
         spent: catEquivalent,
         limit,
+        icon: cat.icon,
       };
     })
     .sort((a, b) => b.spent - a.spent);

@@ -42,6 +42,8 @@ import {
 } from "lucide-react";
 import { createCategory, updateCategory, deleteCategory } from "@/server/actions/category-actions";
 import { PREDEFINED_CATEGORIES, OTHER_CATEGORY_KEY, type PredefinedCategory } from "@/lib/categories";
+import { getCategoryIconComponent } from "@/lib/category-icons";
+import { getCategoryIconName } from "@/lib/dashboard-helpers";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import type { Category, CategoryType } from "@/types";
@@ -144,10 +146,12 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
     return groups;
   }, [filteredPredefined]);
 
-  const handleAdd = () => {
+const handleAdd = () => {
     setError("");
     let name: string;
     let type: CategoryType;
+    let icon: string | undefined;
+    let description: string | undefined;
 
     if (selectedCategory === OTHER_CATEGORY_KEY) {
       const trimmed = otherName.trim();
@@ -158,6 +162,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
       }
       name = trimmed;
       type = otherType;
+      icon = undefined;
     } else if (selectedCategory) {
       const predefined = PREDEFINED_CATEGORIES.find(
         (c) => c.name === selectedCategory
@@ -165,13 +170,15 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
       if (!predefined) return;
       name = predefined.name;
       type = predefined.type;
+      icon = predefined.icon;
+      description = predefined.description;
     } else {
       return;
     }
 
     startTransition(async () => {
       try {
-        await createCategory(budgetId, { name, type });
+        await createCategory(budgetId, { name, type, color: TYPE_COLORS[type] ?? "#3B82F6", icon, description });
         setSelectedCategory("");
         setOtherName("");
         setSearchQuery("");
@@ -423,13 +430,22 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                           className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0"
                           style={{ backgroundColor: `${color}15` }}
                         >
-                          <TypeIcon className="h-5 w-5" style={{ color }} strokeWidth={2.2} />
+                          {(() => {
+                            const catIconName = (category as Category).icon ?? getCategoryIconName((category as Category).name ?? "");
+                            const CatIcon = getCategoryIconComponent(catIconName);
+                            return <CatIcon className="h-5 w-5" style={{ color }} strokeWidth={2.2} />;
+                          })()}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-semibold text-sm text-[#17181c] dark:text-white truncate">
                               {category.name}
                             </p>
+                            {category.description && (
+                              <span className="text-[10px] text-muted-foreground leading-snug truncate">
+                                {category.description}
+                              </span>
+                            )}
                             <Badge
                               variant="outline"
                               className={cn(
