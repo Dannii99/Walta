@@ -4,7 +4,15 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { PREDEFINED_CATEGORIES } from "@/lib/categories";
 import type { BudgetRule, CategoryType } from "@/types";
+
+const TYPE_COLORS: Record<CategoryType, string> = {
+  NEEDS: "#26be15",
+  WANTS: "#e7964d",
+  SAVINGS: "#617dd5",
+  DEBT: "#9333ea",
+};
 
 const budgetRuleSchema = z.object({
   needs: z.number().int().min(0).max(100),
@@ -12,12 +20,18 @@ const budgetRuleSchema = z.object({
   savings: z.number().int().min(0).max(100),
 });
 
+const decimalString = z
+  .string()
+  .regex(/^\d+(\.\d{1,2})?$/)
+  .nullish();
+
 const categoryInputSchema = z.object({
   name: z.string().min(1).max(100),
   type: z.enum(["NEEDS", "WANTS", "SAVINGS", "DEBT"] as const),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   icon: z.string().max(50).nullish(),
   description: z.string().max(200).nullish(),
+  plannedAmount: decimalString,
 });
 
 const createBudgetSchema = z.object({
@@ -33,7 +47,7 @@ export async function createBudget(
   name: string,
   income: string,
   rule: BudgetRule,
-  categories?: { name: string; type: CategoryType; color: string; icon?: string; description?: string }[]
+  categories?: { name: string; type: CategoryType; color: string; icon?: string; description?: string; plannedAmount?: string | null }[]
 ) {
   const session = await auth();
   if (!session?.user?.id || session.user.id !== userId) {
@@ -48,6 +62,18 @@ export async function createBudget(
     categories,
   });
 
+  const finalCategories =
+    parsed.categories && parsed.categories.length > 0
+      ? parsed.categories
+      : PREDEFINED_CATEGORIES.map((c) => ({
+          name: c.name,
+          type: c.type,
+          color: TYPE_COLORS[c.type],
+          icon: c.icon,
+          description: c.description,
+          plannedAmount: null,
+        }));
+
   const budget = await prisma.budget.create({
     data: {
       userId: parsed.userId,
@@ -55,11 +81,9 @@ export async function createBudget(
       income: parsed.income,
       currency: "COP",
       rule: parsed.rule as object,
-      categories: parsed.categories
-        ? {
-            create: parsed.categories,
-          }
-        : undefined,
+      categories: {
+        create: finalCategories,
+      },
     },
     include: {
       categories: true,

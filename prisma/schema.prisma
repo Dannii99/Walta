@@ -42,6 +42,7 @@ model Category {
   color         String         // hex para grficos
   icon          String?
   description   String?
+  plannedAmount Decimal?       @db.Decimal(15, 2)
   transactions  Transaction[]
 }
 

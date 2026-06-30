@@ -32,6 +32,7 @@ export async function getUserBudgets(userId: string) {
     income: budget.income.toString(),
     categories: budget.categories.map((category) => ({
       ...category,
+      plannedAmount: category.plannedAmount ? category.plannedAmount.toString() : null,
       transactions: category.transactions.map((transaction) => ({
         ...transaction,
         amount: transaction.amount.toString(),
@@ -68,6 +69,7 @@ export async function getBudgetById(budgetId: string) {
     income: budget.income.toString(),
     categories: budget.categories.map((category) => ({
       ...category,
+      plannedAmount: category.plannedAmount ? category.plannedAmount.toString() : null,
       transactions: category.transactions.map((transaction) => ({
         ...transaction,
         amount: transaction.amount.toString(),

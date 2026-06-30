@@ -11,6 +11,10 @@ const categoryInputSchema = z.object({
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).default("#3B82F6"),
   icon: z.string().max(50).nullish(),
   description: z.string().max(200).nullish(),
+  plannedAmount: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/)
+    .nullish(),
 });
 
 const categoryUpdateSchema = categoryInputSchema.partial();
@@ -33,7 +37,7 @@ async function verifyCategoryOwnership(categoryId: string) {
 
 export async function createCategory(
   budgetId: string,
-  data: { name: string; type: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string }
+  data: { name: string; type: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string; plannedAmount?: string | null }
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -70,6 +74,7 @@ export async function createCategory(
       color: parsed.color,
       icon: parsed.icon ?? null,
       description: parsed.description ?? null,
+      plannedAmount: parsed.plannedAmount ?? null,
     },
   });
 
@@ -82,7 +87,7 @@ export async function createCategory(
 
 export async function updateCategory(
   categoryId: string,
-  data: { name?: string; type?: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string }
+  data: { name?: string; type?: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string; plannedAmount?: string | null }
 ) {
   const { category } = await verifyCategoryOwnership(categoryId);
   const parsed = categoryUpdateSchema.parse(data);

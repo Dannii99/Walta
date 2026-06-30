@@ -24,6 +24,7 @@ export interface CurrencyInputProps {
   id?: string;
   value?: number;
   onValueChange?: (value: number) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   className?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -31,7 +32,7 @@ export interface CurrencyInputProps {
 }
 
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ id, value = 0, onValueChange, className, placeholder, disabled, maxLength }, ref) => {
+  ({ id, value = 0, onValueChange, onBlur, className, placeholder, disabled, maxLength }, ref) => {
     const [displayValue, setDisplayValue] = useState(formatCurrency(String(value)));
     const [isFocused, setIsFocused] = useState(false);
 
@@ -55,9 +56,10 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
       setDisplayValue(String(parseCurrency(displayValue)));
     };
 
-    const handleBlur = () => {
+    const handleBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
       setIsFocused(false);
       setDisplayValue(formatCurrency(String(value)));
+      onBlur?.(e);
     };
 
     return (

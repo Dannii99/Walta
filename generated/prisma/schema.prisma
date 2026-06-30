@@ -34,15 +34,16 @@ model Budget {
 }
 
 model Category {
-  id           String        @id @default(cuid())
-  budgetId     String
-  budget       Budget        @relation(fields: [budgetId], references: [id], onDelete: Cascade)
-  name         String
-  type         String // NEEDS, WANTS, SAVINGS, DEBT
-  color        String // hex para grficos
-  icon         String?
-  description  String?
-  transactions Transaction[]
+  id            String        @id @default(cuid())
+  budgetId      String
+  budget        Budget        @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  name          String
+  type          String // NEEDS, WANTS, SAVINGS, DEBT
+  color         String // hex para grficos
+  icon          String?
+  description   String?
+  plannedAmount Decimal?      @db.Decimal(15, 2)
+  transactions  Transaction[]
 }
 
 model Transaction {

@@ -34,6 +34,7 @@ export interface Category {
   color: string;
   icon?: string | null;
   description?: string | null;
+  plannedAmount?: string | null;
   transactions: Transaction[];
 }
 

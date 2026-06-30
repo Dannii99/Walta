@@ -146,7 +146,8 @@ exports.Prisma.CategoryScalarFieldEnum = {
   type: 'type',
   color: 'color',
   icon: 'icon',
-  description: 'description'
+  description: 'description',
+  plannedAmount: 'plannedAmount'
 };
 
 exports.Prisma.TransactionScalarFieldEnum = {

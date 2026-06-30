@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import {
   Select,
   SelectContent,
@@ -460,6 +461,11 @@ const handleAdd = () => {
                             {txCount} {txCount === 1 ? "gasto" : "gastos"}
                           </p>
                         </div>
+                        <PlannedAmountRow
+                          categoryId={category.id}
+                          plannedAmount={(category as Category).plannedAmount}
+                          onSaved={() => router.refresh()}
+                        />
                         <div className="flex items-center gap-0.5">
                           <Button
                             variant="ghost"
@@ -1064,5 +1070,66 @@ function MobileDeleteSheet({
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+function PlannedAmountRow({
+  categoryId,
+  plannedAmount,
+  onSaved,
+}: {
+  categoryId: string;
+  plannedAmount: string | null | undefined;
+  onSaved: () => void;
+}) {
+  const [localAmount, setLocalAmount] = useState<number>(
+    plannedAmount ? Number(plannedAmount) : 0
+  );
+  const [savedFlash, setSavedFlash] = useState(false);
+  const [isUpdating, startTransition] = useTransition();
+
+  useEffect(() => {
+    setLocalAmount(plannedAmount ? Number(plannedAmount) : 0);
+  }, [plannedAmount]);
+
+  const handleBlur = () => {
+    const original = plannedAmount ? Number(plannedAmount) : 0;
+    if (localAmount === original) return;
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1200);
+    const next = localAmount > 0 ? Math.round(localAmount).toString() : null;
+    startTransition(async () => {
+      try {
+        await updateCategory(categoryId, { plannedAmount: next });
+        onSaved();
+      } catch (e) {
+        // silent; will sync via refresh
+      }
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-1.5 pl-1 shrink-0">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
+        Planeado
+      </span>
+      <div className="relative">
+        <CurrencyInput
+          value={localAmount}
+          onValueChange={(v) => setLocalAmount(v)}
+          onBlur={handleBlur}
+          placeholder="0"
+          className={cn(
+            "h-7 w-[110px] text-xs font-semibold pl-2 pr-1 rounded-md border",
+            savedFlash
+              ? "border-[#26be15] bg-[#26be15]/5 dark:border-[#26be15]"
+              : "border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#fafafa] dark:bg-[#1a1a1e]"
+          )}
+        />
+      </div>
+      {isUpdating && (
+        <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+      )}
+    </div>
   );
 }
