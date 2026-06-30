@@ -1,13 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Zap, Eye, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, Eye, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OnboardingIllustration } from "./OnboardingIllustration";
 
 interface WelcomeStepProps {
   onStart: () => void;
-  onQuickCreate: () => void;
 }
 
 const PILLARS = [
@@ -31,10 +30,9 @@ const PILLARS = [
   },
 ];
 
-export function WelcomeStep({ onStart, onQuickCreate }: WelcomeStepProps) {
+export function WelcomeStep({ onStart }: WelcomeStepProps) {
   return (
     <div className="space-y-7">
-      {/* Logo */}
       <motion.div
         className="flex justify-center"
         initial={{ opacity: 0, y: -8 }}
@@ -55,7 +53,6 @@ export function WelcomeStep({ onStart, onQuickCreate }: WelcomeStepProps) {
         </div>
       </motion.div>
 
-      {/* Lema principal */}
       <div className="text-center space-y-3">
         <motion.h1
           className="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900 dark:text-stone-50"
@@ -76,7 +73,6 @@ export function WelcomeStep({ onStart, onQuickCreate }: WelcomeStepProps) {
         </motion.p>
       </div>
 
-      {/* Ilustración SVG animada */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -85,7 +81,6 @@ export function WelcomeStep({ onStart, onQuickCreate }: WelcomeStepProps) {
         <OnboardingIllustration />
       </motion.div>
 
-      {/* Pilares: Ver / Decidir / Seguir */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         {PILLARS.map((pillar, index) => (
           <motion.div
@@ -112,29 +107,19 @@ export function WelcomeStep({ onStart, onQuickCreate }: WelcomeStepProps) {
         ))}
       </div>
 
-      {/* CTAs */}
       <motion.div
-        className="flex flex-col sm:flex-row gap-3 pt-2"
+        className="flex justify-center pt-2"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut", delay: 0.75 }}
       >
         <Button
           size="lg"
-          className="w-full sm:w-auto gap-2 rounded-full text-base"
+          className="gap-2 rounded-full text-base px-8"
           onClick={onStart}
         >
-          Crear mi presupuesto
+          Comenzar
           <ArrowRight className="h-4 w-4" />
-        </Button>
-        <Button
-          size="lg"
-          variant="outline"
-          className="w-full sm:w-auto gap-2 rounded-full"
-          onClick={onQuickCreate}
-        >
-          <Zap className="h-4 w-4" />
-          Crear rápido
         </Button>
       </motion.div>
     </div>
