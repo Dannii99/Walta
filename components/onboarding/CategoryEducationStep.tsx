@@ -1,51 +1,185 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, Gamepad2, PiggyBank, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Accordion,
+  AccordionItemWithProvider,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
-const TYPE_DATA = [
+const CATEGORY_ITEMS = [
   {
-    type: "NEEDS",
+    id: "NEEDS",
     label: "Necesidades",
-    subtitle: "Lo esencial para vivir",
-    icon: Home,
+    subtitle: "Gastos esenciales y deudas",
     color: "#26be15",
-    bg: "bg-[#26be15]/10 dark:bg-[#26be15]/20",
-    border: "border-[#26be15]/30",
-    examples: ["Arriendo / Hipoteca", "Mercado / Comida", "Transporte", "Servicios públicos"],
+    rgb: "38,190,21",
+    examples: [
+      "Arriendo / Hipoteca",
+      "Mercado / Comida",
+      "Transporte",
+      "Servicios publicos",
+      "Tarjeta de credito",
+      "Prestamos",
+      "Cuota vehicular",
+    ],
+    totalCats: 6,
   },
   {
-    type: "WANTS",
+    id: "WANTS",
     label: "Deseos",
     subtitle: "Lo que disfrutas",
-    icon: Gamepad2,
     color: "#e7964d",
-    bg: "bg-[#e7964d]/10 dark:bg-[#e7964d]/20",
-    border: "border-[#e7964d]/30",
-    examples: ["Restaurantes / Café", "Streaming / Suscripciones", "Compras no esenciales", "Salidas / Entretenimiento"],
+    rgb: "231,150,77",
+    examples: [
+      "Restaurantes / Cafe",
+      "Streaming / Suscripciones",
+      "Compras no esenciales",
+      "Salidas / Entretenimiento",
+    ],
+    totalCats: 4,
   },
   {
-    type: "SAVINGS",
+    id: "SAVINGS",
     label: "Ahorros",
-    subtitle: "Tu futuro",
-    icon: PiggyBank,
+    subtitle: "Tu futuro financiero",
     color: "#617dd5",
-    bg: "bg-[#617dd5]/10 dark:bg-[#617dd5]/20",
-    border: "border-[#617dd5]/30",
-    examples: ["Fondo de emergencia", "Inversiones", "Metas (viaje, auto)", "Aportes pensión"],
+    rgb: "97,125,213",
+    examples: [
+      "Fondo de emergencia",
+      "Inversiones",
+      "Metas (viaje, auto)",
+      "Aportes pension",
+    ],
+    totalCats: 2,
   },
-  {
-    type: "DEBT",
-    label: "Deudas",
-    subtitle: "Lo que debes pagar",
-    icon: CreditCard,
-    color: "#9333ea",
-    bg: "bg-[#9333ea]/10 dark:bg-[#9333ea]/20",
-    border: "border-[#9333ea]/30",
-    examples: ["Tarjeta de crédito", "Préstamo personal", "Cuota vehicular", "Créditos bancarios"],
-  },
-] as const;
+];
+
+function NeedsSvg() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <motion.circle
+        cx="16" cy="18" r="12"
+        stroke="#26be15" strokeWidth="1"
+        initial={{ opacity: 0.5, scale: 0.8 }}
+        animate={{ opacity: 0, scale: 1.6 }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0 }}
+      />
+      <motion.circle
+        cx="16" cy="18" r="12"
+        stroke="#26be15" strokeWidth="1"
+        initial={{ opacity: 0.5, scale: 0.8 }}
+        animate={{ opacity: 0, scale: 1.6 }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 1 }}
+      />
+      <motion.path
+        d="M6 18L16 8l10 10"
+        stroke="#26be15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      />
+      <path d="M8 16v10h6v-6h4v6h6V16" stroke="#26be15" strokeWidth="1.5" strokeLinejoin="round" />
+      <rect x="14" y="10" width="4" height="4" rx="1" fill="#26be15" opacity="0.4" />
+      <motion.path
+        d="M16 8l10 10" stroke="white" strokeWidth="0.5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.4 }}
+        transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+      />
+    </svg>
+  );
+}
+
+function WantsSvg() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <motion.rect
+        x="4" y="12" width="24" height="10" rx="4"
+        stroke="#e7964d" strokeWidth="1.5"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        style={{ transformOrigin: "16px 17px" }}
+      />
+      <motion.circle
+        cx="12" cy="17" r="3" fill="#e7964d" opacity="0.3"
+        animate={{ opacity: [0.2, 0.6, 0.2] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <circle cx="12" cy="15" r="1" fill="#e7964d" opacity="0.6" />
+      <circle cx="12" cy="19" r="1" fill="#e7964d" opacity="0.6" />
+      <circle cx="10" cy="17" r="1" fill="#e7964d" opacity="0.6" />
+      <circle cx="14" cy="17" r="1" fill="#e7964d" opacity="0.6" />
+      <motion.circle
+        cx="20" cy="15" r="1.5" fill="#e7964d" opacity="0.2"
+        animate={{ opacity: [0.2, 0.8, 0.2] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+      />
+      <motion.circle
+        cx="22" cy="17" r="1.5" fill="#e7964d" opacity="0.2"
+        animate={{ opacity: [0.2, 0.8, 0.2] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+      />
+      <motion.circle
+        cx="20" cy="19" r="1.5" fill="#e7964d" opacity="0.2"
+        animate={{ opacity: [0.2, 0.8, 0.2] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: 0.9 }}
+      />
+      <motion.circle
+        cx="26" cy="9" r="1" fill="#e7964d"
+        animate={{ scale: [0, 1.2, 0], opacity: [0, 0.8, 0] }}
+        transition={{ duration: 1.8, repeat: Infinity, delay: 0.5 }}
+      />
+      <motion.circle
+        cx="29" cy="12" r="0.7" fill="#e7964d"
+        animate={{ scale: [0, 1.2, 0], opacity: [0, 0.6, 0] }}
+        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+      />
+    </svg>
+  );
+}
+
+function SavingsSvg() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <motion.g
+        animate={{ y: [0, -3, 0] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <ellipse cx="16" cy="19" rx="10" ry="7" stroke="#617dd5" strokeWidth="1.5" />
+        <circle cx="11" cy="16" r="1.5" fill="#617dd5" opacity="0.3" />
+        <ellipse cx="16" cy="12" rx="3" ry="2" stroke="#617dd5" strokeWidth="1" />
+        <path d="M12.5 12l-2-3" stroke="#617dd5" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M19.5 12l2-3" stroke="#617dd5" strokeWidth="1.5" strokeLinecap="round" />
+        <motion.path
+          d="M26 19c2-1 2-3 1-4"
+          stroke="#617dd5" strokeWidth="1" strokeLinecap="round"
+          animate={{ pathLength: [0, 1, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <rect x="15" y="13" width="2" height="1" rx="0.5" fill="#617dd5" opacity="0.5" />
+      </motion.g>
+      <motion.g
+        initial={{ y: -30, opacity: 0 }}
+        animate={{ y: 20, opacity: [0, 1, 1, 0] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "linear", delay: 0.5 }}
+      >
+        <circle cx="23" cy="10" r="3" fill="#617dd5" opacity="0.4" />
+        <text x="22" y="12" fill="white" fontSize="4" textAnchor="middle">$</text>
+      </motion.g>
+    </svg>
+  );
+}
+
+const SVG_ICONS = {
+  NEEDS: NeedsSvg,
+  WANTS: WantsSvg,
+  SAVINGS: SavingsSvg,
+} as const;
 
 interface CategoryEducationStepProps {
   onContinue: () => void;
@@ -53,83 +187,146 @@ interface CategoryEducationStepProps {
 }
 
 export function CategoryEducationStep({ onContinue, isLoading = false }: CategoryEducationStepProps) {
+  const [openItem, setOpenItem] = useState("NEEDS");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="space-y-6"
+      className="space-y-5"
     >
-      <div className="text-center space-y-2">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.05 }}
+        className="text-center space-y-1.5"
+      >
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#17181c] dark:text-white">
-          Tus categorías
+          Tus categorias
         </h2>
-        <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
-          Walta organiza tus gastos en 4 grupos. Cada gasto que registres irá a uno de estos.
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+          Walta organiza tus gastos en 3 grupos simples. Toca cada uno para ver ejemplos.
         </p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {TYPE_DATA.map((item, index) => {
-          const Icon = item.icon;
+      <Accordion
+        type="single"
+        collapsible
+        value={openItem}
+        onValueChange={(val) => setOpenItem(val as string)}
+        className="w-full"
+      >
+        {CATEGORY_ITEMS.map((item, index) => {
+          const SvgIcon = SVG_ICONS[item.id as keyof typeof SVG_ICONS];
           return (
-            <motion.article
-              key={item.type}
-              initial={{ opacity: 0, y: 30, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, delay: index * 0.08, ease: "easeOut" } }}
-              whileHover={{ scale: 1.02, y: -4 }}
-              className={cn(
-                "relative group p-5 sm:p-6 rounded-2xl border transition-all duration-300",
-                item.bg,
-                item.border,
-                "hover:border-[currentColor] hover:shadow-lg"
-              )}
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: 0.1 + index * 0.1, ease: "easeOut" }}
             >
-              <div className="flex items-start gap-4">
-                <div
+              <AccordionItemWithProvider
+                value={item.id}
+                className="mb-3 border shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                <AccordionTrigger
                   className={cn(
-                    "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
-                    item.bg,
+                    "rounded-xl transition-all duration-200",
+                    openItem === item.id
+                      ? "shadow-inner"
+                      : "hover:bg-muted/50"
                   )}
+                  style={
+                    openItem === item.id
+                      ? { backgroundColor: `rgba(${item.rgb},0.06)`, borderColor: item.color }
+                      : undefined
+                  }
                 >
-                  <Icon className="h-6 w-6" style={{ color: item.color }} strokeWidth={1.8} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-extrabold text-lg" style={{ color: item.color }}>
-                    {item.label}
-                  </h3>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    {item.subtitle}
-                  </p>
-                  <ul className="mt-4 space-y-2">
-                    {item.examples.map((example, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground/80">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300"
+                      style={{
+                        backgroundColor: openItem === item.id ? `${item.color}15` : undefined,
+                      }}
+                    >
+                      <SvgIcon />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
                         <span
-                          className="flex h-1.5 w-1.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span>{example}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </motion.article>
+                          className="font-extrabold text-base tracking-tight"
+                          style={{ color: item.color }}
+                        >
+                          {item.label}
+                        </span>
+                        <span
+                          className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold"
+                          style={{
+                            backgroundColor: `${item.color}15`,
+                            color: item.color,
+                          }}
+                        >
+                          {item.totalCats} cats
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {item.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                </AccordionTrigger>
+
+                <AccordionContent>
+                  <div
+                    className="rounded-lg p-3"
+                    style={{ backgroundColor: `rgba(${item.rgb},0.04)` }}
+                  >
+                    <ul className="space-y-2">
+                      {item.examples.map((example, i) => (
+                        <motion.li
+                          key={example}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.25, delay: i * 0.04, ease: "easeOut" }}
+                          className="flex items-center gap-3 text-sm"
+                        >
+                          <span
+                            className="flex h-2 w-2 shrink-0 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <span className="text-foreground/80 font-medium">{example}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <p className="text-[11px] text-muted-foreground font-medium">
+                        <span className="font-semibold" style={{ color: item.color }}>
+                          {item.totalCats}
+                        </span>{" "}
+                        categorias {item.id === "NEEDS" ? "(incluye deudas)" : ""}
+                        {item.id === "NEEDS" ? "" : "disponibles"}
+                      </p>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItemWithProvider>
+            </motion.div>
           );
         })}
-      </div>
+      </Accordion>
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.4 }}
-        className="rounded-xl bg-muted/50 p-4 text-center"
+        className="rounded-2xl border border-muted bg-gradient-to-br from-muted/40 to-muted/20 p-5 text-center"
       >
-        <p className="text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">12 categorías</span> predefinidas listas para usar.
-          Podrás editarlas y ponerles límite cuando quieras en{" "}
-          <span className="font-semibold text-foreground">Reglas</span>.
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          <span className="font-bold text-foreground">12 categorias</span> predefinidas listas para usar.
+          Cuando gustes, editalas y ponles limite en{" "}
+          <span className="font-bold text-foreground">Reglas</span>.
         </p>
       </motion.div>
 
