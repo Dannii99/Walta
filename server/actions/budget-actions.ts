@@ -97,6 +97,10 @@ export async function createBudget(
   return {
     ...budget,
     income: budget.income.toString(),
+    categories: budget.categories.map((c) => ({
+      ...c,
+      plannedAmount: c.plannedAmount ? c.plannedAmount.toString() : null,
+    })),
   };
 }
 
@@ -149,6 +153,10 @@ export async function updateBudget(
   return {
     ...updated,
     income: updated.income.toString(),
+    categories: updated.categories.map((c) => ({
+      ...c,
+      plannedAmount: c.plannedAmount ? c.plannedAmount.toString() : null,
+    })),
   };
 }
 

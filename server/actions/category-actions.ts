@@ -82,7 +82,10 @@ export async function createCategory(
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
 
-  return created;
+  return {
+    ...created,
+    plannedAmount: created.plannedAmount ? created.plannedAmount.toString() : null,
+  };
 }
 
 export async function updateCategory(
@@ -114,7 +117,10 @@ export async function updateCategory(
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
 
-  return updated;
+  return {
+    ...updated,
+    plannedAmount: updated.plannedAmount ? updated.plannedAmount.toString() : null,
+  };
 }
 
 export async function deleteCategory(
