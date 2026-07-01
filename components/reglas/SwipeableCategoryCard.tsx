@@ -189,7 +189,7 @@ export function SwipeableCategoryCard({ category, onEdit, onDelete, reducedMotio
           <button
             type="button"
             onClick={handleEdit}
-            className="h-9 px-3 rounded-lg bg-[var(--color-wants)]/10 flex items-center justify-center gap-1.5 text-[var(--color-wants)] hover:bg-[var(--color-wants)]/20 transition-colors text-xs font-semibold"
+            className="h-9 px-3 rounded-lg bg-[var(--color-wants)]/10 text-[var(--color-wants)] hover:bg-[var(--color-wants)]/20 transition-colors flex items-center justify-center gap-1.5 text-xs font-semibold"
             aria-label={`Editar ${category.name}`}
           >
             <Pencil className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -198,7 +198,7 @@ export function SwipeableCategoryCard({ category, onEdit, onDelete, reducedMotio
           <button
             type="button"
             onClick={handleDelete}
-            className="h-9 px-3 rounded-lg bg-[#e54d4d]/10 flex items-center justify-center gap-1.5 text-[#e54d4d] hover:bg-[#e54d4d]/20 transition-colors text-xs font-semibold"
+            className="h-9 px-3 rounded-lg bg-[#e54d4d]/10 text-[#e54d4d] hover:bg-[#e54d4d]/20 transition-colors flex items-center justify-center gap-1.5 text-xs font-semibold"
             aria-label={`Eliminar ${category.name}`}
           >
             <Trash2 className="h-3.5 w-3.5" strokeWidth={2.2} />
@@ -219,7 +219,10 @@ export function SwipeableCategoryCard({ category, onEdit, onDelete, reducedMotio
         <button
           type="button"
           onClick={handleEdit}
-          className="flex items-center justify-center w-20 bg-[var(--color-wants)] text-white hover:bg-[var(--color-wants)]/90 transition-colors"
+          className="flex items-center justify-center w-20 text-white transition-all"
+          style={{
+            background: `linear-gradient(135deg, #10b981, #10b981dd)`,
+          }}
           aria-label={`Editar ${category.name}`}
         >
           <div className="flex flex-col items-center gap-1">
@@ -230,7 +233,10 @@ export function SwipeableCategoryCard({ category, onEdit, onDelete, reducedMotio
         <button
           type="button"
           onClick={handleDelete}
-          className="flex items-center justify-center w-20 bg-[#e54d4d] text-white hover:bg-[#c43939] transition-colors"
+          className="flex items-center justify-center w-20 text-white transition-all"
+          style={{
+            background: `linear-gradient(135deg, #e54d4d, #e54d4d88)`,
+          }}
           aria-label={`Eliminar ${category.name}`}
         >
           <div className="flex flex-col items-center gap-1">
