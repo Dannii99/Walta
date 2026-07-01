@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const AUTOPLAY_INTERVAL = 5000;
+const SWIPE_THRESHOLD = 50;
 
 type CategoryId = "NEEDS" | "WANTS" | "SAVINGS";
 
@@ -385,6 +386,7 @@ export function CategoryEducationStep({ onContinue, isLoading = false }: Categor
   const [direction, setDirection] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const touchStartX = useRef(0);
 
   const goTo = useCallback((index: number) => {
     setDirection(index > current ? 1 : -1);
@@ -395,6 +397,22 @@ export function CategoryEducationStep({ onContinue, isLoading = false }: Categor
     setDirection(1);
     setCurrent((prev) => (prev + 1) % CATEGORIES.length);
   }, []);
+
+  const goPrev = useCallback(() => {
+    setDirection(-1);
+    setCurrent((prev) => (prev - 1 + CATEGORIES.length) % CATEGORIES.length);
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) < SWIPE_THRESHOLD) return;
+    if (diff > 0) goNext();
+    else goPrev();
+  }, [goNext, goPrev]);
 
   useEffect(() => {
     if (isPaused) return;
@@ -432,7 +450,11 @@ export function CategoryEducationStep({ onContinue, isLoading = false }: Categor
       </motion.div>
 
       <div className="relative w-full max-w-[380px] mx-auto" aria-live="polite" role="region" aria-label={category.label}>
-        <div className="overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-b from-muted/30 to-muted/10">
+        <div
+          className="overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-b from-muted/30 to-muted/10"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={current}
@@ -441,7 +463,7 @@ export function CategoryEducationStep({ onContinue, isLoading = false }: Categor
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.35 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.5 }}
               className="p-5"
             >
               <SvgComponent />

@@ -85,7 +85,7 @@ export function IncomeStep({
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-sm text-muted-foreground font-medium"
+              className="text-sm font-medium mt-3 text-[#26be15]"
             >
               {formatCOP(income)} COP
             </motion.p>
