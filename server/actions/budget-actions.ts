@@ -5,14 +5,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { PREDEFINED_CATEGORIES } from "@/lib/categories";
+import { CATEGORY_COLORS } from "@/lib/category-colors";
 import type { BudgetRule, CategoryType } from "@/types";
-
-const TYPE_COLORS: Record<CategoryType, string> = {
-  NEEDS: "#617dd5",
-  WANTS: "#e7964d",
-  SAVINGS: "#26be15",
-  DEBT: "#9333ea",
-};
 
 const budgetRuleSchema = z.object({
   needs: z.number().int().min(0).max(100),
@@ -68,7 +62,7 @@ export async function createBudget(
       : PREDEFINED_CATEGORIES.map((c) => ({
           name: c.name,
           type: c.type,
-          color: TYPE_COLORS[c.type],
+          color: CATEGORY_COLORS[c.type],
           icon: c.icon,
           description: c.description,
           plannedAmount: null,

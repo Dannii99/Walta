@@ -63,6 +63,12 @@
   --chart-3: #e7964d;
   --chart-4: #617dd5;
   --chart-5: #e54d4d;
+
+  /* Category data colors (onboarding palette) */
+  --color-needs: #e11d48;
+  --color-wants: #10b981;
+  --color-savings: #8b5cf6;
+  --color-debt: #9333ea;
 }
 
 .dark {
@@ -90,6 +96,12 @@
   --chart-3: #e7964d;
   --chart-4: #617dd5;
   --chart-5: #e54d4d;
+
+  /* Category data colors (onboarding palette) */
+  --color-needs: #e11d48;
+  --color-wants: #10b981;
+  --color-savings: #8b5cf6;
+  --color-debt: #9333ea;
 }
 
 body {

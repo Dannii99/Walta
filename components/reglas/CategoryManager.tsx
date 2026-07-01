@@ -66,17 +66,17 @@ const TYPE_LABELS: Record<CategoryType, string> = {
 };
 
 const TYPE_COLORS: Record<CategoryType, string> = {
-  NEEDS: "#e54d4d",
-  WANTS: "#617dd5",
-  SAVINGS: "#23ad1b",
+  NEEDS: "#e11d48",
+  WANTS: "#10b981",
+  SAVINGS: "#8b5cf6",
   DEBT: "#9333ea",
 };
 
 const TYPE_BG: Record<CategoryType, string> = {
-  NEEDS: "bg-[#e54d4d]/10 text-[#e54d4d] border-[#e54d4d]/20",
-  WANTS: "bg-[#617dd5]/10 text-[#617dd5] border-[#617dd5]/20",
-  SAVINGS: "bg-[#23ad1b]/10 text-[#23ad1b] border-[#23ad1b]/20",
-  DEBT: "bg-[#9333ea]/10 text-[#9333ea] border-[#9333ea]/20",
+  NEEDS: "bg-[var(--color-needs)]/10 text-[var(--color-needs)] border-[var(--color-needs)]/20",
+  WANTS: "bg-[var(--color-wants)]/10 text-[var(--color-wants)] border-[var(--color-wants)]/20",
+  SAVINGS: "bg-[var(--color-savings)]/10 text-[var(--color-savings)] border-[var(--color-savings)]/20",
+  DEBT: "bg-[var(--color-debt)]/10 text-[var(--color-debt)] border-[var(--color-debt)]/20",
 };
 
 const TYPE_ICONS: Record<CategoryType, LucideIcon> = {
@@ -406,7 +406,7 @@ const handleAdd = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-9 w-9 text-[#23ad1b] hover:bg-[#23ad1b]/10"
+                            className="h-9 w-9 text-[var(--color-wants)] hover:bg-[var(--color-wants)]/10"
                             onClick={() => saveEdit(category)}
                             disabled={isPending}
                             aria-label="Guardar cambios"
@@ -542,7 +542,7 @@ const handleAdd = () => {
                       "w-full h-10 pl-9 pr-4 text-sm rounded-xl border",
                       "bg-white dark:bg-[#1a1a1e] border-[#e8e8e8] dark:border-[#2a2a2e]",
                       "text-[#17181c] dark:text-white placeholder:text-[#a1a1aa]",
-                      "focus:outline-none focus:ring-2 focus:ring-[#617dd5]/30 focus:border-[#617dd5]"
+                      "focus:outline-none focus:ring-2 focus:ring-[var(--color-wants)]/30 focus:border-[var(--color-wants)]"
                     )}
                   />
                 </div>
@@ -584,9 +584,9 @@ const handleAdd = () => {
                                 )}
                               >
                                 {isAdded ? (
-                                  <Check className="h-4 w-4 text-[#23ad1b] shrink-0" />
+                                  <Check className="h-4 w-4 text-[var(--color-wants)] shrink-0" />
                                 ) : isSelected ? (
-                                  <span className="h-4 w-4 rounded-full bg-[#617dd5] flex items-center justify-center shrink-0">
+                                  <span className="h-4 w-4 rounded-full bg-[var(--color-wants)] flex items-center justify-center shrink-0">
                                     <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />
                                   </span>
                                 ) : (
@@ -596,10 +596,10 @@ const handleAdd = () => {
                                   {cat.name}
                                 </span>
                                 {isAdded && (
-                                  <span className="text-[10px] text-[#23ad1b] font-semibold pr-3">Agregada</span>
+                                  <span className="text-[10px] text-[var(--color-wants)] font-semibold pr-3">Agregada</span>
                                 )}
                                 {isSelected && !isAdded && (
-                                  <span className="text-[10px] text-[#617dd5] font-semibold">Seleccionada</span>
+                                  <span className="text-[10px] text-[var(--color-wants)] font-semibold">Seleccionada</span>
                                 )}
                               </button>
                             );
@@ -622,7 +622,7 @@ const handleAdd = () => {
                             : "text-[#17181c] dark:text-white hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2e]"
                         )}
                       >
-                        <Plus className="h-4 w-4 text-[#617dd5] shrink-0" />
+                        <Plus className="h-4 w-4 text-[var(--color-wants)] shrink-0" />
                         <span className="flex-1">Personalizado (otro)...</span>
                       </button>
                     </div>
@@ -726,7 +726,7 @@ const handleAdd = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-[#e7964d]" strokeWidth={2.2} />
+              <AlertTriangle className="h-5 w-5 text-amber-500" strokeWidth={2.2} />
               Cambiar tipo de categoría
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -1122,7 +1122,7 @@ function PlannedAmountRow({
           className={cn(
             "h-7 w-[110px] text-xs font-semibold pl-2 pr-1 rounded-md border",
             savedFlash
-              ? "border-[#26be15] bg-[#26be15]/5 dark:border-[#26be15]"
+              ? "border-[var(--color-wants)] bg-[var(--color-wants)]/5 dark:border-[var(--color-wants)]"
               : "border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#fafafa] dark:bg-[#1a1a1e]"
           )}
         />
