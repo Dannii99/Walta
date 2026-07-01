@@ -41,33 +41,33 @@ export function IncomeStep({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="space-y-6"
+      className="space-y-4"
     >
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#17181c] dark:text-white">
+      <div className="text-center space-y-1.5">
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
           Configura tu presupuesto
         </h2>
-        <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
-          ¿Cuánto dinero recibes al mes? Usaremos esto para tus cálculos.
+        <p className="text-[11px] sm:text-sm text-white/60 max-w-xs mx-auto leading-relaxed">
+          ¿Cuánto dinero recibes al mes?
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="budgetName">Nombre del presupuesto</Label>
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="budgetName" className="text-[11px] sm:text-sm text-white/70">Nombre del presupuesto</Label>
           <Input
             id="budgetName"
             value={budgetName}
             onChange={(e) => onBudgetNameChange(e.target.value)}
             placeholder="Ej. Mi Presupuesto Mensual"
-            className="h-11"
+            className="h-10 text-sm bg-white/5 border-white/10 text-white placeholder:text-white/30"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="income">Ingreso mensual total</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="income" className="text-[11px] sm:text-sm text-white/70">Ingreso mensual total</Label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground pointer-events-none">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-white/50 pointer-events-none">
               $
             </span>
             <Input
@@ -78,14 +78,14 @@ export function IncomeStep({
               value={displayIncome}
               onChange={handleIncomeChange}
               placeholder="3.000.000"
-              className="pl-7 h-11 text-base font-semibold"
+              className="pl-7 h-10 text-base font-semibold bg-white/5 border-white/10 text-white placeholder:text-white/30"
             />
           </div>
           {income > 0 && (
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-sm font-medium mt-3 text-[#26be15]"
+              className="text-sm font-medium mt-2 text-[#26be15]"
             >
               {formatCOP(income)} COP
             </motion.p>

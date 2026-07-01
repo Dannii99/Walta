@@ -144,3 +144,11 @@ body {
   0%, 100% { box-shadow: 0 0 0 0 rgb(38 190 21 / 0.35); }
   50% { box-shadow: 0 0 0 8px rgb(38 190 21 / 0); }
 }
+
+/* Safe area insets (iOS notch + home indicator) */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

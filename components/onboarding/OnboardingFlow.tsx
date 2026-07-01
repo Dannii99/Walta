@@ -3,13 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { createBudget } from "@/server/actions/budget-actions";
 import { DEFAULT_BUDGET_RULE } from "@/lib/constants";
 import type { BudgetRule } from "@/types";
-import { StepIndicator } from "./StepIndicator";
 import { WelcomeStep } from "./WelcomeStep";
 import { IncomeStep } from "./IncomeStep";
 import { RuleStep } from "./RuleStep";
@@ -80,100 +78,119 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
     }
   };
 
+  const nextLabel = () => {
+    if (step === 1) return "Comenzar";
+    if (step === 3) return "Continuar";
+    if (step === 4) return isSaving ? "Creando..." : "Crear presupuesto";
+    return "Siguiente";
+  };
+
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen flex flex-col overflow-hidden bg-[#17181c]">
       <div
-        className="pointer-events-none absolute -top-32 -right-32 h-80 w-80 rounded-full blur-3xl"
+        className="pointer-events-none fixed -top-32 -right-32 h-80 w-80 rounded-full blur-3xl"
         style={{ background: "radial-gradient(circle, rgba(38,190,21,0.12) 0%, transparent 70%)" }}
       />
       <div
-        className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full blur-3xl"
+        className="pointer-events-none fixed -bottom-32 -left-32 h-80 w-80 rounded-full blur-3xl"
         style={{ background: "radial-gradient(circle, rgba(97,125,213,0.10) 0%, transparent 70%)" }}
       />
 
-      <div className="relative mx-auto w-full max-w-xl px-4 py-8 sm:py-12">
-        {step > 1 && (
-          <div className="mb-8">
-            <StepIndicator steps={STEPS} currentStep={step} />
-          </div>
-        )}
+      <header className="fixed top-0 left-0 right-0 z-20 h-14 pt-safe">
+        <div className="flex h-full items-center px-4">
+          {step > 1 && (
+            <motion.button
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleBack}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-sm text-white/70 hover:text-white transition-colors"
+              aria-label="Atrás"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </motion.button>
+          )}
+        </div>
+      </header>
 
-        <div className="rounded-2xl bg-card border border-border shadow-lg dark:shadow-black/20 overflow-hidden">
-          <div className="p-6 sm:p-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-              >
-                {step === 1 && <WelcomeStep onStart={() => setStep(2)} />}
+      <main className="flex-1 overflow-y-auto px-4 pt-16 pb-36 overscroll-contain scroll-smooth">
+        <div className="mx-auto w-full max-w-xl">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              {step === 1 && <WelcomeStep />}
 
-                {step === 2 && (
-                  <IncomeStep
-                    budgetName={budgetName}
-                    income={income}
-                    onBudgetNameChange={setBudgetName}
-                    onIncomeChange={setIncome}
-                  />
-                )}
+              {step === 2 && (
+                <IncomeStep
+                  budgetName={budgetName}
+                  income={income}
+                  onBudgetNameChange={setBudgetName}
+                  onIncomeChange={setIncome}
+                />
+              )}
 
-                {step === 3 && (
-                  <RuleStep
-                    rule={rule}
-                    onRuleChange={setRule}
-                    onSkip={() => {
-                      setRule(DEFAULT_BUDGET_RULE);
-                      setStep(4);
-                    }}
-                  />
-                )}
+              {step === 3 && (
+                <RuleStep
+                  rule={rule}
+                  onRuleChange={setRule}
+                />
+              )}
 
-                {step === 4 && (
-                  <CategoryEducationStep
-                    onContinue={handleSave}
-                    isLoading={isSaving}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
+              {step === 4 && <CategoryEducationStep />}
+            </motion.div>
+          </AnimatePresence>
 
-            {error && (
-              <div className="mt-4 rounded-lg bg-destructive/10 dark:bg-destructive/20 border border-destructive/30 p-3 text-sm text-destructive font-medium">
-                {error}
-              </div>
+          {error && (
+            <div className="mt-4 rounded-lg bg-destructive/20 border border-destructive/40 p-3 text-sm text-destructive-foreground font-medium">
+              {error}
+            </div>
+          )}
+        </div>
+      </main>
+
+      <div className="fixed bottom-0 left-0 right-0 z-20 pb-safe">
+        <div className="flex flex-col items-center gap-3 px-4 py-4">
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={handleNext}
+            disabled={!canGoNext()}
+            className="h-10 px-6 rounded-full bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-shadow duration-200"
+          >
+            {isSaving && step === 4 ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Creando...
+              </span>
+            ) : (
+              nextLabel()
             )}
+          </motion.button>
 
-            {step > 1 && step < 4 && (
-              <div className="flex items-center justify-between pt-6 mt-6 border-t border-border">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBack}
-                  className="rounded-full"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Atrás
-                </Button>
-
-                <Button
-                  size="sm"
-                  onClick={handleNext}
-                  disabled={!canGoNext()}
-                  className="rounded-full"
-                >
-                  {step === 3 ? "Continuar" : "Siguiente"}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            )}
+          <div className="flex items-center justify-center gap-2" role="tablist" aria-label="Pasos del onboarding">
+            {STEPS.map((_, i) => (
+              <span
+                key={i}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  i === step - 1
+                    ? "bg-primary w-5"
+                    : "bg-white/20"
+                }`}
+                role="tab"
+                aria-selected={i === step - 1}
+              />
+            ))}
           </div>
         </div>
-
-        <p className="mt-6 text-center text-[11px] text-muted-foreground font-medium">
-          Tu dinero, más claro.
-        </p>
       </div>
     </div>
   );
