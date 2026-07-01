@@ -37,7 +37,7 @@ async function verifyCategoryOwnership(categoryId: string) {
 
 export async function createCategory(
   budgetId: string,
-  data: { name: string; type: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string; plannedAmount?: string | null }
+  data: { name: string; type: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string | null; plannedAmount?: string | null }
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -90,7 +90,7 @@ export async function createCategory(
 
 export async function updateCategory(
   categoryId: string,
-  data: { name?: string; type?: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string; plannedAmount?: string | null }
+  data: { name?: string; type?: "NEEDS" | "WANTS" | "SAVINGS" | "DEBT"; color?: string; icon?: string; description?: string | null; plannedAmount?: string | null }
 ) {
   const { category } = await verifyCategoryOwnership(categoryId);
   const parsed = categoryUpdateSchema.parse(data);
