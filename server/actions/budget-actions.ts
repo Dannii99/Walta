@@ -8,9 +8,9 @@ import { PREDEFINED_CATEGORIES } from "@/lib/categories";
 import type { BudgetRule, CategoryType } from "@/types";
 
 const TYPE_COLORS: Record<CategoryType, string> = {
-  NEEDS: "#26be15",
+  NEEDS: "#617dd5",
   WANTS: "#e7964d",
-  SAVINGS: "#617dd5",
+  SAVINGS: "#26be15",
   DEBT: "#9333ea",
 };
 

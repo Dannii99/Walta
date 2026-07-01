@@ -2,10 +2,55 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, SlidersHorizontal, Sparkles, BarChart3 } from "lucide-react";
+import { Check, SlidersHorizontal, Sparkles, BarChart3, Home, Heart, PiggyBank, Scale, Gauge } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { BudgetRule } from "@/types";
+
+const CATEGORY_COLORS = {
+  needs: "#617dd5",
+  wants: "#e7964d",
+  savings: "#26be15",
+} as const;
+
+const CATEGORY_LABELS = {
+  needs: "necesidades",
+  wants: "deseos",
+  savings: "ahorros",
+} as const;
+
+interface PresetTheme {
+  border: string;
+  bg: string;
+  iconGradient: string;
+  iconLight: string;
+  accent: string;
+}
+
+const PRESET_THEMES: Record<string, PresetTheme> = {
+  balanced: {
+    border: "border-rose-500/50",
+    bg: "bg-rose-500/8",
+    iconGradient: "bg-gradient-to-br from-rose-500 to-pink-500",
+    iconLight: "text-rose-300",
+    accent: "#e11d48",
+  },
+  saver: {
+    border: "border-emerald-500/50",
+    bg: "bg-emerald-500/8",
+    iconGradient: "bg-gradient-to-br from-emerald-500 to-teal-500",
+    iconLight: "text-emerald-300",
+    accent: "#10b981",
+  },
+};
+
+const CUSTOM_THEME: PresetTheme = {
+  border: "border-violet-500/50",
+  bg: "bg-violet-500/8",
+  iconGradient: "bg-gradient-to-br from-purple-500 to-violet-500",
+  iconLight: "text-violet-300",
+  accent: "#8b5cf6",
+};
 
 interface RuleOption {
   id: string;
@@ -22,7 +67,7 @@ const OPTIONS: RuleOption[] = [
     label: "Balanceado",
     description: "50% necesidades · 30% deseos · 20% ahorros",
     rule: { needs: 50, wants: 30, savings: 20 },
-    icon: Sparkles,
+    icon: Scale,
     recommended: true,
   },
   {
@@ -30,13 +75,33 @@ const OPTIONS: RuleOption[] = [
     label: "Ahorrador",
     description: "40% necesidades · 30% deseos · 30% ahorros",
     rule: { needs: 40, wants: 30, savings: 30 },
-    icon: BarChart3,
+    icon: Gauge,
   },
 ];
 
 interface RuleStepProps {
   rule: BudgetRule;
   onRuleChange: (rule: BudgetRule) => void;
+}
+
+function ColoredDescription({ rule }: { rule: BudgetRule }) {
+  const parts: { value: number; key: keyof typeof CATEGORY_COLORS }[] = [
+    { value: rule.needs, key: "needs" },
+    { value: rule.wants, key: "wants" },
+    { value: rule.savings, key: "savings" },
+  ];
+
+  return (
+    <p className="mt-0.5 text-[11px] text-white/50">
+      {parts.map((p, i) => (
+        <span key={p.key}>
+          <span style={{ color: CATEGORY_COLORS[p.key] }} className="font-semibold">{p.value}%</span>
+          <span className="text-white/40"> {CATEGORY_LABELS[p.key]}</span>
+          {i < parts.length - 1 && <span className="text-white/20"> · </span>}
+        </span>
+      ))}
+    </p>
+  );
 }
 
 export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
@@ -102,6 +167,7 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
         {OPTIONS.map((opt, index) => {
           const isSelected = selectedId === opt.id && mode === "preset";
           const Icon = opt.icon;
+          const theme = PRESET_THEMES[opt.id];
           return (
             <motion.button
               key={opt.id}
@@ -113,38 +179,36 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
               whileTap={{ scale: 0.99 }}
               onClick={() => selectPreset(opt)}
               className={cn(
-                "w-full text-left rounded-2xl border-2 p-3 sm:p-4 transition-all duration-200",
+                "w-full text-left rounded-2xl border-2 p-3 sm:p-4 transition-all duration-200 relative overflow-hidden",
                 isSelected
-                  ? "border-primary bg-primary/10 shadow-md"
+                  ? `${theme.border} ${theme.bg} shadow-md`
                   : "border-white/10 bg-white/5 hover:border-white/20 hover:shadow-sm"
               )}
             >
               <div className="flex items-start gap-3">
                 <div
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors",
-                    isSelected
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-white/10 text-white/50"
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white shadow-sm transition-all duration-300",
+                    theme.iconGradient
                   )}
                 >
                   {isSelected ? (
                     <Check className="h-4 w-4" strokeWidth={3} />
                   ) : (
-                    <Icon className="h-4 w-4" strokeWidth={1.8} />
+                    <Icon className="h-4 w-4" strokeWidth={2.2} />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-sm text-white">{opt.label}</span>
                     {opt.recommended && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
                         <Sparkles className="h-2.5 w-2.5" />
                         Recomendado
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-[11px] text-white/50">{opt.description}</p>
+                  <ColoredDescription rule={opt.rule} />
 
                   {isSelected && (
                     <motion.div
@@ -154,15 +218,15 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
                     >
                       <div
                         className="h-full transition-all duration-500"
-                        style={{ width: `${opt.rule.needs}%`, backgroundColor: "#26be15" }}
+                        style={{ width: `${opt.rule.needs}%`, backgroundColor: CATEGORY_COLORS.needs }}
                       />
                       <div
                         className="h-full transition-all duration-500"
-                        style={{ width: `${opt.rule.wants}%`, backgroundColor: "#e7964d" }}
+                        style={{ width: `${opt.rule.wants}%`, backgroundColor: CATEGORY_COLORS.wants }}
                       />
                       <div
                         className="h-full transition-all duration-500"
-                        style={{ width: `${opt.rule.savings}%`, backgroundColor: "#617dd5" }}
+                        style={{ width: `${opt.rule.savings}%`, backgroundColor: CATEGORY_COLORS.savings }}
                       />
                     </motion.div>
                   )}
@@ -183,23 +247,21 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
           className={cn(
             "w-full text-left rounded-2xl border-2 p-3 sm:p-4 transition-all duration-200",
             mode === "custom"
-              ? "border-primary bg-primary/10 shadow-md"
+              ? `${CUSTOM_THEME.border} ${CUSTOM_THEME.bg} shadow-md`
               : "border-white/10 bg-white/5 hover:border-white/20 hover:shadow-sm"
           )}
         >
           <div className="flex items-start gap-3">
             <div
               className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors",
-                mode === "custom"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-white/10 text-white/50"
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white shadow-sm transition-all duration-300",
+                CUSTOM_THEME.iconGradient
               )}
             >
               {mode === "custom" ? (
                 <Check className="h-4 w-4" strokeWidth={3} />
               ) : (
-                <SlidersHorizontal className="h-4 w-4" strokeWidth={1.8} />
+                <SlidersHorizontal className="h-4 w-4" strokeWidth={2.2} />
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -218,27 +280,30 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
                     <CustomField
                       label="Necesidades"
                       value={needs}
-                      color="#26be15"
+                      color={CATEGORY_COLORS.needs}
+                      icon={Home}
                       onChange={(v) => updateCustom("needs", v)}
                     />
                     <CustomField
                       label="Deseos"
                       value={wants}
-                      color="#e7964d"
+                      color={CATEGORY_COLORS.wants}
+                      icon={Heart}
                       onChange={(v) => updateCustom("wants", v)}
                     />
                     <CustomField
                       label="Ahorros"
                       value={savings}
-                      color="#617dd5"
+                      color={CATEGORY_COLORS.savings}
+                      icon={PiggyBank}
                       onChange={(v) => updateCustom("savings", v)}
                     />
                   </div>
 
                   <div className="flex h-2 rounded-full overflow-hidden">
-                    <div className="h-full transition-all duration-300" style={{ width: `${needs}%`, backgroundColor: "#26be15" }} />
-                    <div className="h-full transition-all duration-300" style={{ width: `${wants}%`, backgroundColor: "#e7964d" }} />
-                    <div className="h-full transition-all duration-300" style={{ width: `${savings}%`, backgroundColor: "#617dd5" }} />
+                    <div className="h-full transition-all duration-300" style={{ width: `${needs}%`, backgroundColor: CATEGORY_COLORS.needs }} />
+                    <div className="h-full transition-all duration-300" style={{ width: `${wants}%`, backgroundColor: CATEGORY_COLORS.wants }} />
+                    <div className="h-full transition-all duration-300" style={{ width: `${savings}%`, backgroundColor: CATEGORY_COLORS.savings }} />
                   </div>
 
                   <div className={cn(
@@ -261,18 +326,31 @@ function CustomField({
   label,
   value,
   color,
+  icon: Icon,
   onChange,
 }: {
   label: string;
   value: number;
   color: string;
+  icon: React.ElementType;
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="space-y-1">
-      <label className="block text-[10px] font-bold uppercase tracking-wider text-center" style={{ color }}>
-        {label}
-      </label>
+    <div className="space-y-1.5">
+      <div className="flex flex-col items-center gap-1">
+        <div
+          className="flex h-6 w-6 items-center justify-center rounded-lg shadow-sm"
+          style={{
+            background: `linear-gradient(135deg, ${color}cc, ${color}60)`,
+            color: "#fff",
+          }}
+        >
+          <Icon className="h-3 w-3" strokeWidth={2.5} />
+        </div>
+        <label className="block text-[10px] font-bold tracking-wider text-center" style={{ color }}>
+          {label}
+        </label>
+      </div>
       <div className="relative">
         <Input
           type="number"
@@ -280,7 +358,9 @@ function CustomField({
           max={100}
           value={value}
           onChange={(e) => onChange(parseInt(e.target.value, 10) || 0)}
-          className="h-9 text-center text-sm font-bold tabular-nums bg-white/5 border-white/10 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="h-9 text-center text-sm font-bold tabular-nums bg-white/5 border-white/10 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus-visible:ring-2 focus-visible:ring-offset-0 transition-all duration-200"
+          onFocus={(e) => e.target.style.borderColor = color}
+          onBlur={(e) => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
         />
         <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-white/40 pointer-events-none">
           %

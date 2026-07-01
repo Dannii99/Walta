@@ -23,9 +23,9 @@ const adapter = new PrismaNeon({
 const prisma = new PrismaClient({ adapter });
 
 const TYPE_COLORS: Record<string, string> = {
-  NEEDS: "#26be15",
+  NEEDS: "#617dd5",
   WANTS: "#e7964d",
-  SAVINGS: "#617dd5",
+  SAVINGS: "#26be15",
   DEBT: "#9333ea",
 };
 
