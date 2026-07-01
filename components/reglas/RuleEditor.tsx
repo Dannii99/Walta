@@ -35,26 +35,26 @@ const categoryMeta = [
   {
     key: "needs" as const,
     label: "Necesidades",
-    color: "bg-[#e54d4d]",
-    track: "bg-[#e54d4d]/10",
-    textColor: "text-[#e54d4d]",
-    darkTrack: "dark:bg-[#e54d4d]/10",
+    color: "bg-[var(--color-needs)]",
+    track: "bg-[var(--color-needs)]/10",
+    textColor: "text-[var(--color-needs)]",
+    darkTrack: "dark:bg-[var(--color-needs)]/10",
   },
   {
     key: "wants" as const,
     label: "Deseos",
-    color: "bg-[#617dd5]",
-    track: "bg-[#617dd5]/10",
-    textColor: "text-[#617dd5]",
-    darkTrack: "dark:bg-[#617dd5]/10",
+    color: "bg-[var(--color-wants)]",
+    track: "bg-[var(--color-wants)]/10",
+    textColor: "text-[var(--color-wants)]",
+    darkTrack: "dark:bg-[var(--color-wants)]/10",
   },
   {
     key: "savings" as const,
     label: "Ahorros",
-    color: "bg-[#23ad1b]",
-    track: "bg-[#23ad1b]/10",
-    textColor: "text-[#23ad1b]",
-    darkTrack: "dark:bg-[#23ad1b]/10",
+    color: "bg-[var(--color-savings)]",
+    track: "bg-[var(--color-savings)]/10",
+    textColor: "text-[var(--color-savings)]",
+    darkTrack: "dark:bg-[var(--color-savings)]/10",
   },
 ];
 
@@ -144,7 +144,7 @@ export function RuleEditor({ budgetId, currentRule, income }: RuleEditorProps) {
                       max={100}
                       className={cn(
                         "h-9 w-20 text-right tabular-nums border-[#e8e8e8] dark:border-[#2a2a2e]",
-                        "focus-visible:ring-[#617dd5]/40 focus-visible:ring-offset-1"
+                        "focus-visible:ring-[var(--color-wants)]/40 focus-visible:ring-offset-1"
                       )}
                       {...register(meta.key, { valueAsNumber: true })}
                     />
@@ -230,7 +230,7 @@ export function RuleEditor({ budgetId, currentRule, income }: RuleEditorProps) {
               className={cn(
                 "text-xs font-medium",
                 feedback.type === "success"
-                  ? "text-[#23ad1b]"
+                  ? "text-[var(--color-wants)]"
                   : "text-[#e54d4d]"
               )}
               role="status"

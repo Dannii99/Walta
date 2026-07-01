@@ -50,7 +50,7 @@ export function WelcomeStep() {
 
       <div className="text-center space-y-2">
         <motion.h1
-          className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white"
+          className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: "easeOut", delay: 0.1 }}
@@ -58,7 +58,7 @@ export function WelcomeStep() {
           Tu dinero, <span className="text-primary">más claro.</span>
         </motion.h1>
         <motion.p
-          className="text-[11px] sm:text-sm text-white/60 font-medium leading-relaxed max-w-md mx-auto"
+          className="text-[11px] sm:text-sm text-muted-foreground font-medium leading-relaxed max-w-md mx-auto"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: "easeOut", delay: 0.2 }}
@@ -79,7 +79,7 @@ export function WelcomeStep() {
         {PILLARS.map((pillar, index) => (
           <motion.div
             key={pillar.label}
-            className="flex items-start gap-2.5 rounded-xl bg-white/5 dark:bg-white/5 border border-white/10 p-3"
+            className="flex items-start gap-2.5 rounded-xl bg-muted/50 dark:bg-white/5 border border-border/50 dark:border-white/10 p-3"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: "easeOut", delay: 0.35 + index * 0.1 }}
@@ -90,10 +90,10 @@ export function WelcomeStep() {
               <pillar.icon className="h-3.5 w-3.5" strokeWidth={2.5} />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-white leading-tight">
+              <p className="text-xs font-bold text-foreground leading-tight">
                 {pillar.label}
               </p>
-              <p className="text-[10px] text-white/50 leading-snug mt-0.5">
+              <p className="text-[10px] text-muted-foreground/70 dark:text-white/50 leading-snug mt-0.5">
                 {pillar.description}
               </p>
             </div>

@@ -200,7 +200,7 @@ export function CategoryStack({ className }: CategoryStackProps) {
                       {card.label}
                     </p>
                     <p
-                      className="text-[11px] mt-0.5 leading-snug text-white/60"
+                      className="text-[11px] mt-0.5 leading-snug text-muted-foreground dark:text-white/60"
                     >
                       {card.subtitle}
                     </p>
