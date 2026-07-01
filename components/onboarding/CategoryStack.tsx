@@ -124,7 +124,7 @@ export function CategoryStack({ className }: CategoryStackProps) {
               }
             >
               <div
-                className="rounded-2xl bg-gradient-to-br from-white/[0.18] to-white/[0.04] backdrop-blur-md"
+                className="rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] backdrop-blur-md"
               >
                 <div
                   className="absolute inset-0 rounded-2xl pointer-events-none"
