@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, SlidersHorizontal, Sparkles, BarChart3, Home, Heart, PiggyBank, Scale, Gauge } from "lucide-react";
+import { Check, SlidersHorizontal, Sparkles, Home, Heart, PiggyBank, Scale, Gauge } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { BudgetRule } from "@/types";
@@ -92,12 +92,12 @@ function ColoredDescription({ rule }: { rule: BudgetRule }) {
   ];
 
   return (
-    <p className="mt-0.5 text-[11px] text-white/50">
+    <p className="mt-0.5 text-[11px] text-muted-foreground dark:text-white/50">
       {parts.map((p, i) => (
         <span key={p.key}>
-          <span className="font-semibold text-white/80">{p.value}%</span>
-          <span className="text-white/40"> {CATEGORY_LABELS[p.key]}</span>
-          {i < parts.length - 1 && <span className="text-white/20"> · </span>}
+          <span className="font-semibold text-foreground/80 dark:text-white/80">{p.value}%</span>
+          <span className="text-muted-foreground/60 dark:text-white/40"> {CATEGORY_LABELS[p.key]}</span>
+          {i < parts.length - 1 && <span className="text-muted-foreground/40 dark:text-white/20"> · </span>}
         </span>
       ))}
     </p>
@@ -155,10 +155,10 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
       className="space-y-4"
     >
       <div className="text-center space-y-1.5">
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
           Distribuye tus ingresos
         </h2>
-        <p className="text-[11px] sm:text-sm text-white/60 max-w-xs mx-auto leading-relaxed">
+        <p className="text-[11px] sm:text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
           Elige cómo dividir tus ingresos.
         </p>
       </div>
@@ -182,7 +182,7 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
                 "w-full text-left rounded-2xl border-2 p-3 sm:p-4 transition-all duration-200 relative overflow-hidden",
                 isSelected
                   ? `${theme.border} ${theme.bg} shadow-md`
-                  : "border-white/10 bg-white/5 hover:border-white/20 hover:shadow-sm"
+                  : "border-border/50 dark:border-white/10 bg-muted/50 dark:bg-white/5 hover:border-border dark:hover:border-white/20 hover:shadow-sm"
               )}
             >
               <div className="flex items-start gap-3">
@@ -200,7 +200,7 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-white">{opt.label}</span>
+                    <span className="font-bold text-sm text-foreground dark:text-white">{opt.label}</span>
                     {opt.recommended && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
                         <Sparkles className="h-2.5 w-2.5" />
@@ -248,7 +248,7 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
             "w-full text-left rounded-2xl border-2 p-3 sm:p-4 transition-all duration-200",
             mode === "custom"
               ? `${CUSTOM_THEME.border} ${CUSTOM_THEME.bg} shadow-md`
-              : "border-white/10 bg-white/5 hover:border-white/20 hover:shadow-sm"
+              : "border-border/50 dark:border-white/10 bg-muted/50 dark:bg-white/5 hover:border-border dark:hover:border-white/20 hover:shadow-sm"
           )}
         >
           <div className="flex items-start gap-3">
@@ -265,8 +265,8 @@ export function RuleStep({ rule, onRuleChange }: RuleStepProps) {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="font-bold text-sm text-white">Personalizado</span>
-              <p className="mt-0.5 text-[11px] text-white/50">
+              <span className="font-bold text-sm text-foreground dark:text-white">Personalizado</span>
+              <p className="mt-0.5 text-[11px] text-muted-foreground dark:text-white/50">
                 Define tú mismo los porcentajes
               </p>
 
@@ -358,11 +358,11 @@ function CustomField({
           max={100}
           value={value}
           onChange={(e) => onChange(parseInt(e.target.value, 10) || 0)}
-          className="h-9 text-center text-sm font-bold tabular-nums bg-white/5 border-white/10 text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus-visible:ring-2 focus-visible:ring-offset-0 transition-all duration-200"
+          className="h-9 text-center text-sm font-bold tabular-nums bg-muted/40 dark:bg-white/5 border-border/60 dark:border-white/10 text-foreground dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus-visible:ring-2 focus-visible:ring-offset-0 transition-all duration-200"
           onFocus={(e) => e.target.style.borderColor = color}
           onBlur={(e) => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
         />
-        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-white/40 pointer-events-none">
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground/50 dark:text-white/40 pointer-events-none">
           %
         </span>
       </div>

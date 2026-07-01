@@ -86,13 +86,13 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col overflow-hidden bg-[#17181c]">
+    <div className="relative min-h-screen flex flex-col overflow-hidden bg-background dark:bg-[#17181c]">
       <div
-        className="pointer-events-none fixed -top-32 -right-32 h-80 w-80 rounded-full blur-3xl"
+        className="pointer-events-none fixed -top-32 -right-32 h-80 w-80 rounded-full blur-3xl dark:block hidden"
         style={{ background: "radial-gradient(circle, rgba(38,190,21,0.12) 0%, transparent 70%)" }}
       />
       <div
-        className="pointer-events-none fixed -bottom-32 -left-32 h-80 w-80 rounded-full blur-3xl"
+        className="pointer-events-none fixed -bottom-32 -left-32 h-80 w-80 rounded-full blur-3xl dark:block hidden"
         style={{ background: "radial-gradient(circle, rgba(97,125,213,0.10) 0%, transparent 70%)" }}
       />
 
@@ -105,7 +105,7 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
               transition={{ duration: 0.2, ease: "easeOut" }}
               whileTap={{ scale: 0.9 }}
               onClick={handleBack}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-sm text-white/70 hover:text-white transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/60 dark:bg-white/10 backdrop-blur-sm text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors"
               aria-label="Atrás"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -147,7 +147,7 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
           </AnimatePresence>
 
           {error && (
-            <div className="mt-4 rounded-lg bg-destructive/20 border border-destructive/40 p-3 text-sm text-destructive-foreground font-medium">
+            <div className="mt-4 rounded-lg bg-destructive/15 dark:bg-destructive/20 border border-destructive/30 dark:border-destructive/40 p-3 text-sm text-destructive font-medium">
               {error}
             </div>
           )}
@@ -183,7 +183,7 @@ export function OnboardingFlow({ userId }: OnboardingFlowProps) {
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   i === step - 1
                     ? "bg-primary w-5"
-                    : "bg-white/20"
+                    : "bg-muted-foreground/30 dark:bg-white/20"
                 }`}
                 role="tab"
                 aria-selected={i === step - 1}
