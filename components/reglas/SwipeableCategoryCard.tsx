@@ -215,7 +215,7 @@ export function SwipeableCategoryCard({ category, onEdit, onDelete, reducedMotio
       className="relative overflow-hidden rounded-2xl"
     >
       {/* Action bar (behind the card) */}
-      <motion.div className="absolute inset-y-0 right-0 flex items-stretch" style={{ opacity: actionOpacity }}>
+      <motion.div className="absolute inset-y-0 right-0 flex items-stretch" style={{ opacity: actionOpacity, zIndex: isOpen ? 20 : 0 }}>
         <button
           type="button"
           onClick={handleEdit}
