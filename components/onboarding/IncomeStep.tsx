@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { IncomeHero } from "./IncomeHero";
 import { IncomeFlowSVG } from "./IncomeFlowSVG";
 
 interface IncomeStepProps {
@@ -84,16 +83,17 @@ export function IncomeStep({
                 onChange={handleIncomeChange}
                 placeholder="3.000.000"
                 maxLength={13}
-                className="pl-7 h-10 text-base font-semibold bg-white/5 border-white/10 text-white placeholder:text-white/30 tabular-nums focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/50 transition-all duration-200"
+                className="pl-7 pr-12 h-10 text-base font-semibold bg-white/5 border-white/10 text-white placeholder:text-white/30 tabular-nums focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/50 transition-all duration-200"
               />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/30 pointer-events-none select-none">
+                COP
+              </span>
             </div>
             <IncomeFlowSVG
               income={income}
               className="w-10 h-24 shrink-0 opacity-80 mt-0.5 hidden sm:block"
             />
           </div>
-
-          <IncomeHero income={income} />
         </div>
       </div>
     </motion.div>
