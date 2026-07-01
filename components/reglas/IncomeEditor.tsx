@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
@@ -56,8 +56,8 @@ export function IncomeEditor({ budgetId, currentIncome }: IncomeEditorProps) {
   }, [currentIncome]);
 
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors, isDirty },
   } = useForm<IncomeForm>({
     resolver: zodResolver(incomeSchema),
@@ -150,12 +150,19 @@ export function IncomeEditor({ budgetId, currentIncome }: IncomeEditorProps) {
               Nuevo ingreso
             </Label>
             <div className="flex flex-col sm:flex-row gap-2">
-              <CurrencyInput
-                id="income"
-                {...register("income", { valueAsNumber: true })}
-                className="h-10 flex-1"
-                aria-invalid={!!errors.income}
-                aria-describedby={errors.income ? "income-error" : undefined}
+              <Controller
+                name="income"
+                control={control}
+                render={({ field }) => (
+                  <CurrencyInput
+                    id="income"
+                    value={field.value || 0}
+                    onValueChange={(v) => field.onChange(v)}
+                    className="h-10 flex-1"
+                    aria-invalid={!!errors.income}
+                    aria-describedby={errors.income ? "income-error" : undefined}
+                  />
+                )}
               />
               <Button
                 type="submit"
