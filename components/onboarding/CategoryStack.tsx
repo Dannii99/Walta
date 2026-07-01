@@ -111,9 +111,9 @@ export function CategoryStack({ className }: CategoryStackProps) {
             }}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.35, delay: 0.1 * (i + 1), ease: "easeOut" }}
+              initial={{ opacity: 0, scale: 0.92, rotate: i === 0 ? 3 : i === 1 ? -6 : 6 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 0.45, delay: 0.08 * (i + 1), ease: [0.25, 1, 0.5, 1] }}
               className="will-change-[opacity,transform]"
               style={
                 reducedMotion
@@ -124,23 +124,20 @@ export function CategoryStack({ className }: CategoryStackProps) {
               }
             >
               <div
-                className={cn(
-                  "rounded-2xl border overflow-hidden",
-                  "bg-white/80 dark:bg-black/60",
-                  "border-white/40 dark:border-white/10",
-                  "shadow-lg shadow-black/5 dark:shadow-black/20"
-                )}
+                className="rounded-2xl bg-gradient-to-br from-white/[0.18] to-white/[0.04] backdrop-blur-md"
               >
                 <div
-                  className="h-1 w-full shrink-0"
-                  style={{ backgroundColor: card.color }}
+                  className="absolute inset-0 rounded-2xl pointer-events-none"
+                  style={{
+                    background: `radial-gradient(ellipse 140% 60% at 80% 100%, ${card.color}10 0%, transparent 70%)`,
+                  }}
                 />
 
-                <div className="flex items-center gap-4 p-5">
+                <div className="relative flex items-center gap-4 p-5">
                   <div
                     className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
                     style={{
-                      backgroundColor: `${card.color}18`,
+                      background: `linear-gradient(135deg, ${card.color}28, ${card.color}08)`,
                       color: card.color,
                     }}
                   >
@@ -151,14 +148,19 @@ export function CategoryStack({ className }: CategoryStackProps) {
                     <p className="text-sm font-extrabold text-[#17181c] dark:text-white tracking-tight">
                       {card.label}
                     </p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                    <p
+                      className="text-[11px] mt-0.5 leading-snug"
+                      style={{ color: `${card.color}bb` }}
+                    >
                       {card.subtitle}
                     </p>
                   </div>
 
                   <div
                     className="shrink-0 rounded-lg px-2.5 py-1 text-center"
-                    style={{ backgroundColor: `${card.color}14` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${card.color}18, ${card.color}06)`,
+                    }}
                   >
                     <p
                       className="text-xs font-bold leading-tight"
