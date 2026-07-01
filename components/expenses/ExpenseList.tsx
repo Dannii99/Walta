@@ -27,6 +27,8 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
+import { getCategoryIconComponent } from "@/lib/category-icons";
+import { getCategoryIconName } from "@/lib/dashboard-helpers";
 import { ExpenseCard } from "./ExpenseCard";
 import { Pagination } from "@/components/ui/pagination";
 
@@ -48,13 +50,6 @@ const TYPE_LABELS: Record<CategoryType, string> = {
   WANTS: "Deseos",
   SAVINGS: "Ahorros",
   DEBT: "Deudas",
-};
-
-const TYPE_DOT: Record<CategoryType, string> = {
-  NEEDS: "bg-[#23ad1b]",
-  WANTS: "bg-[#e7964d]",
-  SAVINGS: "bg-[#617dd5]",
-  DEBT: "bg-[#e54d4d]",
 };
 
 const TYPE_PILL: Record<CategoryType, string> = {
@@ -272,6 +267,8 @@ export function ExpenseList({
               const showPerPayment =
                 transaction.recurrence === "BIWEEKLY" && perPayment !== amount;
               const isOdd = index % 2 === 1;
+              const catIconName = category?.icon ?? getCategoryIconName(category?.name ?? "");
+              const Icon = getCategoryIconComponent(catIconName);
 
               return (
                 <TableRow
@@ -303,12 +300,9 @@ export function ExpenseList({
                   </TableCell>
                   <TableCell className="py-3">
                     <div className="flex items-center gap-2 min-w-0">
-                      {type && (
-                        <span
-                          className={`h-2 w-2 rounded-full shrink-0 ${TYPE_DOT[type]}`}
-                          aria-hidden="true"
-                        />
-                      )}
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+                      </div>
                       <span className="text-sm text-[#17181c] dark:text-white">
                         {category?.name ?? "—"}
                       </span>

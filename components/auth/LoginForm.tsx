@@ -12,19 +12,11 @@ import {
   AlertCircle,
   LogIn,
   Loader2,
-  Sparkles,
-  Check,
-  Wallet,
-  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OAuthButton } from "./OAuthButton";
-import { toast } from "sonner";
-
-const DEMO_EMAIL = "demo@example.com";
-const DEMO_PASSWORD = "demo123";
 
 export function LoginForm() {
   const router = useRouter();
@@ -33,8 +25,8 @@ export function LoginForm() {
   const passwordId = useId();
   const emailRef = useRef<HTMLInputElement | null>(null);
 
-  const [email, setEmail] = useState(DEMO_EMAIL);
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
@@ -45,16 +37,6 @@ export function LoginForm() {
   useEffect(() => {
     emailRef.current?.focus({ preventScroll: true });
   }, []);
-
-  const fillDemo = () => {
-    setEmail(DEMO_EMAIL);
-    setPassword(DEMO_PASSWORD);
-    setError("");
-    setTimeout(() => {
-      emailRef.current?.focus({ preventScroll: true });
-    }, 0);
-    toast.success("Credenciales demo cargadas. Pulsa Iniciar sesión.");
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,14 +58,7 @@ export function LoginForm() {
       }
 
       if (result.error) {
-        if (
-          result.error.toLowerCase().includes("credential") ||
-          result.error.toLowerCase().includes("password")
-        ) {
-          setError("Email o contraseña incorrectos.");
-        } else {
-          setError("No pudimos iniciar sesión. Intenta de nuevo.");
-        }
+        setError("Email o contraseña incorrectos.");
         setLoading(false);
         return;
       }
@@ -98,12 +73,6 @@ export function LoginForm() {
 
   const handleForgot = (e: React.MouseEvent) => {
     e.preventDefault();
-    toast.info("Próximamente — la recuperación de contraseña está en camino.");
-  };
-
-  const handleSignup = (e: React.MouseEvent) => {
-    e.preventDefault();
-    toast.info("Pronto abriremos registro. Por ahora, usa la cuenta demo.");
   };
 
   return (
@@ -211,7 +180,8 @@ export function LoginForm() {
             <button
               type="button"
               onClick={handleForgot}
-              className="font-semibold text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-50 underline-offset-4 hover:underline"
+              className="font-semibold text-stone-500 dark:text-stone-400 cursor-not-allowed"
+              title="Próximamente"
             >
               ¿Olvidaste tu contraseña?
             </button>
@@ -248,62 +218,16 @@ export function LoginForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <OAuthButton provider="google" />
-          <OAuthButton provider="github" />
-        </div>
-
-        <div className="md:hidden -mx-6 px-6 overflow-x-auto scrollbar-none">
-          <div className="flex gap-2 pb-1">
-            <div className="flex items-center gap-2 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 px-3 py-1.5 shrink-0">
-              <Wallet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
-              <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 whitespace-nowrap">Regla 50/30/20</span>
-            </div>
-            <div className="flex items-center gap-2 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 px-3 py-1.5 shrink-0">
-              <BarChart3 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
-              <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 whitespace-nowrap">Salud al instante</span>
-            </div>
-            <div className="flex items-center gap-2 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 px-3 py-1.5 shrink-0">
-              <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" strokeWidth={2.5} />
-              <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 whitespace-nowrap">Simula decisiones</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 p-3">
-          <div className="flex items-start gap-3">
-            <div className="h-8 w-8 shrink-0 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shadow-sm">
-              <Sparkles className="h-4 w-4" strokeWidth={2.5} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-stone-900 dark:text-stone-50">
-                Cuenta demo
-              </p>
-              <p className="text-[11px] text-stone-600 dark:text-stone-400 leading-snug font-medium mt-0.5">
-                <span className="font-mono">{DEMO_EMAIL}</span> ·{" "}
-                <span className="font-mono">{DEMO_PASSWORD}</span>
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={fillDemo}
-              className="shrink-0 inline-flex items-center gap-1 rounded-md border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-2.5 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
-            >
-              <Check className="h-3 w-3" strokeWidth={3} />
-              Autocompletar
-            </button>
-          </div>
-        </div>
+        <OAuthButton provider="google" className="w-full" />
 
         <p className="text-center text-sm text-stone-600 dark:text-stone-400">
           ¿No tienes cuenta?{" "}
-          <button
-            type="button"
-            onClick={handleSignup}
+          <a
+            href="/register"
             className="font-bold text-stone-900 dark:text-stone-50 hover:underline underline-offset-4"
           >
             Crear cuenta
-          </button>
+          </a>
         </p>
       </div>
     </motion.div>

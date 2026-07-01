@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import {
   Select,
   SelectContent,
@@ -42,6 +43,8 @@ import {
 } from "lucide-react";
 import { createCategory, updateCategory, deleteCategory } from "@/server/actions/category-actions";
 import { PREDEFINED_CATEGORIES, OTHER_CATEGORY_KEY, type PredefinedCategory } from "@/lib/categories";
+import { getCategoryIconComponent } from "@/lib/category-icons";
+import { getCategoryIconName } from "@/lib/dashboard-helpers";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import type { Category, CategoryType } from "@/types";
@@ -144,10 +147,12 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
     return groups;
   }, [filteredPredefined]);
 
-  const handleAdd = () => {
+const handleAdd = () => {
     setError("");
     let name: string;
     let type: CategoryType;
+    let icon: string | undefined;
+    let description: string | undefined;
 
     if (selectedCategory === OTHER_CATEGORY_KEY) {
       const trimmed = otherName.trim();
@@ -158,6 +163,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
       }
       name = trimmed;
       type = otherType;
+      icon = undefined;
     } else if (selectedCategory) {
       const predefined = PREDEFINED_CATEGORIES.find(
         (c) => c.name === selectedCategory
@@ -165,13 +171,15 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
       if (!predefined) return;
       name = predefined.name;
       type = predefined.type;
+      icon = predefined.icon;
+      description = predefined.description;
     } else {
       return;
     }
 
     startTransition(async () => {
       try {
-        await createCategory(budgetId, { name, type });
+        await createCategory(budgetId, { name, type, color: TYPE_COLORS[type] ?? "#3B82F6", icon, description });
         setSelectedCategory("");
         setOtherName("");
         setSearchQuery("");
@@ -423,13 +431,22 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                           className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0"
                           style={{ backgroundColor: `${color}15` }}
                         >
-                          <TypeIcon className="h-5 w-5" style={{ color }} strokeWidth={2.2} />
+                          {(() => {
+                            const catIconName = (category as Category).icon ?? getCategoryIconName((category as Category).name ?? "");
+                            const CatIcon = getCategoryIconComponent(catIconName);
+                            return <CatIcon className="h-5 w-5" style={{ color }} strokeWidth={2.2} />;
+                          })()}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-semibold text-sm text-[#17181c] dark:text-white truncate">
                               {category.name}
                             </p>
+                            {category.description && (
+                              <span className="text-[10px] text-muted-foreground leading-snug truncate">
+                                {category.description}
+                              </span>
+                            )}
                             <Badge
                               variant="outline"
                               className={cn(
@@ -444,6 +461,11 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                             {txCount} {txCount === 1 ? "gasto" : "gastos"}
                           </p>
                         </div>
+                        <PlannedAmountRow
+                          categoryId={category.id}
+                          plannedAmount={(category as Category).plannedAmount}
+                          onSaved={() => router.refresh()}
+                        />
                         <div className="flex items-center gap-0.5">
                           <Button
                             variant="ghost"
@@ -1048,5 +1070,66 @@ function MobileDeleteSheet({
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+function PlannedAmountRow({
+  categoryId,
+  plannedAmount,
+  onSaved,
+}: {
+  categoryId: string;
+  plannedAmount: string | null | undefined;
+  onSaved: () => void;
+}) {
+  const [localAmount, setLocalAmount] = useState<number>(
+    plannedAmount ? Number(plannedAmount) : 0
+  );
+  const [savedFlash, setSavedFlash] = useState(false);
+  const [isUpdating, startTransition] = useTransition();
+
+  useEffect(() => {
+    setLocalAmount(plannedAmount ? Number(plannedAmount) : 0);
+  }, [plannedAmount]);
+
+  const handleBlur = () => {
+    const original = plannedAmount ? Number(plannedAmount) : 0;
+    if (localAmount === original) return;
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1200);
+    const next = localAmount > 0 ? Math.round(localAmount).toString() : null;
+    startTransition(async () => {
+      try {
+        await updateCategory(categoryId, { plannedAmount: next });
+        onSaved();
+      } catch (e) {
+        // silent; will sync via refresh
+      }
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-1.5 pl-1 shrink-0">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#a1a1aa]">
+        Planeado
+      </span>
+      <div className="relative">
+        <CurrencyInput
+          value={localAmount}
+          onValueChange={(v) => setLocalAmount(v)}
+          onBlur={handleBlur}
+          placeholder="0"
+          className={cn(
+            "h-7 w-[110px] text-xs font-semibold pl-2 pr-1 rounded-md border",
+            savedFlash
+              ? "border-[#26be15] bg-[#26be15]/5 dark:border-[#26be15]"
+              : "border-[#e8e8e8] dark:border-[#2a2a2e] bg-[#fafafa] dark:bg-[#1a1a1e]"
+          )}
+        />
+      </div>
+      {isUpdating && (
+        <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+      )}
+    </div>
   );
 }

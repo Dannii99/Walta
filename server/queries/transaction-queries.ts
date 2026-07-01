@@ -25,11 +25,12 @@ export async function getActiveBudgetWithTransactions(userId: string) {
 
   if (!budget) return null;
 
-  return {
+return {
     ...budget,
     income: budget.income.toString(),
     categories: budget.categories.map((category) => ({
       ...category,
+      plannedAmount: category.plannedAmount ? category.plannedAmount.toString() : null,
       transactions: category.transactions.map((transaction) => ({
         ...transaction,
         amount: transaction.amount.toString(),

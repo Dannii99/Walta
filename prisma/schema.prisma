@@ -12,6 +12,7 @@ model User {
   id            String         @id @default(cuid())
   email         String         @unique
   name          String?
+  password      String?
   budgets       Budget[]
   simulations   Simulation[]
   loans         Loan[]
@@ -39,6 +40,9 @@ model Category {
   name          String
   type          String         // NEEDS, WANTS, SAVINGS, DEBT
   color         String         // hex para grficos
+  icon          String?
+  description   String?
+  plannedAmount Decimal?       @db.Decimal(15, 2)
   transactions  Transaction[]
 }
 

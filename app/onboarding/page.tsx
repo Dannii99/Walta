@@ -10,7 +10,7 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-emerald-50/40 dark:from-background dark:via-background dark:to-emerald-950/10">
       <OnboardingFlow userId={session.user.id} />
     </div>
   );

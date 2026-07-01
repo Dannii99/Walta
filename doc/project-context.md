@@ -6,17 +6,18 @@ For how the product is *built* today, see [`architecture.md`](./architecture.md)
 
 ## 1. Project Summary
 
-A web app for personal budget control that **replaces spreadsheets with a visual, interactive, decision-oriented experience**. Users create budgets, register income and categorized expenses, see their financial health via graphs and color indicators, evaluate if they follow healthy financial rules (e.g. 50/30/20 distribution), and simulate major decisions (vehicle, housing, savings goals) to understand if they are viable against their real budget capacity.
+A web app for personal budget control that **replaces spreadsheets with a visual, interactive, decision-and-tracking-oriented experience**. Users create budgets, register income and categorized expenses, see their financial health via graphs and color indicators, evaluate if they follow healthy financial rules (e.g. 50/30/20 distribution), simulate major decisions (vehicle, housing, personal loans, etc.) to understand if they are viable against their real budget capacity, and — once a decision is made — track active credits with amortization, payment recording, extra payments, and bank-statement reconciliation.
 
-The product is **web-only**, single-currency (COP), with a hardcoded demo user in the MVP. The product speaks Spanish.
+The product is **web-only**, single-currency (COP), with a hardcoded demo user in the MVP. The product speaks Spanish. All currency amounts are formatted as `$ 1.234.567` (no decimals, since Colombia does not use centavos).
 
 ## 2. Problem Statement
 
-Most people control their personal finances in Excel or do not control them in a structured way. This generates three main problems:
+Most people control their personal finances in Excel or do not control them in a structured way. This generates four main problems:
 
 - **Lack of visual clarity**: Numbers in a table do not let you see immediately if the financial situation is healthy, if you are overspending, or how much money is actually available.
 - **Difficulty applying financial rules**: Concepts like "spend at most 50% on needs" or "save 20%" are hard to monitor manually without errors.
 - **Uncertainty in big decisions**: When a person wants to know if they can buy a car, a house, or invest, they turn to isolated calculators or assumptions without integrating their real budget. There is no tool that connects daily financial situation with the viability of important decisions.
+- **No follow-through after the decision**: Once a person takes a loan, they are left alone. They have no easy way to track how much they've paid, how much is left, how much interest they're paying, what would happen if they made an extra payment, or whether the bank is charging what it should. The bank statement becomes the only source of truth, but it does not help you plan or optimize.
 
 ## 3. Target Users
 
@@ -24,7 +25,8 @@ Most people control their personal finances in Excel or do not control them in a
 
 - **Adults aged 25 to 45** with fixed or variable income who want to organize their personal finances without complexity.
 - Users who have tried using Excel but abandoned it for lack of time or because it did not give them insights.
-- People who are considering important purchases (vehicle, housing) and need to validate if they can take them on.
+- People who are considering important purchases (vehicle, housing, personal loan) and need to validate if they can take them on.
+- People who already have an active loan and want to track it, simulate extra payments, and reconcile with their bank statement.
 
 ### Secondary User
 
@@ -33,13 +35,14 @@ Most people control their personal finances in Excel or do not control them in a
 
 ## 4. Value Proposition
 
-"Understand your money at a glance and make big decisions with confidence."
+"Understand your money at a glance, make big decisions with confidence, and follow through after you decide."
 
 Instead of being a passive table, the product is a **visual financial assistant** that:
 
 - Shows if your budget is healthy with colors and clear signals (traffic-light style).
 - Tells you exactly how much you can allocate to each category according to proven financial rules.
 - Simulates important decisions using your real budget, not loose estimates.
+- Tracks your active loans with amortization, payment history, extra payments, and bank-statement reconciliation.
 - Feels modern, fast and motivating, not like a bookkeeping chore.
 
 ## 5. MVP Objective
@@ -49,9 +52,11 @@ Ship a working web app that lets a user:
 1. Create a personal budget in under 5 minutes.
 2. Visualize their current financial state immediately and attractively.
 3. Know if they are complying with an income distribution rule.
-4. Simulate whether a major purchase (vehicle, housing) is viable according to their real monthly payment capacity.
-5. Track active credits and see AI-assisted insights on their financial decisions.
-6. See a chronological history of financial decisions (simulations, credits, payments).
+4. Simulate whether a major purchase (vehicle, housing, personal loan) is viable according to their real monthly payment capacity.
+5. Track active credits with amortization, payment recording, extra payments, and bank-statement reconciliation.
+6. See AI-assisted insights on their financial decisions (simulations and credits).
+7. See a chronological history of financial decisions (simulations, credits, payments, extras).
+8. Simulate the impact of an extra capital payment on a loan (months saved, interest saved, new installment).
 
 The MVP demonstrates that the visual + simulation experience is superior to Excel for this purpose.
 
@@ -59,33 +64,45 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 
 ### Must Have (Shipped)
 
-- **Budget creation**: Initial flow with predefined templates (50/30/20, 60/20/20, 40/30/30). User picks a template, enters income, reviews 27 predefined categories split by bucket. Stores in Postgres (Neon).
-- **Income and expense registration**: Forms to add/edit/delete expenses. Categories, amount, description, type (FIXED/VARIABLE), and recurrence (MONTHLY/BIWEEKLY/ONE_TIME).
+- **Budget creation**: Initial flow with 3 predefined templates (Equilibrada 50/30/20, Detallada 26 categories, En blanco). User picks a template, enters income, reviews categories split by bucket (Needs/Wants/Savings). Stores in Postgres.
+- **Income and expense registration**: Forms to add/edit/delete expenses. Categories, amount, description, type (FIXED/VARIABLE), and recurrence (MONTHLY/BIWEEKLY/ONE_TIME). BIWEEKLY amounts are stored as monthly equivalent (×2) for budget consistency.
 - **Visual dashboard**: Main screen showing:
-  - Total income, total expenses, available money.
-  - Donut chart of expense distribution.
-  - 3 health cards (Needs/Wants/Savings) with traffic-light faces and progress bars.
-  - Per-category breakdown with bars and percentages.
+  - Personalized greeting with time-of-day.
+  - Hero bank-card with available money and status badge (Saludable/Ajustado/Riesgoso/Déficit).
+  - Mini stats row (income, expenses %, savings capacity).
+  - Donut chart of expense distribution + bar chart (spent vs limit per category) via tabs.
+  - 3 health cards (Needs/Wants/Savings) with emoji traffic-light faces (😊/😐/😟), progress bars, and dynamic contextual message.
+  - Simulator quick-access banner.
 - **Configurable financial rule**: 50% needs, 30% wants, 20% savings as default. User can edit any rule; system validates sum = 100%. Visual alert when a bucket exceeds its percentage.
-- **Multiple simulators**: Vehicle, housing (rent or buy), personal, education, other. Each computes monthly payment, available money after, verdict (APPROVED/WARNING/REJECTED), and total interest.
-- **Server-side persistence**: All data stored in Postgres via Prisma. **No localStorage**. Auth required (hardcoded demo user for now).
-- **AI advisor per simulation**: On-demand deep analysis from GROQ (`llama-3.3-70b-versatile`). 24h DB cache. Includes disclaimer.
+- **Multiple simulators**: Vehicle, housing (rent or buy), personal, education, other. Each computes monthly payment, available money after, verdict (APPROVED/WARNING/REJECTED), and total interest. Supports down payment, previous extra payment, and fees.
+- **Credit tracking**: Full loan tracker with:
+  - 3-step creation wizard (Datos → Condiciones → En curso).
+  - Amortization table with interest/principal split per month.
+  - Payment recording (interest+principal auto-computed).
+  - Extra payments (capital contributions) with two modes: REDUCE_TERM (default, shortens duration) or REDUCE_PAYMENT (recalculates monthly installment).
+  - Annual fee model: fees stored as annual amount, engine divides by 12 for monthly display.
+  - Capital impact simulator: user enters amount, chooses mode, sees months saved, interest saved, and new installment before committing.
+  - Bank statement reconciliation (Extract tab): user enters paid installments and actual monthly payment from bank statement; system compares vs calculated and shows MATCH/MINOR/MAJOR/UNKNOWN status.
+  - AI advisor (per-loan, 24h memory cache) + AI insights (cross-loan, 1h memory cache).
+- **AI advisor per simulation**: On-demand deep analysis from GROQ. 24h DB cache. Includes disclaimer.
 - **AI insights banner**: Cross-simulation strategic findings. 1h in-memory cache.
-- **Credit tracking**: Full loan tracker with amortization, fees, payment recording, extra payments, moratory detection. AI advisor + AI insights.
-- **Decision timeline**: Chronological view of all financial decisions (simulations created, credits created, payments recorded, extras). Derived on-the-fly. Cursor pagination. Filters.
+- **Decision timeline**: Chronological view of 5 event types (simulation created, loan created, loan payment, extra payment, loan paid off). Derived on-the-fly from DB. Cursor pagination. Filters by type.
 - **Settings**: Theme (light/dark/system) + account info + sign out.
-- **Dark mode complete**: All modules support light/dark with next-themes class-based toggle.
-- **Mobile responsive**: Sidebar collapses to bottom nav on mobile.
+- **Dark mode complete**: All modules, charts, tables, and AI cards support light/dark.
+- **Mobile responsive**: Sidebar collapses to bottom nav on mobile; modals adapt; filter sheets for mobile.
 
 ### Should Have (Shipped)
 
-- Multiple budget templates (3 currently).
 - Customizable rules (free percentages that must sum to 100%).
 - Housing simulator (arriendo + compra).
 - Monthly snapshots (legacy, visible in `/history?tab=snapshots`).
 - Color-coded health indicators (semáforo).
-- Editable categories (CRUD in `/reglas`).
+- Editable categories (CRUD in `/reglas`) with transaction reassignment on type change.
 - AI-assisted advice (4 features: sim advisor, sim insights, loan advisor, loan insights).
+- Extract/bank-statement reconciliation tab per credit.
+- Capital impact simulator with REDUCE_TERM vs REDUCE_PAYMENT modes.
+- Available credit capacity card (ratio of income committed to active loans).
+- SimulatorQuickAccess banner on dashboard.
 
 ### Could Have (Future)
 
@@ -97,6 +114,9 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 - i18n (English version of the UI).
 - Currency switcher (COP, USD, EUR).
 - Real-time collaboration (multi-user).
+- Auto-import bank statements (CSV/Excel).
+- Multiple budget management (switch between budgets).
+- Danger zone (account deletion with cascade).
 
 ### Out of Scope (Confirmed)
 
@@ -150,27 +170,55 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 ### Flow 5: Track a Credit
 
 1. The user navigates to `/credits/new`.
-2. 3-step wizard: Datos (type, principal, term, rate, formula) → Cuotas (fees) → Confirmar.
+2. 3-step wizard: Datos (name, type, price, down payment, previous extra payment) → Condiciones (term, rate, formula, start date, fees) → En curso (past payments sync, advanced options, for ongoing loans).
 3. Submits. Credit is created with status `ACTIVE`.
-4. Lands on `/credits` list. The new credit appears with an "Available credit" card at the top.
-5. Clicks the credit → detail page with: summary, progress bar, payment recording, amortization table, charts, AI Advisor.
-6. Records a payment: principal + interest split is computed automatically, stored as `LoanPayment`.
-7. Records an extra payment (capital contribution): stored as `LoanExtraPayment`. Amortization updates.
+4. Lands on `/credits` list. The new credit appears with global KPIs (total, active, paid off, defaulted) and an "Available credit" card showing debt capacity ratio.
+5. Clicks the credit → detail page with: header (title, status badge, actions button, edit), summary KPIs (balance, total paid, monthly payment, next payment), capital impact simulator (always visible), 4 tabs (Amortización, Pagos, Abonos, Extracto), charts, AI Advisor.
+6. Records a payment: principal + interest split is computed automatically from the amortization schedule.
+7. Records an extra payment (capital contribution): choose REDUCE_TERM (default, shortens duration) or REDUCE_PAYMENT (recalculates monthly installment with new term). Amortization updates.
+8. Uses Extract tab to reconcile with bank statement: enters paid installments count and actual monthly payment; system shows MATCH/MINOR/MAJOR/UNKNOWN with diff breakdown.
 
 ### Flow 6: Review Decision Timeline
 
-1. The user navigates to `/history` (default tab).
+1. The user navigates to `/history` (default tab: timeline).
 2. Sees all events in reverse chronological order, grouped by month.
-3. Filters by type: simulations, credits, payments, extras.
-4. Scrolls to the bottom. Clicks "Cargar más". Next 30 events load.
+3. Filters by type: simulations, credits, payments, extras, paid-off loans.
+4. Scrolls to the bottom. Clicks "Cargar más". Next 30 events load via cursor pagination.
 5. Clicks an event → goes to the detail page (sim or credit).
+6. Can switch to "Snapshots" tab (legacy manual monthly snapshots) for backwards compatibility.
 
 ### Flow 7: Adjust Rule
 
 1. The user navigates to `/reglas`.
-2. Sees 3 tabs: Ingreso, Regla, Categorías.
+2. Sees 3 summary cards (income, active rule, category count) and 3 tabs: Ingreso, Regla, Categorías.
 3. Edits the rule percentages. Sum must = 100% (save disabled otherwise).
 4. Submits. Dashboard re-renders with new rule applied to all KPIs.
+
+### Flow 8: Simulate Capital Impact on a Loan
+
+1. The user is on a credit detail page (`/credits/[id]`).
+2. The Capital Impact Simulator is always visible between the summary and the tab content.
+3. Enters an amount to pay extra.
+4. Chooses mode: "Reducir plazo" (same installment, fewer months) or "Reducir cuota" (recalculate installment with new term).
+5. If "Reducir cuota", enters new remaining term in months.
+6. Sees animated results: months saved, interest saved, new monthly installment (if applicable).
+7. Clicks "Aplicar abono" → opens the Capital Contribution form pre-filled with the simulated values.
+
+### Flow 9: Reconcile with Bank Statement
+
+1. The user is on a credit detail page, Extract tab.
+2. Enters the number of paid installments according to their bank statement.
+3. Clicks "Aplicar" → system marks those months as PAID in the amortization table.
+4. Enters the actual monthly payment from the bank statement.
+5. System compares calculated vs actual and shows status: MATCH (green, within tolerance), MINOR (yellow, small diff), MAJOR (red, significant diff), UNKNOWN (grey, no input yet).
+6. If MINOR/MAJOR, system explains possible reasons (fees not contemplated, rate difference, etc.).
+
+### Flow 10: Convert Simulation to Credit
+
+1. The user is on a simulation detail page (`/simulations/[id]`).
+2. Clicks "Convertir a crédito" button.
+3. Redirected to `/credits/new?fromSimulation=id` with all simulation data pre-filled (title, type, price, down payment, rate, term, formula, fees).
+4. Reviews and submits. The credit is created with a reference to the original simulation.
 
 ## 8. Functional Requirements
 
@@ -192,6 +240,13 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 16. The system must support light, dark, and system themes.
 17. The system must provide AI-assisted analysis on demand for simulations and credits, with a visible disclaimer.
 18. The system must be responsive on mobile (sidebar collapses to bottom nav).
+19. The system must allow creating a loan with a 3-step wizard including data, conditions, and past-payments sync for ongoing loans.
+20. The system must compute a full amortization schedule using French amortization (fixed payment) with capital = price - down payment.
+21. The system must allow recording loan payments with automatic interest/principal split computation.
+22. The system must allow recording extra capital payments with two modes: REDUCE_TERM (shortens duration) or REDUCE_PAYMENT (recalculates monthly payment with new term).
+23. The system must show a capital impact simulator that computes months saved, interest saved, and new installment before the user commits to an extra payment.
+24. The system must allow reconciling the calculated amortization with the user's actual bank statement (paid installments count + actual monthly payment).
+25. The system must show an available credit capacity card that computes the ratio of income committed to active loans.
 
 ## 9. Business Rules
 
@@ -209,11 +264,22 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
    - `ACTIVE` by default.
    - `DEFAULTED` if there is any overdue payment (moratory).
    - `PAID_OFF` when `paidInstallments >= termMonths`.
-9. **Loan extra payments reduce principal** and adjust the projected payoff date.
-10. **AI cache TTL**:
+9. **Loan extra payments reduce principal** and adjust either the projected payoff date (REDUCE_TERM) or the monthly installment (REDUCE_PAYMENT).
+10. **Annual fee model**: Fees of type "monthly" are stored as annual amounts in the database. The engine divides by 12 to obtain the monthly fee. This matches how banks typically quote insurance and administration fees.
+11. **Biweekly expense model**: `Transaction.amount` stores the monthly equivalent (BIWEEKLY × 2, MONTHLY × 1, ONE_TIME ÷ 12). For BIWEEKLY, the "per payment" display amount = stored ÷ 2.
+12. **AI cache TTL**:
     - Sim/loan advisor: 24h. DB-backed for sims, in-memory for loans.
     - Sim/loan insights: 1h. In-memory.
     - Cache is invalidated on any mutation to the underlying data.
+13. **Bank statement reconciliation calibration**:
+    - `MATCH`: difference ≤ 1% (calculated vs actual monthly payment).
+    - `MINOR`: difference 1–10% (likely fees not fully captured).
+    - `MAJOR`: difference > 10% (review rate, term, or formula).
+    - `UNKNOWN`: no actual payment entered yet.
+14. **Available credit capacity ratio**:
+    - < 30% of income committed to loans = good (emerald).
+    - 30–50% = moderate (amber).
+    - > 50% = over-committed (rose).
 
 ## 10. Content Requirements
 
@@ -232,7 +298,10 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 - Rule compliance percentages.
 - Expense dates.
 - Saved simulation titles and dates.
-- Loan amortization tables.
+- Loan amortization tables with interest/principal split.
+- Capital impact simulator results (months saved, interest saved, new installment).
+- Extract reconciliation status (MATCH/MINOR/MAJOR/UNKNOWN) with explanations.
+- Available credit capacity ratio and recommendation.
 - Timeline event descriptions.
 
 ### Simulation Fields
@@ -249,6 +318,8 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 5. Data persists across browser sessions (Postgres).
 6. The product is perceived as more useful and attractive than an Excel sheet for the same purpose (qualitative feedback from 5-10 test users).
 7. The AI advisor produces advice that is consistent with the user's financial context (manual review of GROQ outputs in dev).
+8. A user can track a loan, record payments, simulate an extra payment, and reconcile with their bank statement without external help (informal usability test).
+9. The capital impact simulator produces coherent savings estimates that match manual verification (logical validation).
 
 ## 12. Assumptions
 
@@ -257,17 +328,21 @@ The MVP demonstrates that the visual + simulation experience is superior to Exce
 3. French amortization (fixed payment) is adequate for the simulations and credit tracking.
 4. Users understand basic concepts of percentages and monthly payments.
 5. The product is used primarily on desktop, but must be usable on mobile (responsive).
-6. The market values visual clarity and simulation more than detailed accounting.
+6. The market values visual clarity, simulation, and follow-through more than detailed accounting.
 7. AI-assisted advice is acceptable as a **complement** to the deterministic engine, not a replacement. The engine is always the source of truth for math; AI provides narrative interpretation.
+8. Users understand that the bank statement is the source of truth for actual payments; Walta's calculations are estimates for planning and reconciliation.
+9. French amortization (fixed payment) is adequate for the simulations and credit tracking; users who have German amortization loans may see differences.
 
 ## 13. Risks
 
 1. **Perception risk**: Users may continue to see Excel as "good enough" and not perceive the value of visualization and simulation. *Mitigation*: the onboarding shows the visual verdict and a simulation immediately, not just tables.
 2. **Financial accuracy risk**: If the interest rates used in simulations differ from the local market, the verdict may be misleading. *Mitigation*: use clear reference rates, indicate they are estimates, and let the user adjust.
-3. **Simulator complexity risk**: Including too many parameters in the simulation can make it as complex as a financial calculator. *Mitigation*: keep the form to 5 fields (type, principal, down payment, term, rate).
+3. **Simulator complexity risk**: Including too many parameters in the simulation can make it as complex as a financial calculator. *Mitigation*: keep the form to essential fields; advanced options (fees, past payments sync) are in secondary tabs.
 4. **Early abandonment risk**: If onboarding is long or confusing, the user may abandon before seeing value. *Mitigation*: keep the wizard to 4 steps, with sensible defaults and one-click templates.
 5. **AI hallucination risk**: GROQ may produce advice that is mathematically wrong or inconsistent with the user's real numbers. *Mitigation*: the engine computes the deterministic verdict; AI only adds narrative. The UI always shows both side by side. Zod validation catches malformed outputs.
 6. **Data loss risk**: Postgres is the source of truth, but the demo user has no password recovery. *Mitigation*: acceptable for the demo deployment. Real auth (with email verification) is in the backlog.
+7. **Reconciliation mismatch risk**: The user may enter incorrect data from their bank statement, leading to a false MAJOR status. *Mitigation*: clear instructions, visual diff breakdown, and calibration tolerance thresholds.
+8. **Recalculation confusion risk**: Users may not understand the difference between REDUCE_TERM and REDUCE_PAYMENT. *Mitigation*: plain-language labels, visual comparison in the simulator, and tooltip explanations.
 
 ## 14. Open Questions
 

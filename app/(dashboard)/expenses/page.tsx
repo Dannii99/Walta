@@ -83,6 +83,7 @@ export default async function ExpensesPage() {
   const categoriesWithType = budget.categories.map((cat) => ({
     ...cat,
     type: cat.type as CategoryType,
+    plannedAmount: cat.plannedAmount ? cat.plannedAmount.toString() : null,
   })) as Category[];
 
   const savingsRate =

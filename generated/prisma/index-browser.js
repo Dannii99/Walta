@@ -124,6 +124,7 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   name: 'name',
+  password: 'password',
   createdAt: 'createdAt'
 };
 
@@ -143,7 +144,10 @@ exports.Prisma.CategoryScalarFieldEnum = {
   budgetId: 'budgetId',
   name: 'name',
   type: 'type',
-  color: 'color'
+  color: 'color',
+  icon: 'icon',
+  description: 'description',
+  plannedAmount: 'plannedAmount'
 };
 
 exports.Prisma.TransactionScalarFieldEnum = {

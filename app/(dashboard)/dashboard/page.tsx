@@ -65,6 +65,7 @@ export default async function DashboardPage() {
         category: {
           ...cat,
           type: cat.type.toUpperCase() as CategoryType,
+          plannedAmount: cat.plannedAmount ? cat.plannedAmount.toString() : null,
           transactions: [],
         },
       });
@@ -131,6 +132,16 @@ export default async function DashboardPage() {
   const monthLabel = formatMonthName();
   const ruleName = formatRuleName(rule);
 
+  const typeCounts: Record<string, number> = {
+    NEEDS: 0,
+    WANTS: 0,
+    SAVINGS: 0,
+    DEBT: 0,
+  };
+  budget.categories.forEach((cat) => {
+    typeCounts[cat.type.toUpperCase()] = (typeCounts[cat.type.toUpperCase()] ?? 0) + 1;
+  });
+
   const categoriesBreakdown = budget.categories
     .map((cat, i) => {
       const catEquivalent = cat.transactions.reduce(
@@ -146,7 +157,10 @@ export default async function DashboardPage() {
           : type === "SAVINGS"
           ? savingsPct
           : 0;
-      const limit = income * (typePct / 100);
+      const typeBudget = income * (typePct / 100);
+      const share = (typeCounts[type] ?? 1) > 0 ? typeBudget / typeCounts[type] : 0;
+      const planned = cat.plannedAmount ? cat.plannedAmount.toNumber() : null;
+      const limit = planned !== null ? planned : share;
       return {
         id: cat.id,
         name: cat.name,
@@ -154,6 +168,7 @@ export default async function DashboardPage() {
         color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
         spent: catEquivalent,
         limit,
+        icon: cat.icon,
       };
     })
     .sort((a, b) => b.spent - a.spent);
@@ -161,6 +176,7 @@ export default async function DashboardPage() {
   const categories: Category[] = budget.categories.map((cat) => ({
     ...cat,
     type: cat.type.toUpperCase() as CategoryType,
+    plannedAmount: cat.plannedAmount ? cat.plannedAmount.toString() : null,
     transactions: [],
   }));
 

@@ -41,7 +41,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Prisma singleton** at `lib/prisma.ts` (prevents multiple instances in dev) using `PrismaNeon` adapter.
 - **Auth config** at `lib/auth.ts` — hardcoded demo user `demo@example.com` / `demo123`. JWT strategy. 66 lines.
 - **Providers** in `app/providers.tsx`: `SessionProvider` + `ThemeProvider` (next-themes, attribute="class", storageKey="walta-theme", disableTransitionOnChange) + `QueryClientProvider` (TanStack Query). `Toaster` (sonner) DENTRO de `<QueryClientProvider>`.
-- **Documentación canónica en `doc/`** (5 archivos): `README.md` (índice), `architecture.md` (~600 líneas, comprehensive), `module-reference.md` (~700 líneas, tour módulo-por-módulo), `project-context.md` (~250 líneas, producto), `setup-plan.md` (~150 líneas, dev setup).
+- **Documentación canónica en `doc/`** (6 archivos): `README.md` (índice), `architecture.md` (~800 líneas, comprehensive), `module-reference.md` (~700 líneas, tour módulo-por-módulo), `project-context.md` (~350 líneas, producto), `propuesta.md` (~100 líneas, pitch humano), `setup-plan.md` (~150 líneas, dev setup).
 
 ## Stack Reality Check
 

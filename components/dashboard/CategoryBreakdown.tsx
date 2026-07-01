@@ -9,36 +9,11 @@ import { useDashboard } from "@/components/dashboard/DashboardContext";
 import {
   Plus,
   BarChart3,
-  Tag,
-  Home,
-  Building,
-  ShoppingCart,
-  UtensilsCrossed,
-  Zap,
-  Droplet,
-  Flame,
-  Wifi,
-  Bus,
-  Fuel,
-  HeartPulse,
-  Shield,
-  CreditCard,
-  Phone,
-  Tv,
-  Coffee,
-  Shirt,
-  ShoppingBag,
-  Dumbbell,
-  Repeat,
-  Plane,
-  Smartphone,
-  PiggyBank,
-  Briefcase,
   TrendingUp,
   TrendingDown,
-  type LucideIcon,
 } from "lucide-react";
 import { getCategoryIconName } from "@/lib/dashboard-helpers";
+import { getCategoryIconComponent } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
 
 export interface BreakdownItem {
@@ -48,6 +23,7 @@ export interface BreakdownItem {
   color: string;
   spent: number;
   limit: number;
+  icon?: string | null;
 }
 
 interface CategoryBreakdownProps {
@@ -59,35 +35,6 @@ const typeLabels: Record<CategoryType, string> = {
   WANTS: "Deseos",
   SAVINGS: "Ahorros",
   DEBT: "Deudas",
-};
-
-const iconRegistry: Record<string, LucideIcon> = {
-  Home,
-  Building,
-  ShoppingCart,
-  UtensilsCrossed,
-  Zap,
-  Droplet,
-  Flame,
-  Wifi,
-  Bus,
-  Fuel,
-  HeartPulse,
-  Shield,
-  CreditCard,
-  Landline: Phone,
-  Tv,
-  Coffee,
-  Shirt,
-  ShoppingBag,
-  Dumbbell,
-  Repeat,
-  Plane,
-  Smartphone,
-  PiggyBank,
-  TrendingUp,
-  Briefcase,
-  Tag,
 };
 
 function getStatus(percentage: number) {
@@ -223,8 +170,8 @@ export function CategoryBreakdown({ items }: CategoryBreakdownProps) {
               const shareOfTotal =
                 totalSpent > 0 ? (item.spent / totalSpent) * 100 : 0;
               const status = getStatus(percentage);
-              const IconKey = getCategoryIconName(item.name);
-              const Icon = iconRegistry[IconKey] ?? Tag;
+              const IconKey = item.icon ?? getCategoryIconName(item.name);
+              const Icon = getCategoryIconComponent(IconKey);
 
               return (
                 <div key={item.id} className="space-y-2 pb-3 border-b border-stone-100 last:border-0 last:pb-0">

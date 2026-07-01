@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { formatCOP } from "@/lib/currency";
 
 interface IncomeStepProps {
   budgetName: string;
@@ -18,65 +18,77 @@ export function IncomeStep({
   onBudgetNameChange,
   onIncomeChange,
 }: IncomeStepProps) {
-  const [displayIncome, setDisplayIncome] = useState(
-    income > 0 ? income.toString() : ""
-  );
+  const incomeRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    incomeRef.current?.focus();
+  }, []);
+
+  const displayIncome = income > 0
+    ? income.toLocaleString("es-CO")
+    : "";
 
   const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "");
+    const raw = e.target.value.replace(/\D/g, "").slice(0, 11);
     const num = raw ? parseInt(raw, 10) : 0;
-    setDisplayIncome(raw);
     onIncomeChange(num);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">Configura tu presupuesto</h2>
-        <p className="text-muted-foreground text-sm">
-          Usaremos este ingreso para calcular tus categorías sugeridas
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="space-y-4"
+    >
+      <div className="text-center space-y-1.5">
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+          Configura tu presupuesto
+        </h2>
+        <p className="text-[11px] sm:text-sm text-white/60 max-w-xs mx-auto leading-relaxed">
+          ¿Cuánto dinero recibes al mes?
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="budgetName">Nombre del presupuesto</Label>
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="budgetName" className="text-[11px] sm:text-sm text-white/70">Nombre del presupuesto</Label>
           <Input
             id="budgetName"
             value={budgetName}
             onChange={(e) => onBudgetNameChange(e.target.value)}
             placeholder="Ej. Mi Presupuesto Mensual"
+            maxLength={50}
+            className="h-10 text-sm bg-white/5 border-white/10 text-white placeholder:text-white/30"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="income">Ingreso mensual total</Label>
-          <Input
-            id="income"
-            type="text"
-            inputMode="numeric"
-            value={displayIncome}
-            onChange={handleIncomeChange}
-            placeholder="3000000"
-          />
-          {income > 0 && (
-            <p className="text-sm text-muted-foreground">
-              {formatCOP(income)}
-            </p>
-          )}
-        </div>
-
-        {income > 0 && (
-          <div className="rounded-lg bg-muted p-4 text-sm">
-            <p className="font-medium mb-1">Resumen:</p>
-            <ul className="space-y-1 text-muted-foreground">
-              <li>Necesidades (50%): {formatCOP(income * 0.5)}</li>
-              <li>Deseos (30%): {formatCOP(income * 0.3)}</li>
-              <li>Ahorros (20%): {formatCOP(income * 0.2)}</li>
-            </ul>
+        <div className="space-y-1.5">
+          <Label htmlFor="income" className="text-[11px] sm:text-sm text-white/70">
+            Ingreso mensual total
+          </Label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-white/40 pointer-events-none">
+              $
+            </span>
+              <Input
+                id="income"
+                ref={incomeRef}
+                type="text"
+                inputMode="numeric"
+                value={displayIncome}
+                onChange={handleIncomeChange}
+                placeholder="3.000.000"
+                maxLength={13}
+                className="pl-7 pr-12 h-10 text-base font-semibold bg-white/5 border-white/10 text-white placeholder:text-white/30 tabular-nums focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/50 transition-all duration-200"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/30 pointer-events-none select-none">
+                COP
+              </span>
+            </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      </motion.div>
   );
 }

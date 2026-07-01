@@ -1867,6 +1867,7 @@ export namespace Prisma {
     id: string | null
     email: string | null
     name: string | null
+    password: string | null
     createdAt: Date | null
   }
 
@@ -1874,6 +1875,7 @@ export namespace Prisma {
     id: string | null
     email: string | null
     name: string | null
+    password: string | null
     createdAt: Date | null
   }
 
@@ -1881,6 +1883,7 @@ export namespace Prisma {
     id: number
     email: number
     name: number
+    password: number
     createdAt: number
     _all: number
   }
@@ -1890,6 +1893,7 @@ export namespace Prisma {
     id?: true
     email?: true
     name?: true
+    password?: true
     createdAt?: true
   }
 
@@ -1897,6 +1901,7 @@ export namespace Prisma {
     id?: true
     email?: true
     name?: true
+    password?: true
     createdAt?: true
   }
 
@@ -1904,6 +1909,7 @@ export namespace Prisma {
     id?: true
     email?: true
     name?: true
+    password?: true
     createdAt?: true
     _all?: true
   }
@@ -1984,6 +1990,7 @@ export namespace Prisma {
     id: string
     email: string
     name: string | null
+    password: string | null
     createdAt: Date
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
@@ -2008,6 +2015,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     name?: boolean
+    password?: boolean
     createdAt?: boolean
     budgets?: boolean | User$budgetsArgs<ExtArgs>
     simulations?: boolean | User$simulationsArgs<ExtArgs>
@@ -2019,6 +2027,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     name?: boolean
+    password?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
@@ -2026,6 +2035,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     name?: boolean
+    password?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
@@ -2033,10 +2043,11 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     name?: boolean
+    password?: boolean
     createdAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "name" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "name" | "password" | "createdAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     budgets?: boolean | User$budgetsArgs<ExtArgs>
     simulations?: boolean | User$simulationsArgs<ExtArgs>
@@ -2057,6 +2068,7 @@ export namespace Prisma {
       id: string
       email: string
       name: string | null
+      password: string | null
       createdAt: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
@@ -2487,6 +2499,7 @@ export namespace Prisma {
     readonly id: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
+    readonly password: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
   }
     
@@ -4167,8 +4180,18 @@ export namespace Prisma {
 
   export type AggregateCategory = {
     _count: CategoryCountAggregateOutputType | null
+    _avg: CategoryAvgAggregateOutputType | null
+    _sum: CategorySumAggregateOutputType | null
     _min: CategoryMinAggregateOutputType | null
     _max: CategoryMaxAggregateOutputType | null
+  }
+
+  export type CategoryAvgAggregateOutputType = {
+    plannedAmount: Decimal | null
+  }
+
+  export type CategorySumAggregateOutputType = {
+    plannedAmount: Decimal | null
   }
 
   export type CategoryMinAggregateOutputType = {
@@ -4177,6 +4200,9 @@ export namespace Prisma {
     name: string | null
     type: string | null
     color: string | null
+    icon: string | null
+    description: string | null
+    plannedAmount: Decimal | null
   }
 
   export type CategoryMaxAggregateOutputType = {
@@ -4185,6 +4211,9 @@ export namespace Prisma {
     name: string | null
     type: string | null
     color: string | null
+    icon: string | null
+    description: string | null
+    plannedAmount: Decimal | null
   }
 
   export type CategoryCountAggregateOutputType = {
@@ -4193,9 +4222,20 @@ export namespace Prisma {
     name: number
     type: number
     color: number
+    icon: number
+    description: number
+    plannedAmount: number
     _all: number
   }
 
+
+  export type CategoryAvgAggregateInputType = {
+    plannedAmount?: true
+  }
+
+  export type CategorySumAggregateInputType = {
+    plannedAmount?: true
+  }
 
   export type CategoryMinAggregateInputType = {
     id?: true
@@ -4203,6 +4243,9 @@ export namespace Prisma {
     name?: true
     type?: true
     color?: true
+    icon?: true
+    description?: true
+    plannedAmount?: true
   }
 
   export type CategoryMaxAggregateInputType = {
@@ -4211,6 +4254,9 @@ export namespace Prisma {
     name?: true
     type?: true
     color?: true
+    icon?: true
+    description?: true
+    plannedAmount?: true
   }
 
   export type CategoryCountAggregateInputType = {
@@ -4219,6 +4265,9 @@ export namespace Prisma {
     name?: true
     type?: true
     color?: true
+    icon?: true
+    description?: true
+    plannedAmount?: true
     _all?: true
   }
 
@@ -4260,6 +4309,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: CategoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CategorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: CategoryMinAggregateInputType
@@ -4290,6 +4351,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: CategoryCountAggregateInputType | true
+    _avg?: CategoryAvgAggregateInputType
+    _sum?: CategorySumAggregateInputType
     _min?: CategoryMinAggregateInputType
     _max?: CategoryMaxAggregateInputType
   }
@@ -4300,7 +4363,12 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon: string | null
+    description: string | null
+    plannedAmount: Decimal | null
     _count: CategoryCountAggregateOutputType | null
+    _avg: CategoryAvgAggregateOutputType | null
+    _sum: CategorySumAggregateOutputType | null
     _min: CategoryMinAggregateOutputType | null
     _max: CategoryMaxAggregateOutputType | null
   }
@@ -4325,6 +4393,9 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
+    plannedAmount?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
     transactions?: boolean | Category$transactionsArgs<ExtArgs>
     _count?: boolean | CategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -4336,6 +4407,9 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
+    plannedAmount?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["category"]>
 
@@ -4345,6 +4419,9 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
+    plannedAmount?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["category"]>
 
@@ -4354,9 +4431,12 @@ export namespace Prisma {
     name?: boolean
     type?: boolean
     color?: boolean
+    icon?: boolean
+    description?: boolean
+    plannedAmount?: boolean
   }
 
-  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetId" | "name" | "type" | "color", ExtArgs["result"]["category"]>
+  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetId" | "name" | "type" | "color" | "icon" | "description" | "plannedAmount", ExtArgs["result"]["category"]>
   export type CategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
     transactions?: boolean | Category$transactionsArgs<ExtArgs>
@@ -4381,6 +4461,9 @@ export namespace Prisma {
       name: string
       type: string
       color: string
+      icon: string | null
+      description: string | null
+      plannedAmount: Prisma.Decimal | null
     }, ExtArgs["result"]["category"]>
     composites: {}
   }
@@ -4811,6 +4894,9 @@ export namespace Prisma {
     readonly name: FieldRef<"Category", 'String'>
     readonly type: FieldRef<"Category", 'String'>
     readonly color: FieldRef<"Category", 'String'>
+    readonly icon: FieldRef<"Category", 'String'>
+    readonly description: FieldRef<"Category", 'String'>
+    readonly plannedAmount: FieldRef<"Category", 'Decimal'>
   }
     
 
@@ -13461,6 +13547,7 @@ export namespace Prisma {
     id: 'id',
     email: 'email',
     name: 'name',
+    password: 'password',
     createdAt: 'createdAt'
   };
 
@@ -13486,7 +13573,10 @@ export namespace Prisma {
     budgetId: 'budgetId',
     name: 'name',
     type: 'type',
-    color: 'color'
+    color: 'color',
+    icon: 'icon',
+    description: 'description',
+    plannedAmount: 'plannedAmount'
   };
 
   export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -13739,6 +13829,7 @@ export namespace Prisma {
     id?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     name?: StringNullableFilter<"User"> | string | null
+    password?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     budgets?: BudgetListRelationFilter
     simulations?: SimulationListRelationFilter
@@ -13749,6 +13840,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     name?: SortOrderInput | SortOrder
+    password?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     budgets?: BudgetOrderByRelationAggregateInput
     simulations?: SimulationOrderByRelationAggregateInput
@@ -13762,6 +13854,7 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringNullableFilter<"User"> | string | null
+    password?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     budgets?: BudgetListRelationFilter
     simulations?: SimulationListRelationFilter
@@ -13772,6 +13865,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     name?: SortOrderInput | SortOrder
+    password?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -13785,6 +13879,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
     name?: StringNullableWithAggregatesFilter<"User"> | string | null
+    password?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
@@ -13875,6 +13970,9 @@ export namespace Prisma {
     name?: StringFilter<"Category"> | string
     type?: StringFilter<"Category"> | string
     color?: StringFilter<"Category"> | string
+    icon?: StringNullableFilter<"Category"> | string | null
+    description?: StringNullableFilter<"Category"> | string | null
+    plannedAmount?: DecimalNullableFilter<"Category"> | Decimal | DecimalJsLike | number | string | null
     budget?: XOR<BudgetScalarRelationFilter, BudgetWhereInput>
     transactions?: TransactionListRelationFilter
   }
@@ -13885,6 +13983,9 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    plannedAmount?: SortOrderInput | SortOrder
     budget?: BudgetOrderByWithRelationInput
     transactions?: TransactionOrderByRelationAggregateInput
   }
@@ -13898,6 +13999,9 @@ export namespace Prisma {
     name?: StringFilter<"Category"> | string
     type?: StringFilter<"Category"> | string
     color?: StringFilter<"Category"> | string
+    icon?: StringNullableFilter<"Category"> | string | null
+    description?: StringNullableFilter<"Category"> | string | null
+    plannedAmount?: DecimalNullableFilter<"Category"> | Decimal | DecimalJsLike | number | string | null
     budget?: XOR<BudgetScalarRelationFilter, BudgetWhereInput>
     transactions?: TransactionListRelationFilter
   }, "id">
@@ -13908,9 +14012,14 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    plannedAmount?: SortOrderInput | SortOrder
     _count?: CategoryCountOrderByAggregateInput
+    _avg?: CategoryAvgOrderByAggregateInput
     _max?: CategoryMaxOrderByAggregateInput
     _min?: CategoryMinOrderByAggregateInput
+    _sum?: CategorySumOrderByAggregateInput
   }
 
   export type CategoryScalarWhereWithAggregatesInput = {
@@ -13922,6 +14031,9 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Category"> | string
     type?: StringWithAggregatesFilter<"Category"> | string
     color?: StringWithAggregatesFilter<"Category"> | string
+    icon?: StringNullableWithAggregatesFilter<"Category"> | string | null
+    description?: StringNullableWithAggregatesFilter<"Category"> | string | null
+    plannedAmount?: DecimalNullableWithAggregatesFilter<"Category"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type TransactionWhereInput = {
@@ -14490,6 +14602,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     budgets?: BudgetCreateNestedManyWithoutUserInput
     simulations?: SimulationCreateNestedManyWithoutUserInput
@@ -14500,6 +14613,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
     simulations?: SimulationUncheckedCreateNestedManyWithoutUserInput
@@ -14510,6 +14624,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgets?: BudgetUpdateManyWithoutUserNestedInput
     simulations?: SimulationUpdateManyWithoutUserNestedInput
@@ -14520,6 +14635,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
     simulations?: SimulationUncheckedUpdateManyWithoutUserNestedInput
@@ -14530,6 +14646,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
   }
 
@@ -14537,6 +14654,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14544,6 +14662,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14636,6 +14755,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
     budget: BudgetCreateNestedOneWithoutCategoriesInput
     transactions?: TransactionCreateNestedManyWithoutCategoryInput
   }
@@ -14646,6 +14768,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
     transactions?: TransactionUncheckedCreateNestedManyWithoutCategoryInput
   }
 
@@ -14654,6 +14779,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budget?: BudgetUpdateOneRequiredWithoutCategoriesNestedInput
     transactions?: TransactionUpdateManyWithoutCategoryNestedInput
   }
@@ -14664,6 +14792,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     transactions?: TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
@@ -14673,6 +14804,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type CategoryUpdateManyMutationInput = {
@@ -14680,6 +14814,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type CategoryUncheckedUpdateManyInput = {
@@ -14688,6 +14825,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type TransactionCreateInput = {
@@ -15384,6 +15524,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     name?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15391,6 +15532,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     name?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15398,6 +15540,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     name?: SortOrder
+    password?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15591,6 +15734,17 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
   export type BudgetScalarRelationFilter = {
     is?: BudgetWhereInput
     isNot?: BudgetWhereInput
@@ -15612,6 +15766,13 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrder
+    description?: SortOrder
+    plannedAmount?: SortOrder
+  }
+
+  export type CategoryAvgOrderByAggregateInput = {
+    plannedAmount?: SortOrder
   }
 
   export type CategoryMaxOrderByAggregateInput = {
@@ -15620,6 +15781,9 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrder
+    description?: SortOrder
+    plannedAmount?: SortOrder
   }
 
   export type CategoryMinOrderByAggregateInput = {
@@ -15628,6 +15792,29 @@ export namespace Prisma {
     name?: SortOrder
     type?: SortOrder
     color?: SortOrder
+    icon?: SortOrder
+    description?: SortOrder
+    plannedAmount?: SortOrder
+  }
+
+  export type CategorySumOrderByAggregateInput = {
+    plannedAmount?: SortOrder
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
   export type CategoryScalarRelationFilter = {
@@ -16350,6 +16537,14 @@ export namespace Prisma {
     connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
   }
 
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
   export type BudgetUpdateOneRequiredWithoutCategoriesNestedInput = {
     create?: XOR<BudgetCreateWithoutCategoriesInput, BudgetUncheckedCreateWithoutCategoriesInput>
     connectOrCreate?: BudgetCreateOrConnectWithoutCategoriesInput
@@ -16789,6 +16984,33 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -17098,6 +17320,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     simulations?: SimulationCreateNestedManyWithoutUserInput
     loans?: LoanCreateNestedManyWithoutUserInput
@@ -17107,6 +17330,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     simulations?: SimulationUncheckedCreateNestedManyWithoutUserInput
     loans?: LoanUncheckedCreateNestedManyWithoutUserInput
@@ -17122,6 +17346,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
     transactions?: TransactionCreateNestedManyWithoutCategoryInput
   }
 
@@ -17130,6 +17357,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
     transactions?: TransactionUncheckedCreateNestedManyWithoutCategoryInput
   }
 
@@ -17190,6 +17420,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     simulations?: SimulationUpdateManyWithoutUserNestedInput
     loans?: LoanUpdateManyWithoutUserNestedInput
@@ -17199,6 +17430,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     simulations?: SimulationUncheckedUpdateManyWithoutUserNestedInput
     loans?: LoanUncheckedUpdateManyWithoutUserNestedInput
@@ -17229,6 +17461,9 @@ export namespace Prisma {
     name?: StringFilter<"Category"> | string
     type?: StringFilter<"Category"> | string
     color?: StringFilter<"Category"> | string
+    icon?: StringNullableFilter<"Category"> | string | null
+    description?: StringNullableFilter<"Category"> | string | null
+    plannedAmount?: DecimalNullableFilter<"Category"> | Decimal | DecimalJsLike | number | string | null
   }
 
   export type MonthlySnapshotUpsertWithWhereUniqueWithoutBudgetInput = {
@@ -17388,6 +17623,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
     budget: BudgetCreateNestedOneWithoutCategoriesInput
   }
 
@@ -17397,6 +17635,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type CategoryCreateOrConnectWithoutTransactionsInput = {
@@ -17420,6 +17661,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     budget?: BudgetUpdateOneRequiredWithoutCategoriesNestedInput
   }
 
@@ -17429,12 +17673,16 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type UserCreateWithoutSimulationsInput = {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     budgets?: BudgetCreateNestedManyWithoutUserInput
     loans?: LoanCreateNestedManyWithoutUserInput
@@ -17444,6 +17692,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
     loans?: LoanUncheckedCreateNestedManyWithoutUserInput
@@ -17469,6 +17718,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgets?: BudgetUpdateManyWithoutUserNestedInput
     loans?: LoanUpdateManyWithoutUserNestedInput
@@ -17478,6 +17728,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
     loans?: LoanUncheckedUpdateManyWithoutUserNestedInput
@@ -17551,6 +17802,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     budgets?: BudgetCreateNestedManyWithoutUserInput
     simulations?: SimulationCreateNestedManyWithoutUserInput
@@ -17560,6 +17812,7 @@ export namespace Prisma {
     id?: string
     email: string
     name?: string | null
+    password?: string | null
     createdAt?: Date | string
     budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
     simulations?: SimulationUncheckedCreateNestedManyWithoutUserInput
@@ -17671,6 +17924,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgets?: BudgetUpdateManyWithoutUserNestedInput
     simulations?: SimulationUpdateManyWithoutUserNestedInput
@@ -17680,6 +17934,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
     simulations?: SimulationUncheckedUpdateManyWithoutUserNestedInput
@@ -18292,6 +18547,9 @@ export namespace Prisma {
     name: string
     type: string
     color: string
+    icon?: string | null
+    description?: string | null
+    plannedAmount?: Decimal | DecimalJsLike | number | string | null
   }
 
   export type MonthlySnapshotCreateManyBudgetInput = {
@@ -18310,6 +18568,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     transactions?: TransactionUpdateManyWithoutCategoryNestedInput
   }
 
@@ -18318,6 +18579,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     transactions?: TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
@@ -18326,6 +18590,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    plannedAmount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
   }
 
   export type MonthlySnapshotUpdateWithoutBudgetInput = {

@@ -1,6 +1,14 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { z } from "zod";
 import { prisma } from "./prisma";
+import { verifyPassword } from "./password";
+
+const credentialsSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
 
 export const {
   handlers: { GET, POST },
@@ -17,29 +25,31 @@ export const {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // MVP: autenticación simple sin bcrypt
-        if (
-          credentials?.email === "demo@example.com" &&
-          credentials?.password === "demo123"
-        ) {
-          // Crear o buscar usuario en la base de datos
-          const user = await prisma.user.upsert({
-            where: { email: "demo@example.com" },
-            update: {},
-            create: {
-              email: "demo@example.com",
-              name: "Usuario Demo",
-            },
-          });
+        const parsed = credentialsSchema.safeParse(credentials);
+        if (!parsed.success) return null;
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
-        }
-        return null;
+        const { email, password } = parsed.data;
+
+        const user = await prisma.user.findUnique({
+          where: { email: email.toLowerCase() },
+        });
+
+        if (!user || !user.password) return null;
+
+        const valid = await verifyPassword(password, user.password);
+        if (!valid) return null;
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        };
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   session: {
@@ -50,6 +60,20 @@ export const {
     signIn: "/login",
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google" && user.email) {
+        const dbUser = await prisma.user.upsert({
+          where: { email: user.email },
+          update: {},
+          create: {
+            email: user.email,
+            name: user.name ?? null,
+          },
+        });
+        (user as { id: string }).id = dbUser.id;
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
