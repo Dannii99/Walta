@@ -218,7 +218,7 @@ export function AddCategoryModal({ open, onOpenChange, budgetId, category, onSav
   const formContent = (
     <div className="space-y-5">
       {step === 0 ? (
-        <>
+        <div className="pb-6">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-foreground">Selecciona un icono</h3>
           </div>
@@ -228,7 +228,7 @@ export function AddCategoryModal({ open, onOpenChange, budgetId, category, onSav
             onClose={() => onOpenChange(false)}
             isMobile={isMobile}
           />
-        </>
+        </div>
       ) : (
         <>
           <div className="flex items-center gap-3 pb-2">

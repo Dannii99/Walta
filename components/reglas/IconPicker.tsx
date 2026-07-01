@@ -94,68 +94,69 @@ export function IconPicker({ selectedIcon, onSelect, onClose, isMobile }: IconPi
         />
       </div>
 
-      <div
-        ref={gridRef}
-        role="grid"
-        aria-label="Selector de iconos"
-        className={cn(
-          "grid gap-2",
-          "grid-cols-5",
-          "sm:grid-cols-6",
-          "lg:grid-cols-8"
-        )}
-      >
-        <AnimatePresence mode="popLayout">
-          {filtered.map((iconName, i) => {
-            const Icon = getCategoryIconComponent(iconName);
-            const selected = selectedIcon === iconName;
-            const focused = focusIndex === i;
-            return (
-              <motion.button
-                key={iconName}
-                layout
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85 }}
-                transition={{ duration: 0.15 }}
-                role="gridcell"
-                aria-selected={selected}
-                aria-label={iconName}
-                onClick={() => onSelect(iconName)}
-                onMouseEnter={() => setFocusIndex(i)}
-                className={cn(
-                  "flex flex-col items-center justify-center gap-1 rounded-xl border p-3 transition-all duration-150",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-wants)]",
-                  selected
-                    ? "border-[var(--color-wants)] bg-[var(--color-wants)]/10 ring-2 ring-[var(--color-wants)]/30"
-                    : focused
-                    ? "border-border dark:border-white/20 bg-muted dark:bg-white/10"
-                    : "border-border dark:border-white/10 bg-muted/50 dark:bg-transparent hover:bg-muted dark:hover:bg-white/5"
-                )}
-                tabIndex={focused ? 0 : -1}
-              >
-                <div className="relative">
-                  <Icon className="h-5 w-5 text-foreground dark:text-white" strokeWidth={1.8} />
-                  {selected && (
-                    <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-[var(--color-wants)] flex items-center justify-center">
-                      <Check className="h-2 w-2 text-white" strokeWidth={3} />
-                    </span>
+      <div className="max-h-[500px] overflow-y-auto -mx-2 px-2 pb-1" ref={gridRef}>
+        <div
+          role="grid"
+          aria-label="Selector de iconos"
+          className={cn(
+            "grid gap-2",
+            "grid-cols-5",
+            "sm:grid-cols-6",
+            "lg:grid-cols-8"
+          )}
+        >
+          <AnimatePresence mode="popLayout">
+            {filtered.map((iconName, i) => {
+              const Icon = getCategoryIconComponent(iconName);
+              const selected = selectedIcon === iconName;
+              const focused = focusIndex === i;
+              return (
+                <motion.button
+                  key={iconName}
+                  layout
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  transition={{ duration: 0.15 }}
+                  role="gridcell"
+                  aria-selected={selected}
+                  aria-label={iconName}
+                  onClick={() => onSelect(iconName)}
+                  onMouseEnter={() => setFocusIndex(i)}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1 rounded-xl border p-3 transition-all duration-150",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-wants)]",
+                    selected
+                      ? "border-[var(--color-wants)] bg-[var(--color-wants)]/10 ring-2 ring-[var(--color-wants)]/30"
+                      : focused
+                      ? "border-border dark:border-white/20 bg-muted dark:bg-white/10"
+                      : "border-border dark:border-white/10 bg-muted/50 dark:bg-transparent hover:bg-muted dark:hover:bg-white/5"
                   )}
-                </div>
-                <span className="text-[9px] text-muted-foreground dark:text-white/50 leading-tight text-center truncate w-full">
-                  {iconName}
-                </span>
-              </motion.button>
-            );
-          })}
-        </AnimatePresence>
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="py-8 text-center">
-          <p className="text-sm text-muted-foreground">No se encontraron iconos para &ldquo;{query}&rdquo;</p>
+                  tabIndex={focused ? 0 : -1}
+                >
+                  <div className="relative">
+                    <Icon className="h-5 w-5 text-foreground dark:text-white" strokeWidth={1.8} />
+                    {selected && (
+                      <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-[var(--color-wants)] flex items-center justify-center">
+                        <Check className="h-2 w-2 text-white" strokeWidth={3} />
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9px] text-muted-foreground dark:text-white/50 leading-tight text-center truncate w-full">
+                    {iconName}
+                  </span>
+                </motion.button>
+              );
+            })}
+          </AnimatePresence>
         </div>
-      )}
+
+        {filtered.length === 0 && (
+          <div className="py-8 text-center">
+            <p className="text-sm text-muted-foreground">No se encontraron iconos para &ldquo;{query}&rdquo;</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
