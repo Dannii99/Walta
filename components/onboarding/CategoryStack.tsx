@@ -14,6 +14,9 @@ interface StackCard {
   color: string;
   icon: React.ElementType;
   totalCats: number;
+  themeGradient: string;
+  bgGradient: string;
+  glowColor: string;
 }
 
 const STACK_CARDS: StackCard[] = [
@@ -24,6 +27,9 @@ const STACK_CARDS: StackCard[] = [
     color: "#617dd5",
     icon: Home,
     totalCats: 6,
+    themeGradient: "linear-gradient(135deg, #e11d48, #ec4899)",
+    bgGradient: "linear-gradient(135deg, rgba(225,29,72,0.08), rgba(236,72,153,0.01))",
+    glowColor: "#e11d48",
   },
   {
     id: "WANTS",
@@ -32,6 +38,9 @@ const STACK_CARDS: StackCard[] = [
     color: "#e7964d",
     icon: Heart,
     totalCats: 4,
+    themeGradient: "linear-gradient(135deg, #10b981, #14b8a6)",
+    bgGradient: "linear-gradient(135deg, rgba(16,185,129,0.08), rgba(20,184,166,0.01))",
+    glowColor: "#10b981",
   },
   {
     id: "SAVINGS",
@@ -40,6 +49,9 @@ const STACK_CARDS: StackCard[] = [
     color: "#26be15",
     icon: PiggyBank,
     totalCats: 2,
+    themeGradient: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+    bgGradient: "linear-gradient(135deg, rgba(139,92,246,0.08), rgba(124,58,237,0.01))",
+    glowColor: "#8b5cf6",
   },
 ];
 
@@ -76,6 +88,8 @@ export function CategoryStack({ className }: CategoryStackProps) {
   const reducedMotion = useReducedMotion();
   const uid = useId();
   const name = (i: number) => `float-${uid}-${i}`;
+  const shimmerId = `shimmer-${uid}`;
+  const glowId = (i: number) => `glow-${uid}-${i}`;
 
   return (
     <div
@@ -91,6 +105,18 @@ export function CategoryStack({ className }: CategoryStackProps) {
   50% { transform: translateY(${FLOAT_CONFIG[i].amplitude}px); }
 }`
         ).join("\n")}
+        {STACK_CARDS.map(
+          (_, i) => `
+@keyframes ${glowId(i)} {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.7; }
+}`
+        ).join("\n")}
+{`@keyframes ${shimmerId} {
+  0% { transform: translateX(-120%) skewX(-25deg); }
+  60% { transform: translateX(120%) skewX(-25deg); }
+  100% { transform: translateX(120%) skewX(-25deg); }
+}`}
       </style>
 
       {STACK_CARDS.map((card, i) => {
@@ -98,6 +124,7 @@ export function CategoryStack({ className }: CategoryStackProps) {
         const rotation = i === 0 ? 0 : i === 1 ? -5 : 5;
         const yOffset = i === 0 ? 0 : i === 1 ? 80 : 190;
         const zIndex = STACK_CARDS.length - i;
+        const isTop = i === 0;
 
         return (
           <div
@@ -111,9 +138,9 @@ export function CategoryStack({ className }: CategoryStackProps) {
             }}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.92, rotate: i === 0 ? 3 : i === 1 ? -6 : 6 }}
+              initial={{ opacity: 0, scale: 0.85, rotate: i === 0 ? 8 : i === 1 ? -8 : 8 }}
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ duration: 0.45, delay: 0.08 * (i + 1), ease: [0.25, 1, 0.5, 1] }}
+              transition={{ duration: 0.55, delay: 0.1 * (i + 1), ease: [0.16, 1, 0.3, 1] }}
               className="will-change-[opacity,transform]"
               style={
                 reducedMotion
@@ -124,24 +151,48 @@ export function CategoryStack({ className }: CategoryStackProps) {
               }
             >
               <div
-                className="rounded-2xl bg-gradient-to-br from-white/10 to-white/[0.02] backdrop-blur-md"
+                className="rounded-2xl backdrop-blur-md relative overflow-hidden"
+                style={{ background: card.bgGradient }}
               >
                 <div
                   className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
-                    background: `radial-gradient(ellipse 140% 60% at 80% 100%, ${card.color}10 0%, transparent 70%)`,
+                    background: `radial-gradient(ellipse 140% 60% at 80% 100%, ${card.glowColor}15 0%, transparent 70%)`,
                   }}
                 />
 
+                <div
+                  className="absolute inset-0 rounded-2xl pointer-events-none"
+                  style={
+                    reducedMotion
+                      ? { opacity: 0.35, background: `radial-gradient(ellipse 100% 50% at 50% 0%, ${card.glowColor}10 0%, transparent 70%)` }
+                      : {
+                          animation: `${glowId(i)} 3s ease-in-out ${i * 0.5}s infinite`,
+                          background: `radial-gradient(ellipse 100% 50% at 50% 0%, ${card.glowColor}15 0%, transparent 70%)`,
+                        }
+                  }
+                />
+
+                {isTop && !reducedMotion && (
+                  <div
+                    className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden"
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)`,
+                        animation: `${shimmerId} 4s ease-in-out infinite`,
+                      }}
+                    />
+                  </div>
+                )}
+
                 <div className="relative flex items-center gap-4 p-5">
                   <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-                    style={{
-                      background: `linear-gradient(135deg, ${card.color}28, ${card.color}08)`,
-                      color: card.color,
-                    }}
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-sm"
+                    style={{ background: card.themeGradient }}
                   >
-                    <Icon className="h-5 w-5" strokeWidth={1.8} />
+                    <Icon className="h-5 w-5" strokeWidth={2.2} />
                   </div>
 
                   <div className="flex-1 min-w-0">
