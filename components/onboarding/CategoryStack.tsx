@@ -79,7 +79,7 @@ export function CategoryStack({ className }: CategoryStackProps) {
 
   return (
     <div
-      className={cn("relative w-full max-w-[340px] mx-auto h-[210px]", className)}
+      className={cn("relative w-full max-w-[340px] mx-auto h-[240px]", className)}
       role="list"
       aria-label="Categorías de presupuesto"
     >
@@ -96,7 +96,7 @@ export function CategoryStack({ className }: CategoryStackProps) {
       {STACK_CARDS.map((card, i) => {
         const Icon = card.icon;
         const rotation = i === 0 ? 0 : i === 1 ? -5 : 5;
-        const yOffset = i === 0 ? 0 : i === 1 ? 40 : 80;
+        const yOffset = i === 0 ? 0 : i === 1 ? 60 : 120;
         const zIndex = STACK_CARDS.length - i;
 
         return (

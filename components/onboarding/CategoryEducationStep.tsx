@@ -31,7 +31,7 @@ export function CategoryEducationStep({ onContinue, isLoading = false }: Categor
         </p>
       </motion.div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-0">
         <CategoryStack />
       </div>
 
