@@ -24,7 +24,7 @@ const STACK_CARDS: StackCard[] = [
     id: "NEEDS",
     label: "Necesidades",
     subtitle: "Gastos esenciales y deudas",
-    color: "#617dd5",
+    color: "#e11d48",
     icon: Home,
     totalCats: 6,
     themeGradient: "linear-gradient(135deg, #e11d48, #ec4899)",
@@ -35,7 +35,7 @@ const STACK_CARDS: StackCard[] = [
     id: "WANTS",
     label: "Deseos",
     subtitle: "Lo que disfrutas",
-    color: "#e7964d",
+    color: "#10b981",
     icon: Heart,
     totalCats: 4,
     themeGradient: "linear-gradient(135deg, #10b981, #14b8a6)",
@@ -46,7 +46,7 @@ const STACK_CARDS: StackCard[] = [
     id: "SAVINGS",
     label: "Ahorros",
     subtitle: "Tu futuro financiero",
-    color: "#26be15",
+    color: "#8b5cf6",
     icon: PiggyBank,
     totalCats: 2,
     themeGradient: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
@@ -200,8 +200,7 @@ export function CategoryStack({ className }: CategoryStackProps) {
                       {card.label}
                     </p>
                     <p
-                      className="text-[11px] mt-0.5 leading-snug"
-                      style={{ color: `${card.color}bb` }}
+                      className="text-[11px] mt-0.5 leading-snug text-white/60"
                     >
                       {card.subtitle}
                     </p>

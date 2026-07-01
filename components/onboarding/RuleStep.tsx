@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 import type { BudgetRule } from "@/types";
 
 const CATEGORY_COLORS = {
-  needs: "#617dd5",
-  wants: "#e7964d",
-  savings: "#26be15",
+  needs: "#e11d48",
+  wants: "#10b981",
+  savings: "#8b5cf6",
 } as const;
 
 const CATEGORY_LABELS = {
