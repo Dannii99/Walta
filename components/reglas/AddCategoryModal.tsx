@@ -171,13 +171,18 @@ export function AddCategoryModal({ open, onOpenChange, budgetId, category, onSav
 
   useEffect(() => {
     if (open) {
-      setStep(selectedIcon ? 1 : 0);
+      if (!category) {
+        setSelectedIcon(null);
+        setStep(0);
+      } else {
+        setSelectedIcon(category.icon ?? null);
+        setStep(category.icon ? 1 : 0);
+      }
       reset({
         name: category?.name ?? "",
         type: (category?.type as CategoryType) ?? "NEEDS",
         description: category?.description ?? "",
       });
-      setSelectedIcon(category?.icon ?? null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, category, reset]);
@@ -327,7 +332,7 @@ export function AddCategoryModal({ open, onOpenChange, budgetId, category, onSav
               className="flex-1 bg-[var(--color-wants)] text-white hover:bg-[var(--color-wants)]/90"
             >
               <Save className="h-4 w-4 mr-1.5" strokeWidth={2.2} />
-              {isEdit ? "Guardar cambios" : "Crear categoría"}
+              {isEdit ? "Guardar" : "Crear categoría"}
             </Button>
           </div>
         </>
