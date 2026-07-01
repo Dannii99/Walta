@@ -26,7 +26,7 @@ export function CategoryEducationStep() {
         </p>
       </motion.div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-6">
         <CategoryStack />
       </div>
 
