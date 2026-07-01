@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Trash2,
   Plus,
@@ -61,6 +61,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
     category: CategoryWithCount;
     reassignTo: string;
   } | null>(null);
+  const shouldReduceMotion = useReducedMotion() ?? false;
   const filteredCategories = useMemo(() => {
     if (activeFilter === "all") return categories;
     return categories.filter((c) => c.type === activeFilter);
@@ -188,6 +189,7 @@ export function CategoryManager({ budgetId, categories }: CategoryManagerProps) 
                     category={category}
                     onEdit={setEditCategory}
                     onDelete={openDeleteDialog}
+                    reducedMotion={shouldReduceMotion}
                   />
                 </motion.div>
               ))}
