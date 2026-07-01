@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { IncomeFlowSVG } from "./IncomeFlowSVG";
 
 interface IncomeStepProps {
   budgetName: string;
@@ -69,11 +68,10 @@ export function IncomeStep({
           <Label htmlFor="income" className="text-[11px] sm:text-sm text-white/70">
             Ingreso mensual total
           </Label>
-          <div className="flex items-start gap-3">
-            <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-white/40 pointer-events-none">
-                $
-              </span>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-white/40 pointer-events-none">
+              $
+            </span>
               <Input
                 id="income"
                 ref={incomeRef}
@@ -89,13 +87,8 @@ export function IncomeStep({
                 COP
               </span>
             </div>
-            <IncomeFlowSVG
-              income={income}
-              className="w-10 h-24 shrink-0 opacity-80 mt-0.5 hidden sm:block"
-            />
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
   );
 }

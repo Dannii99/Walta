@@ -29,11 +29,11 @@ interface PresetTheme {
 
 const PRESET_THEMES: Record<string, PresetTheme> = {
   balanced: {
-    border: "border-rose-500/50",
-    bg: "bg-rose-500/8",
-    iconGradient: "bg-gradient-to-br from-rose-500 to-pink-500",
-    iconLight: "text-rose-300",
-    accent: "#e11d48",
+    border: "border-blue-500/50",
+    bg: "bg-blue-500/8",
+    iconGradient: "bg-gradient-to-br from-blue-500 to-indigo-500",
+    iconLight: "text-blue-300",
+    accent: "#3b82f6",
   },
   saver: {
     border: "border-emerald-500/50",
@@ -95,7 +95,7 @@ function ColoredDescription({ rule }: { rule: BudgetRule }) {
     <p className="mt-0.5 text-[11px] text-white/50">
       {parts.map((p, i) => (
         <span key={p.key}>
-          <span style={{ color: CATEGORY_COLORS[p.key] }} className="font-semibold">{p.value}%</span>
+          <span className="font-semibold text-white/80">{p.value}%</span>
           <span className="text-white/40"> {CATEGORY_LABELS[p.key]}</span>
           {i < parts.length - 1 && <span className="text-white/20"> · </span>}
         </span>
