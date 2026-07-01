@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { formatCOP } from "@/lib/currency";
+import { IncomeHero } from "./IncomeHero";
+import { IncomeFlowSVG } from "./IncomeFlowSVG";
 
 interface IncomeStepProps {
   budgetName: string;
@@ -30,7 +31,7 @@ export function IncomeStep({
     : "";
 
   const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, "");
+    const raw = e.target.value.replace(/\D/g, "").slice(0, 11);
     const num = raw ? parseInt(raw, 10) : 0;
     onIncomeChange(num);
   };
@@ -60,36 +61,39 @@ export function IncomeStep({
             value={budgetName}
             onChange={(e) => onBudgetNameChange(e.target.value)}
             placeholder="Ej. Mi Presupuesto Mensual"
+            maxLength={50}
             className="h-10 text-sm bg-white/5 border-white/10 text-white placeholder:text-white/30"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="income" className="text-[11px] sm:text-sm text-white/70">Ingreso mensual total</Label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-white/50 pointer-events-none">
-              $
-            </span>
-            <Input
-              id="income"
-              ref={incomeRef}
-              type="text"
-              inputMode="numeric"
-              value={displayIncome}
-              onChange={handleIncomeChange}
-              placeholder="3.000.000"
-              className="pl-7 h-10 text-base font-semibold bg-white/5 border-white/10 text-white placeholder:text-white/30"
+          <Label htmlFor="income" className="text-[11px] sm:text-sm text-white/70">
+            Ingreso mensual total
+          </Label>
+          <div className="flex items-start gap-3">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-white/40 pointer-events-none">
+                $
+              </span>
+              <Input
+                id="income"
+                ref={incomeRef}
+                type="text"
+                inputMode="numeric"
+                value={displayIncome}
+                onChange={handleIncomeChange}
+                placeholder="3.000.000"
+                maxLength={13}
+                className="pl-7 h-10 text-base font-semibold bg-white/5 border-white/10 text-white placeholder:text-white/30 tabular-nums focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/50 transition-all duration-200"
+              />
+            </div>
+            <IncomeFlowSVG
+              income={income}
+              className="w-10 h-24 shrink-0 opacity-80 mt-0.5 hidden sm:block"
             />
           </div>
-          {income > 0 && (
-            <motion.p
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-sm font-medium mt-2 text-[#26be15]"
-            >
-              {formatCOP(income)} COP
-            </motion.p>
-          )}
+
+          <IncomeHero income={income} />
         </div>
       </div>
     </motion.div>
